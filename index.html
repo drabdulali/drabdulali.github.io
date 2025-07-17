@@ -1,8 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecology & Infectious Disease Dynamics</title>
+    <style>
     body {
         font-family: 'Georgia', serif;
         line-height: 1.6;
         color: #333;
         background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
     }
 
     .container {
@@ -63,10 +72,13 @@
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
+        margin: 0;
+        padding: 0;
     }
 
     nav li {
-        margin: 0 1rem;
+        margin: 0 0.5rem;
+        position: relative;
     }
 
     nav a {
@@ -76,10 +88,45 @@
         border-radius: 5px;
         transition: background-color 0.3s;
         display: block;
+        white-space: nowrap;
     }
 
-    nav a:hover {
+    nav a:hover, nav a.active {
         background: #2c5530;
+    }
+
+    /* Dropdown for navigation */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #1a3d20;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius: 5px;
+        top: 100%;
+        left: 0;
+    }
+
+    .dropdown-content a {
+        color: white;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        border-radius: 0;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #2c5530;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
     }
 
     /* Main Content */
@@ -93,6 +140,11 @@
         padding: 2rem;
         border-radius: 10px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        display: none;
+    }
+
+    .section.active {
+        display: block;
     }
 
     .section h2 {
@@ -101,6 +153,13 @@
         font-size: 2rem;
         border-bottom: 3px solid #4a7c59;
         padding-bottom: 0.5rem;
+    }
+
+    .section h3 {
+        color: #2c5530;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
     }
 
     .concept-grid {
@@ -126,6 +185,7 @@
     .concept-card h3 {
         color: #2c5530;
         margin-bottom: 0.5rem;
+        margin-top: 0;
     }
 
     .concept-card p {
@@ -170,33 +230,98 @@
     .research-item h3 {
         color: #2c5530;
         margin-bottom: 0.5rem;
+        margin-top: 0;
     }
 
-    /* Recent Posts */
-    .post-preview {
-        border-bottom: 1px solid #eee;
-        padding: 1.5rem 0;
+    /* App showcase */
+    .app-showcase {
+        background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+        padding: 2rem;
+        border-radius: 10px;
+        margin: 2rem 0;
+        border: 2px solid #4a7c59;
     }
 
-    .post-preview:last-child {
-        border-bottom: none;
+    .app-showcase h3 {
+        color: #2c5530;
+        margin-bottom: 1rem;
+        margin-top: 0;
     }
 
-    .post-date {
+    .app-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .app-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .app-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .app-card h4 {
+        color: #2c5530;
+        margin-bottom: 0.5rem;
+        margin-top: 0;
+    }
+
+    .app-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .app-links a {
+        color: #4a7c59;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border: 2px solid #4a7c59;
+        border-radius: 5px;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .app-links a:hover {
+        background: #4a7c59;
+        color: white;
+    }
+
+    /* CV Section */
+    .cv-section {
+        margin: 2rem 0;
+    }
+
+    .cv-item {
+        border-left: 3px solid #4a7c59;
+        padding-left: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .cv-date {
         color: #666;
         font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+        font-weight: bold;
     }
 
-    .post-title {
+    .cv-title {
         color: #2c5530;
-        font-size: 1.3rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+        margin: 0.5rem 0;
     }
 
-    .post-excerpt {
+    .cv-institution {
         color: #666;
-        margin-bottom: 1rem;
+        font-style: italic;
     }
 
     /* Footer */
@@ -206,6 +331,8 @@
         text-align: center;
         padding: 2rem 0;
         margin-top: 3rem;
+        clear: both;
+        width: 100%;
     }
 
     .social-links {
@@ -241,5 +368,534 @@
         .concept-grid {
             grid-template-columns: 1fr;
         }
+        
+        .app-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .app-links {
+            flex-direction: column;
+        }
     }
-</style>
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Your Name</h1>
+                <p class="subtitle">PhD Student in Ecology • Infectious Disease Dynamics</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#" onclick="showSection('home')" class="active">Home</a></li>
+                <li><a href="#" onclick="showSection('about')">About</a></li>
+                <li><a href="#" onclick="showSection('research')">Research</a></li>
+                <li><a href="#" onclick="showSection('cv')">CV</a></li>
+                <li><a href="#" onclick="showSection('publications')">Publications</a></li>
+                <li class="dropdown">
+                    <a href="#" onclick="showSection('concepts')">Study Concepts</a>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="showSection('concepts', 'ecology')">Ecology Concepts</a>
+                        <a href="#" onclick="showSection('concepts', 'statistics')">Statistical Concepts</a>
+                        <a href="#" onclick="showSection('concepts', 'disease')">Disease Dynamics</a>
+                        <a href="#" onclick="showSection('concepts', 'modeling')">Infectious Disease Modeling</a>
+                    </div>
+                </li>
+                <li><a href="#" onclick="showSection('apps')">Interactive Apps</a></li>
+                <li><a href="#" onclick="showSection('comps')">Comprehensive Exam</a></li>
+                <li><a href="#" onclick="showSection('contact')">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Home Section -->
+            <section class="section active" id="home">
+                <h2>Welcome</h2>
+                <p>Welcome to my academic portfolio! I'm a PhD student in Ecology with a focus on infectious disease dynamics and epidemiology. This website serves as both my professional portfolio and a comprehensive study resource for my doctoral work.</p>
+                
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>Research Focus</h3>
+                        <p>Investigating the ecological and evolutionary dynamics of infectious diseases in natural populations, with emphasis on host-pathogen interactions and disease transmission patterns.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Academic Journey</h3>
+                        <p>Currently preparing for comprehensive exams while conducting research on infectious disease ecology and developing interactive tools for learning complex concepts.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Interactive Learning</h3>
+                        <p>Developing HTML-based applications to visualize and understand key concepts in ecology, statistics, and disease dynamics for fellow students and researchers.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="section" id="about">
+                <h2>About Me</h2>
+                <p>I am a PhD student passionate about understanding the complex dynamics of infectious diseases in ecological systems. My work bridges ecology, epidemiology, and evolutionary biology to address fundamental questions about disease transmission, host-pathogen coevolution, and the ecological factors that drive disease outbreaks.</p>
+                
+                <h3>Research Interests</h3>
+                <div class="research-grid">
+                    <div class="research-item">
+                        <h3>Disease Ecology</h3>
+                        <p>Host-pathogen interactions in natural systems</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Epidemiology</h3>
+                        <p>Disease transmission patterns and outbreak dynamics</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Population Dynamics</h3>
+                        <p>How diseases affect population structure and dynamics</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Mathematical Modeling</h3>
+                        <p>Quantitative approaches to disease dynamics</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Research Section -->
+            <section class="section" id="research">
+                <h2>Research</h2>
+                <p>My research focuses on the ecological and evolutionary dynamics of infectious diseases, combining field work, laboratory studies, and mathematical modeling to understand disease transmission patterns in natural populations.</p>
+
+                <h3>Current Projects</h3>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>Project 1: Disease Transmission Networks</h3>
+                        <p>Investigating how social structure affects disease spread in wildlife populations using network analysis and mathematical modeling.</p>
+                        <a href="https://github.com/drabdulali" class="read-more">View Lists</a>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Practice Questions</h3>
+                        <p>Collection of practice questions and answers for each major topic area covered in the comprehensive exam.</p>
+                        <a href="https://github.com/drabdulali" class="read-more">Practice</a>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Study Groups</h3>
+                        <p>Schedule and notes from study group sessions with fellow graduate students.</p>
+                        <a href="https://github.com/drabdulali" class="read-more">Join Groups</a>
+                    </div>
+                </div>
+
+                <h3>Exam Topics</h3>
+                <div class="research-grid">
+                    <div class="research-item">
+                        <h3>Theoretical Ecology</h3>
+                        <p>Population dynamics, community ecology, ecosystem processes</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Disease Ecology</h3>
+                        <p>Epidemiological models, host-pathogen interactions, disease evolution</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Statistical Methods</h3>
+                        <p>Experimental design, multivariate analysis, Bayesian methods</p>
+                    </div>
+                    <div class="research-item">
+                        <h3>Infectious Disease Modeling</h3>
+                        <p>Mathematical and computational models of disease dynamics</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section class="section" id="contact">
+                <h2>Contact</h2>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>Email</h3>
+                        <p>your.email@university.edu</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Office</h3>
+                        <p>Biology Building, Room 123<br>
+                        University Name<br>
+                        City, State 12345</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Office Hours</h3>
+                        <p>Tuesdays & Thursdays<br>
+                        2:00 PM - 4:00 PM<br>
+                        Or by appointment</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Your Name. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://github.com/drabdulali">ORCID</a>
+                <a href="https://github.com/drabdulali">Google Scholar</a>
+                <a href="https://github.com/drabdulali">ResearchGate</a>
+                <a href="https://github.com/drabdulali">GitHub</a>
+                <a href="https://github.com/drabdulali">Twitter</a>
+                <a href="https://github.com/drabdulali">LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function showSection(sectionName, subsection = null) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Remove active class from all nav links
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // Show the selected section
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Add active class to the clicked nav link
+            event.target.classList.add('active');
+            
+            // Handle subsections for concepts
+            if (sectionName === 'concepts' && subsection) {
+                const subsections = document.querySelectorAll('.concept-subsection');
+                subsections.forEach(sub => sub.style.display = 'none');
+                
+                const targetSubsection = document.getElementById(subsection + '-concepts');
+                if (targetSubsection) {
+                    targetSubsection.style.display = 'block';
+                }
+            } else if (sectionName === 'concepts') {
+                // Show ecology by default
+                const subsections = document.querySelectorAll('.concept-subsection');
+                subsections.forEach(sub => sub.style.display = 'none');
+                document.getElementById('ecology-concepts').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>="read-more">Learn More</a>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Project 2: Host-Pathogen Coevolution</h3>
+                        <p>Examining evolutionary arms races between hosts and pathogens using experimental evolution and genomic approaches.</p>
+                        <a href="https://github.com/drabdulali" class="read-more">Learn More</a>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Project 3: Environmental Drivers</h3>
+                        <p>Analyzing how climate change and habitat modification affect disease dynamics in natural systems.</p>
+                                                    <a href="https://github.com/drabdulali" class="read-more">Learn More</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CV Section -->
+            <section class="section" id="cv">
+                <h2>Curriculum Vitae</h2>
+                
+                <div class="cv-section">
+                    <h3>Education</h3>
+                    <div class="cv-item">
+                        <div class="cv-date">2023 - Present</div>
+                        <div class="cv-title">PhD in Ecology</div>
+                        <div class="cv-institution">University Name</div>
+                        <p>Dissertation: "Infectious Disease Dynamics in Natural Populations"</p>
+                    </div>
+                    <div class="cv-item">
+                        <div class="cv-date">2021 - 2023</div>
+                        <div class="cv-title">MS in Biology</div>
+                        <div class="cv-institution">University Name</div>
+                        <p>Thesis: "Factors Affecting Disease Transmission in Wildlife"</p>
+                    </div>
+                </div>
+
+                <div class="cv-section">
+                    <h3>Research Experience</h3>
+                    <div class="cv-item">
+                        <div class="cv-date">2023 - Present</div>
+                        <div class="cv-title">Graduate Research Assistant</div>
+                        <div class="cv-institution">Disease Ecology Lab</div>
+                        <p>Conducting research on infectious disease dynamics in natural populations</p>
+                    </div>
+                </div>
+
+                <div class="cv-section">
+                    <h3>Skills</h3>
+                    <div class="research-grid">
+                        <div class="research-item">
+                            <h3>Statistical Analysis</h3>
+                            <p>R, Python, SAS, SPSS</p>
+                        </div>
+                        <div class="research-item">
+                            <h3>Mathematical Modeling</h3>
+                            <p>Population dynamics, epidemiological models</p>
+                        </div>
+                        <div class="research-item">
+                            <h3>Field Methods</h3>
+                            <p>Wildlife sampling, disease surveillance</p>
+                        </div>
+                        <div class="research-item">
+                            <h3>Laboratory Skills</h3>
+                            <p>Molecular biology, microbiology, immunology</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Publications Section -->
+            <section class="section" id="publications">
+                <h2>Publications</h2>
+                <div class="cv-section">
+                    <h3>Peer-Reviewed Publications</h3>
+                    <div class="cv-item">
+                        <div class="cv-date">2024</div>
+                        <div class="cv-title">Disease transmission patterns in fragmented habitats</div>
+                        <div class="cv-institution">Journal of Ecology</div>
+                        <p>Your Name, Co-author A, Co-author B</p>
+                    </div>
+                    <div class="cv-item">
+                        <div class="cv-date">2023</div>
+                        <div class="cv-title">Mathematical models of host-pathogen dynamics</div>
+                        <div class="cv-institution">Theoretical Population Biology</div>
+                        <p>Your Name, Co-author C</p>
+                    </div>
+                </div>
+
+                <div class="cv-section">
+                    <h3>Conference Presentations</h3>
+                    <div class="cv-item">
+                        <div class="cv-date">2024</div>
+                        <div class="cv-title">Ecological Society of America Annual Meeting</div>
+                        <div class="cv-institution">Oral Presentation</div>
+                        <p>"Network structure affects disease spread in wildlife populations"</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Study Concepts Section -->
+            <section class="section" id="concepts">
+                <h2>Study Concepts</h2>
+                <p>Comprehensive study materials for doctoral preparation, organized by major topic areas.</p>
+
+                <div id="ecology-concepts" class="concept-subsection">
+                    <h3>Ecology Concepts</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <h3>Population Dynamics</h3>
+                            <p>Growth models, regulation, density dependence, and population fluctuations.</p>
+                            <a href="https://github.com/drabdulali" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Community Ecology</h3>
+                            <p>Species interactions, competition, predation, and community structure.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Ecosystem Ecology</h3>
+                            <p>Energy flow, nutrient cycling, and ecosystem processes.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Landscape Ecology</h3>
+                            <p>Spatial patterns, habitat fragmentation, and metapopulation dynamics.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="statistics-concepts" class="concept-subsection" style="display: none;">
+                    <h3>Statistical Concepts</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <h3>Experimental Design</h3>
+                            <p>ANOVA, factorial designs, randomization, and controls.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Regression Analysis</h3>
+                            <p>Linear models, GLMs, mixed effects, and model selection.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Multivariate Statistics</h3>
+                            <p>Ordination, classification, and multivariate hypothesis testing.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Bayesian Methods</h3>
+                            <p>Bayesian inference, MCMC, and hierarchical models.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="disease-concepts" class="concept-subsection" style="display: none;">
+                    <h3>Disease Dynamics</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <h3>SIR Models</h3>
+                            <p>Susceptible-Infected-Recovered models and extensions.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>R₀ and Transmission</h3>
+                            <p>Basic reproduction number and disease invasion.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Spatial Spread</h3>
+                            <p>Disease spread in spatially structured populations.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Host-Pathogen Evolution</h3>
+                            <p>Coevolutionary dynamics and virulence evolution.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="evolution-concepts" class="concept-subsection" style="display: none;">
+                    <h3>Evolution</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <h3>Population Genetics</h3>
+                            <p>Hardy-Weinberg, selection, drift, and gene flow.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Quantitative Genetics</h3>
+                            <p>Heritability, selection response, and breeding values.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Speciation</h3>
+                            <p>Mechanisms of speciation and reproductive isolation.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Molecular Evolution</h3>
+                            <p>Molecular clocks, phylogenetics, and genome evolution.</p>
+                            <a href="#" class="read-more">Study Notes</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interactive Apps Section -->
+            <section class="section" id="apps">
+                <h2>Interactive Learning Apps</h2>
+                <p>HTML-based applications I've developed to visualize and understand key concepts in ecology, statistics, and disease dynamics.</p>
+
+                <div class="app-showcase">
+                    <h3>Disease Dynamics Apps</h3>
+                    <div class="app-grid">
+                        <div class="app-card">
+                            <h4>SIR Model Simulator</h4>
+                            <p>Interactive simulation of Susceptible-Infected-Recovered disease dynamics with adjustable parameters.</p>
+                            <div class="app-links">
+                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
+                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                        <div class="app-card">
+                            <h4>R₀ Calculator</h4>
+                            <p>Tool for calculating and visualizing the basic reproduction number under different scenarios.</p>
+                            <div class="app-links">
+                                <a href="#" target="_blank">Launch App</a>
+                                <a href="#" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                        <div class="app-card">
+                            <h4>Spatial Disease Spread</h4>
+                            <p>Visualization of disease spread in spatially structured populations with different connectivity patterns.</p>
+                            <div class="app-links">
+                                <a href="#" target="_blank">Launch App</a>
+                                <a href="#" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-showcase">
+                    <h3>Ecology Apps</h3>
+                    <div class="app-grid">
+                        <div class="app-card">
+                            <h4>Population Growth Models</h4>
+                            <p>Compare exponential and logistic growth models with adjustable parameters and initial conditions.</p>
+                            <div class="app-links">
+                                <a href="#" target="_blank">Launch App</a>
+                                <a href="#" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                        <div class="app-card">
+                            <h4>Predator-Prey Dynamics</h4>
+                            <p>Lotka-Volterra model simulation with phase plane visualization and parameter exploration.</p>
+                            <div class="app-links">
+                                <a href="#" target="_blank">Launch App</a>
+                                <a href="#" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                        <div class="app-card">
+                            <h4>Metapopulation Simulator</h4>
+                            <p>Explore patch occupancy dynamics in fragmented landscapes with varying connectivity.</p>
+                            <div class="app-links">
+                                <a href="#" target="_blank">Launch App</a>
+                                <a href="#" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-showcase">
+                    <h3>Statistical Apps</h3>
+                    <div class="app-grid">
+                        <div class="app-card">
+                            <h4>ANOVA Visualizer</h4>
+                            <p>Interactive tool for understanding ANOVA concepts with data visualization and effect size calculations.</p>
+                            <div class="app-links">
+                                <a href="#" target="_blank">Launch App</a>
+                                <a href="#" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                        <div class="app-card">
+                            <h4>Regression Explorer</h4>
+                            <p>Explore linear and non-linear regression models with interactive data points and residual analysis.</p>
+                            <div class="app-links">
+                                <a href="#" target="_blank">Launch App</a>
+                                <a href="#" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                        <div class="app-card">
+                            <h4>Power Analysis Tool</h4>
+                            <p>Calculate sample sizes and statistical power for common experimental designs.</p>
+                            <div class="app-links">
+                                <a href="#" target="_blank">Launch App</a>
+                                <a href="#" target="_blank">GitHub Repo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comprehensive Exam Section -->
+            <section class="section" id="comps">
+                <h2>Comprehensive Exam Preparation</h2>
+                <p>Resources and study materials for comprehensive examinations, organized by topic area and committee member.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>Exam Timeline</h3>
+                        <p>Detailed schedule for comprehensive exam preparation, including reading lists and milestone dates.</p>
+                        <a href="https://github.com/drabdulali" class="read-more">View Schedule</a>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Reading Lists</h3>
+                        <p>Comprehensive reading lists organized by topic area and committee member recommendations.</p>
+                        <a href="#" class
