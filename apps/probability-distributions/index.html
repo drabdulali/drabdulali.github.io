@@ -1,777 +1,617 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Probability Distributions for Ecologists</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+import React, { useState, useEffect, useMemo } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-        body {
-            font-family: 'Georgia', serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f8f9fa;
-            padding: 20px;
-        }
+const ProbabilityDistributionsExplorer = () => {
+  const [selectedDistribution, setSelectedDistribution] = useState('normal');
+  const [parameters, setParameters] = useState({});
+  const [showCDF, setShowCDF] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('continuous');
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+  // Distribution definitions
+  const distributions = {
+    continuous: {
+      normal: {
+        name: 'Normal Distribution',
+        params: { mu: 0, sigma: 1 },
+        ranges: { mu: [-5, 5], sigma: [0.1, 3] },
+        description: 'Bell-shaped curve, most important distribution in statistics'
+      },
+      uniform: {
+        name: 'Uniform Distribution',
+        params: { a: 0, b: 1 },
+        ranges: { a: [-2, 2], b: [0, 4] },
+        description: 'All values in interval equally likely'
+      },
+      exponential: {
+        name: 'Exponential Distribution',
+        params: { lambda: 1 },
+        ranges: { lambda: [0.1, 3] },
+        description: 'Models waiting times between events'
+      },
+      gamma: {
+        name: 'Gamma Distribution',
+        params: { alpha: 2, beta: 1 },
+        ranges: { alpha: [0.5, 5], beta: [0.1, 3] },
+        description: 'Generalizes exponential distribution'
+      },
+      beta: {
+        name: 'Beta Distribution',
+        params: { alpha: 2, beta: 2 },
+        ranges: { alpha: [0.5, 5], beta: [0.5, 5] },
+        description: 'Defined on [0,1] interval'
+      },
+      weibull: {
+        name: 'Weibull Distribution',
+        params: { k: 2, lambda: 1 },
+        ranges: { k: [0.5, 3], lambda: [0.5, 3] },
+        description: 'Models reliability and survival times'
+      },
+      lognormal: {
+        name: 'Lognormal Distribution',
+        params: { mu: 0, sigma: 1 },
+        ranges: { mu: [-1, 1], sigma: [0.1, 1.5] },
+        description: 'Logarithm is normally distributed'
+      },
+      t: {
+        name: 'Student\'s t-Distribution',
+        params: { df: 5 },
+        ranges: { df: [1, 20] },
+        description: 'Used when population variance unknown'
+      },
+      chisquare: {
+        name: 'Chi-Square Distribution',
+        params: { df: 3 },
+        ranges: { df: [1, 10] },
+        description: 'Sum of squared standard normal variables'
+      },
+      f: {
+        name: 'F-Distribution',
+        params: { df1: 5, df2: 10 },
+        ranges: { df1: [1, 10], df2: [1, 20] },
+        description: 'Ratio of two chi-square distributions'
+      }
+    },
+    discrete: {
+      bernoulli: {
+        name: 'Bernoulli Distribution',
+        params: { p: 0.5 },
+        ranges: { p: [0.01, 0.99] },
+        description: 'Single trial with two outcomes'
+      },
+      binomial: {
+        name: 'Binomial Distribution',
+        params: { n: 10, p: 0.5 },
+        ranges: { n: [1, 30], p: [0.01, 0.99] },
+        description: 'Number of successes in n trials'
+      },
+      geometric: {
+        name: 'Geometric Distribution',
+        params: { p: 0.3 },
+        ranges: { p: [0.01, 0.99] },
+        description: 'Number of trials until first success'
+      },
+      poisson: {
+        name: 'Poisson Distribution',
+        params: { lambda: 3 },
+        ranges: { lambda: [0.1, 10] },
+        description: 'Number of events in fixed interval'
+      },
+      negbinomial: {
+        name: 'Negative Binomial Distribution',
+        params: { r: 3, p: 0.4 },
+        ranges: { r: [1, 10], p: [0.01, 0.99] },
+        description: 'Number of trials until r-th success'
+      },
+      hypergeometric: {
+        name: 'Hypergeometric Distribution',
+        params: { N: 20, K: 7, n: 10 },
+        ranges: { N: [10, 50], K: [1, 25], n: [1, 25] },
+        description: 'Sampling without replacement'
+      },
+      discrete_uniform: {
+        name: 'Discrete Uniform Distribution',
+        params: { a: 1, b: 6 },
+        ranges: { a: [1, 5], b: [2, 10] },
+        description: 'All outcomes equally likely'
+      }
+    }
+  };
 
-        .header {
-            background: linear-gradient(135deg, #2c5530, #4a7c59);
-            color: white;
-            padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
+  // Initialize parameters when distribution changes
+  useEffect(() => {
+    if (distributions[selectedCategory][selectedDistribution]) {
+      setParameters(distributions[selectedCategory][selectedDistribution].params);
+    }
+  }, [selectedDistribution, selectedCategory]);
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: 300;
-        }
+  // Mathematical functions
+  const gamma = (z) => {
+    // Stirling's approximation for gamma function
+    if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+    z -= 1;
+    let x = 0.99999999999980993;
+    const p = [676.5203681218851, -1259.1392167224028, 771.32342877765313, 
+              -176.61502916214059, 12.507343278686905, -0.13857109526572012, 
+              9.9843695780195716e-6, 1.5056327351493116e-7];
+    for (let i = 0; i < p.length; i++) {
+      x += p[i] / (z + i + 1);
+    }
+    const t = z + p.length - 0.5;
+    return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+  };
 
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
+  const factorial = (n) => {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+  };
 
-        .nav-menu {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
+  const binomialCoeff = (n, k) => {
+    if (k > n) return 0;
+    if (k === 0 || k === n) return 1;
+    return factorial(n) / (factorial(k) * factorial(n - k));
+  };
 
-        .nav-btn {
-            background: #2c5530;
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+  // PDF/PMF functions
+  const getPDF = (x, dist, params) => {
+    switch (dist) {
+      case 'normal':
+        return (1 / (params.sigma * Math.sqrt(2 * Math.PI))) * 
+               Math.exp(-0.5 * Math.pow((x - params.mu) / params.sigma, 2));
+      
+      case 'uniform':
+        return (x >= params.a && x <= params.b) ? 1 / (params.b - params.a) : 0;
+      
+      case 'exponential':
+        return x >= 0 ? params.lambda * Math.exp(-params.lambda * x) : 0;
+      
+      case 'gamma':
+        return x >= 0 ? 
+          (Math.pow(params.beta, params.alpha) / gamma(params.alpha)) * 
+          Math.pow(x, params.alpha - 1) * Math.exp(-params.beta * x) : 0;
+      
+      case 'beta':
+        return (x >= 0 && x <= 1) ? 
+          (gamma(params.alpha + params.beta) / (gamma(params.alpha) * gamma(params.beta))) * 
+          Math.pow(x, params.alpha - 1) * Math.pow(1 - x, params.beta - 1) : 0;
+      
+      case 'weibull':
+        return x >= 0 ? 
+          (params.k / params.lambda) * Math.pow(x / params.lambda, params.k - 1) * 
+          Math.exp(-Math.pow(x / params.lambda, params.k)) : 0;
+      
+      case 'lognormal':
+        return x > 0 ? 
+          (1 / (x * params.sigma * Math.sqrt(2 * Math.PI))) * 
+          Math.exp(-0.5 * Math.pow((Math.log(x) - params.mu) / params.sigma, 2)) : 0;
+      
+      case 't':
+        return (gamma((params.df + 1) / 2) / (Math.sqrt(params.df * Math.PI) * gamma(params.df / 2))) * 
+               Math.pow(1 + x * x / params.df, -(params.df + 1) / 2);
+      
+      case 'chisquare':
+        return x >= 0 ? 
+          (1 / (Math.pow(2, params.df / 2) * gamma(params.df / 2))) * 
+          Math.pow(x, params.df / 2 - 1) * Math.exp(-x / 2) : 0;
+      
+      case 'f':
+        return x >= 0 ? 
+          (gamma((params.df1 + params.df2) / 2) / (gamma(params.df1 / 2) * gamma(params.df2 / 2))) * 
+          Math.pow(params.df1 / params.df2, params.df1 / 2) * 
+          Math.pow(x, params.df1 / 2 - 1) * 
+          Math.pow(1 + (params.df1 / params.df2) * x, -(params.df1 + params.df2) / 2) : 0;
+      
+      default:
+        return 0;
+    }
+  };
 
-        .nav-btn:hover {
-            background: #4a7c59;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
+  const getPMF = (x, dist, params) => {
+    switch (dist) {
+      case 'bernoulli':
+        return x === 1 ? params.p : (x === 0 ? 1 - params.p : 0);
+      
+      case 'binomial':
+        return x >= 0 && x <= params.n ? 
+          binomialCoeff(params.n, x) * Math.pow(params.p, x) * Math.pow(1 - params.p, params.n - x) : 0;
+      
+      case 'geometric':
+        return x >= 1 ? Math.pow(1 - params.p, x - 1) * params.p : 0;
+      
+      case 'poisson':
+        return x >= 0 ? (Math.pow(params.lambda, x) * Math.exp(-params.lambda)) / factorial(x) : 0;
+      
+      case 'negbinomial':
+        return x >= params.r ? 
+          binomialCoeff(x - 1, params.r - 1) * Math.pow(params.p, params.r) * Math.pow(1 - params.p, x - params.r) : 0;
+      
+      case 'hypergeometric':
+        const maxVal = Math.min(params.n, params.K);
+        const minVal = Math.max(0, params.n - params.N + params.K);
+        return (x >= minVal && x <= maxVal) ? 
+          (binomialCoeff(params.K, x) * binomialCoeff(params.N - params.K, params.n - x)) / 
+          binomialCoeff(params.N, params.n) : 0;
+      
+      case 'discrete_uniform':
+        return (x >= params.a && x <= params.b && Number.isInteger(x)) ? 
+          1 / (params.b - params.a + 1) : 0;
+      
+      default:
+        return 0;
+    }
+  };
 
-        .nav-btn.active {
-            background: #1a3d20;
+  // Generate data for plotting
+  const generateData = useMemo(() => {
+    if (!parameters || Object.keys(parameters).length === 0) return [];
+    
+    const data = [];
+    const isDiscrete = selectedCategory === 'discrete';
+    
+    if (isDiscrete) {
+      let start, end;
+      
+      switch (selectedDistribution) {
+        case 'bernoulli':
+          start = 0; end = 1;
+          break;
+        case 'binomial':
+          start = 0; end = parameters.n;
+          break;
+        case 'geometric':
+          start = 1; end = Math.min(20, Math.ceil(3 / parameters.p));
+          break;
+        case 'poisson':
+          start = 0; end = Math.min(20, parameters.lambda + 4 * Math.sqrt(parameters.lambda));
+          break;
+        case 'negbinomial':
+          start = parameters.r; end = Math.min(30, parameters.r + Math.ceil(10 / parameters.p));
+          break;
+        case 'hypergeometric':
+          start = Math.max(0, parameters.n - parameters.N + parameters.K);
+          end = Math.min(parameters.n, parameters.K);
+          break;
+        case 'discrete_uniform':
+          start = parameters.a; end = parameters.b;
+          break;
+        default:
+          start = 0; end = 10;
+      }
+      
+      for (let x = start; x <= end; x++) {
+        const prob = getPMF(x, selectedDistribution, parameters);
+        if (prob > 0 || x === start || x === end) {
+          data.push({ x, pdf: prob, cdf: 0 });
         }
+      }
+    } else {
+      let start, end, step;
+      
+      switch (selectedDistribution) {
+        case 'normal':
+          start = parameters.mu - 4 * parameters.sigma;
+          end = parameters.mu + 4 * parameters.sigma;
+          step = (end - start) / 200;
+          break;
+        case 'uniform':
+          start = parameters.a - 0.5;
+          end = parameters.b + 0.5;
+          step = (end - start) / 200;
+          break;
+        case 'exponential':
+        case 'gamma':
+        case 'weibull':
+        case 'chisquare':
+        case 'f':
+          start = 0;
+          end = 10;
+          step = 0.05;
+          break;
+        case 'beta':
+          start = 0;
+          end = 1;
+          step = 0.005;
+          break;
+        case 'lognormal':
+          start = 0.01;
+          end = 5;
+          step = 0.025;
+          break;
+        case 't':
+          start = -5;
+          end = 5;
+          step = 0.05;
+          break;
+        default:
+          start = -5; end = 5; step = 0.05;
+      }
+      
+      for (let x = start; x <= end; x += step) {
+        const prob = getPDF(x, selectedDistribution, parameters);
+        data.push({ x: Number(x.toFixed(3)), pdf: prob, cdf: 0 });
+      }
+    }
+    
+    return data;
+  }, [selectedDistribution, parameters, selectedCategory]);
 
-        .page {
-            display: none;
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
+  // Calculate statistics
+  const calculateStats = () => {
+    const dist = distributions[selectedCategory][selectedDistribution];
+    const params = parameters;
+    
+    let mean, variance;
+    
+    if (selectedCategory === 'continuous') {
+      switch (selectedDistribution) {
+        case 'normal':
+          mean = params.mu;
+          variance = params.sigma * params.sigma;
+          break;
+        case 'uniform':
+          mean = (params.a + params.b) / 2;
+          variance = Math.pow(params.b - params.a, 2) / 12;
+          break;
+        case 'exponential':
+          mean = 1 / params.lambda;
+          variance = 1 / (params.lambda * params.lambda);
+          break;
+        case 'gamma':
+          mean = params.alpha / params.beta;
+          variance = params.alpha / (params.beta * params.beta);
+          break;
+        case 'beta':
+          mean = params.alpha / (params.alpha + params.beta);
+          variance = (params.alpha * params.beta) / (Math.pow(params.alpha + params.beta, 2) * (params.alpha + params.beta + 1));
+          break;
+        case 'weibull':
+          mean = params.lambda * gamma(1 + 1 / params.k);
+          variance = params.lambda * params.lambda * (gamma(1 + 2 / params.k) - Math.pow(gamma(1 + 1 / params.k), 2));
+          break;
+        case 'lognormal':
+          mean = Math.exp(params.mu + params.sigma * params.sigma / 2);
+          variance = (Math.exp(params.sigma * params.sigma) - 1) * Math.exp(2 * params.mu + params.sigma * params.sigma);
+          break;
+        case 't':
+          mean = params.df > 1 ? 0 : 'Undefined';
+          variance = params.df > 2 ? params.df / (params.df - 2) : 'Undefined';
+          break;
+        case 'chisquare':
+          mean = params.df;
+          variance = 2 * params.df;
+          break;
+        case 'f':
+          mean = params.df2 > 2 ? params.df2 / (params.df2 - 2) : 'Undefined';
+          variance = params.df2 > 4 ? (2 * params.df2 * params.df2 * (params.df1 + params.df2 - 2)) / (params.df1 * (params.df2 - 2) * (params.df2 - 2) * (params.df2 - 4)) : 'Undefined';
+          break;
+        default:
+          mean = 'N/A';
+          variance = 'N/A';
+      }
+    } else {
+      switch (selectedDistribution) {
+        case 'bernoulli':
+          mean = params.p;
+          variance = params.p * (1 - params.p);
+          break;
+        case 'binomial':
+          mean = params.n * params.p;
+          variance = params.n * params.p * (1 - params.p);
+          break;
+        case 'geometric':
+          mean = 1 / params.p;
+          variance = (1 - params.p) / (params.p * params.p);
+          break;
+        case 'poisson':
+          mean = params.lambda;
+          variance = params.lambda;
+          break;
+        case 'negbinomial':
+          mean = params.r / params.p;
+          variance = params.r * (1 - params.p) / (params.p * params.p);
+          break;
+        case 'hypergeometric':
+          mean = params.n * params.K / params.N;
+          variance = params.n * (params.K / params.N) * (1 - params.K / params.N) * (params.N - params.n) / (params.N - 1);
+          break;
+        case 'discrete_uniform':
+          mean = (params.a + params.b) / 2;
+          variance = ((params.b - params.a + 1) * (params.b - params.a + 1) - 1) / 12;
+          break;
+        default:
+          mean = 'N/A';
+          variance = 'N/A';
+      }
+    }
+    
+    return { mean, variance, stddev: typeof variance === 'number' ? Math.sqrt(variance) : 'N/A' };
+  };
 
-        .page.active {
-            display: block;
-            animation: fadeIn 0.5s ease-in;
-        }
+  const stats = calculateStats();
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  const handleParameterChange = (param, value) => {
+    setParameters(prev => ({ ...prev, [param]: parseFloat(value) }));
+  };
 
-        .page-title {
-            color: #2c5530;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 3px solid #4a7c59;
-            padding-bottom: 0.5rem;
-        }
+  const currentDist = distributions[selectedCategory][selectedDistribution];
 
-        .distribution-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
+  return (
+    <div className="w-full max-w-7xl mx-auto p-6 bg-white">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Interactive Probability Distributions Explorer</h1>
+        <p className="text-gray-600">Explore and understand probability distributions with interactive visualizations</p>
+      </div>
 
-        .dist-card {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 2px solid #e9ecef;
-            border-radius: 15px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .dist-card:hover {
-            border-color: #4a7c59;
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-        }
-
-        .dist-card.active {
-            border-color: #2c5530;
-            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
-        }
-
-        .dist-title {
-            color: #2c5530;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .dist-description {
-            color: #666;
-            margin-bottom: 1rem;
-        }
-
-        .ecological-example {
-            background: #f0f8f0;
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #4a7c59;
-            margin: 1rem 0;
-        }
-
-        .ecological-example h4 {
-            color: #2c5530;
-            margin-bottom: 0.5rem;
-        }
-
-        .formula-box {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 1rem;
-            margin: 1rem 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-        }
-
-        .simulator-section {
-            margin: 2rem 0;
-            padding: 2rem;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 15px;
-        }
-
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .control-group {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .control-group label {
-            display: block;
-            color: #2c5530;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .control-group input {
-            width: 100%;
-            padding: 0.5rem;
-            border: 2px solid #e9ecef;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-
-        .control-group input:focus {
-            outline: none;
-            border-color: #4a7c59;
-        }
-
-        .visualization-area {
-            background: white;
-            border-radius: 10px;
-            padding: 2rem;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .chart-container {
-            width: 100%;
-            height: 300px;
-            position: relative;
-        }
-
-        .bar {
-            display: inline-block;
-            background: #4a7c59;
-            margin: 0 2px;
-            border-radius: 3px 3px 0 0;
-            transition: all 0.3s ease;
-        }
-
-        .bar:hover {
-            background: #2c5530;
-        }
-
-        .stats-display {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        .stat-box {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            border: 2px solid #e9ecef;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2c5530;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.25rem;
-        }
-
-        .concept-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .concept-box {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 1.5rem;
-            border-radius: 10px;
-            border-left: 5px solid #4a7c59;
-        }
-
-        .concept-box h3 {
-            color: #2c5530;
-            margin-bottom: 1rem;
-        }
-
-        .example-list {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .example-list li {
-            background: white;
-            margin: 0.5rem 0;
-            padding: 0.75rem;
-            border-radius: 5px;
-            border-left: 3px solid #4a7c59;
-        }
-
-        .back-link {
-            display: inline-block;
-            background: #4a7c59;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            margin-top: 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            background: #2c5530;
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .nav-menu {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .nav-btn {
-                width: 100%;
-                max-width: 300px;
-            }
-            
-            .distribution-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .controls-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Probability Distributions for Ecologists</h1>
-            <p class="subtitle">Understanding statistical distributions through ecological examples and interactive learning</p>
+      {/* Distribution Selection */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+          <select 
+            value={selectedCategory} 
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="continuous">Continuous Distributions</option>
+            <option value="discrete">Discrete Distributions</option>
+          </select>
         </div>
 
-        <div class="nav-menu">
-            <button class="nav-btn active" onclick="showPage('overview', this)">Overview</button>
-            <button class="nav-btn" onclick="showPage('discrete', this)">Discrete Distributions</button>
-            <button class="nav-btn" onclick="showPage('continuous', this)">Continuous Distributions</button>
-            <button class="nav-btn" onclick="showPage('simulator', this)">Interactive Simulator</button>
-            <button class="nav-btn" onclick="showPage('applications', this)">Ecological Applications</button>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Distribution</label>
+          <select 
+            value={selectedDistribution} 
+            onChange={(e) => setSelectedDistribution(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {Object.entries(distributions[selectedCategory]).map(([key, dist]) => (
+              <option key={key} value={key}>{dist.name}</option>
+            ))}
+          </select>
         </div>
+      </div>
 
-        <!-- Overview Page -->
-        <div class="page active" id="overview">
-            <h2 class="page-title">Understanding Probability Distributions in Ecology</h2>
-            
-            <p>Probability distributions are mathematical functions that describe the likelihood of different outcomes in ecological studies. They help us model natural variability, make predictions, and understand patterns in biological data.</p>
-
-            <div class="concept-grid">
-                <div class="concept-box">
-                    <h3>Why Distributions Matter in Ecology</h3>
-                    <ul class="example-list">
-                        <li><strong>Population counts:</strong> How many individuals in a quadrat?</li>
-                        <li><strong>Survival times:</strong> How long do organisms live?</li>
-                        <li><strong>Growth rates:</strong> How fast do populations grow?</li>
-                        <li><strong>Species abundance:</strong> How are species distributed?</li>
-                    </ul>
-                </div>
-
-                <div class="concept-box">
-                    <h3>Key Concepts</h3>
-                    <ul class="example-list">
-                        <li><strong>Random Variable:</strong> A measurable outcome (e.g., tree height)</li>
-                        <li><strong>Probability:</strong> Likelihood of an outcome (0 to 1)</li>
-                        <li><strong>Parameters:</strong> Values that define the distribution shape</li>
-                        <li><strong>Expected Value:</strong> The average outcome we expect</li>
-                    </ul>
-                </div>
-
-                <div class="concept-box">
-                    <h3>Types of Data</h3>
-                    <ul class="example-list">
-                        <li><strong>Discrete:</strong> Count data (number of species, individuals)</li>
-                        <li><strong>Continuous:</strong> Measurement data (weight, height, time)</li>
-                        <li><strong>Bounded:</strong> Data with limits (proportions, percentages)</li>
-                        <li><strong>Unbounded:</strong> Data without theoretical limits</li>
-                    </ul>
-                </div>
+      {/* Parameters */}
+      <div className="bg-gray-50 rounded-lg p-6 mb-8">
+        <h3 className="text-lg font-semibold mb-4">Parameters</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {currentDist && Object.keys(currentDist.params).map(param => (
+            <div key={param}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {param === 'mu' ? 'μ (mean)' : 
+                 param === 'sigma' ? 'σ (std dev)' : 
+                 param === 'lambda' ? 'λ (rate)' :
+                 param === 'alpha' ? 'α (shape)' :
+                 param === 'beta' ? 'β (rate/shape)' :
+                 param === 'df' ? 'degrees of freedom' :
+                 param === 'df1' ? 'df1' :
+                 param === 'df2' ? 'df2' :
+                 param}
+              </label>
+              <input
+                type="range"
+                min={currentDist.ranges[param][0]}
+                max={currentDist.ranges[param][1]}
+                step={param === 'n' || param === 'r' || param === 'df' || param === 'df1' || param === 'df2' || param === 'N' || param === 'K' || param === 'a' || param === 'b' ? 1 : 0.1}
+                value={parameters[param] || currentDist.params[param]}
+                onChange={(e) => handleParameterChange(param, e.target.value)}
+                className="w-full"
+              />
+              <div className="text-sm text-gray-500 mt-1">
+                {parameters[param] || currentDist.params[param]}
+              </div>
             </div>
+          ))}
         </div>
-
-        <!-- Discrete Distributions Page -->
-        <div class="page" id="discrete">
-            <h2 class="page-title">Discrete Probability Distributions</h2>
-            
-            <p>Discrete distributions model count data - things you can enumerate like number of individuals, species, or events.</p>
-
-            <div class="distribution-cards">
-                <div class="dist-card" onclick="selectDistribution('binomial')">
-                    <h3 class="dist-title">Binomial Distribution</h3>
-                    <p class="dist-description">Models the number of successes in a fixed number of independent trials.</p>
-                    
-                    <div class="ecological-example">
-                        <h4>🌱 Ecological Example:</h4>
-                        <p>Out of 20 seeds planted, how many will germinate? If each seed has a 70% germination rate, we can model this with a binomial distribution (n=20, p=0.7).</p>
-                    </div>
-
-                    <div class="formula-box">
-                        P(X = k) = C(n,k) × p^k × (1-p)^(n-k)
-                        <br>Mean = np
-                        <br>Variance = np(1-p)
-                    </div>
-                </div>
-
-                <div class="dist-card" onclick="selectDistribution('poisson')">
-                    <h3 class="dist-title">Poisson Distribution</h3>
-                    <p class="dist-description">Models the number of events occurring in a fixed interval when events happen independently at a constant rate.</p>
-                    
-                    <div class="ecological-example">
-                        <h4>🦋 Ecological Example:</h4>
-                        <p>Counting butterflies visiting a flower patch per hour. If the average is 3 visits per hour, the number follows a Poisson distribution (λ=3).</p>
-                    </div>
-
-                    <div class="formula-box">
-                        P(X = k) = (λ^k × e^(-λ)) / k!
-                        <br>Mean = λ
-                        <br>Variance = λ
-                    </div>
-                </div>
-
-                <div class="dist-card" onclick="selectDistribution('negative_binomial')">
-                    <h3 class="dist-title">Negative Binomial Distribution</h3>
-                    <p class="dist-description">Models overdispersed count data - when variance exceeds the mean, common in ecological data.</p>
-                    
-                    <div class="ecological-example">
-                        <h4>🐛 Ecological Example:</h4>
-                        <p>Parasite counts on fish often show overdispersion - most fish have few parasites, but some have many. Negative binomial captures this clumped pattern better than Poisson.</p>
-                    </div>
-
-                    <div class="formula-box">
-                        P(X = k) = C(k+r-1, k) × p^r × (1-p)^k
-                        <br>Mean = r(1-p)/p
-                        <br>Variance = r(1-p)/p²
-                    </div>
-                </div>
-            </div>
+        
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800">{currentDist?.description}</p>
         </div>
+      </div>
 
-        <!-- Continuous Distributions Page -->
-        <div class="page" id="continuous">
-            <h2 class="page-title">Continuous Probability Distributions</h2>
-            
-            <p>Continuous distributions model measurement data - variables that can take any value within a range.</p>
-
-            <div class="distribution-cards">
-                <div class="dist-card" onclick="selectDistribution('normal')">
-                    <h3 class="dist-title">Normal Distribution</h3>
-                    <p class="dist-description">The famous bell curve. Many biological measurements approximately follow this distribution.</p>
-                    
-                    <div class="ecological-example">
-                        <h4>🌳 Ecological Example:</h4>
-                        <p>Tree heights in a forest often follow a normal distribution. If average height is 15m with standard deviation 3m, then 68% of trees are between 12-18m tall.</p>
-                    </div>
-
-                    <div class="formula-box">
-                        f(x) = (1/(σ√(2π))) × e^(-½((x-μ)/σ)²)
-                        <br>Mean = μ
-                        <br>Variance = σ²
-                    </div>
-                </div>
-
-                <div class="dist-card" onclick="selectDistribution('exponential')">
-                    <h3 class="dist-title">Exponential Distribution</h3>
-                    <p class="dist-description">Models waiting times between events or lifespans when failure rate is constant.</p>
-                    
-                    <div class="ecological-example">
-                        <h4>⏱️ Ecological Example:</h4>
-                        <p>Time between predator attacks, survival time of organisms under constant hazard, or intervals between mutations all follow exponential distributions.</p>
-                    </div>
-
-                    <div class="formula-box">
-                        f(x) = λe^(-λx) for x ≥ 0
-                        <br>Mean = 1/λ
-                        <br>Variance = 1/λ²
-                    </div>
-                </div>
-
-                <div class="dist-card" onclick="selectDistribution('lognormal')">
-                    <h3 class="dist-title">Log-Normal Distribution</h3>
-                    <p class="dist-description">When the logarithm of a variable is normally distributed. Common for size measurements.</p>
-                    
-                    <div class="ecological-example">
-                        <h4>🐟 Ecological Example:</h4>
-                        <p>Body masses, population sizes, and home range areas often follow log-normal distributions because growth processes are multiplicative rather than additive.</p>
-                    </div>
-
-                    <div class="formula-box">
-                        f(x) = (1/(x×σ√(2π))) × e^(-½((ln(x)-μ)/σ)²)
-                        <br>Mean = e^(μ + σ²/2)
-                        <br>Variance = (e^(σ²) - 1) × e^(2μ + σ²)
-                    </div>
-                </div>
+      {/* Statistics */}
+      <div className="bg-green-50 rounded-lg p-6 mb-8">
+        <h3 className="text-lg font-semibold mb-4">Distribution Statistics</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-700">
+              {typeof stats.mean === 'number' ? stats.mean.toFixed(3) : stats.mean}
             </div>
+            <div className="text-sm text-gray-600">Mean (μ)</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-700">
+              {typeof stats.variance === 'number' ? stats.variance.toFixed(3) : stats.variance}
+            </div>
+            <div className="text-sm text-gray-600">Variance (σ²)</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-700">
+              {typeof stats.stddev === 'number' ? stats.stddev.toFixed(3) : stats.stddev}
+            </div>
+            <div className="text-sm text-gray-600">Standard Deviation (σ)</div>
+          </div>
         </div>
+      </div>
 
-        <!-- Interactive Simulator Page -->
-        <div class="page" id="simulator">
-            <h2 class="page-title">Interactive Distribution Simulator</h2>
-            
-            <div class="simulator-section">
-                <h3>Choose a Distribution to Explore</h3>
-                
-                <div class="controls-grid">
-                    <div class="control-group">
-                        <label for="dist-select">Distribution Type:</label>
-                        <select id="dist-select" onchange="updateSimulation()">
-                            <option value="binomial">Binomial</option>
-                            <option value="poisson">Poisson</option>
-                            <option value="normal">Normal</option>
-                            <option value="exponential">Exponential</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group" id="param1-group">
-                        <label for="param1" id="param1-label">Parameter 1:</label>
-                        <input type="number" id="param1" value="10" min="1" max="100" step="1" oninput="updateSimulation()">
-                    </div>
-                    
-                    <div class="control-group" id="param2-group">
-                        <label for="param2" id="param2-label">Parameter 2:</label>
-                        <input type="number" id="param2" value="0.5" min="0.01" max="0.99" step="0.01" oninput="updateSimulation()">
-                    </div>
-                    
-                    <div class="control-group">
-                        <label for="sample-size">Sample Size:</label>
-                        <input type="number" id="sample-size" value="1000" min="100" max="10000" step="100" oninput="updateSimulation()">
-                    </div>
-                </div>
-
-                <div class="visualization-area">
-                    <div class="chart-container" id="chart-container">
-                        <p>Click "Generate Sample" to see the distribution!</p>
-                    </div>
-                    
-                    <button onclick="generateSample()" style="background: #2c5530; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 1rem;">
-                        Generate New Sample
-                    </button>
-                </div>
-
-                <div class="stats-display" id="stats-display">
-                    <!-- Statistics will be displayed here -->
-                </div>
-            </div>
+      {/* Visualization */}
+      <div className="bg-white border rounded-lg p-6 mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">
+            {selectedCategory === 'discrete' ? 'Probability Mass Function (PMF)' : 'Probability Density Function (PDF)'}
+          </h3>
+          <button
+            onClick={() => setShowCDF(!showCDF)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+          >
+            {showCDF ? 'Show PDF/PMF' : 'Show CDF'}
+          </button>
         </div>
-
-        <!-- Applications Page -->
-        <div class="page" id="applications">
-            <h2 class="page-title">Ecological Applications</h2>
-            
-            <div class="concept-grid">
-                <div class="concept-box">
-                    <h3>Population Ecology</h3>
-                    <ul class="example-list">
-                        <li><strong>Abundance surveys:</strong> Poisson for rare species counts</li>
-                        <li><strong>Survival analysis:</strong> Exponential for constant mortality</li>
-                        <li><strong>Growth rates:</strong> Normal for log-transformed data</li>
-                        <li><strong>Dispersal distances:</strong> Exponential or log-normal</li>
-                    </ul>
-                </div>
-
-                <div class="concept-box">
-                    <h3>Community Ecology</h3>
-                    <ul class="example-list">
-                        <li><strong>Species richness:</strong> Negative binomial for quadrat counts</li>
-                        <li><strong>Relative abundance:</strong> Log-normal for rank-abundance</li>
-                        <li><strong>Co-occurrence:</strong> Binomial for presence/absence</li>
-                        <li><strong>Diversity indices:</strong> Normal after transformation</li>
-                    </ul>
-                </div>
-
-                <div class="concept-box">
-                    <h3>Experimental Design</h3>
-                    <ul class="example-list">
-                        <li><strong>Power analysis:</strong> Normal for effect size estimation</li>
-                        <li><strong>Sample size:</strong> Based on expected distribution</li>
-                        <li><strong>Error rates:</strong> Binomial for Type I/II errors</li>
-                        <li><strong>Replication:</strong> Accounts for natural variation</li>
-                    </ul>
-                </div>
-
-                <div class="concept-box">
-                    <h3>Conservation Biology</h3>
-                    <ul class="example-list">
-                        <li><strong>Extinction risk:</strong> Exponential for time to extinction</li>
-                        <li><strong>Population viability:</strong> Normal for population projections</li>
-                        <li><strong>Habitat quality:</strong> Various distributions for suitability</li>
-                        <li><strong>Genetic diversity:</strong> Binomial for allele frequencies</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="ecological-example" style="margin-top: 2rem;">
-                <h4>🔬 Case Study: Modeling Bee Colony Collapse</h4>
-                <p><strong>Problem:</strong> A researcher wants to model the probability of bee colony survival over winter.</p>
-                <p><strong>Approach:</strong> Use exponential distribution to model survival times, where λ represents the hazard rate (higher λ = higher risk of collapse).</p>
-                <p><strong>Application:</strong> If λ = 0.1 per month, then P(survival > 6 months) = e^(-0.1×6) ≈ 0.55 or 55% chance.</p>
-                <p><strong>Management:</strong> Interventions that reduce λ (improve habitat, reduce pesticides) increase winter survival probability.</p>
-            </div>
+        
+        <div className="h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            {selectedCategory === 'discrete' ? (
+              <BarChart data={generateData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="x" />
+                <YAxis />
+                <Tooltip formatter={(value) => [value.toFixed(4), 'Probability']} />
+                <Bar dataKey="pdf" fill="#3B82F6" />
+              </BarChart>
+            ) : (
+              <LineChart data={generateData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="x" />
+                <YAxis />
+                <Tooltip formatter={(value) => [value.toFixed(4), 'Density']} />
+                <Line 
+                  type="monotone" 
+                  dataKey="pdf" 
+                  stroke="#3B82F6" 
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            )}
+          </ResponsiveContainer>
         </div>
+      </div>
 
-        <a href="../index.html" class="back-link">← Back to Main Site</a>
+      {/* Key Concepts */}
+      <div className="bg-gray-50 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">Key Concepts</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium mb-2">Discrete vs Continuous</h4>
+            <p className="text-sm text-gray-600">
+              <strong>Discrete:</strong> Countable outcomes (like coin flips). Uses Probability Mass Function (PMF).<br/>
+              <strong>Continuous:</strong> Uncountable outcomes (like height). Uses Probability Density Function (PDF).
+            </p>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Parameters</h4>
+            <p className="text-sm text-gray-600">
+              Parameters control the shape, location, and scale of distributions. 
+              Changing them lets you see how distributions behave under different conditions.
+            </p>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Mean & Variance</h4>
+            <p className="text-sm text-gray-600">
+              <strong>Mean (μ):</strong> Expected value or center of distribution.<br/>
+              <strong>Variance (σ²):</strong> How spread out the values are.<br/>
+              <strong>Standard Deviation (σ):</strong> Square root of variance.
+            </p>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Real-World Applications</h4>
+            <p className="text-sm text-gray-600">
+              Each distribution models different real-world phenomena. 
+              Normal for heights, Poisson for rare events, Exponential for waiting times, etc.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
+  );
+};
 
-    <script>
-        // Global variables
-        let currentData = [];
-        let currentDistribution = 'binomial';
-
-        // Page navigation
-        function showPage(pageId, buttonElement) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected page
-            document.getElementById(pageId).classList.add('active');
-            
-            // Add active class to clicked button
-            if (buttonElement) {
-                buttonElement.classList.add('active');
-            }
-        }
-
-        // Distribution selection
-        function selectDistribution(distType) {
-            document.querySelectorAll('.dist-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Optionally switch to simulator
-            if (confirm('Switch to simulator to explore this distribution?')) {
-                document.getElementById('dist-select').value = distType;
-                showPage('simulator', document.querySelector('[onclick*="simulator"]'));
-                updateSimulation();
-            }
-        }
-
-        // Update simulation parameters based on selected distribution
-        function updateSimulation() {
-            const distType = document.getElementById('dist-select').value;
-            const param1Group = document.getElementById('param1-group');
-            const param2Group = document.getElementById('param2-group');
-            const param1Label = document.getElementById('param1-label');
-            const param2Label = document.getElementById('param2-label');
-            const param1Input = document.getElementById('param1');
-            const param2Input = document.getElementById('param2');
-
-            currentDistribution = distType;
-
-            switch(distType) {
-                case 'binomial':
-                    param1Label.textContent = 'Number of trials (n):';
-                    param2Label.textContent = 'Success probability (p):';
-                    param1Input.min = 1; param1Input.max = 100; param1Input.step = 1; param1Input.value = 20;
-                    param2Input.min = 0.01; param2Input.max = 0.99; param2Input.step = 0.01; param2Input.value = 0.5;
-                    param2Group.style.display = 'block';
-                    break;
-                case 'poisson':
-                    param1Label.textContent = 'Rate (λ):';
-                    param1Input.min = 0.1; param1Input.max = 20; param1Input.step = 0.1; param1Input.value = 3;
-                    param2Group.style.display = 'none';
-                    break;
-                case 'normal':
-                    param1Label.textContent = 'Mean (μ):';
-                    param2Label.textContent = 'Standard deviation (σ):';
-                    param1Input.min = -10; param1Input.max = 10; param1Input.step = 0.1; param1Input.value = 0;
-                    param2Input.min = 0.1; param2Input.max = 5; param2Input.step = 0.1; param2Input.value = 1;
-                    param2Group.style.display = 'block';
-                    break;
-                case 'exponential':
-                    param1Label.textContent = 'Rate (λ):';
-                    param1Input.min = 0.1; param1Input.max = 5; param1Input.step = 0.1; param1Input.value = 1;
-                    param2Group.style.display = 'none';
-                    break;
-            }
-        }
-
-        // Generate sample data
-        function generateSample() {
-            const sampleSize = parseInt(document.getElementById('sample-size').value);
-            const param1 = parseFloat(document.getElementById('param1').value);
-            const param2 = parseFloat(document.getElementById('param2').value);
-            
-            currentData = [];
-            
-            switch(currentDistribution) {
-                case 'binomial':
-        < sampleSize; i++) {
-                        currentData.push(randomBinomial(param1, param2));
-                    }
-                    break;
-                case 'poisson':
-                    for(let i = 0; i < sampleSize; i++) {
-                        currentData.push(randomPoisson(param1));
-                    }
-                    break;
-                case 'normal':
-                    for(let i = 0; i < sampleSize; i++) {
-                        currentData.push(randomNormal(param1, param2));
-                    }
-                    break;
-                case 'exponential':
-                    for(let i = 0; i < sampleSize; i++) {
-                        currentData.push(randomExponential(param1));
-                    }
-                    break;
-            }
-            
-            visualizeData();
-            displayStats();
-        }
-
-        // Random number generators
-        function randomBinomial(n, p) {
-            let count = 0;
-            for(let i = 0; i < n; i++) {
-                if(Math.random() < p) count++;
-            }
-            return count;
-        }
-
-        function randomPoisson(lambda) {
-            let k = 0;
-            let p = 1.0;
-            const L = Math.exp(-lambda);
-            do {
-                k++;
-                p *= Math.random();
-            } while (p > L);
-            return k - 1;
-        }
-
-        function randomNormal(mean, std) {
-            // Box-Muller transform
-            const u1 = Math.random();
-            const u2 = Math.random();
-            const z0 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-            return z0 * std + mean;
-        }
-
-        function randomExponential(lambda) {
-            return -Math.log(1 - Math.random()) / lambda;
-        }
-
-        // Visualize data as histogram
-        function visualizeData() {
-            const container = document.getElementById('chart-container');
-            
-            if(currentData.length === 0) return;
-            
-            // Create histogram
-            const min = Math.min(...currentData);
-            const max = Math.max(...currentData);
-            const bins = Math.min(20, Math.max(5, Math.ceil(Math.sqrt(currentData.length))));
-            const binWidth = (max - min) / bins;
-            
-            const histogram = new Array(bins).fill(0);
-            const binCenters = [];
-            
-            for(let i = 0; i
+export default ProbabilityDistributionsExplorer;
