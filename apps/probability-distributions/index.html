@@ -632,7 +632,7 @@
             }
         };
 
-        // Mathematical utility functions (same as before)
+        // Mathematical utility functions
         function gamma(z) {
             if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
             z -= 1;
@@ -662,7 +662,44 @@
             return factorial(n) / (factorial(k) * factorial(n - k));
         }
 
-        // PDF functions for continuous distributions (same as before)
+        // PMF functions for discrete distributions (MOVED BEFORE PDF functions)
+        function getPMF(x, dist, params) {
+            switch (dist) {
+                case 'bernoulli':
+                    return x === 1 ? params.p : (x === 0 ? 1 - params.p : 0);
+                
+                case 'binomial':
+                    if (x < 0 || x > params.n || !Number.isInteger(x)) return 0;
+                    return binomialCoeff(params.n, x) * Math.pow(params.p, x) * Math.pow(1 - params.p, params.n - x);
+                
+                case 'geometric':
+                    return x >= 1 && Number.isInteger(x) ? Math.pow(1 - params.p, x - 1) * params.p : 0;
+                
+                case 'poisson':
+                    if (x < 0 || !Number.isInteger(x)) return 0;
+                    return (Math.pow(params.lambda, x) * Math.exp(-params.lambda)) / factorial(x);
+                
+                case 'negbinomial':
+                    if (x < params.r || !Number.isInteger(x)) return 0;
+                    return binomialCoeff(x - 1, params.r - 1) * Math.pow(params.p, params.r) * Math.pow(1 - params.p, x - params.r);
+                
+                case 'hypergeometric':
+                    const maxVal = Math.min(params.n, params.K);
+                    const minVal = Math.max(0, params.n - params.N + params.K);
+                    if (x < minVal || x > maxVal || !Number.isInteger(x)) return 0;
+                    return (binomialCoeff(params.K, x) * binomialCoeff(params.N - params.K, params.n - x)) / 
+                           binomialCoeff(params.N, params.n);
+                
+                case 'discrete_uniform':
+                    return (x >= params.a && x <= params.b && Number.isInteger(x)) ? 
+                        1 / (params.b - params.a + 1) : 0;
+                
+                default:
+                    return 0;
+            }
+        }
+
+        // PDF functions for continuous distributions
         function getPDF(x, dist, params) {
             switch (dist) {
                 case 'normal':
@@ -716,7 +753,7 @@
             }
         }
 
-        // Generate data for plotting (same logic as before)
+        // Generate data for plotting
         function generateData() {
             const data = { labels: [], values: [] };
             const isDiscrete = currentCategory === 'discrete';
@@ -735,7 +772,7 @@
                         start = 1; end = Math.min(20, Math.ceil(3 / parameters.p));
                         break;
                     case 'poisson':
-                        start = 0; end = Math.min(20, parameters.lambda + 4 * Math.sqrt(parameters.lambda));
+                        start = 0; end = Math.min(20, Math.ceil(parameters.lambda + 4 * Math.sqrt(parameters.lambda)));
                         break;
                     case 'negbinomial':
                         start = parameters.r; end = Math.min(30, parameters.r + Math.ceil(10 / parameters.p));
@@ -808,7 +845,7 @@
             return data;
         }
 
-        // Calculate statistics (same as before)
+        // Calculate statistics
         function calculateStats() {
             const params = parameters;
             let mean, variance;
@@ -1141,39 +1178,3 @@
     </script>
 </body>
 </html>
-                    return 0;
-            }
-        }
-
-        // PMF functions for discrete distributions (same as before)
-        function getPMF(x, dist, params) {
-            switch (dist) {
-                case 'bernoulli':
-                    return x === 1 ? params.p : (x === 0 ? 1 - params.p : 0);
-                
-                case 'binomial':
-                    return x >= 0 && x <= params.n ? 
-                        binomialCoeff(params.n, x) * Math.pow(params.p, x) * Math.pow(1 - params.p, params.n - x) : 0;
-                
-                case 'geometric':
-                    return x >= 1 ? Math.pow(1 - params.p, x - 1) * params.p : 0;
-                
-                case 'poisson':
-                    return x >= 0 ? (Math.pow(params.lambda, x) * Math.exp(-params.lambda)) / factorial(x) : 0;
-                
-                case 'negbinomial':
-                    return x >= params.r ? 
-                        binomialCoeff(x - 1, params.r - 1) * Math.pow(params.p, params.r) * Math.pow(1 - params.p, x - params.r) : 0;
-                
-                case 'hypergeometric':
-                    const maxVal = Math.min(params.n, params.K);
-                    const minVal = Math.max(0, params.n - params.N + params.K);
-                    return (x >= minVal && x <= maxVal) ? 
-                        (binomialCoeff(params.K, x) * binomialCoeff(params.N - params.K, params.n - x)) / 
-                        binomialCoeff(params.N, params.n) : 0;
-                
-                case 'discrete_uniform':
-                    return (x >= params.a && x <= params.b && Number.isInteger(x)) ? 
-                        1 / (params.b - params.a + 1) : 0;
-                
-                default:
