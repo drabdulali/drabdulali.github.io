@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age-Structured Population Growth Study Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #27ae60 0%, #2c3e50 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .disclaimer {
+            background: rgba(255, 235, 59, 0.2);
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+
+        .tab-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #27ae60;
+            border-bottom-color: #27ae60;
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .concept-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #27ae60;
+        }
+
+        .calculator {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin: 10px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #27ae60, #2c3e50);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .result {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .error {
+            background: #ffeaea;
+            border: 1px solid #f44336;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #c62828;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .matrix-display {
+            font-family: 'Courier New', monospace;
+            background: #f5f5f5;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .formula {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            border: 2px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Times New Roman', serif;
+            text-align: center;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .formula em {
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        .formula sup {
+            font-size: 0.8em;
+            vertical-align: super;
+        }
+
+        .formula sub {
+            font-size: 0.8em;
+            vertical-align: sub;
+        }
+
+        .survivorship-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .type-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Chapter 3: Age-Structured Population Growth</h1>
+            <p>Interactive Study Guide for Comprehensive Exam Preparation</p>
+            
+            <div class="disclaimer">
+                <strong>⚠️ Disclaimer:</strong> This study material is created for educational purposes and may contain errors or simplified explanations. Always refer to your official textbook and course materials for authoritative information. Use this as a supplementary study tool only.
+            </div>
+        </div>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview', this)">Overview</button>
+                <button class="tab" onclick="showTab('life-tables', this)">Life Tables</button>
+                <button class="tab" onclick="showTab('survivorship', this)">Survivorship</button>
+                <button class="tab" onclick="showTab('calculator', this)">Calculator</button>
+                <button class="tab" onclick="showTab('leslie-matrix', this)">Leslie Matrix</button>
+                <button class="tab" onclick="showTab('examples', this)">Examples</button>
+            </div>
+
+            <div id="overview" class="tab-content active">
+                <h2>Key Concepts Overview</h2>
+                
+                <div class="concept-card">
+                    <h3>Why Age Structure Matters</h3>
+                    <p>Unlike simple exponential growth models, real populations have individuals of different ages with varying birth and death rates. Age structure affects:</p>
+                    <ul>
+                        <li>Population growth rate</li>
+                        <li>Future population projections</li>
+                        <li>Conservation strategies</li>
+                        <li>Harvest management</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Key Parameters</h3>
+                    <div class="grid-2">
+                        <div>
+                            <h4>Life Table Components:</h4>
+                            <ul>
+                                <li><strong>x</strong>: Age</li>
+                                <li><strong>S(x)</strong>: Number surviving to age x</li>
+                                <li><strong>l(x)</strong>: Proportion surviving to age x</li>
+                                <li><strong>b(x)</strong>: Fecundity at age x</li>
+                                <li><strong>g(x)</strong>: Survival probability from age x to x+1</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>Population Parameters:</h4>
+                            <ul>
+                                <li><strong>R₀</strong>: Net reproductive rate</li>
+                                <li><strong>G</strong>: Generation time</li>
+                                <li><strong>r</strong>: Intrinsic rate of increase</li>
+                                <li><strong>λ</strong>: Finite rate of increase</li>
+                                <li><strong>v(x)</strong>: Reproductive value</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Important Formulas</h3>
+                    <div class="formula">
+                        <strong>Net Reproductive Rate:</strong><br>
+                        <em>R</em>₀ = Σ <em>l</em>(<em>x</em>) × <em>b</em>(<em>x</em>)
+                    </div>
+                    <div class="formula">
+                        <strong>Generation Time:</strong><br>
+                        <em>G</em> = Σ <em>l</em>(<em>x</em>) × <em>b</em>(<em>x</em>) × <em>x</em> / Σ <em>l</em>(<em>x</em>) × <em>b</em>(<em>x</em>)
+                    </div>
+                    <div class="formula">
+                        <strong>Approximate <em>r</em>:</strong><br>
+                        <em>r</em> ≈ ln(<em>R</em>₀) / <em>G</em>
+                    </div>
+                    <div class="formula">
+                        <strong>Euler Equation:</strong><br>
+                        1 = Σ <em>e</em><sup>-<em>r</em><em>x</em></sup> × <em>l</em>(<em>x</em>) × <em>b</em>(<em>x</em>)
+                    </div>
+                </div>
+            </div>
+
+            <div id="life-tables" class="tab-content">
+                <h2>Life Table Analysis</h2>
+                
+                <div class="concept-card">
+                    <h3>Life Table Construction</h3>
+                    <p>Life tables track survivorship and reproduction across age classes:</p>
+                    
+                    <div class="calculator">
+                        <h4>Life Table Calculator</h4>
+                        <div class="input-group">
+                            <label>Enter S(x) values (comma-separated):</label>
+                            <input type="text" id="sx-values" placeholder="e.g., 500,400,200,50,0" value="500,400,200,50,0">
+                        </div>
+                        <div class="input-group">
+                            <label>Enter b(x) values (comma-separated):</label>
+                            <input type="text" id="bx-values" placeholder="e.g., 0,2,3,1,0" value="0,2,3,1,0">
+                        </div>
+                        <button class="btn" onclick="calculateLifeTable()">Calculate Life Table</button>
+                        <div id="life-table-result"></div>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Life Table Components Explained</h3>
+                    <p><strong><em>S</em>(<em>x</em>):</strong> Raw survival data - number of individuals surviving to age <em>x</em></p>
+                    <p><strong><em>l</em>(<em>x</em>):</strong> Survivorship - proportion of original cohort surviving to age <em>x</em></p>
+                    <p><strong><em>g</em>(<em>x</em>):</strong> Age-specific survival probability - chance of surviving from age <em>x</em> to <em>x</em>+1</p>
+                    <p><strong><em>b</em>(<em>x</em>):</strong> Age-specific fecundity - offspring per female at age <em>x</em></p>
+                </div>
+            </div>
+
+            <div id="survivorship" class="tab-content">
+                <h2>Survivorship Curves</h2>
+                
+                <div class="survivorship-types">
+                    <div class="type-card">
+                        <h3>Type I</h3>
+                        <p><strong>High survivorship until late ages</strong></p>
+                        <p>Examples: Humans, large mammals</p>
+                        <p>Characteristics: High parental care, few offspring</p>
+                    </div>
+                    <div class="type-card">
+                        <h3>Type II</h3>
+                        <p><strong>Constant mortality rate</strong></p>
+                        <p>Examples: Some birds (adult stages)</p>
+                        <p>Characteristics: Linear decline on log scale</p>
+                    </div>
+                    <div class="type-card">
+                        <h3>Type III</h3>
+                        <p><strong>High early mortality</strong></p>
+                        <p>Examples: Fish, insects, plants</p>
+                        <p>Characteristics: Many offspring, low parental care</p>
+                    </div>
+                </div>
+
+                <div class="calculator">
+                    <h4>Survivorship Curve Plotter</h4>
+                    <div class="input-group">
+                        <label>Select curve type:</label>
+                        <select id="curve-type">
+                            <option value="type1">Type I</option>
+                            <option value="type2">Type II</option>
+                            <option value="type3">Type III</option>
+                            <option value="custom">Custom (use l(x) values from life table)</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="plotSurvivorship()">Plot Survivorship Curve</button>
+                    <div class="chart-container">
+                        <canvas id="survivorshipChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="calculator" class="tab-content">
+                <h2>Population Parameter Calculator</h2>
+                
+                <div class="grid-2">
+                    <div class="calculator">
+                        <h4>R₀ and Generation Time</h4>
+                        <div class="input-group">
+                            <label>l(x) values:</label>
+                            <input type="text" id="lx-calc" placeholder="1.0,0.8,0.4,0.1,0.0" value="1.0,0.8,0.4,0.1,0.0">
+                        </div>
+                        <div class="input-group">
+                            <label>b(x) values:</label>
+                            <input type="text" id="bx-calc" placeholder="0,2,3,1,0" value="0,2,3,1,0">
+                        </div>
+                        <button class="btn" onclick="calculateR0G()">Calculate R₀ & G</button>
+                        <div id="r0g-result"></div>
+                    </div>
+
+                    <div class="calculator">
+                        <h4>Intrinsic Rate of Increase</h4>
+                        <div class="input-group">
+                            <label>R₀ value:</label>
+                            <input type="number" id="r0-input" step="0.01" value="2.9">
+                        </div>
+                        <div class="input-group">
+                            <label>Generation time (G):</label>
+                            <input type="number" id="g-input" step="0.01" value="1.483">
+                        </div>
+                        <button class="btn" onclick="calculateR()">Calculate r (approximate)</button>
+                        <div id="r-result"></div>
+                    </div>
+                </div>
+
+                <div class="calculator">
+                    <h4>Euler Equation Solver</h4>
+                    <p>Solve: 1 = Σ <em>e</em><sup>-<em>r</em><em>x</em></sup> × <em>l</em>(<em>x</em>) × <em>b</em>(<em>x</em>)</p>
+                    <div class="input-group">
+                        <label>l(x) values:</label>
+                        <input type="text" id="lx-euler" placeholder="1.0,0.8,0.4,0.1,0.0" value="1.0,0.8,0.4,0.1,0.0">
+                    </div>
+                    <div class="input-group">
+                        <label>b(x) values:</label>
+                        <input type="text" id="bx-euler" placeholder="0,2,3,1,0" value="0,2,3,1,0">
+                    </div>
+                    <button class="btn" onclick="solveEuler()">Solve Euler Equation</button>
+                    <div id="euler-result"></div>
+                </div>
+            </div>
+
+            <div id="leslie-matrix" class="tab-content">
+                <h2>Leslie Matrix Model</h2>
+                
+                <div class="concept-card">
+                    <h3>Leslie Matrix Structure</h3>
+                    <p>The Leslie matrix describes age-structured population growth:</p>
+                    <ul>
+                        <li>First row: Fertility coefficients (F₁, F₂, F₃, ...)</li>
+                        <li>Subdiagonal: Survival probabilities (P₁, P₂, P₃, ...)</li>
+                        <li>All other entries: 0</li>
+                    </ul>
+                    <div class="formula">
+                        <strong>Population Growth Equation:</strong><br>
+                        <em>n</em>(<em>t</em>+1) = <strong>A</strong> × <em>n</em>(<em>t</em>)
+                    </div>
+                </div>
+
+                <div class="calculator">
+                    <h4>Leslie Matrix Calculator</h4>
+                    <div class="input-group">
+                        <label>Number of age classes:</label>
+                        <input type="number" id="age-classes" min="2" max="6" value="4" onchange="updateMatrixInputs()">
+                    </div>
+                    <div id="matrix-inputs"></div>
+                    <button class="btn" onclick="calculateLeslieMatrix()">Build Leslie Matrix</button>
+                    <div id="leslie-result"></div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Stable Age Distribution</h3>
+                    <p>After several generations, populations converge to a stable age distribution where:</p>
+                    <ul>
+                        <li>Relative proportions in each age class remain constant</li>
+                        <li>Total population grows at rate λ (dominant eigenvalue)</li>
+                        <li>r = ln(λ)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="examples" class="tab-content">
+                <h2>Worked Examples</h2>
+                
+                <div class="concept-card">
+                    <h3>Example 1: Butterfly Population</h3>
+                    <p><strong>Problem:</strong> A butterfly population has K = 500 and r = 0.1. What is the maximum growth rate?</p>
+                    <div class="calculator">
+                        <div class="input-group">
+                            <label>Carrying capacity (K):</label>
+                            <input type="number" id="ex1-k" value="500">
+                        </div>
+                        <div class="input-group">
+                            <label>Intrinsic rate (r):</label>
+                            <input type="number" id="ex1-r" step="0.01" value="0.1">
+                        </div>
+                        <button class="btn" onclick="solveExample1()">Solve</button>
+                        <div id="ex1-result"></div>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Example 2: Reproductive Value</h3>
+                    <p>Calculate reproductive value for different age classes and interpret the results.</p>
+                    <div class="calculator">
+                        <button class="btn" onclick="calculateReproductiveValue()">Calculate Example</button>
+                        <div id="repro-value-result"></div>
+                        <div class="chart-container">
+                            <canvas id="reproValueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Key Exam Tips</h3>
+                    <ul>
+                        <li>Remember: <em>l</em>(0) = 1.0 always, <em>l</em>(<em>k</em>) = 0.0 always</li>
+                        <li><em>R</em>₀ > 1: population grows; <em>R</em>₀ < 1: population declines; <em>R</em>₀ = 1: stable</li>
+                        <li>Type I curves: convex (humans); Type III curves: concave (fish)</li>
+                        <li>Reproductive value peaks around first reproduction age</li>
+                        <li>Leslie matrix: fertilities in first row, survivals on subdiagonal</li>
+                        <li>Stable age distribution: relative proportions constant, absolute numbers grow exponentially</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let charts = {};
+
+        function showTab(tabName, element) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            if (element) {
+                element.classList.add('active');
+            }
+        }
+
+        function parseNumbers(str) {
+            return str.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+        }
+
+        function calculateLifeTable() {
+            try {
+                const sxValues = parseNumbers(document.getElementById('sx-values').value);
+                const bxValues = parseNumbers(document.getElementById('bx-values').value);
+                
+                if (sxValues.length !== bxValues.length) {
+                    throw new Error('S(x) and b(x) arrays must have the same length');
+                }
+                
+                const n = sxValues.length;
+                const lx = sxValues.map(s => s / sxValues[0]);
+                const gx = [];
+                
+                for (let i = 0; i < n - 1; i++) {
+                    gx.push(lx[i + 1] / lx[i]);
+                }
+                gx.push(0);
+                
+                // Calculate R0
+                let r0 = 0;
+                for (let i = 0; i < n; i++) {
+                    r0 += lx[i] * bxValues[i];
+                }
+                
+                // Calculate G
+                let numerator = 0;
+                for (let i = 0; i < n; i++) {
+                    numerator += lx[i] * bxValues[i] * i;
+                }
+                const g = numerator / r0;
+                
+                // Approximate r
+                const r_approx = Math.log(r0) / g;
+                
+                let result = `
+                    <div class="result">
+                        <h4>Life Table Results:</h4>
+                        <table style="width:100%; border-collapse: collapse; font-family: 'Courier New', monospace;">
+                            <tr style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white;">
+                                <th style="border: 1px solid #ddd; padding: 12px; font-weight: bold;">Age (<em>x</em>)</th>
+                                <th style="border: 1px solid #ddd; padding: 12px; font-weight: bold;"><em>S</em>(<em>x</em>)</th>
+                                <th style="border: 1px solid #ddd; padding: 12px; font-weight: bold;"><em>l</em>(<em>x</em>)</th>
+                                <th style="border: 1px solid #ddd; padding: 12px; font-weight: bold;"><em>b</em>(<em>x</em>)</th>
+                                <th style="border: 1px solid #ddd; padding: 12px; font-weight: bold;"><em>g</em>(<em>x</em>)</th>
+                                <th style="border: 1px solid #ddd; padding: 12px; font-weight: bold;"><em>l</em>(<em>x</em>)×<em>b</em>(<em>x</em>)</th>
+                            </tr>
+                `;
+                
+                for (let i = 0; i < n; i++) {
+                    result += `
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${i}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${sxValues[i]}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${lx[i].toFixed(3)}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${bxValues[i]}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${gx[i].toFixed(3)}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${(lx[i] * bxValues[i]).toFixed(3)}</td>
+                        </tr>
+                    `;
+                }
+                
+                result += `
+                        </table>
+                        <br>
+                        <strong>R₀ = ${r0.toFixed(3)}</strong><br>
+                        <strong>G = ${g.toFixed(3)} years</strong><br>
+                        <strong>r ≈ ${r_approx.toFixed(3)} individuals/(individual·year)</strong>
+                    </div>
+                `;
+                
+                document.getElementById('life-table-result').innerHTML = result;
+            } catch (error) {
+                document.getElementById('life-table-result').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function plotSurvivorship() {
+            const curveType = document.getElementById('curve-type').value;
+            const ctx = document.getElementById('survivorshipChart').getContext('2d');
+            
+            if (charts.survivorship) {
+                charts.survivorship.destroy();
+            }
+            
+            let ages = [];
+            let lx = [];
+            
+            if (curveType === 'custom') {
+                const sxValues = parseNumbers(document.getElementById('sx-values').value);
+                ages = Array.from({length: sxValues.length}, (_, i) => i);
+                lx = sxValues.map(s => s / sxValues[0]);
+            } else {
+                ages = Array.from({length: 11}, (_, i) => i);
+                
+                switch(curveType) {
+                    case 'type1':
+                        lx = ages.map(x => Math.max(0, Math.pow(1 - x/10, 6)));
+                        break;
+                    case 'type2':
+                        lx = ages.map(x => Math.exp(-0.2 * x));
+                        break;
+                    case 'type3':
+                        lx = ages.map(x => Math.exp(-2 * x * x / 100));
+                        break;
+                }
+            }
+            
+            charts.survivorship = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ages,
+                    datasets: [{
+                        label: 'log l(x)',
+                        data: lx.map(l => Math.log10(Math.max(0.001, l))),
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Age (x)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'log₁₀ l(x)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Survivorship Curve - ${curveType.toUpperCase()}`
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateR0G() {
+            try {
+                const lx = parseNumbers(document.getElementById('lx-calc').value);
+                const bx = parseNumbers(document.getElementById('bx-calc').value);
+                
+                if (lx.length !== bx.length) {
+                    throw new Error('l(x) and b(x) arrays must have the same length');
+                }
+                
+                let r0 = 0;
+                let numerator = 0;
+                
+                for (let i = 0; i < lx.length; i++) {
+                    const lxbx = lx[i] * bx[i];
+                    r0 += lxbx;
+                    numerator += lxbx * i;
+                }
+                
+                const g = numerator / r0;
+                
+                document.getElementById('r-result').innerHTML = `
+                    <div class="result">
+                        <strong>r = ${r.toFixed(4)} individuals/(individual·time)</strong><br>
+                        <strong>λ = ${lambda.toFixed(4)}</strong><br>
+                        <strong>Doubling time = ${doublingTime.toFixed(2)} time units</strong><br>
+                        <p>Population growth rate: ${r > 0 ? 'Exponential growth' : r < 0 ? 'Exponential decline' : 'Zero growth'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('r-result').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function calculateR() {
+            try {
+                const r0 = parseFloat(document.getElementById('r0-input').value);
+                const g = parseFloat(document.getElementById('g-input').value);
+                
+                if (isNaN(r0) || isNaN(g) || g <= 0) {
+                    throw new Error('Please enter valid positive numbers for R₀ and G');
+                }
+                
+                const r = Math.log(r0) / g;
+                const lambda = Math.exp(r);
+                const doublingTime = r > 0 ? Math.log(2) / r : Infinity;
+                
+                document.getElementById('r-result').innerHTML = `
+                    <div class="result">
+                        <strong><em>r</em> = ${r.toFixed(4)} individuals/(individual·time)</strong><br>
+                        <strong>λ = ${lambda.toFixed(4)}</strong><br>
+                        <strong>Doubling time = ${doublingTime === Infinity ? 'N/A (declining)' : doublingTime.toFixed(2) + ' time units'}</strong><br>
+                        <p>Population growth rate: ${r > 0 ? 'Exponential growth' : r < 0 ? 'Exponential decline' : 'Zero growth'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('r-result').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function solveEuler() {
+            try {
+                const lx = parseNumbers(document.getElementById('lx-euler').value);
+                const bx = parseNumbers(document.getElementById('bx-euler').value);
+                
+                if (lx.length !== bx.length) {
+                    throw new Error('l(x) and b(x) arrays must have the same length');
+                }
+                
+                // Newton-Raphson method to solve Euler equation
+                let r = 0.1; // Initial guess
+                const tolerance = 1e-6;
+                const maxIterations = 100;
+                
+                for (let iter = 0; iter < maxIterations; iter++) {
+                    let f = -1; // Start with -1 because we want sum = 1
+                    let df = 0;
+                    
+                    for (let i = 0; i < lx.length; i++) {
+                        const term = Math.exp(-r * i) * lx[i] * bx[i];
+                        f += term;
+                        df -= i * term;
+                    }
+                    
+                    if (Math.abs(f) < tolerance) break;
+                    
+                    r = r - f / df;
+                }
+                
+                // Verify solution
+                let sum = 0;
+                for (let i = 0; i < lx.length; i++) {
+                    sum += Math.exp(-r * i) * lx[i] * bx[i];
+                }
+                
+                document.getElementById('euler-result').innerHTML = `
+                    <div class="result">
+                        <strong>Exact <em>r</em> = ${r.toFixed(6)} individuals/(individual·time)</strong><br>
+                        <strong>Verification: Σ<em>e</em><sup>-<em>r</em><em>x</em></sup><em>l</em>(<em>x</em>)<em>b</em>(<em>x</em>) = ${sum.toFixed(6)}</strong><br>
+                        <p>Solution accuracy: ${Math.abs(sum - 1) < 0.001 ? 'Excellent' : 'Good'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('euler-result').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function updateMatrixInputs() {
+            const numClasses = parseInt(document.getElementById('age-classes').value);
+            const container = document.getElementById('matrix-inputs');
+            
+            let html = '<h5>Fertility coefficients (F₁, F₂, ...):</h5>';
+            for (let i = 1; i <= numClasses; i++) {
+                html += `
+                    <div class="input-group">
+                        <label>F${i} (fertility for age class ${i}):</label>
+                        <input type="number" id="f${i}" step="0.01" value="${i === 2 ? '1.6' : i === 3 ? '1.5' : i === 4 ? '0.25' : '0'}">
+                    </div>
+                `;
+            }
+            
+            html += '<h5>Survival probabilities (P₁, P₂, ...):</h5>';
+            for (let i = 1; i < numClasses; i++) {
+                html += `
+                    <div class="input-group">
+                        <label>P${i} (survival from age ${i} to ${i+1}):</label>
+                        <input type="number" id="p${i}" step="0.01" value="${i === 1 ? '0.8' : i === 2 ? '0.5' : '0.25'}">
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function calculateLeslieMatrix() {
+            try {
+                const numClasses = parseInt(document.getElementById('age-classes').value);
+                
+                // Get fertility coefficients
+                const F = [];
+                for (let i = 1; i <= numClasses; i++) {
+                    F.push(parseFloat(document.getElementById(`f${i}`).value) || 0);
+                }
+                
+                // Get survival probabilities
+                const P = [];
+                for (let i = 1; i < numClasses; i++) {
+                    P.push(parseFloat(document.getElementById(`p${i}`).value) || 0);
+                }
+                
+                // Build Leslie matrix
+                let matrix = [];
+                for (let i = 0; i < numClasses; i++) {
+                    matrix[i] = new Array(numClasses).fill(0);
+                }
+                
+                // First row: fertilities
+                for (let j = 0; j < numClasses; j++) {
+                    matrix[0][j] = F[j];
+                }
+                
+                // Subdiagonal: survival probabilities
+                for (let i = 1; i < numClasses; i++) {
+                    matrix[i][i-1] = P[i-1];
+                }
+                
+                // Display matrix
+                let matrixDisplay = 'Leslie Matrix A:\n[';
+                for (let i = 0; i < numClasses; i++) {
+                    matrixDisplay += matrix[i].map(x => x.toFixed(3).padStart(8)).join(' ');
+                    if (i < numClasses - 1) matrixDisplay += '\n ';
+                }
+                matrixDisplay += ']';
+                
+                // Calculate dominant eigenvalue (approximate)
+                // Simple power method for demonstration
+                let v = new Array(numClasses).fill(1);
+                for (let iter = 0; iter < 20; iter++) {
+                    let newV = new Array(numClasses).fill(0);
+                    for (let i = 0; i < numClasses; i++) {
+                        for (let j = 0; j < numClasses; j++) {
+                            newV[i] += matrix[i][j] * v[j];
+                        }
+                    }
+                    const norm = Math.sqrt(newV.reduce((sum, x) => sum + x*x, 0));
+                    v = newV.map(x => x / norm);
+                }
+                
+                // Calculate λ (dominant eigenvalue)
+                let Av = new Array(numClasses).fill(0);
+                for (let i = 0; i < numClasses; i++) {
+                    for (let j = 0; j < numClasses; j++) {
+                        Av[i] += matrix[i][j] * v[j];
+                    }
+                }
+                const lambda = Av.reduce((sum, av, i) => sum + av * v[i], 0);
+                const r = Math.log(lambda);
+                
+                document.getElementById('leslie-result').innerHTML = `
+                    <div class="result">
+                        <div class="matrix-display">${matrixDisplay}</div>
+                        <strong>Dominant eigenvalue (λ) ≈ ${lambda.toFixed(4)}</strong><br>
+                        <strong>Population growth rate (<em>r</em>) ≈ ${r.toFixed(4)}</strong><br>
+                        <p>Population ${r > 0 ? 'grows' : r < 0 ? 'declines' : 'is stable'} at ${(Math.abs(r) * 100).toFixed(2)}% per time unit</p>
+                        <h5>Stable age distribution (approximate):</h5>
+                        ${v.map((x, i) => `Age class ${i+1}: ${(x/v.reduce((a,b) => a+b, 0)*100).toFixed(1)}%`).join('<br>')}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('leslie-result').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function solveExample1() {
+            const K = parseFloat(document.getElementById('ex1-k').value);
+            const r = parseFloat(document.getElementById('ex1-r').value);
+            
+            // Maximum growth rate occurs at N = K/2
+            const maxGrowthRate = r * K / 4;
+            
+            document.getElementById('ex1-result').innerHTML = `
+                <div class="result">
+                    <h4>Solution:</h4>
+                    <p>For logistic growth, maximum growth rate occurs when N = K/2</p>
+                    <p>Maximum growth rate = rK/4 = ${r} × ${K} ÷ 4 = <strong>${maxGrowthRate} individuals/time</strong></p>
+                    <p>This occurs when population size = ${K/2} individuals</p>
+                </div>
+            `;
+        }
+
+        function calculateReproductiveValue() {
+            // Example data
+            const lx = [1.0, 0.8, 0.4, 0.1, 0.0];
+            const bx = [0, 2, 3, 1, 0];
+            const r = 0.776; // From Euler equation
+            
+            // Calculate reproductive value
+            const vx = [];
+            for (let x = 0; x < lx.length - 1; x++) {
+                let sum = 0;
+                for (let y = x; y < lx.length; y++) {
+                    if (lx[x] > 0) {
+                        sum += Math.exp(-r * (y - x)) * (lx[y] / lx[x]) * bx[y];
+                    }
+                }
+                vx.push(sum);
+            }
+            
+            // Normalize so v(0) = 1
+            const v0 = vx[0];
+            const normalizedVx = vx.map(v => v / v0);
+            
+            let result = `
+                <div class="result">
+                    <h4>Reproductive Value Calculation:</h4>
+                    <table style="width:100%; border-collapse: collapse;">
+                        <tr style="background: #f0f0f0;">
+                            <th style="border: 1px solid #ddd; padding: 8px;">Age (x)</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">l(x)</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">b(x)</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">v(x)</th>
+                        </tr>
+            `;
+            
+            for (let i = 0; i < normalizedVx.length; i++) {
+                result += `
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${i}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${lx[i].toFixed(3)}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${bx[i]}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${normalizedVx[i].toFixed(3)}</td>
+                    </tr>
+                `;
+            }
+            
+            result += `</table></div>`;
+            document.getElementById('repro-value-result').innerHTML = result;
+            
+            // Plot reproductive value
+            const ctx = document.getElementById('reproValueChart').getContext('2d');
+            if (charts.reproValue) {
+                charts.reproValue.destroy();
+            }
+            
+            charts.reproValue = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: normalizedVx.length}, (_, i) => `Age ${i}`),
+                    datasets: [{
+                        label: 'Reproductive Value v(x)',
+                        data: normalizedVx,
+                        backgroundColor: 'rgba(39, 174, 96, 0.6)',
+                        borderColor: '#27ae60',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Reproductive Value'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Reproductive Value by Age Class'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize matrix inputs on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMatrixInputs();
+        });
+
+        // Add some interactive features
+        function addQuizMode() {
+            const quizQuestions = [
+                {
+                    question: "What does R₀ represent?",
+                    options: ["Growth rate", "Net reproductive rate", "Generation time", "Survival probability"],
+                    correct: 1,
+                    explanation: "R₀ is the net reproductive rate - the average number of offspring produced per individual over their lifetime."
+                },
+                {
+                    question: "In a Type III survivorship curve, when is mortality highest?",
+                    options: ["Early ages", "Middle ages", "Late ages", "Constant throughout life"],
+                    correct: 0,
+                    explanation: "Type III curves show high mortality in early life stages, typical of organisms with many offspring and little parental care."
+                },
+                {
+                    question: "What does the Euler equation solve for?",
+                    options: ["R₀", "Generation time", "Exact value of r", "Stable age distribution"],
+                    correct: 2,
+                    explanation: "The Euler equation: 1 = Σe^(-rx)l(x)b(x) is solved iteratively to find the exact intrinsic rate of increase (r)."
+                }
+            ];
+            
+            // Could add quiz functionality here
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        showTab('overview');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        showTab('life-tables');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        showTab('survivorship');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        showTab('calculator');
+                        break;
+                    case '5':
+                        e.preventDefault();
+                        showTab('leslie-matrix');
+                        break;
+                    case '6':
+                        e.preventDefault();
+                        showTab('examples');
+                        break;
+                }
+            }
+        });
+
+        // Add export functionality for results
+        function exportResults() {
+            const results = {
+                timestamp: new Date().toISOString(),
+                lifeTable: document.getElementById('life-table-result').innerHTML,
+                calculations: document.getElementById('r0g-result').innerHTML,
+                eulerSolution: document.getElementById('euler-result').innerHTML
+            };
+            
+            const blob = new Blob([JSON.stringify(results, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'age_structured_population_results.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Add print stylesheet and function
+        function printStudyGuide() {
+            window.print();
+        }
+
+        // Performance monitoring
+        const observer = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.entryType === 'measure') {
+                    console.log(`${entry.name}: ${entry.duration}ms`);
+                }
+            }
+        });
+        observer.observe({entryTypes: ['measure']});
+
+        // Add error tracking
+        window.addEventListener('error', function(e) {
+            console.error('Study guide error:', e.error);
+            // Could send to analytics in production
+        });
+    </script>
+
+    <style>
+        @media print {
+            .tab {
+                display: none;
+            }
+            .tab-content {
+                display: block !important;
+                page-break-inside: avoid;
+            }
+            .chart-container {
+                display: none;
+            }
+            .calculator {
+                border: 1px solid #000;
+                margin: 10px 0;
+            }
+        }
+
+        /* Additional responsive styles */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .tab {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .input-group input {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        /* Accessibility improvements */
+        .tab:focus {
+            outline: 2px solid #27ae60;
+            outline-offset: 2px;
+        }
+
+        .btn:focus {
+            outline: 2px solid #27ae60;
+            outline-offset: 2px;
+        }
+
+        /* Loading animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+    </style>
+</body>
+</html>0g-result').innerHTML = `
+                    <div class="result">
+                        <strong><em>R</em>₀ = ${r0.toFixed(3)}</strong><br>
+                        <strong><em>G</em> = ${g.toFixed(3)} time units</strong><br>
+                        <p><em>R</em>₀ > 1: Population ${r0 > 1 ? 'grows' : r0 < 1 ? 'declines' : 'is stable'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('r0g-result').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function calculateR() {
+            try {
+                const r0 = parseFloat(document.getElementById('r0-input').value);
+                const g = parseFloat(document.getElementById('g-input').value);
+                
+                const r = Math.log(r0) / g;
+                const lambda = Math.exp(r);
+                const doublingTime = Math.log(2) / r;
+                
+                document.getElementById('r
