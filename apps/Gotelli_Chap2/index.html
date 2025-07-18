@@ -184,20 +184,17 @@
         /* Control grids matching your site */
         .controls {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
             margin: 20px 0;
         }
         
         .control-group {
             background: white;
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: 10px;
             border-left: 4px solid #4a7c59;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            text-align: center;
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
@@ -207,6 +204,7 @@
         }
 
         .control-group label {
+            display: block;
             color: #2c5530;
             font-weight: bold;
             margin-bottom: 0.5rem;
@@ -214,13 +212,14 @@
         }
         
         input[type="range"] {
-            width: 150px;
+            width: 100%;
             height: 6px;
             border-radius: 3px;
             background: #e9ecef;
             outline: none;
             -webkit-appearance: none;
             transition: background 0.3s;
+            margin: 10px 0;
         }
 
         input[type="range"]:hover {
@@ -250,6 +249,12 @@
             cursor: pointer;
             border: none;
         }
+
+        .value-display {
+            color: #2c5530;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
         
         input[type="number"] {
             width: 100px;
@@ -269,7 +274,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            margin: 10px;
+            margin: 10px 5px;
             transition: all 0.3s ease;
             font-family: 'Georgia', serif;
             font-size: 1rem;
@@ -279,6 +284,11 @@
             background: #2c5530;
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button.active {
+            background: #2c5530;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
         .formula {
@@ -413,30 +423,40 @@
             display: flex;
             margin-bottom: 20px;
             border-bottom: 2px solid #4a7c59;
+            flex-wrap: wrap;
         }
 
         .tab {
             background: #f8f9fa;
             color: #2c5530;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 20px;
             cursor: pointer;
             border-radius: 8px 8px 0 0;
             margin-right: 5px;
+            margin-bottom: -2px;
             transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
         }
 
         .tab.active {
             background: #4a7c59;
             color: white;
+            transform: translateY(-2px);
         }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease-in;
         }
 
         .tab-content.active {
             display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         @media (max-width: 768px) {
@@ -463,6 +483,7 @@
             .tab {
                 margin-right: 0;
                 margin-bottom: 5px;
+                border-radius: 8px;
             }
         }
 
@@ -474,11 +495,6 @@
         .equation-display {
             margin: 1.5em 0;
             text-align: center;
-        }
-
-        .inline-math {
-            color: #2c5530;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -652,6 +668,7 @@
                     <button class="tab active" onclick="showTab('basic-logistic')">Basic Logistic</button>
                     <button class="tab" onclick="showTab('density-dependence')">Density Dependence</button>
                     <button class="tab" onclick="showTab('growth-rate')">Growth Rate Analysis</button>
+                    <button class="tab" onclick="showTab('comparison')">Exponential vs Logistic</button>
                 </div>
 
                 <!-- Basic Logistic Growth Tab -->
@@ -660,17 +677,17 @@
                         <div class="control-group">
                             <label for="r-slider">Intrinsic Rate ($r$)</label>
                             <input type="range" id="r-slider" min="0.01" max="0.3" step="0.01" value="0.1">
-                            <span id="r-value">0.10</span>
+                            <div class="value-display" id="r-value">0.10</div>
                         </div>
                         <div class="control-group">
                             <label for="k-slider">Carrying Capacity ($K$)</label>
                             <input type="range" id="k-slider" min="50" max="500" step="10" value="200">
-                            <span id="k-value">200</span>
+                            <div class="value-display" id="k-value">200</div>
                         </div>
                         <div class="control-group">
                             <label for="n0-slider">Initial Population ($N_0$)</label>
                             <input type="range" id="n0-slider" min="5" max="100" step="5" value="20">
-                            <span id="n0-value">20</span>
+                            <div class="value-display" id="n0-value">20</div>
                         </div>
                     </div>
                     
@@ -690,6 +707,31 @@
                 <div id="growth-rate" class="tab-content">
                     <div class="chart-container">
                         <canvas id="growthRateChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Comparison Tab -->
+                <div id="comparison" class="tab-content">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="comp-r">Growth Rate ($r$)</label>
+                            <input type="range" id="comp-r" min="0.01" max="0.2" step="0.01" value="0.1">
+                            <div class="value-display" id="comp-r-value">0.10</div>
+                        </div>
+                        <div class="control-group">
+                            <label for="comp-k">Carrying Capacity ($K$)</label>
+                            <input type="range" id="comp-k" min="100" max="1000" step="50" value="500">
+                            <div class="value-display" id="comp-k-value">500</div>
+                        </div>
+                        <div class="control-group">
+                            <label for="comp-n0">Initial Population</label>
+                            <input type="range" id="comp-n0" min="10" max="100" step="10" value="50">
+                            <div class="value-display" id="comp-n0-value">50</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -734,60 +776,6 @@
                     <li><strong>Continuous Growth:</strong> No discrete breeding seasons</li>
                     <li><strong>Homogeneous Population:</strong> No age structure or genetic variation</li>
                 </ol>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2 class="section-title">Model Variations</h2>
-
-            <h3>Time Lags in Density Dependence</h3>
-            <div class="concept-box">
-                <p>In reality, populations may not respond immediately to density changes. The time-lag model is:</p>
-            </div>
-
-            <div class="equation-box">
-                <div class="equation-display">
-                    $$\frac{dN}{dt} = rN\left(1 - \frac{N_{t-\tau}}{K}\right)$$
-                </div>
-            </div>
-
-            <div class="concept-box">
-                <p>Where $\tau$ is the time lag. The behavior depends on $r\tau$:</p>
-                <ul>
-                    <li><strong>$r\tau < 0.368$:</strong> Smooth approach to $K$</li>
-                    <li><strong>$0.368 < r\tau < 1.570$:</strong> Damped oscillations</li>
-                    <li><strong>$r\tau > 1.570$:</strong> Stable limit cycles</li>
-                </ul>
-            </div>
-
-            <h3>Discrete Logistic Growth</h3>
-            <div class="concept-box">
-                <p>For populations with discrete generations:</p>
-            </div>
-
-            <div class="equation-box">
-                <div class="equation-display">
-                    $$N_{t+1} = N_t + r_dN_t\left(1 - \frac{N_t}{K}\right)$$
-                </div>
-            </div>
-
-            <div class="concept-box">
-                <p>This can lead to complex dynamics including chaos when $r_d > 2.57$.</p>
-            </div>
-
-            <h3>Stochastic Carrying Capacity</h3>
-            <div class="concept-box">
-                <p>When carrying capacity varies randomly, the average population size is:</p>
-            </div>
-
-            <div class="equation-box">
-                <div class="equation-display">
-                    $$\bar{N} \approx \bar{K} - \frac{\sigma_K^2}{2}$$
-                </div>
-            </div>
-
-            <div class="concept-box">
-                <p>More variable environments support smaller average populations.</p>
             </div>
         </div>
 
@@ -854,112 +842,6 @@
                 </div>
                 <p>This yield can be maintained indefinitely if population is kept at $N = K/2 = 500$ tons.</p>
             </div>
-
-            <div class="concept-box">
-                <p><strong>Tragedy of the Commons:</strong> Individual fishing vessels maximize short-term catch, leading to overfishing and population collapse despite known sustainable limits.</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2 class="section-title">Comparison: Exponential vs. Logistic Growth</h2>
-            
-            <div class="interactive-section">
-                <h3>Side-by-Side Comparison</h3>
-                <div class="controls">
-                    <div class="control-group">
-                        <label for="comp-r">Growth Rate ($r$)</label>
-                        <input type="range" id="comp-r" min="0.01" max="0.2" step="0.01" value="0.1">
-                        <span id="comp-r-value">0.10</span>
-                    </div>
-                    <div class="control-group">
-                        <label for="comp-k">Carrying Capacity ($K$)</label>
-                        <input type="range" id="comp-k" min="100" max="1000" step="50" value="500">
-                        <span id="comp-k-value">500</span>
-                    </div>
-                    <div class="control-group">
-                        <label for="comp-n0">Initial Population</label>
-                        <input type="range" id="comp-n0" min="10" max="100" step="10" value="50">
-                        <span id="comp-n0-value">50</span>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <canvas id="comparisonChart"></canvas>
-                </div>
-            </div>
-
-            <div class="concept-grid">
-                <div class="concept-card">
-                    <h4>Exponential Growth</h4>
-                    <p><strong>Equation:</strong> $\frac{dN}{dt} = rN$</p>
-                    <ul>
-                        <li>Constant growth rate</li>
-                        <li>No resource limitation</li>
-                        <li>Population increases indefinitely</li>
-                        <li>J-shaped curve</li>
-                    </ul>
-                </div>
-
-                <div class="concept-card">
-                    <h4>Logistic Growth</h4>
-                    <p><strong>Equation:</strong> $\frac{dN}{dt} = rN(1-N/K)$</p>
-                    <ul>
-                        <li>Density-dependent growth rate</li>
-                        <li>Resource limitation (K)</li>
-                        <li>Population stabilizes at K</li>
-                        <li>S-shaped curve</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2 class="section-title">Advanced Topics</h2>
-
-            <h3>The Allee Effect</h3>
-            <div class="concept-box">
-                <p>Sometimes populations grow better at moderate densities than at very low densities, creating a <strong>critical minimum population size</strong>:</p>
-            </div>
-
-            <div class="equation-box">
-                <div class="equation-display">
-                    $\frac{dN}{dt} = rN\left(\frac{N}{A} - 1\right)\left(1 - \frac{N}{K}\right)$
-                </div>
-            </div>
-
-            <div class="concept-box">
-                <p>Where $A$ is the Allee threshold. Populations below $A$ decline to extinction.</p>
-            </div>
-
-            <h3>Metapopulation Dynamics</h3>
-            <div class="concept-box">
-                <p>In fragmented landscapes, local populations may follow logistic growth while being connected by migration:</p>
-            </div>
-
-            <div class="equation-box">
-                <div class="equation-display">
-                    $\frac{dN_i}{dt} = r_iN_i\left(1 - \frac{N_i}{K_i}\right) + \sum_{j \neq i} m_{ji}N_j - \sum_{j \neq i} m_{ij}N_i$
-                </div>
-            </div>
-
-            <div class="concept-box">
-                <p>Where $m_{ij}$ represents migration rate from patch $i$ to patch $j$.</p>
-            </div>
-
-            <h3>Competition and Coexistence</h3>
-            <div class="concept-box">
-                <p>When multiple species compete for the same resources, logistic growth is modified:</p>
-            </div>
-
-            <div class="equation-box">
-                <div class="equation-display">
-                    $\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha_{12}N_2}{K_1}\right)$
-                </div>
-            </div>
-
-            <div class="concept-box">
-                <p>Where $\alpha_{12}$ is the competition coefficient measuring the effect of species 2 on species 1.</p>
-            </div>
         </div>
 
         <div class="section">
@@ -986,7 +868,7 @@
                     </div>
                 </div>
                 <button onclick="calculateLogistic()">Calculate Population Size</button>
-                <div id="calc-result" style="margin-top: 20px; font-size: 1.2em; text-align: center;"></div>
+                <div id="calc-result" style="margin-top: 20px; font-size: 1.1em;"></div>
             </div>
         </div>
 
@@ -1015,56 +897,6 @@
         </div>
 
         <div class="section">
-            <h2 class="section-title">Limitations and Extensions</h2>
-            
-            <div class="concept-grid">
-                <div class="concept-card">
-                    <h4>Model Limitations</h4>
-                    <ul>
-                        <li>Assumes constant carrying capacity</li>
-                        <li>Ignores age structure and genetics</li>
-                        <li>Linear density dependence may be oversimplified</li>
-                        <li>No spatial structure or migration</li>
-                        <li>Doesn't account for other species interactions</li>
-                    </ul>
-                </div>
-
-                <div class="concept-card">
-                    <h4>When Logistic Growth Applies</h4>
-                    <ul>
-                        <li>Single species in isolated environment</li>
-                        <li>Clear resource limitation</li>
-                        <li>Relatively stable environmental conditions</li>
-                        <li>Strong density-dependent regulation</li>
-                        <li>Populations near carrying capacity</li>
-                    </ul>
-                </div>
-
-                <div class="concept-card">
-                    <h4>Extensions and Improvements</h4>
-                    <ul>
-                        <li>Age-structured models (Chapter 3)</li>
-                        <li>Spatial models and metapopulations (Chapter 4)</li>
-                        <li>Predator-prey interactions (Chapter 6)</li>
-                        <li>Competition models (Chapter 5)</li>
-                        <li>Stochastic environmental variation</li>
-                    </ul>
-                </div>
-
-                <div class="concept-card">
-                    <h4>Real-World Considerations</h4>
-                    <ul>
-                        <li>Environmental stochasticity</li>
-                        <li>Catastrophic events</li>
-                        <li>Habitat fragmentation</li>
-                        <li>Climate change effects</li>
-                        <li>Human intervention and management</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
             <h2 class="section-title">Summary and Key Takeaways</h2>
             
             <div class="key-points">
@@ -1076,7 +908,6 @@
                     <li><strong>Density Dependence:</strong> Birth rates decrease and death rates increase with population density</li>
                     <li><strong>Maximum Growth Rate:</strong> Occurs at N = K/2, important for harvesting strategies</li>
                     <li><strong>Equilibrium Dynamics:</strong> Populations stabilize at K through negative feedback</li>
-                    <li><strong>Time Lags:</strong> Can cause oscillations or chaos in population dynamics</li>
                     <li><strong>Management Applications:</strong> Critical for sustainable resource exploitation</li>
                 </ul>
             </div>
@@ -1090,24 +921,96 @@
     </div>
 
     <script>
+        // Global chart variables
         let logisticChart, densityChart, growthRateChart, comparisonChart;
         
-        function initCharts() {
-            console.log('Initializing charts...');
+        // Tab switching function - DEFINED FIRST
+        function showTab(tabName) {
+            console.log('Switching to tab:', tabName);
             
-            // Initialize all charts
-            initLogisticChart();
-            initDensityChart();
-            initGrowthRateChart();
-            initComparisonChart();
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
             
-            // Setup event listeners
-            setupEventListeners();
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const selectedContent = document.getElementById(tabName);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
+            
+            // Add active class to clicked tab
+            const activeTab = Array.from(tabs).find(tab => 
+                tab.textContent.toLowerCase().includes(tabName.split('-')[0]) ||
+                tab.onclick.toString().includes(tabName)
+            );
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            // Update appropriate charts when switching tabs
+            setTimeout(() => {
+                if (tabName === 'basic-logistic' && logisticChart) {
+                    updateLogisticChart();
+                } else if (tabName === 'density-dependence' && densityChart) {
+                    updateDensityChart();
+                } else if (tabName === 'growth-rate' && growthRateChart) {
+                    updateGrowthRateChart();
+                } else if (tabName === 'comparison' && comparisonChart) {
+                    updateComparisonChart();
+                }
+            }, 100);
         }
 
+        // Calculator function
+        function calculateLogistic() {
+            const r = parseFloat(document.getElementById('calc-r').value);
+            const K = parseFloat(document.getElementById('calc-k').value);
+            const N0 = parseFloat(document.getElementById('calc-n0').value);
+            const t = parseFloat(document.getElementById('calc-t').value);
+            
+            if (r <= 0 || K <= 0 || N0 <= 0 || t < 0) {
+                document.getElementById('calc-result').innerHTML = `
+                    <div style="background: #dc3545; color: white; padding: 15px; border-radius: 10px;">
+                        <strong>Error:</strong> All values must be positive numbers.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Logistic growth formula: N(t) = K / (1 + ((K-N0)/N0) * exp(-rt))
+            const Nt = K / (1 + ((K - N0) / N0) * Math.exp(-r * t));
+            
+            // Calculate additional information
+            const percentOfK = (Nt / K * 100).toFixed(1);
+            const timeToHalfK = Math.log((K - N0) / N0) / r;
+            const maxGrowthRate = (r * K / 4).toFixed(2);
+            
+            document.getElementById('calc-result').innerHTML = `
+                <div style="background: #4a7c59; color: white; padding: 20px; border-radius: 10px;">
+                    <h4>Results:</h4>
+                    <p><strong>Population at time ${t}:</strong> ${Nt.toFixed(2)} individuals</p>
+                    <p><strong>Percentage of carrying capacity:</strong> ${percentOfK}%</p>
+                    <p><strong>Time to reach K/2:</strong> ${timeToHalfK.toFixed(2)} time units</p>
+                    <p><strong>Maximum growth rate (at K/2):</strong> ${maxGrowthRate} individuals/time</p>
+                </div>
+            `;
+        }
+
+        // Chart initialization functions
         function initLogisticChart() {
             const ctx = document.getElementById('logisticChart');
-            if (!ctx) return;
+            if (!ctx) {
+                console.error('Logistic chart canvas not found');
+                return;
+            }
             
             logisticChart = new Chart(ctx.getContext('2d'), {
                 type: 'line',
@@ -1167,7 +1070,10 @@
 
         function initDensityChart() {
             const ctx = document.getElementById('densityChart');
-            if (!ctx) return;
+            if (!ctx) {
+                console.error('Density chart canvas not found');
+                return;
+            }
             
             densityChart = new Chart(ctx.getContext('2d'), {
                 type: 'line',
@@ -1222,7 +1128,10 @@
 
         function initGrowthRateChart() {
             const ctx = document.getElementById('growthRateChart');
-            if (!ctx) return;
+            if (!ctx) {
+                console.error('Growth rate chart canvas not found');
+                return;
+            }
             
             growthRateChart = new Chart(ctx.getContext('2d'), {
                 type: 'line',
@@ -1272,7 +1181,10 @@
 
         function initComparisonChart() {
             const ctx = document.getElementById('comparisonChart');
-            if (!ctx) return;
+            if (!ctx) {
+                console.error('Comparison chart canvas not found');
+                return;
+            }
             
             comparisonChart = new Chart(ctx.getContext('2d'), {
                 type: 'line',
@@ -1336,17 +1248,18 @@
             updateComparisonChart();
         }
 
+        // Chart update functions
         function updateLogisticChart() {
             if (!logisticChart) return;
             
-            const r = parseFloat(document.getElementById('r-slider').value);
-            const K = parseFloat(document.getElementById('k-slider').value);
-            const N0 = parseFloat(document.getElementById('n0-slider').value);
+            const r = parseFloat(document.getElementById('r-slider')?.value || 0.1);
+            const K = parseFloat(document.getElementById('k-slider')?.value || 200);
+            const N0 = parseFloat(document.getElementById('n0-slider')?.value || 20);
             
             // Update display values
-            document.getElementById('r-value').textContent = r.toFixed(3);
-            document.getElementById('k-value').textContent = K;
-            document.getElementById('n0-value').textContent = N0;
+            if (document.getElementById('r-value')) document.getElementById('r-value').textContent = r.toFixed(3);
+            if (document.getElementById('k-value')) document.getElementById('k-value').textContent = K;
+            if (document.getElementById('n0-value')) document.getElementById('n0-value').textContent = N0;
             
             const maxTime = 50;
             const timePoints = [];
@@ -1354,10 +1267,11 @@
             const carryingCapacity = [];
             
             for (let t = 0; t <= maxTime; t += 0.5) {
-                timePoints.push(t);
+                timePoints.push(parseFloat(t.toFixed(1)));
                 
-                // Logistic growth equation: N(t) = K / (1 + ((K-N0)/N0) * exp(-rt))
-                const Nt = K / (1 + ((K - N0) / N0) * Math.exp(-r * t));
+                // Logistic growth equation
+                const denominator = 1 + ((K - N0) / N0) * Math.exp(-r * t);
+                const Nt = K / denominator;
                 logisticData.push(Nt);
                 carryingCapacity.push(K);
             }
@@ -1373,23 +1287,23 @@
         function updateDensityChart() {
             if (!densityChart) return;
             
-            const r = parseFloat(document.getElementById('r-slider').value) || 0.1;
-            const K = parseFloat(document.getElementById('k-slider').value) || 200;
+            const r = parseFloat(document.getElementById('r-slider')?.value || 0.1);
+            const K = parseFloat(document.getElementById('k-slider')?.value || 200);
             
-            // Assume b = 0.3, d = 0.2 for demonstration (so r = b - d = 0.1)
-            // And a = 0.0005, c = 0.0005 (so K = r/(a+c) = 200)
-            const b = 0.3;
-            const d = r < b ? b - r : 0.1;
-            const a = 0.0005;
-            const c = (b - d) / K - a;
+            // Use realistic parameters
+            const b = 0.25;
+            const d = Math.max(0.05, b - r);
+            const totalDensityEffect = r / K;
+            const a = totalDensityEffect * 0.6;
+            const c = totalDensityEffect * 0.4;
             
             const popSizes = [];
             const birthRates = [];
             const deathRates = [];
             
-            for (let N = 0; N <= K * 1.2; N += K / 100) {
-                popSizes.push(N);
-                birthRates.push(b - a * N);
+            for (let N = 0; N <= K * 1.5; N += K / 50) {
+                popSizes.push(parseFloat(N.toFixed(1)));
+                birthRates.push(Math.max(0, b - a * N));
                 deathRates.push(d + c * N);
             }
             
@@ -1403,15 +1317,14 @@
         function updateGrowthRateChart() {
             if (!growthRateChart) return;
             
-            const r = parseFloat(document.getElementById('r-slider').value) || 0.1;
-            const K = parseFloat(document.getElementById('k-slider').value) || 200;
+            const r = parseFloat(document.getElementById('r-slider')?.value || 0.1);
+            const K = parseFloat(document.getElementById('k-slider')?.value || 200);
             
             const popSizes = [];
             const growthRates = [];
             
-            for (let N = 0; N <= K * 1.2; N += K / 100) {
-                popSizes.push(N);
-                // dN/dt = rN(1 - N/K)
+            for (let N = 0; N <= K * 1.5; N += K / 50) {
+                popSizes.push(parseFloat(N.toFixed(1)));
                 const growthRate = r * N * (1 - N / K);
                 growthRates.push(growthRate);
             }
@@ -1425,14 +1338,14 @@
         function updateComparisonChart() {
             if (!comparisonChart) return;
             
-            const r = parseFloat(document.getElementById('comp-r').value);
-            const K = parseFloat(document.getElementById('comp-k').value);
-            const N0 = parseFloat(document.getElementById('comp-n0').value);
+            const r = parseFloat(document.getElementById('comp-r')?.value || 0.1);
+            const K = parseFloat(document.getElementById('comp-k')?.value || 500);
+            const N0 = parseFloat(document.getElementById('comp-n0')?.value || 50);
             
             // Update display values
-            document.getElementById('comp-r-value').textContent = r.toFixed(3);
-            document.getElementById('comp-k-value').textContent = K;
-            document.getElementById('comp-n0-value').textContent = N0;
+            if (document.getElementById('comp-r-value')) document.getElementById('comp-r-value').textContent = r.toFixed(3);
+            if (document.getElementById('comp-k-value')) document.getElementById('comp-k-value').textContent = K;
+            if (document.getElementById('comp-n0-value')) document.getElementById('comp-n0-value').textContent = N0;
             
             const maxTime = 30;
             const timePoints = [];
@@ -1441,14 +1354,15 @@
             const carryingCapacity = [];
             
             for (let t = 0; t <= maxTime; t += 0.5) {
-                timePoints.push(t);
+                timePoints.push(parseFloat(t.toFixed(1)));
                 
-                // Exponential growth: N(t) = N0 * exp(rt)
+                // Exponential growth
                 const expNt = N0 * Math.exp(r * t);
-                exponentialData.push(expNt);
+                exponentialData.push(Math.min(expNt, K * 5)); // Cap for display
                 
-                // Logistic growth: N(t) = K / (1 + ((K-N0)/N0) * exp(-rt))
-                const logNt = K / (1 + ((K - N0) / N0) * Math.exp(-r * t));
+                // Logistic growth
+                const denominator = 1 + ((K - N0) / N0) * Math.exp(-r * t);
+                const logNt = K / denominator;
                 logisticData.push(logNt);
                 
                 carryingCapacity.push(K);
@@ -1459,14 +1373,77 @@
             comparisonChart.data.datasets[1].data = logisticData;
             comparisonChart.data.datasets[2].data = carryingCapacity;
             
+            comparisonChart.options.plugins.title.text = `Growth Comparison: r=${r.toFixed(3)}, K=${K}, N₀=${N0}`;
             comparisonChart.update('none');
         }
 
+        // Event listeners setup
         function setupEventListeners() {
             // Basic logistic chart controls
-            ['r-slider', 'k-slider', 'n0-slider'].forEach(id => {
+            const elements = [
+                { id: 'r-slider', callback: () => { updateLogisticChart(); updateDensityChart(); updateGrowthRateChart(); } },
+                { id: 'k-slider', callback: () => { updateLogisticChart(); updateDensityChart(); updateGrowthRateChart(); } },
+                { id: 'n0-slider', callback: () => { updateLogisticChart(); updateDensityChart(); updateGrowthRateChart(); } },
+                { id: 'comp-r', callback: updateComparisonChart },
+                { id: 'comp-k', callback: updateComparisonChart },
+                { id: 'comp-n0', callback: updateComparisonChart }
+            ];
+            
+            elements.forEach(({ id, callback }) => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.addEventListener('input', () => {
-                        updateLogisticChart();
-                        updateDensityChart();
+                    element.addEventListener('input', callback);
+                    console.log(`Event listener added for ${id}`);
+                }
+            });
+        }
+
+        // Initialize everything
+        function initializeApp() {
+            console.log('Initializing application...');
+            
+            try {
+                initLogisticChart();
+                initDensityChart();
+                initGrowthRateChart();
+                initComparisonChart();
+                setupEventListeners();
+                
+                console.log('All charts and event listeners initialized successfully');
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            }
+        }
+
+        // DOM ready event
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            setTimeout(() => {
+                if (typeof Chart !== 'undefined') {
+                    initializeApp();
+                } else {
+                    console.error('Chart.js not loaded');
+                    // Retry after additional delay
+                    setTimeout(() => {
+                        if (typeof Chart !== 'undefined') {
+                            initializeApp();
+                        } else {
+                            console.error('Chart.js still not loaded after retry');
+                        }
+                    }, 1000);
+                }
+            }, 300);
+            
+            // Initialize MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise().then(() => {
+                    console.log('MathJax rendered successfully');
+                }).catch((err) => {
+                    console.error('MathJax error:', err);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
