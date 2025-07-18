@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Exponential Population Growth - Interactive Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header matching your site's style */
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+        
+        /* Section cards matching your site */
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            color: #2c5530;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+        
+        .section h3 {
+            color: #2c5530;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        /* Mathematical equation boxes */
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            color: #2c5530;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(74, 124, 89, 0.2);
+        }
+        
+        /* Concept boxes matching your site */
+        .concept-box {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #4a7c59;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .concept-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #4a7c59;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        /* Interactive section matching your site */
+        .interactive-section {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid #4a7c59;
+        }
+        
+        /* Control grids matching your site */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 20px 0;
+        }
+        
+        .control-group {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #4a7c59;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .control-group:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .control-group label {
+            color: #2c5530;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+            transition: background 0.3s;
+        }
+
+        input[type="range"]:hover {
+            background: #dee2e6;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #2c5530;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+            border: none;
+        }
+        
+        input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Georgia', serif;
+        }
+        
+        /* Buttons matching your site */
+        button {
+            background: #4a7c59;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+        }
+        
+        button:hover {
+            background: #2c5530;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .formula {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+            margin: 10px 0;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #2c5530;
+        }
+        
+        .assumptions-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #4a7c59;
+        }
+        
+        .assumptions-list li {
+            margin: 10px 0;
+            padding-left: 10px;
+        }
+        
+        /* Table styling matching your site */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: linear-gradient(45deg, #2c5530, #4a7c59);
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Key points section matching your site */
+        .key-points {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .key-points ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .key-points li {
+            margin: 10px 0;
+        }
+
+        /* Concept grid matching your site */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .concept-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #4a7c59;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .concept-card h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .concept-card p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Back link matching your site */
+        .back-link {
+            display: inline-block;
+            background: #4a7c59;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            background: #2c5530;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* MathJax styling */
+        .MathJax {
+            font-size: 1.1em !important;
+        }
+
+        .equation-display {
+            margin: 1.5em 0;
+            text-align: center;
+        }
+
+        .inline-math {
+            color: #2c5530;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header matching your site's style -->
+        <div class="header">
+            <div class="header-content">
+                <h1>Chapter 1: Exponential Population Growth</h1>
+                <p class="subtitle">From "A Primer of Ecology" by Nicholas J. Gotelli</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Introduction</h2>
+            <div class="concept-box">
+                <strong>Population Growth</strong> is fundamental to understanding ecology. A population is a group of organisms of the same species that live together and reproduce. Population growth occurs when the number of births exceeds the number of deaths, leading to an increase in population size over time.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Elements of Population Growth</h2>
+            
+            <h3>Four Factors Affecting Population Size</h3>
+            <div class="concept-box">
+                <p>Population size changes due to four key factors:</p>
+                <ul>
+                    <li><strong>Births (B)</strong> - Increase population size</li>
+                    <li><strong>Deaths (D)</strong> - Decrease population size</li>
+                    <li><strong>Immigration (I)</strong> - Individuals moving in</li>
+                    <li><strong>Emigration (E)</strong> - Individuals moving out</li>
+                </ul>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$N_{t+1} = N_t + B - D + I - E$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p><strong>Simplified Model:</strong> For a <span class="highlight">closed population</span> (no migration), we assume $I = E = 0$:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\Delta N = B - D$$
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">The Exponential Growth Model</h2>
+
+            <h3>Derivation</h3>
+            <div class="concept-box">
+                <p>We define:</p>
+                <ul>
+                    <li><strong>$b$</strong> = instantaneous birth rate (births per individual per time)</li>
+                    <li><strong>$d$</strong> = instantaneous death rate (deaths per individual per time)</li>
+                    <li><strong>$r = b - d$</strong> = intrinsic rate of increase</li>
+                </ul>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\frac{dN}{dt} = rN$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>This is the <strong>fundamental equation of exponential growth</strong>. It states that the rate of population change is proportional to both the intrinsic rate of increase $(r)$ and the current population size $(N)$.</p>
+            </div>
+
+            <h3>Integrated Solution</h3>
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$N_t = N_0 e^{rt}$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>Where:</p>
+                <ul>
+                    <li><strong>$N_t$</strong> = population size at time $t$</li>
+                    <li><strong>$N_0$</strong> = initial population size</li>
+                    <li><strong>$e \approx 2.718$</strong> = base of natural logarithm</li>
+                    <li><strong>$r$</strong> = intrinsic rate of increase</li>
+                    <li><strong>$t$</strong> = time</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Looking Ahead</h2>
+            <div class="concept-box">
+                <p>While exponential growth provides the foundation for population ecology, real populations cannot grow indefinitely. In <strong>Chapter 2: Logistic Population Growth</strong>, we'll explore how resource limitation creates carrying capacity and leads to more realistic population dynamics.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Key Takeaways</h2>
+            <div class="key-points">
+                <h3>Essential Concepts</h3>
+                <ul>
+                    <li>Exponential growth occurs when birth rate exceeds death rate ($r > 0$)</li>
+                    <li>Growth rate is proportional to current population size</li>
+                    <li>Small organisms generally have higher growth rates than large organisms</li>
+                    <li>Environmental and demographic stochasticity can lead to extinction even when $r > 0$</li>
+                    <li>Understanding exponential growth is crucial for conservation, pest control, and human population planning</li>
+                </ul>
+            </div>
+        </div>
+
+        <a href="../../index.html" class="back-link">← Back to Main Site</a>
+    </div>
+
+    <script>
+        let chart;
+        
+        function initChart() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Population Size',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Exponential Population Growth: Nt = N₀e^(rt)',
+                            color: '#2c5530',
+                            font: {
+                                family: 'Georgia',
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (t)',
+                                color: '#2c5530',
+                                font: {
+                                    family: 'Georgia',
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(44, 85, 48, 0.1)',
+                                borderColor: '#4a7c59'
+                            },
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    family: 'Georgia'
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Size (N)',
+                                color: '#2c5530',
+                                font: {
+                                    family: 'Georgia',
+                                    weight: 'bold'
+                                }
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(44, 85, 48, 0.1)',
+                                borderColor: '#4a7c59'
+                            },
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    family: 'Georgia'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            updateChart();
+        }
+        
+        function updateChart() {
+            const r = parseFloat(document.getElementById('r-slider').value);
+            const N0 = parseFloat(document.getElementById('n0-slider').value);
+            const maxTime = parseFloat(document.getElementById('time-slider').value);
+            
+            document.getElementById('r-value').textContent = r.toFixed(3);
+            document.getElementById('n0-value').textContent = N0;
+            document.getElementById('time-value').textContent = maxTime;
+            
+            const timePoints = [];
+            const popSizes = [];
+            
+            for (let t = 0; t <= maxTime; t += 1) {
+                timePoints.push(t);
+                const Nt = N0 * Math.exp(r * t);
+                popSizes.push(Nt);
+            }
+            
+            chart.data.labels = timePoints;
+            chart.data.datasets[0].data = popSizes;
+            
+            // Update chart title with current parameters
+            chart.options.plugins.title.text = `Exponential Growth: N₀=${N0}, r=${r.toFixed(3)}`;
+            
+            chart.update();
+        }
+        
+        function calculateDoubling() {
+            const r = parseFloat(document.getElementById('r-input').value);
+            if (r > 0) {
+                const doublingTime = Math.log(2) / r;
+                document.getElementById('doubling-result').innerHTML = `
+                    <div style="background: #4a7c59; color: white; padding: 15px; border-radius: 10px;">
+                        <strong>Doubling Time = ${doublingTime.toFixed(2)} time units</strong><br>
+                        <small>Formula: t<sub>double</sub> = ln(2)/r = 0.693/${r}</small>
+                    </div>
+                `;
+            } else {
+                document.getElementById('doubling-result').innerHTML = `
+                    <div style="background: #dc3545; color: white; padding: 15px; border-radius: 10px;">
+                        <strong>Population is declining (r ≤ 0)</strong><br>
+                        <small>Doubling time is undefined for declining populations</small>
+                    </div>
+                `;
+            }
+        }
+        
+        // Event listeners for sliders
+        document.getElementById('r-slider').addEventListener('input', updateChart);
+        document.getElementById('n0-slider').addEventListener('input', updateChart);
+        document.getElementById('time-slider').addEventListener('input', updateChart);
+        
+        // Initialize chart when page loads
+        window.onload = function() {
+            initChart();
+            // Re-render MathJax after page load
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        };
+    </script>
+</body>
+</html>
+
+        <div class="section">
+            <h2 class="section-title">Interactive Exponential Growth Visualization</h2>
+            <div class="interactive-section">
+                <h3>Explore How Parameters Affect Growth</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="r-slider">Intrinsic Rate ($r$)</label>
+                        <input type="range" id="r-slider" min="-0.05" max="0.15" step="0.01" value="0.05">
+                        <span id="r-value">0.05</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="n0-slider">Initial Population ($N_0$)</label>
+                        <input type="range" id="n0-slider" min="10" max="200" step="10" value="50">
+                        <span id="n0-value">50</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="time-slider">Time Period</label>
+                        <input type="range" id="time-slider" min="20" max="100" step="10" value="50">
+                        <span id="time-value">50</span>
+                    </div>
+                </div>
+                <button onclick="updateChart()">Update Growth Curve</button>
+                
+                <div class="chart-container">
+                    <canvas id="growthChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Key Characteristics of Exponential Growth</h2>
+
+            <h3>1. Doubling Time</h3>
+            <div class="concept-box">
+                <p>The time required for a population to double in size is constant and independent of population size:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$t_{double} = \frac{\ln(2)}{r} \approx \frac{0.693}{r}$$
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Example: Human Population Doubling Time</h4>
+                <p>If the global human population has $r = 0.014$ individuals/(individual·year):</p>
+                <div class="formula">
+                    $$t_{double} = \frac{0.693}{0.014} \approx 49.5 \text{ years}$$
+                </div>
+                <p>This means the population would double approximately every 50 years under constant exponential growth.</p>
+            </div>
+
+            <h3>2. Growth Rate Patterns</h3>
+            <div class="concept-box">
+                <p>The population growth depends on the value of $r$:</p>
+                <ul>
+                    <li><strong>$r > 0$:</strong> Population increases exponentially</li>
+                    <li><strong>$r = 0$:</strong> Population remains constant</li>
+                    <li><strong>$r < 0$:</strong> Population declines exponentially toward extinction</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Examples Across Organisms</h2>
+            <div class="chart-container">
+                <h3>Growth Rates and Doubling Times for Different Species</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Species</th>
+                            <th>Common Name</th>
+                            <th>$r$ (individuals/individual·day)</th>
+                            <th>Doubling Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>T4 phage</td>
+                            <td>Virus</td>
+                            <td>300.0</td>
+                            <td>3.3 minutes</td>
+                        </tr>
+                        <tr>
+                            <td><em>Escherichia coli</em></td>
+                            <td>Bacterium</td>
+                            <td>58.7</td>
+                            <td>17 minutes</td>
+                        </tr>
+                        <tr>
+                            <td><em>Paramecium caudatum</em></td>
+                            <td>Protozoan</td>
+                            <td>1.59</td>
+                            <td>10.5 hours</td>
+                        </tr>
+                        <tr>
+                            <td><em>Tribolium castaneum</em></td>
+                            <td>Flour beetle</td>
+                            <td>0.101</td>
+                            <td>6.9 days</td>
+                        </tr>
+                        <tr>
+                            <td><em>Rattus norvegicus</em></td>
+                            <td>Brown rat</td>
+                            <td>0.0148</td>
+                            <td>46.8 days</td>
+                        </tr>
+                        <tr>
+                            <td><em>Bos taurus</em></td>
+                            <td>Domestic cow</td>
+                            <td>0.001</td>
+                            <td>1.9 years</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Model Assumptions</h2>
+            <div class="assumptions-list">
+                <h3>Critical Assumptions of the Exponential Growth Model:</h3>
+                <ol>
+                    <li><strong>No Immigration or Emigration:</strong> Population is "closed"</li>
+                    <li><strong>Constant Birth and Death Rates:</strong> Unlimited resources available</li>
+                    <li><strong>No Genetic Structure:</strong> All individuals have same birth/death rates</li>
+                    <li><strong>No Age or Size Structure:</strong> All individuals reproduce immediately</li>
+                    <li><strong>Continuous Growth:</strong> No time lags in population response</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Discrete vs. Continuous Growth</h2>
+            
+            <h3>Discrete Growth Model</h3>
+            <div class="concept-box">
+                <p>For populations with non-overlapping generations (like annual plants):</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$N_{t+1} = \lambda N_t$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>Where $\lambda$ (lambda) is the <strong>finite rate of increase</strong>. The relationship between discrete and continuous models:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\lambda = e^r \quad \text{and} \quad r = \ln(\lambda)$$
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Stochastic Models</h2>
+
+            <h3>Environmental Stochasticity</h3>
+            <div class="concept-box">
+                <p>When $r$ varies randomly due to environmental fluctuations, the average population size is:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\bar{N}_t = N_0 e^{\bar{r}t}$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>But the variance in population size increases over time, creating a "funnel" of uncertainty. Risk of extinction occurs when:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\sigma_r^2 > 2\bar{r}$$
+                </div>
+            </div>
+
+            <h3>Demographic Stochasticity</h3>
+            <div class="concept-box">
+                <p>Random variation in births and deaths affects small populations more severely. The probability of extinction for a population starting with $N_0$ individuals is:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$P(\text{extinction}) = \left(\frac{d}{b}\right)^{N_0}$$
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Real-World Examples</h2>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Protection Island Pheasants (1937-1942)</h4>
+                    <p>Eight pheasants were introduced to Protection Island, Washington. The population grew from 8 to nearly 2,000 birds in 5 years, demonstrating exponential growth when resources are abundant and predators absent.</p>
+                    <ul>
+                        <li><strong>Initial growth rate:</strong> $\lambda = 3.75$ (from 8 to 30 birds in first year)</li>
+                        <li><strong>Corresponding $r$:</strong> 1.32 pheasants/(pheasant·year)</li>
+                        <li><strong>Growth pattern:</strong> Followed exponential model until resource limitation</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Yellowstone Grizzly Bears</h4>
+                    <p>Population analysis revealed:</p>
+                    <ul>
+                        <li><strong>Estimated $r$:</strong> -0.003034 bears/(bear·year)</li>
+                        <li><strong>Population trend:</strong> Slowly declining</li>
+                        <li><strong>Management implications:</strong> Risk of extinction without intervention</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Interactive Doubling Time Calculator</h2>
+            <div class="interactive-section">
+                <h3>Calculate Doubling Time</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="r-input">Growth Rate ($r$)</label>
+                        <input type="number" id="r-input" step="0.001" value="0.05" min="0.001" max="1.0">
+                        <button onclick="calculateDoubling()">Calculate</button>
+                    </div>
+                </div>
+                <div id="doubling-result" style="margin-top: 20px; font-size: 1.2em; text-align: center;"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Practice Problems</h2>
+            <div class="example-box">
+                <h3>Try These Calculations:</h3>
+                <ol>
+                    <li>A bacterial population starts with 100 individuals and has $r = 0.5$ per hour. What will be the population size after 4 hours?</li>
+                    <li>If a human population is growing at 1.4% per year, what is its doubling time?</li>
+                    <li>A population of 1000 organisms declines to 800 over one year. What is the value of $r$?</li>
+                </ol>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.7); border-radius: 10px;">
+                    <h4>Solutions:</h4>
+                    <ol>
+                        <li>$N_t = 100 \times e^{0.5 \times 4} = 100 \times e^2 \approx 739$ individuals</li>
+                        <li>$t_{double} = \frac{0.693}{0.014} \approx 49.5$ years</li>
+                        <li>$r = \frac{\ln(800/1000)}{1} = \ln(0.8) \approx -0.223$ per year</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Implications and Applications</h2>
+
+            <div class="key-points">
+                <h3>Why Study Exponential Growth?</h3>
+                <ul>
+                    <li><strong>Theoretical Foundation:</strong> All populations have potential for exponential increase</li>
+                    <li><strong>Conservation Biology:</strong> Understanding extinction risks in small populations</li>
+                    <li><strong>Pest Management:</strong> Predicting outbreak dynamics</li>
+                    <li><strong>Evolutionary Theory:</strong> Basis for natural selection (surplus offspring)</li>
+                    <li><strong>Human Demographics:</strong> Population projections and policy planning</li>
+                </ul>
