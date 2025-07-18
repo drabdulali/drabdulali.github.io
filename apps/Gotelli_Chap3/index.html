@@ -605,13 +605,13 @@
                 
                 for (let i = 0; i < n; i++) {
                     result += `
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${i}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${sxValues[i]}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${lx[i].toFixed(3)}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${bxValues[i]}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${gx[i].toFixed(3)}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${(lx[i] * bxValues[i]).toFixed(3)}</td>
+                        <tr style="background: ${i % 2 === 0 ? '#f8f9fa' : '#ffffff'};">
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${i}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${sxValues[i]}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${lx[i].toFixed(3)}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${bxValues[i]}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${gx[i].toFixed(3)}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${(lx[i] * bxValues[i]).toFixed(3)}</td>
                         </tr>
                     `;
                 }
@@ -619,9 +619,11 @@
                 result += `
                         </table>
                         <br>
-                        <strong>R₀ = ${r0.toFixed(3)}</strong><br>
-                        <strong>G = ${g.toFixed(3)} years</strong><br>
-                        <strong>r ≈ ${r_approx.toFixed(3)} individuals/(individual·year)</strong>
+                        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; border-left: 4px solid #27ae60;">
+                            <strong><em>R</em>₀ = ${r0.toFixed(3)}</strong> (offspring per individual)<br>
+                            <strong><em>G</em> = ${g.toFixed(3)} years</strong> (generation time)<br>
+                            <strong><em>r</em> ≈ ${r_approx.toFixed(4)} individuals/(individual·year)</strong> (intrinsic growth rate)
+                        </div>
                     </div>
                 `;
                 
@@ -1130,94 +1132,6 @@
             // Could send to analytics in production
         });
     </script>
-
-    <style>
-        @media print {
-            .tab {
-                display: none;
-            }
-            .tab-content {
-                display: block !important;
-                page-break-inside: avoid;
-            }
-            .chart-container {
-                display: none;
-            }
-            .calculator {
-                border: 1px solid #000;
-                margin: 10px 0;
-            }
-        }
-
-        /* Additional responsive styles */
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header {
-                padding: 20px;
-            }
-            
-            .tab {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            
-            .input-group input {
-                font-size: 16px; /* Prevents zoom on iOS */
-            }
-        }
-
-        /* Accessibility improvements */
-        .tab:focus {
-            outline: 2px solid #27ae60;
-            outline-offset: 2px;
-        }
-
-        .btn:focus {
-            outline: 2px solid #27ae60;
-            outline-offset: 2px;
-        }
-
-        /* Loading animations */
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .loading {
-            animation: pulse 1.5s infinite;
-        }
-
-        /* Tooltip styles */
-        .tooltip {
-            position: relative;
-            cursor: help;
-        }
-
-        .tooltip::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .tooltip:hover::after {
-            opacity: 1;
-        }
-    </style>
 </body>
 </html>0g-result').innerHTML = `
                     <div class="result">
