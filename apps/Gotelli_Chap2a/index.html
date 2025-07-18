@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2: Logistic Population Growth - Interactive Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header matching your site's style */
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="70" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        /* Disclaimer box */
+        .disclaimer {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .disclaimer strong {
+            color: #663c00;
+        }
+        
+        /* Section cards matching your site */
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            color: #2c5530;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+        
+        .section h3 {
+            color: #2c5530;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        /* Mathematical equation boxes */
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            color: #2c5530;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(74, 124, 89, 0.2);
+        }
+        
+        /* Concept boxes matching your site */
+        .concept-box {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #4a7c59;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .concept-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #4a7c59;
+        }
+        
+        /* Chart container */
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            height: 500px;
+            position: relative;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 400px !important;
+        }
+        
+        /* Interactive section matching your site */
+        .interactive-section {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid #4a7c59;
+        }
+        
+        /* Control grids matching your site */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 20px 0;
+        }
+        
+        .control-group {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #4a7c59;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .control-group:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .control-group label {
+            color: #2c5530;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+            transition: background 0.3s;
+        }
+
+        input[type="range"]:hover {
+            background: #dee2e6;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #2c5530;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+            border: none;
+        }
+        
+        input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Georgia', serif;
+        }
+        
+        /* Buttons matching your site */
+        button {
+            background: #4a7c59;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+        }
+        
+        button:hover {
+            background: #2c5530;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .formula {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+            margin: 10px 0;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #2c5530;
+        }
+        
+        .assumptions-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #4a7c59;
+        }
+        
+        .assumptions-list li {
+            margin: 10px 0;
+            padding-left: 10px;
+        }
+        
+        /* Table styling matching your site */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: linear-gradient(45deg, #2c5530, #4a7c59);
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Key points section matching your site */
+        .key-points {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .key-points ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .key-points li {
+            margin: 10px 0;
+        }
+
+        /* Concept grid matching your site */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .concept-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #4a7c59;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .concept-card h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .concept-card p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Back link matching your site */
+        .back-link {
+            display: inline-block;
+            background: #4a7c59;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            background: #2c5530;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Tabs for different visualizations */
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #4a7c59;
+        }
+
+        .tab {
+            background: #f8f9fa;
+            color: #2c5530;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-container {
+                flex-direction: column;
+            }
+
+            .tab {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+        }
+
+        /* MathJax styling */
+        .MathJax {
+            font-size: 1.1em !important;
+        }
+
+        .equation-display {
+            margin: 1.5em 0;
+            text-align: center;
+        }
+
+        .inline-math {
+            color: #2c5530;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header matching your site's style -->
+        <div class="header">
+            <div class="header-content">
+                <h1>Chapter 2: Logistic Population Growth</h1>
+                <p class="subtitle">From "A Primer of Ecology" by Nicholas J. Gotelli</p>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This educational content is based on Gotelli's "A Primer of Ecology" and may contain interpretative errors or simplifications. Please refer to the original textbook for authoritative information. Use this material as a study aid, not as a substitute for the primary source.
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Introduction to Resource Limitation</h2>
+            <div class="concept-box">
+                In Chapter 1, we assumed unlimited resources for population growth. However, in reality, resources are <span class="highlight">limited</span>. As populations grow, they deplete available resources, leading to increased competition and density-dependent effects on birth and death rates.
+            </div>
+
+            <div class="concept-box">
+                <p><strong>Key Difference from Exponential Growth:</strong></p>
+                <ul>
+                    <li><strong>Exponential Model:</strong> Constant birth and death rates $(b, d)$</li>
+                    <li><strong>Logistic Model:</strong> Density-dependent birth and death rates $(b', d')$</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Density Dependence</h2>
+            
+            <h3>Density-Dependent Birth Rate</h3>
+            <div class="concept-box">
+                <p>As population density increases, the per capita birth rate decreases due to resource competition:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$b' = b - aN$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>Where:</p>
+                <ul>
+                    <li><strong>$b'$</strong> = actual (density-dependent) birth rate</li>
+                    <li><strong>$b$</strong> = intrinsic birth rate (when $N \approx 0$)</li>
+                    <li><strong>$a$</strong> = strength of density dependence on birth rate</li>
+                    <li><strong>$N$</strong> = population size</li>
+                </ul>
+            </div>
+
+            <h3>Density-Dependent Death Rate</h3>
+            <div class="concept-box">
+                <p>As population density increases, the per capita death rate increases due to increased competition and stress:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$d' = d + cN$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>Where:</p>
+                <ul>
+                    <li><strong>$d'$</strong> = actual (density-dependent) death rate</li>
+                    <li><strong>$d$</strong> = intrinsic death rate (when $N \approx 0$)</li>
+                    <li><strong>$c$</strong> = strength of density dependence on death rate</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Derivation of the Logistic Equation</h2>
+
+            <h3>Step 1: Basic Growth Equation</h3>
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\frac{dN}{dt} = (b' - d')N$$
+                </div>
+            </div>
+
+            <h3>Step 2: Substitute Density-Dependent Rates</h3>
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\frac{dN}{dt} = [(b - aN) - (d + cN)]N$$
+                </div>
+            </div>
+
+            <h3>Step 3: Simplify</h3>
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\frac{dN}{dt} = [(b - d) - (a + c)N]N$$
+                </div>
+            </div>
+
+            <h3>Step 4: Define $r$ and $K$</h3>
+            <div class="concept-box">
+                <p>Let $r = b - d$ (intrinsic rate of increase) and define carrying capacity:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$K = \frac{b - d}{a + c} = \frac{r}{a + c}$$
+                </div>
+            </div>
+
+            <h3>Step 5: The Logistic Equation</h3>
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\frac{dN}{dt} = rN\left(1 - \frac{N}{K}\right)$$
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Carrying Capacity (K)</h2>
+            
+            <div class="concept-box">
+                <p><strong>Carrying Capacity $(K)$</strong> represents the maximum population size that the environment can sustain indefinitely. It encompasses:</p>
+                <ul>
+                    <li>Food availability</li>
+                    <li>Space limitations</li>
+                    <li>Shelter availability</li>
+                    <li>Other essential resources</li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <p>The term $\left(1 - \frac{N}{K}\right)$ represents the <span class="highlight">unused portion of carrying capacity</span>:</p>
+                <ul>
+                    <li>When $N = 0$: unused capacity = 1 (100%)</li>
+                    <li>When $N = K/2$: unused capacity = 0.5 (50%)</li>
+                    <li>When $N = K$: unused capacity = 0 (0%)</li>
+                    <li>When $N > K$: unused capacity < 0 (population declines)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Integrated Solution</h2>
+            
+            <div class="concept-box">
+                <p>The integrated form of the logistic equation gives population size as a function of time:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$N_t = \frac{K}{1 + \left(\frac{K - N_0}{N_0}\right)e^{-rt}}$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>This produces the characteristic <strong>S-shaped (sigmoid) curve</strong> of logistic growth.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Interactive Logistic Growth Visualization</h2>
+            
+            <div class="interactive-section">
+                <h3>Explore Logistic Growth Dynamics</h3>
+                
+                <div class="tab-container">
+                    <button class="tab active" onclick="showTab('basic-logistic')">Basic Logistic</button>
+                    <button class="tab" onclick="showTab('density-dependence')">Density Dependence</button>
+                    <button class="tab" onclick="showTab('growth-rate')">Growth Rate Analysis</button>
+                </div>
+
+                <!-- Basic Logistic Growth Tab -->
+                <div id="basic-logistic" class="tab-content active">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="r-slider">Intrinsic Rate ($r$)</label>
+                            <input type="range" id="r-slider" min="0.01" max="0.3" step="0.01" value="0.1">
+                            <span id="r-value">0.10</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="k-slider">Carrying Capacity ($K$)</label>
+                            <input type="range" id="k-slider" min="50" max="500" step="10" value="200">
+                            <span id="k-value">200</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="n0-slider">Initial Population ($N_0$)</label>
+                            <input type="range" id="n0-slider" min="5" max="100" step="5" value="20">
+                            <span id="n0-value">20</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="logisticChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Density Dependence Tab -->
+                <div id="density-dependence" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="densityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Growth Rate Analysis Tab -->
+                <div id="growth-rate" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="growthRateChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Key Properties of Logistic Growth</h2>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>S-Shaped Curve</h4>
+                    <p>Population growth follows a sigmoid pattern: slow initial growth, rapid exponential-like growth in the middle, then slowing as it approaches carrying capacity.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Maximum Growth Rate at K/2</h4>
+                    <p>The population grows fastest when $N = K/2$. At this point, there's optimal balance between population size and available resources.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Stable Equilibrium at K</h4>
+                    <p>When $N = K$, $\frac{dN}{dt} = 0$. The population reaches a stable equilibrium where births equal deaths.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Self-Regulation</h4>
+                    <p>If $N > K$, growth rate becomes negative and population declines. If $N < K$, population increases toward carrying capacity.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Model Assumptions</h2>
+            
+            <div class="assumptions-list">
+                <h3>Critical Assumptions of the Logistic Growth Model:</h3>
+                <ol>
+                    <li><strong>Constant Carrying Capacity:</strong> $K$ does not vary with time</li>
+                    <li><strong>Linear Density Dependence:</strong> Birth and death rates change linearly with $N$</li>
+                    <li><strong>No Time Lags:</strong> Population responds immediately to density changes</li>
+                    <li><strong>Closed Population:</strong> No immigration or emigration</li>
+                    <li><strong>Continuous Growth:</strong> No discrete breeding seasons</li>
+                    <li><strong>Homogeneous Population:</strong> No age structure or genetic variation</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Model Variations</h2>
+
+            <h3>Time Lags in Density Dependence</h3>
+            <div class="concept-box">
+                <p>In reality, populations may not respond immediately to density changes. The time-lag model is:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\frac{dN}{dt} = rN\left(1 - \frac{N_{t-\tau}}{K}\right)$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>Where $\tau$ is the time lag. The behavior depends on $r\tau$:</p>
+                <ul>
+                    <li><strong>$r\tau < 0.368$:</strong> Smooth approach to $K$</li>
+                    <li><strong>$0.368 < r\tau < 1.570$:</strong> Damped oscillations</li>
+                    <li><strong>$r\tau > 1.570$:</strong> Stable limit cycles</li>
+                </ul>
+            </div>
+
+            <h3>Discrete Logistic Growth</h3>
+            <div class="concept-box">
+                <p>For populations with discrete generations:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$N_{t+1} = N_t + r_dN_t\left(1 - \frac{N_t}{K}\right)$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>This can lead to complex dynamics including chaos when $r_d > 2.57$.</p>
+            </div>
+
+            <h3>Stochastic Carrying Capacity</h3>
+            <div class="concept-box">
+                <p>When carrying capacity varies randomly, the average population size is:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $$\bar{N} \approx \bar{K} - \frac{\sigma_K^2}{2}$$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>More variable environments support smaller average populations.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Real-World Examples</h2>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Song Sparrows of Mandarte Island</h4>
+                    <p><strong>Study Period:</strong> 1960-1990<br>
+                    <strong>Population Range:</strong> 4-72 breeding females<br>
+                    <strong>Key Findings:</strong> Clear density dependence in reproduction and survival, but population fluctuations due to environmental stochasticity prevented simple logistic growth.</p>
+                    <ul>
+                        <li>Territoriality limited breeding opportunities</li>
+                        <li>Food limitation reduced reproductive success</li>
+                        <li>Winter storms caused population crashes</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Subtidal Ascidians</h4>
+                    <p><strong>Species:</strong> <em>Ascidia mentula</em><br>
+                    <strong>Study Duration:</strong> 12 years<br>
+                    <strong>Key Findings:</strong> Density-dependent recruitment but density-independent mortality. Shows Allee effect at low densities.</p>
+                    <ul>
+                        <li>Recruitment decreased at high densities</li>
+                        <li>Mortality independent of population size</li>
+                        <li>Evidence of Allee effect below ~100 individuals/m²</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Fisheries Collapse: Peruvian Anchovy</h4>
+                    <p><strong>Species:</strong> <em>Engraulis ringens</em><br>
+                    <strong>Peak Years:</strong> 1964-1971<br>
+                    <strong>Key Lessons:</strong> Logistic model predicted maximum sustainable yield at K/2, but overfishing led to population collapse.</p>
+                    <ul>
+                        <li>Maximum yield: ~10-11 million metric tons/year</li>
+                        <li>Collapsed in 1972 due to overfishing + El Niño</li>
+                        <li>Never recovered to original abundance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Applications: Maximum Sustainable Yield</h2>
+            
+            <div class="concept-box">
+                <p>The logistic model provides insights for optimal harvesting strategies. Maximum population growth rate occurs at $N = K/2$:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $\frac{dN}{dt}\bigg|_{N=K/2} = \frac{rK}{4}$
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Fisheries Management Example</h4>
+                <p>For a fish population with $K = 1000$ tons and $r = 0.2$ year⁻¹:</p>
+                <div class="formula">
+                    Maximum sustainable yield = $\frac{rK}{4} = \frac{0.2 \times 1000}{4} = 50$ tons/year
+                </div>
+                <p>This yield can be maintained indefinitely if population is kept at $N = K/2 = 500$ tons.</p>
+            </div>
+
+            <div class="concept-box">
+                <p><strong>Tragedy of the Commons:</strong> Individual fishing vessels maximize short-term catch, leading to overfishing and population collapse despite known sustainable limits.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Comparison: Exponential vs. Logistic Growth</h2>
+            
+            <div class="interactive-section">
+                <h3>Side-by-Side Comparison</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="comp-r">Growth Rate ($r$)</label>
+                        <input type="range" id="comp-r" min="0.01" max="0.2" step="0.01" value="0.1">
+                        <span id="comp-r-value">0.10</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="comp-k">Carrying Capacity ($K$)</label>
+                        <input type="range" id="comp-k" min="100" max="1000" step="50" value="500">
+                        <span id="comp-k-value">500</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="comp-n0">Initial Population</label>
+                        <input type="range" id="comp-n0" min="10" max="100" step="10" value="50">
+                        <span id="comp-n0-value">50</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Exponential Growth</h4>
+                    <p><strong>Equation:</strong> $\frac{dN}{dt} = rN$</p>
+                    <ul>
+                        <li>Constant growth rate</li>
+                        <li>No resource limitation</li>
+                        <li>Population increases indefinitely</li>
+                        <li>J-shaped curve</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Logistic Growth</h4>
+                    <p><strong>Equation:</strong> $\frac{dN}{dt} = rN(1-N/K)$</p>
+                    <ul>
+                        <li>Density-dependent growth rate</li>
+                        <li>Resource limitation (K)</li>
+                        <li>Population stabilizes at K</li>
+                        <li>S-shaped curve</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Advanced Topics</h2>
+
+            <h3>The Allee Effect</h3>
+            <div class="concept-box">
+                <p>Sometimes populations grow better at moderate densities than at very low densities, creating a <strong>critical minimum population size</strong>:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $\frac{dN}{dt} = rN\left(\frac{N}{A} - 1\right)\left(1 - \frac{N}{K}\right)$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>Where $A$ is the Allee threshold. Populations below $A$ decline to extinction.</p>
+            </div>
+
+            <h3>Metapopulation Dynamics</h3>
+            <div class="concept-box">
+                <p>In fragmented landscapes, local populations may follow logistic growth while being connected by migration:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $\frac{dN_i}{dt} = r_iN_i\left(1 - \frac{N_i}{K_i}\right) + \sum_{j \neq i} m_{ji}N_j - \sum_{j \neq i} m_{ij}N_i$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>Where $m_{ij}$ represents migration rate from patch $i$ to patch $j$.</p>
+            </div>
+
+            <h3>Competition and Coexistence</h3>
+            <div class="concept-box">
+                <p>When multiple species compete for the same resources, logistic growth is modified:</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation-display">
+                    $\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha_{12}N_2}{K_1}\right)$
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <p>Where $\alpha_{12}$ is the competition coefficient measuring the effect of species 2 on species 1.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Interactive Problem Solving</h2>
+            
+            <div class="interactive-section">
+                <h3>Logistic Growth Calculator</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="calc-r">Growth Rate (r)</label>
+                        <input type="number" id="calc-r" step="0.01" value="0.1" min="0.01">
+                    </div>
+                    <div class="control-group">
+                        <label for="calc-k">Carrying Capacity (K)</label>
+                        <input type="number" id="calc-k" step="1" value="1000" min="1">
+                    </div>
+                    <div class="control-group">
+                        <label for="calc-n0">Initial Population</label>
+                        <input type="number" id="calc-n0" step="1" value="50" min="1">
+                    </div>
+                    <div class="control-group">
+                        <label for="calc-t">Time</label>
+                        <input type="number" id="calc-t" step="0.1" value="10" min="0.1">
+                    </div>
+                </div>
+                <button onclick="calculateLogistic()">Calculate Population Size</button>
+                <div id="calc-result" style="margin-top: 20px; font-size: 1.2em; text-align: center;"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Practice Problems</h2>
+            
+            <div class="example-box">
+                <h3>Solve These Problems:</h3>
+                <ol>
+                    <li>A population has $r = 0.2$ and $K = 500$. If it starts with 50 individuals, what will be the population size after 10 time units?</li>
+                    <li>At what population size does logistic growth reach its maximum rate? What is this maximum rate for the population in problem 1?</li>
+                    <li>A fish population has $K = 10,000$ tons and $r = 0.3$ year⁻¹. What is the maximum sustainable harvest?</li>
+                    <li>If a population shows time lags with $r = 0.1$ and $\tau = 5$, what type of dynamics would you expect?</li>
+                </ol>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.7); border-radius: 10px;">
+                    <h4>Solutions:</h4>
+                    <ol>
+                        <li>$N_t = \frac{500}{1 + \left(\frac{500-50}{50}\right)e^{-0.2 \times 10}} = \frac{500}{1 + 9e^{-2}} \approx 435$ individuals</li>
+                        <li>Maximum at $N = K/2 = 250$; Maximum rate = $\frac{rK}{4} = \frac{0.2 \times 500}{4} = 25$ individuals/time</li>
+                        <li>Maximum sustainable yield = $\frac{rK}{4} = \frac{0.3 \times 10000}{4} = 750$ tons/year</li>
+                        <li>$r\tau = 0.1 \times 5 = 0.5$; Since $0.368 < 0.5 < 1.570$, expect damped oscillations</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Limitations and Extensions</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Model Limitations</h4>
+                    <ul>
+                        <li>Assumes constant carrying capacity</li>
+                        <li>Ignores age structure and genetics</li>
+                        <li>Linear density dependence may be oversimplified</li>
+                        <li>No spatial structure or migration</li>
+                        <li>Doesn't account for other species interactions</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h4>When Logistic Growth Applies</h4>
+                    <ul>
+                        <li>Single species in isolated environment</li>
+                        <li>Clear resource limitation</li>
+                        <li>Relatively stable environmental conditions</li>
+                        <li>Strong density-dependent regulation</li>
+                        <li>Populations near carrying capacity</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Extensions and Improvements</h4>
+                    <ul>
+                        <li>Age-structured models (Chapter 3)</li>
+                        <li>Spatial models and metapopulations (Chapter 4)</li>
+                        <li>Predator-prey interactions (Chapter 6)</li>
+                        <li>Competition models (Chapter 5)</li>
+                        <li>Stochastic environmental variation</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Real-World Considerations</h4>
+                    <ul>
+                        <li>Environmental stochasticity</li>
+                        <li>Catastrophic events</li>
+                        <li>Habitat fragmentation</li>
+                        <li>Climate change effects</li>
+                        <li>Human intervention and management</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Summary and Key Takeaways</h2>
+            
+            <div class="key-points">
+                <h3>Essential Concepts from Chapter 2</h3>
+                <ul>
+                    <li><strong>Resource Limitation:</strong> Finite resources create carrying capacity and density-dependent growth</li>
+                    <li><strong>Logistic Equation:</strong> $\frac{dN}{dt} = rN(1-N/K)$ describes S-shaped population growth</li>
+                    <li><strong>Carrying Capacity:</strong> Maximum sustainable population size (K) determined by resource availability</li>
+                    <li><strong>Density Dependence:</strong> Birth rates decrease and death rates increase with population density</li>
+                    <li><strong>Maximum Growth Rate:</strong> Occurs at N = K/2, important for harvesting strategies</li>
+                    <li><strong>Equilibrium Dynamics:</strong> Populations stabilize at K through negative feedback</li>
+                    <li><strong>Time Lags:</strong> Can cause oscillations or chaos in population dynamics</li>
+                    <li><strong>Management Applications:</strong> Critical for sustainable resource exploitation</li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <p><strong>Looking Ahead:</strong> While logistic growth improves upon exponential growth by including resource limitation, real populations are more complex. Future chapters will explore age structure, spatial dynamics, and species interactions that further refine our understanding of population ecology.</p>
+            </div>
+        </div>
+
+        <a href="../../index.html" class="back-link">← Back to Main Site</a>
+    </div>
+
+    <script>
+        let logisticChart, densityChart, growthRateChart, comparisonChart;
+        
+        function initCharts() {
+            console.log('Initializing charts...');
+            
+            // Initialize all charts
+            initLogisticChart();
+            initDensityChart();
+            initGrowthRateChart();
+            initComparisonChart();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        function initLogisticChart() {
+            const ctx = document.getElementById('logisticChart');
+            if (!ctx) return;
+            
+            logisticChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Population Size',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Carrying Capacity (K)',
+                        data: [],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [10, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Logistic Population Growth',
+                            color: '#2c5530',
+                            font: { family: 'Georgia', size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            labels: { color: '#2c5530', font: { family: 'Georgia' } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Time (t)', color: '#2c5530', font: { family: 'Georgia', weight: 'bold' } },
+                            grid: { color: 'rgba(44, 85, 48, 0.1)' },
+                            ticks: { color: '#666', font: { family: 'Georgia' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Population Size (N)', color: '#2c5530', font: { family: 'Georgia', weight: 'bold' } },
+                            beginAtZero: true,
+                            grid: { color: 'rgba(44, 85, 48, 0.1)' },
+                            ticks: { color: '#666', font: { family: 'Georgia' } }
+                        }
+                    }
+                }
+            });
+            
+            updateLogisticChart();
+        }
+
+        function initDensityChart() {
+            const ctx = document.getElementById('densityChart');
+            if (!ctx) return;
+            
+            densityChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Birth Rate (b\')',
+                        data: [],
+                        borderColor: '#28a745',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3
+                    }, {
+                        label: 'Death Rate (d\')',
+                        data: [],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Density-Dependent Birth and Death Rates',
+                            color: '#2c5530',
+                            font: { family: 'Georgia', size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            labels: { color: '#2c5530', font: { family: 'Georgia' } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Population Size (N)', color: '#2c5530', font: { family: 'Georgia', weight: 'bold' } },
+                            grid: { color: 'rgba(44, 85, 48, 0.1)' },
+                            ticks: { color: '#666', font: { family: 'Georgia' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Rate', color: '#2c5530', font: { family: 'Georgia', weight: 'bold' } },
+                            beginAtZero: true,
+                            grid: { color: 'rgba(44, 85, 48, 0.1)' },
+                            ticks: { color: '#666', font: { family: 'Georgia' } }
+                        }
+                    }
+                }
+            });
+            
+            updateDensityChart();
+        }
+
+        function initGrowthRateChart() {
+            const ctx = document.getElementById('growthRateChart');
+            if (!ctx) return;
+            
+            growthRateChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Growth Rate (dN/dt)',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.2)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Population Growth Rate vs Population Size',
+                            color: '#2c5530',
+                            font: { family: 'Georgia', size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            labels: { color: '#2c5530', font: { family: 'Georgia' } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Population Size (N)', color: '#2c5530', font: { family: 'Georgia', weight: 'bold' } },
+                            grid: { color: 'rgba(44, 85, 48, 0.1)' },
+                            ticks: { color: '#666', font: { family: 'Georgia' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Growth Rate (dN/dt)', color: '#2c5530', font: { family: 'Georgia', weight: 'bold' } },
+                            grid: { color: 'rgba(44, 85, 48, 0.1)' },
+                            ticks: { color: '#666', font: { family: 'Georgia' } }
+                        }
+                    }
+                }
+            });
+            
+            updateGrowthRateChart();
+        }
+
+        function initComparisonChart() {
+            const ctx = document.getElementById('comparisonChart');
+            if (!ctx) return;
+            
+            comparisonChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Exponential Growth',
+                        data: [],
+                        borderColor: '#6c757d',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        borderDash: [5, 5]
+                    }, {
+                        label: 'Logistic Growth',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Carrying Capacity (K)',
+                        data: [],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [10, 5],
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Exponential vs Logistic Growth Comparison',
+                            color: '#2c5530',
+                            font: { family: 'Georgia', size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            labels: { color: '#2c5530', font: { family: 'Georgia' } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Time (t)', color: '#2c5530', font: { family: 'Georgia', weight: 'bold' } },
+                            grid: { color: 'rgba(44, 85, 48, 0.1)' },
+                            ticks: { color: '#666', font: { family: 'Georgia' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Population Size (N)', color: '#2c5530', font: { family: 'Georgia', weight: 'bold' } },
+                            beginAtZero: true,
+                            grid: { color: 'rgba(44, 85, 48, 0.1)' },
+                            ticks: { color: '#666', font: { family: 'Georgia' } }
+                        }
+                    }
+                }
+            });
+            
+            updateComparisonChart();
+        }
+
+        function updateLogisticChart() {
+            if (!logisticChart) {
+                console.log('Logistic chart not initialized');
+                return;
+            }
+            
+            const rSlider = document.getElementById('r-slider');
+            const kSlider = document.getElementById('k-slider');
+            const n0Slider = document.getElementById('n0-slider');
+            
+            if (!rSlider || !kSlider || !n0Slider) {
+                console.log('Sliders not found');
+                return;
+            }
+            
+            const r = parseFloat(rSlider.value);
+            const K = parseFloat(kSlider.value);
+            const N0 = parseFloat(n0Slider.value);
+            
+            // Update display values
+            const rValue = document.getElementById('r-value');
+            const kValue = document.getElementById('k-value');
+            const n0Value = document.getElementById('n0-value');
+            
+            if (rValue) rValue.textContent = r.toFixed(3);
+            if (kValue) kValue.textContent = K;
+            if (n0Value) n0Value.textContent = N0;
+            
+            const maxTime = 50;
+            const timePoints = [];
+            const logisticData = [];
+            const carryingCapacity = [];
+            
+            for (let t = 0; t <= maxTime; t += 0.5) {
+                timePoints.push(parseFloat(t.toFixed(1)));
+                
+                // Logistic growth equation: N(t) = K / (1 + ((K-N0)/N0) * exp(-rt))
+                const denominator = 1 + ((K - N0) / N0) * Math.exp(-r * t);
+                const Nt = K / denominator;
+                logisticData.push(Nt);
+                carryingCapacity.push(K);
+            }
+            
+            logisticChart.data.labels = timePoints;
+            logisticChart.data.datasets[0].data = logisticData;
+            logisticChart.data.datasets[1].data = carryingCapacity;
+            
+            logisticChart.options.plugins.title.text = `Logistic Growth: r=${r.toFixed(3)}, K=${K}, N₀=${N0}`;
+            logisticChart.update('none');
+        }
+
+        function updateDensityChart() {
+            if (!densityChart) {
+                console.log('Density chart not initialized');
+                return;
+            }
+            
+            const rSlider = document.getElementById('r-slider');
+            const kSlider = document.getElementById('k-slider');
+            
+            const r = rSlider ? parseFloat(rSlider.value) : 0.1;
+            const K = kSlider ? parseFloat(kSlider.value) : 200;
+            
+            // Use realistic parameters for birth and death rates
+            // Assume b = 0.25, and calculate d = b - r
+            const b = 0.25;
+            const d = Math.max(0.05, b - r); // Ensure d is positive
+            
+            // Calculate a and c such that K = r/(a+c)
+            const totalDensityEffect = r / K;
+            const a = totalDensityEffect * 0.6; // 60% effect on births
+            const c = totalDensityEffect * 0.4; // 40% effect on deaths
+            
+            const popSizes = [];
+            const birthRates = [];
+            const deathRates = [];
+            
+            for (let N = 0; N <= K * 1.5; N += K / 50) {
+                popSizes.push(parseFloat(N.toFixed(1)));
+                birthRates.push(Math.max(0, b - a * N));
+                deathRates.push(d + c * N);
+            }
+            
+            densityChart.data.labels = popSizes;
+            densityChart.data.datasets[0].data = birthRates;
+            densityChart.data.datasets[1].data = deathRates;
+            
+            densityChart.update('none');
+        }
+
+        function updateGrowthRateChart() {
+            if (!growthRateChart) {
+                console.log('Growth rate chart not initialized');
+                return;
+            }
+            
+            const rSlider = document.getElementById('r-slider');
+            const kSlider = document.getElementById('k-slider');
+            
+            const r = rSlider ? parseFloat(rSlider.value) : 0.1;
+            const K = kSlider ? parseFloat(kSlider.value) : 200;
+            
+            const popSizes = [];
+            const growthRates = [];
+            
+            for (let N = 0; N <= K * 1.5; N += K / 50) {
+                popSizes.push(parseFloat(N.toFixed(1)));
+                // dN/dt = rN(1 - N/K)
+                const growthRate = r * N * (1 - N / K);
+                growthRates.push(growthRate);
+            }
+            
+            growthRateChart.data.labels = popSizes;
+            growthRateChart.data.datasets[0].data = growthRates;
+            
+            growthRateChart.update('none');
+        }
+
+        function updateComparisonChart() {
+            if (!comparisonChart) return;
+            
+            const r = parseFloat(document.getElementById('comp-r').value);
+            const K = parseFloat(document.getElementById('comp-k').value);
+            const N0 = parseFloat(document.getElementById('comp-n0').value);
+            
+            // Update display values
+            document.getElementById('comp-r-value').textContent = r.toFixed(3);
+            document.getElementById('comp-k-value').textContent = K;
+            document.getElementById('comp-n0-value').textContent = N0;
+            
+            const maxTime = 30;
+            const timePoints = [];
+            const exponentialData = [];
+            const logisticData = [];
+            const carryingCapacity = [];
+            
+            for (let t = 0; t <= maxTime; t += 0.5) {
+                timePoints.push(t);
+                
+                // Exponential growth: N(t) = N0 * exp(rt)
+                const expNt = N0 * Math.exp(r * t);
+                exponentialData.push(expNt);
+                
+                // Logistic growth: N(t) = K / (1 + ((K-N0)/N0) * exp(-rt))
+                const logNt = K / (1 + ((K - N0) / N0) * Math.exp(-r * t));
+                logisticData.push(logNt);
+                
+                carryingCapacity.push(K);
+            }
+            
+            comparisonChart.data.labels = timePoints;
+            comparisonChart.data.datasets[0].data = exponentialData;
+            comparisonChart.data.datasets[1].data = logisticData;
+            comparisonChart.data.datasets[2].data = carryingCapacity;
+            
+            comparisonChart.update('none');
+        }
+
+        function setupEventListeners() {
+            // Basic logistic chart controls
+            ['r-slider', 'k-slider', 'n0-slider'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', () => {
+                        updateLogisticChart();
+                        updateDensityChart();
