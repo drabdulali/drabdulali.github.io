@@ -141,12 +141,20 @@
             border: 2px solid #4a7c59;
         }
         
+        /* Chart container */
         .chart-container {
             background: white;
             padding: 20px;
             border-radius: 15px;
             margin: 20px 0;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            height: 500px;
+            position: relative;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 400px !important;
         }
         
         /* Interactive section matching your site */
@@ -514,10 +522,7 @@
             <div class="concept-box">
                 <p>While exponential growth provides the foundation for population ecology, real populations cannot grow indefinitely. In <strong>Chapter 2: Logistic Population Growth</strong>, we'll explore how resource limitation creates carrying capacity and leads to more realistic population dynamics.</p>
             </div>
-        </div>
 
-        <div class="section">
-            <h2 class="section-title">Key Takeaways</h2>
             <div class="key-points">
                 <h3>Essential Concepts</h3>
                 <ul>
@@ -537,8 +542,15 @@
         let chart;
         
         function initChart() {
-            const ctx = document.getElementById('growthChart').getContext('2d');
-            chart = new Chart(ctx, {
+            const ctx = document.getElementById('growthChart');
+            if (!ctx) {
+                console.error('Canvas element not found');
+                return;
+            }
+            
+            const context = ctx.getContext('2d');
+            
+            chart = new Chart(context, {
                 type: 'line',
                 data: {
                     labels: [],
@@ -549,7 +561,9 @@
                         backgroundColor: 'rgba(74, 124, 89, 0.1)',
                         borderWidth: 3,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
                     }]
                 },
                 options: {
@@ -567,7 +581,25 @@
                             }
                         },
                         legend: {
-                            display: false
+                            display: true,
+                            labels: {
+                                color: '#2c5530',
+                                font: {
+                                    family: 'Georgia'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(44, 85, 48, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#4a7c59',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Population: ${context.parsed.y.toFixed(1)}`;
+                                }
+                            }
                         }
                     },
                     scales: {
@@ -617,14 +649,22 @@
                     }
                 }
             });
+            
+            // Initial chart update
             updateChart();
         }
         
         function updateChart() {
+            if (!chart) {
+                console.log('Chart not initialized yet');
+                return;
+            }
+            
             const r = parseFloat(document.getElementById('r-slider').value);
             const N0 = parseFloat(document.getElementById('n0-slider').value);
             const maxTime = parseFloat(document.getElementById('time-slider').value);
             
+            // Update display values
             document.getElementById('r-value').textContent = r.toFixed(3);
             document.getElementById('n0-value').textContent = N0;
             document.getElementById('time-value').textContent = maxTime;
@@ -632,19 +672,23 @@
             const timePoints = [];
             const popSizes = [];
             
-            for (let t = 0; t <= maxTime; t += 1) {
-                timePoints.push(t);
+            // Generate data points
+            const stepSize = maxTime / 100; // 100 points for smooth curve
+            for (let t = 0; t <= maxTime; t += stepSize) {
+                timePoints.push(parseFloat(t.toFixed(1)));
                 const Nt = N0 * Math.exp(r * t);
                 popSizes.push(Nt);
             }
             
+            // Update chart data
             chart.data.labels = timePoints;
             chart.data.datasets[0].data = popSizes;
             
             // Update chart title with current parameters
             chart.options.plugins.title.text = `Exponential Growth: N₀=${N0}, r=${r.toFixed(3)}`;
             
-            chart.update();
+            // Update the chart
+            chart.update('none'); // 'none' for immediate update without animation
         }
         
         function calculateDoubling() {
@@ -668,18 +712,34 @@
         }
         
         // Event listeners for sliders
-        document.getElementById('r-slider').addEventListener('input', updateChart);
-        document.getElementById('n0-slider').addEventListener('input', updateChart);
-        document.getElementById('time-slider').addEventListener('input', updateChart);
+        function setupEventListeners() {
+            document.getElementById('r-slider').addEventListener('input', updateChart);
+            document.getElementById('n0-slider').addEventListener('input', updateChart);
+            document.getElementById('time-slider').addEventListener('input', updateChart);
+        }
         
-        // Initialize chart when page loads
-        window.onload = function() {
-            initChart();
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing chart...');
+            
+            // Wait a bit for Chart.js to be ready
+            setTimeout(() => {
+                if (typeof Chart !== 'undefined') {
+                    initChart();
+                    setupEventListeners();
+                    console.log('Chart initialized successfully');
+                } else {
+                    console.error('Chart.js not loaded');
+                }
+            }, 100);
+            
             // Re-render MathJax after page load
             if (window.MathJax) {
-                MathJax.typesetPromise();
+                MathJax.typesetPromise().then(() => {
+                    console.log('MathJax rendered');
+                });
             }
-        };
+        });
     </script>
 </body>
 </html>
@@ -692,7 +752,7 @@
                     <div class="control-group">
                         <label for="r-slider">Intrinsic Rate ($r$)</label>
                         <input type="range" id="r-slider" min="-0.05" max="0.15" step="0.01" value="0.05">
-                        <span id="r-value">0.05</span>
+                        <span id="r-value">0.050</span>
                     </div>
                     <div class="control-group">
                         <label for="n0-slider">Initial Population ($N_0$)</label>
@@ -708,7 +768,7 @@
                 <button onclick="updateChart()">Update Growth Curve</button>
                 
                 <div class="chart-container">
-                    <canvas id="growthChart" width="400" height="200"></canvas>
+                    <canvas id="growthChart"></canvas>
                 </div>
             </div>
         </div>
