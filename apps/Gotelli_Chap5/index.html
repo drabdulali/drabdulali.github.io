@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 5: Competition in Ecology</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            color: #60a5fa;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(30, 41, 59, 0.8);
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: #60a5fa;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #60a5fa;
+            padding-bottom: 10px;
+        }
+
+        .section h3 {
+            color: #38bdf8;
+            font-size: 1.5rem;
+            margin: 25px 0 15px 0;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #60a5fa;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            overflow-x: auto;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 10px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            color: #94a3b8;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .control-group input {
+            padding: 8px;
+            border: 1px solid #475569;
+            border-radius: 5px;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .control-group input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+        }
+
+        .chart-container {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .canvas-container {
+            position: relative;
+            margin: 20px 0;
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #475569;
+        }
+
+        canvas {
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+
+        .definition-box {
+            background: linear-gradient(135deg, #065f46, #047857);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #10b981;
+        }
+
+        .definition-box h4 {
+            color: #6ee7b7;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .case-box {
+            background: linear-gradient(135deg, #7c2d12, #dc2626);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ef4444;
+        }
+
+        .case-box h4 {
+            color: #fca5a5;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .button:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .interactive-demo {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #475569;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .vector-field {
+            stroke: #60a5fa;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .isocline-1 {
+            stroke: #ef4444;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .isocline-2 {
+            stroke: #10b981;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .trajectory {
+            stroke: #fbbf24;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 5,5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Chapter 5: Competition</h1>
+            <p>Interactive exploration of competitive interactions in ecological systems using the Lotka-Volterra competition model</p>
+        </div>
+
+        <div class="section">
+            <h2>Types of Competition</h2>
+            
+            <div class="definition-box">
+                <h4>Competitive Interactions</h4>
+                <p>Two species negatively influence each other's population growth rates and depress each other's population sizes.</p>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <h3>Exploitation Competition</h3>
+                    <p>Populations depress one another through use of a shared resource (food, nutrients, water). Examples include tropical reef fish grazing on algae and desert plants competing for limited water.</p>
+                    
+                    <div class="definition-box">
+                        <h4>Analogy</h4>
+                        <p>Like drinking the same milkshake with straws - the "winner" consumes the most resource.</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Interference Competition</h3>
+                    <p>One individual/population reduces the exploitation efficiency of another through direct behavioral interactions. Examples include territorial songbirds and ant colonies that kill invaders.</p>
+                    
+                    <div class="definition-box">
+                        <h4>Analogy</h4>
+                        <p>Like pinching your friend's straw while drinking the same milkshake!</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Pre-emptive Competition</h3>
+            <p>Organisms compete for space as a limiting resource. Unlike food or nutrients, space is "recycled" - immediately available when an organism dies or leaves. Examples include birds using tree holes for nesting and intertidal algae attaching to rock surfaces.</p>
+        </div>
+
+        <div class="section">
+            <h2>The Lotka-Volterra Competition Model</h2>
+            
+            <p>Developed by Alfred J. Lotka (1880-1949) and Vito Volterra (1860-1940) in the 1920s and 1930s, this model extends the logistic equation to include interspecific competition.</p>
+
+            <div class="equation-box">
+                <h3>Model Equations</h3>
+                <p>For two competing species with populations $N_1$ and $N_2$:</p>
+                
+                $$\frac{dN_1}{dt} = r_1N_1\left(\frac{K_1 - N_1 - \alpha N_2}{K_1}\right)$$
+                
+                $$\frac{dN_2}{dt} = r_2N_2\left(\frac{K_2 - N_2 - \beta N_1}{K_2}\right)$$
+                
+                <p>Where:</p>
+                <ul style="margin-top: 15px;">
+                    <li><strong>$r_i$</strong> = intrinsic rate of increase for species $i$</li>
+                    <li><strong>$K_i$</strong> = carrying capacity for species $i$</li>
+                    <li><strong>$\alpha$</strong> = effect of species 2 on species 1</li>
+                    <li><strong>$\beta$</strong> = effect of species 1 on species 2</li>
+                </ul>
+            </div>
+
+            <h3>Competition Coefficients</h3>
+            <p>The competition coefficients $\alpha$ and $\beta$ are critical for understanding the model:</p>
+            
+            <div class="grid">
+                <div class="definition-box">
+                    <h4>Alpha (α)</h4>
+                    <p>Per capita effect of species 2 on species 1, relative to the effect of species 1 on itself.</p>
+                    <ul>
+                        <li>α = 1: Species are equivalent competitors</li>
+                        <li>α > 1: Interspecific competition > intraspecific</li>
+                        <li>α < 1: Intraspecific competition > interspecific</li>
+                        <li>α = 0: No competitive effect</li>
+                    </ul>
+                </div>
+                
+                <div class="definition-box">
+                    <h4>Beta (β)</h4>
+                    <p>Per capita effect of species 1 on species 2, relative to the effect of species 2 on itself.</p>
+                    <p><strong>Important:</strong> α and β need not be equal - competitive effects are often asymmetrical in nature.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>State Space Analysis</h2>
+            
+            <p>The state-space graph is a powerful tool for understanding competition dynamics. The x-axis represents the abundance of species 1, and the y-axis represents the abundance of species 2.</p>
+
+            <div class="interactive-demo">
+                <h3>Interactive State Space</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="k1">K₁ (Carrying capacity 1)</label>
+                        <input type="range" id="k1" min="10" max="100" value="50" oninput="updateStateSpace()">
+                        <span id="k1-value">50</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="k2">K₂ (Carrying capacity 2)</label>
+                        <input type="range" id="k2" min="10" max="100" value="50" oninput="updateStateSpace()">
+                        <span id="k2-value">50</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="alpha">α (Alpha)</label>
+                        <input type="range" id="alpha" min="0.1" max="3" step="0.1" value="1.5" oninput="updateStateSpace()">
+                        <span id="alpha-value">1.5</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="beta">β (Beta)</label>
+                        <input type="range" id="beta" min="0.1" max="3" step="0.1" value="0.8" oninput="updateStateSpace()">
+                        <span id="beta-value">0.8</span>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="stateSpaceCanvas" width="600" height="500"></canvas>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="button" onclick="showCase(1)">Case 1: Species 1 Wins</button>
+                    <button class="button" onclick="showCase(2)">Case 2: Species 2 Wins</button>
+                    <button class="button" onclick="showCase(3)">Case 3: Stable Coexistence</button>
+                    <button class="button" onclick="showCase(4)">Case 4: Unstable Equilibrium</button>
+                </div>
+                
+                <div id="case-info"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Equilibrium Solutions</h2>
+            
+            <p>Setting the differential equations to zero and solving for equilibrium densities:</p>
+
+            <div class="equation-box">
+                <h3>Equilibrium Conditions</h3>
+                
+                $$\hat{N_1} = K_1 - \alpha \hat{N_2}$$
+                $$\hat{N_2} = K_2 - \beta \hat{N_1}$$
+                
+                <p>Solving these simultaneously gives:</p>
+                
+                $$\hat{N_1} = \frac{K_1 - \alpha K_2}{1 - \alpha\beta}$$
+                $$\hat{N_2} = \frac{K_2 - \beta K_1}{1 - \alpha\beta}$$
+                
+                <p><strong>Coexistence condition:</strong> For both species to have positive equilibrium densities, usually $\alpha\beta < 1$.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Four Cases of Competition</h2>
+
+            <div class="case-box">
+                <h4>Case 1: Species 1 Always Wins</h4>
+                <p>Condition: $\frac{K_1}{K_2} > \alpha$ and $\frac{1}{\beta} < \frac{K_1}{K_2}$</p>
+                <p>The isocline for species 1 lies entirely above that of species 2. Species 2 is driven to extinction regardless of starting conditions.</p>
+            </div>
+
+            <div class="case-box">
+                <h4>Case 2: Species 2 Always Wins</h4>
+                <p>Condition: $\frac{K_1}{K_2} < \alpha$ and $\frac{1}{\beta} > \frac{K_1}{K_2}$</p>
+                <p>The isocline for species 2 lies entirely above that of species 1. Species 1 is driven to extinction regardless of starting conditions.</p>
+            </div>
+
+            <div class="case-box">
+                <h4>Case 3: Stable Coexistence</h4>
+                <p>Condition: $\frac{K_1}{K_2} > \alpha$ and $\frac{1}{\beta} > \frac{K_1}{K_2}$</p>
+                <p>Both species can invade when rare. The isoclines cross and all trajectories lead to stable equilibrium. Both species coexist at lower densities than they would alone.</p>
+            </div>
+
+            <div class="case-box">
+                <h4>Case 4: Unstable Equilibrium</h4>
+                <p>Condition: $\frac{K_1}{K_2} < \alpha$ and $\frac{1}{\beta} < \frac{K_1}{K_2}$</p>
+                <p>Neither species can invade when rare. The outcome depends on initial conditions - whichever species has a numerical advantage will win.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Competitive Exclusion Principle</h2>
+            
+            <div class="definition-box">
+                <h4>The Principle</h4>
+                <p>"Complete competitors cannot coexist" - if species are able to coexist, there must be some difference between them in resource use.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Exploring Competitive Similarity</h3>
+                <p>When species are very similar (α ≈ β ≈ 1), coexistence requires very specific carrying capacity ratios:</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="similarity">Species Similarity</label>
+                        <input type="range" id="similarity" min="0.1" max="1" step="0.05" value="0.9" oninput="updateSimilarity()">
+                        <span id="similarity-value">0.9</span>
+                    </div>
+                </div>
+                
+                <div id="similarity-result"></div>
+            </div>
+
+            <div class="equation-box">
+                <h3>Mathematical Analysis</h3>
+                <p>For very similar species where α = β = s (similarity parameter):</p>
+                
+                $$\frac{1}{s} > \frac{K_1}{K_2} > s$$
+                
+                <p>As species become more similar (s → 1), the range of viable carrying capacity ratios narrows dramatically.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Population Dynamics Simulation</h2>
+            
+            <div class="interactive-demo">
+                <h3>Time Series Dynamics</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="r1">r₁ (Growth rate 1)</label>
+                        <input type="range" id="r1" min="0.1" max="2" step="0.1" value="1" oninput="updateTimeSeries()">
+                        <span id="r1-value">1.0</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="r2">r₂ (Growth rate 2)</label>
+                        <input type="range" id="r2" min="0.1" max="2" step="0.1" value="1" oninput="updateTimeSeries()">
+                        <span id="r2-value">1.0</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="n1-init">N₁ Initial</label>
+                        <input type="range" id="n1-init" min="1" max="50" value="10" oninput="updateTimeSeries()">
+                        <span id="n1-init-value">10</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="n2-init">N₂ Initial</label>
+                        <input type="range" id="n2-init" min="1" max="50" value="10" oninput="updateTimeSeries()">
+                        <span id="n2-init-value">10</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="timeSeriesChart" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Model Extensions: Intraguild Predation</h2>
+            
+            <p>In nature, species often cannot be classified simply as "competitors" or "predators." <span class="highlight">Intraguild Predation (IGP)</span> occurs when two competing species also interact as predator and prey.</p>
+
+            <div class="equation-box">
+                <h3>IGP Model Equations</h3>
+                <p>Species 1 acts as both competitor and predator on species 2:</p>
+                
+                $$\frac{dN_1}{dt} = r_1N_1\left(\frac{K_1 - N_1 - \alpha N_2}{K_1}\right) + \gamma N_1N_2$$
+                
+                $$\frac{dN_2}{dt} = r_2N_2\left(\frac{K_2 - N_2 - \beta N_1}{K_2}\right) - \delta N_1N_2$$
+                
+                <p>Where γ represents the benefit to the predator and δ represents the cost to the prey from predation.</p>
+            </div>
+
+            <div class="definition-box">
+                <h4>IGP Effects on Isoclines</h4>
+                <p>IGP rotates the isoclines without changing the carrying capacities:</p>
+                <ul>
+                    <li><strong>Predator isocline:</strong> Rotates upward (requires more competitors to cause extinction)</li>
+                    <li><strong>Prey isocline:</strong> Rotates inward (requires fewer competitors to cause extinction)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Model Assumptions & Limitations</h2>
+            
+            <div class="grid">
+                <div>
+                    <h3>Key Assumptions</h3>
+                    <ul>
+                        <li>No age or genetic structure</li>
+                        <li>No migration or time lags</li>
+                        <li>Resources are in limited supply</li>
+                        <li>Competition coefficients are constant</li>
+                        <li>Density dependence is linear</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3>Real-World Complications</h3>
+                    <ul>
+                        <li>Environmental variability</li>
+                        <li>Habitat heterogeneity</li>
+                        <li>Behavioral adaptations</li>
+                        <li>Size-dependent interactions</li>
+                        <li>Seasonal resource changes</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="definition-box">
+                <h4>Why Models Sometimes Fail</h4>
+                <p>Real ecosystems often violate model assumptions. For example, in marine worm studies, seasonal changes in resource availability meant carrying capacities were constantly changing, preventing competitive exclusion from occurring within the experimental timeframe.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stateSpaceChart = null;
+        let timeSeriesChart = null;
+
+        function updateStateSpace() {
+            const k1 = parseFloat(document.getElementById('k1').value);
+            const k2 = parseFloat(document.getElementById('k2').value);
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+
+            document.getElementById('k1-value').textContent = k1;
+            document.getElementById('k2-value').textContent = k2;
+            document.getElementById('alpha-value').textContent = alpha.toFixed(1);
+            document.getElementById('beta-value').textContent = beta.toFixed(1);
+
+            drawStateSpace(k1, k2, alpha, beta);
+            determineCase(k1, k2, alpha, beta);
+        }
+
+        function drawStateSpace(k1, k2, alpha, beta) {
+            const canvas = document.getElementById('stateSpaceCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const margin = 50;
+            const width = canvas.width - 2 * margin;
+            const height = canvas.height - 2 * margin;
+            
+            // Draw axes
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, margin + height);
+            ctx.lineTo(margin + width, margin + height);
+            ctx.moveTo(margin, margin + height);
+            ctx.lineTo(margin, margin);
+            ctx.stroke();
+            
+            // Axis labels
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '14px Arial';
+            ctx.fillText('Species 1 (N₁)', margin + width/2 - 40, margin + height + 30);
+            ctx.save();
+            ctx.translate(15, margin + height/2 + 40);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('Species 2 (N₂)', 0, 0);
+            ctx.restore();
+            
+            // Scale
+            const maxN1 = Math.max(k1, k2/beta) * 1.2;
+            const maxN2 = Math.max(k2, k1/alpha) * 1.2;
+            
+            // Draw isoclines
+            // Species 1 isocline: N₂ = (K₁ - N₁)/α
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(margin, margin + height - (k1/alpha) * height/maxN2);
+            ctx.lineTo(margin + k1 * width/maxN1, margin + height);
+            ctx.stroke();
+            
+            // Species 2 isocline: N₁ = (K₂ - N₂)/β
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(margin, margin + height - k2 * height/maxN2);
+            ctx.lineTo(margin + (k2/beta) * width/maxN1, margin + height);
+            ctx.stroke();
+            
+            // Draw vector field
+            drawVectorField(ctx, k1, k2, alpha, beta, margin, width, height, maxN1, maxN2);
+            
+            // Legend
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(margin + width - 150, margin + 10, 20, 3);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillText('Species 1 isocline', margin + width - 120, margin + 20);
+            
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(margin + width - 150, margin + 30, 20, 3);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillText('Species 2 isocline', margin + width - 120, margin + 40);
+        }
+
+        function drawVectorField(ctx, k1, k2, alpha, beta, margin, width, height, maxN1, maxN2) {
+            const gridSize = 8;
+            const arrowScale = 15;
+            
+            for (let i = 1; i < gridSize; i++) {
+                for (let j = 1; j < gridSize; j++) {
+                    const n1 = (i / gridSize) * maxN1;
+                    const n2 = (j / gridSize) * maxN2;
+                    
+                    const dn1dt = n1 * (k1 - n1 - alpha * n2) / k1;
+                    const dn2dt = n2 * (k2 - n2 - beta * n1) / k2;
+                    
+                    const magnitude = Math.sqrt(dn1dt * dn1dt + dn2dt * dn2dt);
+                    if (magnitude > 0) {
+                        const scale = arrowScale / (1 + magnitude);
+                        const dx = (dn1dt / magnitude) * scale;
+                        const dy = -(dn2dt / magnitude) * scale;
+                        
+                        const x = margin + (n1 / maxN1) * width;
+                        const y = margin + height - (n2 / maxN2) * height;
+                        
+                        ctx.strokeStyle = '#60a5fa';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + dx, y + dy);
+                        ctx.stroke();
+                        
+                        // Arrow head
+                        const angle = Math.atan2(dy, dx);
+                        const headLen = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(x + dx, y + dy);
+                        ctx.lineTo(x + dx - headLen * Math.cos(angle - Math.PI/6), y + dy - headLen * Math.sin(angle - Math.PI/6));
+                        ctx.moveTo(x + dx, y + dy);
+                        ctx.lineTo(x + dx - headLen * Math.cos(angle + Math.PI/6), y + dy - headLen * Math.sin(angle + Math.PI/6));
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function determineCase(k1, k2, alpha, beta) {
+            const ratio = k1 / k2;
+            const invBeta = 1 / beta;
+            
+            let caseNum, description, outcome;
+            
+            if (ratio > alpha && invBeta < ratio) {
+                caseNum = 1;
+                description = "Species 1 Always Wins";
+                outcome = "Species 2 is driven to extinction regardless of initial conditions.";
+            } else if (ratio < alpha && invBeta > ratio) {
+                caseNum = 2;
+                description = "Species 2 Always Wins";
+                outcome = "Species 1 is driven to extinction regardless of initial conditions.";
+            } else if (ratio > alpha && invBeta > ratio) {
+                caseNum = 3;
+                description = "Stable Coexistence";
+                outcome = "Both species coexist at stable equilibrium densities.";
+            } else {
+                caseNum = 4;
+                description = "Unstable Equilibrium";
+                outcome = "Outcome depends on initial conditions - competitive exclusion occurs.";
+            }
+            
+            document.getElementById('case-info').innerHTML = `
+                <div class="case-box">
+                    <h4>Current Scenario: Case ${caseNum} - ${description}</h4>
+                    <p>${outcome}</p>
+                    <p><strong>Conditions:</strong> K₁/K₂ = ${ratio.toFixed(2)}, α = ${alpha}, 1/β = ${invBeta.toFixed(2)}</p>
+                </div>
+            `;
+        }
+
+        function showCase(caseNum) {
+            let k1, k2, alpha, beta;
+            
+            switch(caseNum) {
+                case 1: // Species 1 wins
+                    k1 = 60; k2 = 40; alpha = 1.2; beta = 0.6;
+                    break;
+                case 2: // Species 2 wins
+                    k1 = 40; k2 = 60; alpha = 1.8; beta = 0.8;
+                    break;
+                case 3: // Stable coexistence
+                    k1 = 50; k2 = 50; alpha = 0.8; beta = 0.8;
+                    break;
+                case 4: // Unstable equilibrium
+                    k1 = 50; k2 = 50; alpha = 1.5; beta = 1.5;
+                    break;
+            }
+            
+            document.getElementById('k1').value = k1;
+            document.getElementById('k2').value = k2;
+            document.getElementById('alpha').value = alpha;
+            document.getElementById('beta').value = beta;
+            
+            updateStateSpace();
+        }
+
+        function updateSimilarity() {
+            const similarity = parseFloat(document.getElementById('similarity').value);
+            document.getElementById('similarity-value').textContent = similarity.toFixed(2);
+            
+            const lowerBound = similarity;
+            const upperBound = 1 / similarity;
+            const range = upperBound - lowerBound;
+            
+            document.getElementById('similarity-result').innerHTML = `
+                <div class="equation-box">
+                    <h4>Coexistence Range</h4>
+                    <p>For α = β = ${similarity.toFixed(2)}, coexistence requires:</p>
+                    <p style="text-align: center; font-size: 1.2em; margin: 15px 0;">
+                        <strong>${lowerBound.toFixed(2)} < K₁/K₂ < ${upperBound.toFixed(2)}</strong>
+                    </p>
+                    <p>Range width: ${range.toFixed(2)}</p>
+                    <p>${range < 0.2 ? "Very narrow range - coexistence unlikely!" : range < 0.5 ? "Narrow range - coexistence precarious" : "Moderate range - coexistence possible"}</p>
+                </div>
+            `;
+        }
+
+        function updateTimeSeries() {
+            const r1 = parseFloat(document.getElementById('r1').value);
+            const r2 = parseFloat(document.getElementById('r2').value);
+            const n1Init = parseFloat(document.getElementById('n1-init').value);
+            const n2Init = parseFloat(document.getElementById('n2-init').value);
+            
+            document.getElementById('r1-value').textContent = r1.toFixed(1);
+            document.getElementById('r2-value').textContent = r2.toFixed(1);
+            document.getElementById('n1-init-value').textContent = n1Init;
+            document.getElementById('n2-init-value').textContent = n2Init;
+            
+            // Get current competition parameters
+            const k1 = parseFloat(document.getElementById('k1').value);
+            const k2 = parseFloat(document.getElementById('k2').value);
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+            
+            generateTimeSeries(r1, r2, k1, k2, alpha, beta, n1Init, n2Init);
+        }
+
+        function generateTimeSeries(r1, r2, k1, k2, alpha, beta, n1Init, n2Init) {
+            const dt = 0.1;
+            const tMax = 50;
+            const steps = tMax / dt;
+            
+            let n1 = n1Init;
+            let n2 = n2Init;
+            
+            const timeData = [];
+            const n1Data = [];
+            const n2Data = [];
+            
+            for (let i = 0; i <= steps; i++) {
+                const t = i * dt;
+                timeData.push(t);
+                n1Data.push(n1);
+                n2Data.push(n2);
+                
+                if (i < steps) {
+                    const dn1dt = r1 * n1 * (k1 - n1 - alpha * n2) / k1;
+                    const dn2dt = r2 * n2 * (k2 - n2 - beta * n1) / k2;
+                    
+                    n1 = Math.max(0, n1 + dn1dt * dt);
+                    n2 = Math.max(0, n2 + dn2dt * dt);
+                }
+            }
+            
+            drawTimeSeries(timeData, n1Data, n2Data);
+        }
+
+        function drawTimeSeries(timeData, n1Data, n2Data) {
+            const canvas = document.getElementById('timeSeriesChart');
+            const ctx = canvas.getContext('2d');
+            
+            if (timeSeriesChart) {
+                timeSeriesChart.destroy();
+            }
+            
+            timeSeriesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData.filter((_, i) => i % 5 === 0),
+                    datasets: [{
+                        label: 'Species 1 (N₁)',
+                        data: n1Data.filter((_, i) => i % 5 === 0),
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.1
+                    }, {
+                        label: 'Species 2 (N₂)',
+                        data: n2Data.filter((_, i) => i % 5 === 0),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e2e8f0',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#e2e8f0',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.3)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Size',
+                                color: '#e2e8f0',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.3)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            updateStateSpace();
+            updateSimilarity();
+            updateTimeSeries();
+        });
+
+        // Add some interactive features
+        document.getElementById('stateSpaceCanvas').addEventListener('click', function(e) {
+            const canvas = this;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Convert to population coordinates
+            const margin = 50;
+            const width = canvas.width - 2 * margin;
+            const height = canvas.height - 2 * margin;
+            
+            if (x > margin && x < margin + width && y > margin && y < margin + height) {
+                const k1 = parseFloat(document.getElementById('k1').value);
+                const k2 = parseFloat(document.getElementById('k2').value);
+                const alpha = parseFloat(document.getElementById('alpha').value);
+                const beta = parseFloat(document.getElementById('beta').value);
+                
+                const maxN1 = Math.max(k1, k2/beta) * 1.2;
+                const maxN2 = Math.max(k2, k1/alpha) * 1.2;
+                
+                const n1 = ((x - margin) / width) * maxN1;
+                const n2 = ((margin + height - y) / height) * maxN2;
+                
+                // Update initial conditions for time series
+                document.getElementById('n1-init').value = Math.max(1, Math.round(n1));
+                document.getElementById('n2-init').value = Math.max(1, Math.round(n2));
+                updateTimeSeries();
+            }
+        });
+    </script>
+</body>
+</html>
