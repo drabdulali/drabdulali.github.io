@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition in Ecology - Interactive Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .section h2 {
+            color: #2c5530;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 10px;
+        }
+
+        .section h3 {
+            color: #2c5530;
+            font-size: 1.8em;
+            margin: 25px 0 15px 0;
+        }
+
+        .equation-box {
+            background: #f0f8f0;
+            border: 2px solid #4a7c59;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(74, 124, 89, 0.2);
+            color: #333;
+        }
+
+        .equation-box h4 {
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .concept-card {
+            background: #f8f9fa;
+            border: 1px solid rgba(74, 124, 89, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #4a7c59;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .concept-card h4 {
+            color: #2c5530;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .concept-card p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .concept-card ul {
+            color: #666;
+            padding-left: 20px;
+        }
+
+        .concept-card li {
+            margin-bottom: 5px;
+        }
+
+        .concept-card strong {
+            color: #2c5530;
+        }
+
+        .simulation-container {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #2c5530;
+            font-size: 0.9em;
+        }
+
+        .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            font-size: 0.9em;
+            width: 80px;
+            background: white;
+            color: #333;
+        }
+
+        .control-group input:focus {
+            outline: none;
+            border-color: #2c5530;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4a7c59, #2c5530);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 124, 89, 0.4);
+        }
+
+        .plot-container {
+            background: white;
+            border: 1px solid rgba(74, 124, 89, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .outcome-box {
+            background: linear-gradient(135deg, rgba(74, 124, 89, 0.1) 0%, rgba(44, 85, 48, 0.1) 100%);
+            border: 2px solid #4a7c59;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            color: #333;
+        }
+
+        .outcome-box.exclusion {
+            background: linear-gradient(135deg, rgba(255, 99, 132, 0.1) 0%, rgba(220, 53, 69, 0.1) 100%);
+            border-color: #dc3545;
+        }
+
+        .outcome-box.unstable {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 159, 64, 0.1) 100%);
+            border-color: #ffc107;
+        }
+
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 159, 64, 0.2) 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #ffc107;
+            color: #333;
+        }
+
+        .highlight h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2c5530;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .section ul {
+            color: #666;
+            padding-left: 20px;
+        }
+
+        .section li {
+            margin-bottom: 5px;
+        }
+
+        .section strong {
+            color: #2c5530;
+        }
+
+        .outcome-box h4 {
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .outcome-box.exclusion h4 {
+            color: #dc3545;
+        }
+
+        .outcome-box.unstable h4 {
+            color: #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Competition in Ecology</h1>
+                <p>Interactive Guide to Species Competition Dynamics</p>
+            </div>
+        </div>
+
+        <!-- Introduction -->
+        <div class="section">
+            <h2>Introduction to Competition</h2>
+            <p>Competition occurs when two or more species negatively influence each other's population growth rates and depress each other's population sizes. This fundamental ecological interaction shapes community structure and biodiversity patterns across ecosystems.</p>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Exploitation Competition</h4>
+                    <p>Species compete indirectly by consuming shared resources like food, water, or nutrients. Examples include desert plants competing for water or reef fish grazing on the same algae.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Interference Competition</h4>
+                    <p>Direct competitive interactions that reduce exploitation efficiency. Examples include territorial birds, aggressive ant colonies, or allelopathic plants releasing toxins.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Pre-emptive Competition</h4>
+                    <p>Competition for space as a renewable resource. Once an organism leaves, the space immediately becomes available. Examples include tree hole nesting sites or rocky intertidal surfaces.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lotka-Volterra Model -->
+        <div class="section">
+            <h2>The Lotka-Volterra Competition Model</h2>
+            <p>The classic mathematical framework for modeling interspecific competition, developed by Alfred Lotka and Vito Volterra in the 1920s-1930s.</p>
+
+            <h3>Basic Competition Equations</h3>
+            <div class="equation-box">
+                <h4>Species 1:</h4>
+                $$\frac{dN_1}{dt} = r_1N_1\left(\frac{K_1 - N_1 - \alpha N_2}{K_1}\right)$$
+                <h4>Species 2:</h4>
+                $$\frac{dN_2}{dt} = r_2N_2\left(\frac{K_2 - N_2 - \beta N_1}{K_2}\right)$$
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Parameters</h4>
+                    <ul>
+                        <li><strong>r₁, r₂:</strong> Intrinsic growth rates</li>
+                        <li><strong>K₁, K₂:</strong> Carrying capacities</li>
+                        <li><strong>N₁, N₂:</strong> Population sizes</li>
+                        <li><strong>α:</strong> Effect of species 2 on species 1</li>
+                        <li><strong>β:</strong> Effect of species 1 on species 2</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Competition Coefficients</h4>
+                    <ul>
+                        <li><strong>α = 1:</strong> Species equally competitive</li>
+                        <li><strong>α > 1:</strong> Interspecific > intraspecific competition</li>
+                        <li><strong>α < 1:</strong> Intraspecific > interspecific competition</li>
+                        <li><strong>α = 0:</strong> No competitive effect</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Simulation -->
+        <div class="section">
+            <h2>Interactive Competition Simulation</h2>
+            <div class="simulation-container">
+                <h3>Explore Competition Dynamics</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>K₁ (Carrying Capacity 1)</label>
+                        <input type="number" id="K1" value="100" min="10" max="200">
+                    </div>
+                    <div class="control-group">
+                        <label>K₂ (Carrying Capacity 2)</label>
+                        <input type="number" id="K2" value="80" min="10" max="200">
+                    </div>
+                    <div class="control-group">
+                        <label>α (Competition Coefficient)</label>
+                        <input type="number" id="alpha" value="0.8" min="0" max="3" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label>β (Competition Coefficient)</label>
+                        <input type="number" id="beta" value="1.2" min="0" max="3" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label>r₁ (Growth Rate 1)</label>
+                        <input type="number" id="r1" value="0.1" min="0.01" max="0.5" step="0.01">
+                    </div>
+                    <div class="control-group">
+                        <label>r₂ (Growth Rate 2)</label>
+                        <input type="number" id="r2" value="0.1" min="0.01" max="0.5" step="0.01">
+                    </div>
+                    <button class="btn" onclick="runSimulation()">Run Simulation</button>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('time-series')">Time Series</button>
+                    <button class="tab" onclick="showTab('state-space')">State Space</button>
+                    <button class="tab" onclick="showTab('isoclines')">Isoclines</button>
+                </div>
+
+                <div id="time-series" class="tab-content active">
+                    <div class="plot-container">
+                        <div id="timePlot" style="height: 400px;"></div>
+                    </div>
+                </div>
+
+                <div id="state-space" class="tab-content">
+                    <div class="plot-container">
+                        <div id="statePlot" style="height: 400px;"></div>
+                    </div>
+                </div>
+
+                <div id="isoclines" class="tab-content">
+                    <div class="plot-container">
+                        <div id="isoclinePlot" style="height: 400px;"></div>
+                    </div>
+                </div>
+
+                <div id="outcome" class="outcome-box">
+                    <h4>Competition Outcome</h4>
+                    <p id="outcomeText">Adjust parameters and run simulation to see the outcome.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Four Cases -->
+        <div class="section">
+            <h2>Four Possible Competition Outcomes</h2>
+            
+            <div class="case-grid">
+                <div class="concept-card">
+                    <h4>Case 1: Species 1 Wins</h4>
+                    <div class="equation-box">
+                        $$\frac{K_1}{K_2} > \alpha \text{ and } \frac{1}{\beta} > \frac{K_1}{K_2}$$
+                    </div>
+                    <p>Species 1 isocline lies above species 2's isocline. Species 2 goes extinct regardless of initial conditions.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Case 2: Species 2 Wins</h4>
+                    <div class="equation-box">
+                        $$\frac{K_1}{K_2} < \alpha \text{ and } \frac{1}{\beta} < \frac{K_1}{K_2}$$
+                    </div>
+                    <p>Species 2 isocline lies above species 1's isocline. Species 1 goes extinct regardless of initial conditions.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Case 3: Stable Coexistence</h4>
+                    <div class="equation-box">
+                        $$\frac{K_1}{K_2} > \alpha \text{ and } \frac{1}{\beta} < \frac{K_1}{K_2}$$
+                    </div>
+                    <p>Isoclines cross with vectors pointing toward intersection. Both species coexist at stable equilibrium.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h4>Case 4: Unstable Equilibrium</h4>
+                    <div class="equation-box">
+                        $$\frac{K_1}{K_2} < \alpha \text{ and } \frac{1}{\beta} > \frac{K_1}{K_2}$$
+                    </div>
+                    <p>Isoclines cross but vectors point away. Winner depends on initial population sizes.</p>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h4>Key Insight: Competitive Exclusion Principle</h4>
+                <p>"Complete competitors cannot coexist" - The more similar species are in resource use (α, β ≈ 1), the more precarious their coexistence becomes.</p>
+            </div>
+        </div>
+
+        <!-- State Space Analysis -->
+        <div class="section">
+            <h2>State-Space Analysis</h2>
+            <p>The state-space graph is a powerful tool for visualizing competition dynamics, where the x-axis represents the abundance of species 1 and the y-axis represents species 2.</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Isoclines</h4>
+                    <p>Lines showing zero population growth for each species:</p>
+                    <div class="equation-box">
+                        <strong>Species 1:</strong> $$N_2 = \frac{K_1 - N_1}{\alpha}$$
+                        <strong>Species 2:</strong> $$N_2 = K_2 - \beta N_1$$
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4>Vector Fields</h4>
+                    <p>Arrows showing direction of population change:</p>
+                    <ul>
+                        <li>Right arrow: Species 1 increasing</li>
+                        <li>Left arrow: Species 1 decreasing</li>
+                        <li>Up arrow: Species 2 increasing</li>
+                        <li>Down arrow: Species 2 decreasing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Interactive State-Space Explorer</h3>
+                <button class="btn" onclick="showCase(1)">Case 1: Species 1 Wins</button>
+                <button class="btn" onclick="showCase(2)">Case 2: Species 2 Wins</button>
+                <button class="btn" onclick="showCase(3)">Case 3: Coexistence</button>
+                <button class="btn" onclick="showCase(4)">Case 4: Unstable</button>
+                
+                <div class="plot-container">
+                    <div id="casePlot" style="height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equilibrium Solutions -->
+        <div class="section">
+            <h2>Equilibrium Solutions</h2>
+            <p>At equilibrium, both populations have zero growth rate (dN/dt = 0).</p>
+
+            <div class="equation-box">
+                <h4>Equilibrium Population Sizes</h4>
+                $$\hat{N_1} = \frac{K_1 - \alpha K_2}{1 - \alpha\beta}$$
+                $$\hat{N_2} = \frac{K_2 - \beta K_1}{1 - \alpha\beta}$$
+                <p><strong>Coexistence Condition:</strong> Both species coexist when αβ < 1</p>
+            </div>
+
+            <div class="highlight">
+                <h4>Invasibility Analysis</h4>
+                <p>A species can invade when rare if it can achieve positive per capita growth when its competitor is at carrying capacity:</p>
+                <div class="equation-box">
+                    <strong>Species 1 invades if:</strong> $$\frac{K_1}{K_2} > \alpha$$
+                    <strong>Species 2 invades if:</strong> $$\frac{K_2}{K_1} > \beta$$
+                </div>
+            </div>
+        </div>
+
+        <!-- Intraguild Predation -->
+        <div class="section">
+            <h2>Intraguild Predation (IGP)</h2>
+            <p>When competing species also interact as predator and prey - common in nature where diet depends on body size and opportunity.</p>
+
+            <div class="equation-box">
+                <h4>IGP Modified Equations</h4>
+                <strong>Predator (Species 1):</strong>
+                $$\frac{dN_1}{dt} = r_1N_1\left(\frac{K_1 - N_1 - \alpha N_2}{K_1}\right) + \gamma N_1N_2$$
+                <strong>Prey (Species 2):</strong>
+                $$\frac{dN_2}{dt} = r_2N_2\left(\frac{K_2 - N_2 - \beta N_1}{K_2}\right) - \delta N_1N_2$$
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Effects on Isoclines</h4>
+                    <ul>
+                        <li><strong>Predator isocline:</strong> Rotates upward (harder to exclude)</li>
+                        <li><strong>Prey isocline:</strong> Rotates downward (easier to exclude)</li>
+                        <li><strong>Carrying capacities:</strong> Remain unchanged</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Possible Outcomes</h4>
+                    <ul>
+                        <li>Reinforce competitive exclusion</li>
+                        <li>Reverse competition outcome</li>
+                        <li>Enable coexistence of competitors</li>
+                        <li>Create complex dynamics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Assumptions -->
+        <div class="section">
+            <h2>Model Assumptions & Limitations</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Key Assumptions</h4>
+                    <ul>
+                        <li>Resources are in limited supply</li>
+                        <li>Competition coefficients are constant</li>
+                        <li>Linear density dependence</li>
+                        <li>No age or genetic structure</li>
+                        <li>No migration or time lags</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Real-World Complications</h4>
+                    <ul>
+                        <li>Environmental variability</li>
+                        <li>Habitat selection and switching</li>
+                        <li>Complex behavioral interactions</li>
+                        <li>Size-dependent competition</li>
+                        <li>Seasonal resource changes</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h4>Ecological Reality</h4>
+                <p>The "coexistence problem" - many similar species coexist in nature despite theoretical predictions. This occurs when model assumptions are violated by environmental variation, habitat complexity, or other factors.</p>
+            </div>
+        </div>
+
+        <!-- Applications -->
+        <div class="section">
+            <h2>Real-World Applications</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Marine Intertidal Worms</h4>
+                    <p>Gallagher et al. (1990) tested Lotka-Volterra predictions with field experiments. Model failed due to environmental variability causing "wobbling" isoclines.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Desert Gerbils</h4>
+                    <p>Abramsky et al. (1991) discovered nonlinear isoclines due to habitat selection between semistabilized dunes and stabilized sand habitats.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Conservation Biology</h4>
+                    <p>Understanding competition helps predict invasive species impacts, design reserves, and manage endangered species recovery programs.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Agricultural Systems</h4>
+                    <p>Crop-weed competition models guide herbicide application timing and crop spacing decisions for optimal yields.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for simulation
+        let currentData = null;
+
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Competition simulation function
+        function runSimulation() {
+            const K1 = parseFloat(document.getElementById('K1').value);
+            const K2 = parseFloat(document.getElementById('K2').value);
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+            const r1 = parseFloat(document.getElementById('r1').value);
+            const r2 = parseFloat(document.getElementById('r2').value);
+
+            // Time parameters
+            const dt = 0.1;
+            const tmax = 100;
+            const steps = Math.floor(tmax / dt);
+
+            // Initial conditions
+            let N1 = K1 * 0.1;
+            let N2 = K2 * 0.1;
+
+            // Arrays to store results
+            const time = [];
+            const pop1 = [];
+            const pop2 = [];
+
+            // Numerical integration (Euler method)
+            for (let i = 0; i <= steps; i++) {
+                time.push(i * dt);
+                pop1.push(N1);
+                pop2.push(N2);
+
+                // Lotka-Volterra equations
+                const dN1dt = r1 * N1 * (K1 - N1 - alpha * N2) / K1;
+                const dN2dt = r2 * N2 * (K2 - N2 - beta * N1) / K2;
+
+                N1 = Math.max(0, N1 + dN1dt * dt);
+                N2 = Math.max(0, N2 + dN2dt * dt);
+            }
+
+            currentData = { time, pop1, pop2, K1, K2, alpha, beta };
+
+            // Plot time series
+            plotTimeSeries(time, pop1, pop2);
+            
+            // Plot state space
+            plotStateSpace(pop1, pop2, K1, K2, alpha, beta);
+            
+            // Plot isoclines
+            plotIsoclines(K1, K2, alpha, beta);
+
+            // Determine outcome
+            determineOutcome(K1, K2, alpha, beta);
+        }
+
+        function plotTimeSeries(time, pop1, pop2) {
+            const trace1 = {
+                x: time,
+                y: pop1,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Species 1',
+                line: { color: '#2c5530', width: 3 }
+            };
+
+            const trace2 = {
+                x: time,
+                y: pop2,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Species 2',
+                line: { color: '#4a7c59', width: 3 }
+            };
+
+            const layout = {
+                title: { 
+                    text: 'Population Dynamics Over Time',
+                    font: { color: '#333', size: 18 }
+                },
+                xaxis: { 
+                    title: { text: 'Time', font: { color: '#333' } },
+                    color: '#333',
+                    gridcolor: '#e2e8f0',
+                    tickfont: { color: '#333' }
+                },
+                yaxis: { 
+                    title: { text: 'Population Size', font: { color: '#333' } },
+                    color: '#333',
+                    gridcolor: '#e2e8f0',
+                    tickfont: { color: '#333' }
+                },
+                font: { family: 'Georgia, serif', color: '#333' },
+                plot_bgcolor: '#ffffff',
+                paper_bgcolor: '#ffffff',
+                legend: { 
+                    font: { color: '#333' },
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: '#4a7c59',
+                    borderwidth: 1
+                }
+            };
+
+            Plotly.newPlot('timePlot', [trace1, trace2], layout, {responsive: true});
+        }
+
+        function plotStateSpace(pop1, pop2, K1, K2, alpha, beta) {
+            const trace = {
+                x: pop1,
+                y: pop2,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Population Trajectory',
+                line: { color: '#dc3545', width: 2 },
+                marker: { size: 4, color: '#dc3545' }
+            };
+
+            // Add isoclines
+            const N1_range = Array.from({length: 100}, (_, i) => i * K1 / 99);
+            const isocline1 = N1_range.map(n1 => Math.max(0, (K1 - n1) / alpha));
+            const isocline2 = N1_range.map(n1 => Math.max(0, K2 - beta * n1));
+
+            const iso1_trace = {
+                x: N1_range,
+                y: isocline1,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Species 1 Isocline',
+                line: { color: '#2c5530', width: 2, dash: 'dash' }
+            };
+
+            const iso2_trace = {
+                x: N1_range,
+                y: isocline2,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Species 2 Isocline',
+                line: { color: '#4a7c59', width: 2, dash: 'dash' }
+            };
+
+            const layout = {
+                title: { 
+                    text: 'State Space Trajectory',
+                    font: { color: '#333', size: 18 }
+                },
+                xaxis: { 
+                    title: { text: 'Species 1 Population (N₁)', font: { color: '#333' } },
+                    color: '#333',
+                    gridcolor: '#e2e8f0',
+                    tickfont: { color: '#333' }
+                },
+                yaxis: { 
+                    title: { text: 'Species 2 Population (N₂)', font: { color: '#333' } },
+                    color: '#333',
+                    gridcolor: '#e2e8f0',
+                    tickfont: { color: '#333' }
+                },
+                font: { family: 'Georgia, serif', color: '#333' },
+                plot_bgcolor: '#ffffff',
+                paper_bgcolor: '#ffffff',
+                legend: { 
+                    font: { color: '#333' },
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: '#4a7c59',
+                    borderwidth: 1
+                }
+            };
+
+            Plotly.newPlot('statePlot', [trace, iso1_trace, iso2_trace], layout, {responsive: true});
+        }
+
+        function plotIsoclines(K1, K2, alpha, beta) {
+            const N1_range = Array.from({length: 200}, (_, i) => i * Math.max(K1, K2/beta) / 199);
+            const isocline1 = N1_range.map(n1 => Math.max(0, (K1 - n1) / alpha));
+            const isocline2 = N1_range.map(n1 => Math.max(0, K2 - beta * n1));
+
+            // Create vector field
+            const vectorX = [];
+            const vectorY = [];
+            const vectorU = [];
+            const vectorV = [];
+            
+            const gridSize = 15;
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const n1 = (i / (gridSize - 1)) * K1 * 1.2;
+                    const n2 = (j / (gridSize - 1)) * K2 * 1.2;
+                    
+                    const dn1dt = 0.1 * n1 * (K1 - n1 - alpha * n2) / K1;
+                    const dn2dt = 0.1 * n2 * (K2 - n2 - beta * n1) / K2;
+                    
+                    const magnitude = Math.sqrt(dn1dt * dn1dt + dn2dt * dn2dt);
+                    if (magnitude > 0) {
+                        vectorX.push(n1);
+                        vectorY.push(n2);
+                        vectorU.push(dn1dt / magnitude * 3);
+                        vectorV.push(dn2dt / magnitude * 3);
+                    }
+                }
+            }
+
+            const iso1_trace = {
+                x: N1_range,
+                y: isocline1,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Species 1 Isocline (dN₁/dt = 0)',
+                line: { color: '#2c5530', width: 3 }
+            };
+
+            const iso2_trace = {
+                x: N1_range,
+                y: isocline2,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Species 2 Isocline (dN₂/dt = 0)',
+                line: { color: '#4a7c59', width: 3 }
+            };
+
+            // Vector field trace
+            const vector_trace = {
+                x: vectorX,
+                y: vectorY,
+                u: vectorU,
+                v: vectorV,
+                type: 'cone',
+                name: 'Population Flow',
+                colorscale: [[0, '#ffc107'], [1, '#dc3545']],
+                showscale: false,
+                sizemode: 'absolute',
+                sizeref: 1
+            };
+
+            const layout = {
+                title: { 
+                    text: 'Competition Isoclines and Vector Field',
+                    font: { color: '#333', size: 18 }
+                },
+                xaxis: { 
+                    title: { text: 'Species 1 Population (N₁)', font: { color: '#333' } }, 
+                    range: [0, Math.max(K1, K2/beta) * 1.1],
+                    color: '#333',
+                    gridcolor: '#e2e8f0',
+                    tickfont: { color: '#333' }
+                },
+                yaxis: { 
+                    title: { text: 'Species 2 Population (N₂)', font: { color: '#333' } }, 
+                    range: [0, Math.max(K2, K1/alpha) * 1.1],
+                    color: '#333',
+                    gridcolor: '#e2e8f0',
+                    tickfont: { color: '#333' }
+                },
+                font: { family: 'Georgia, serif', color: '#333' },
+                plot_bgcolor: '#ffffff',
+                paper_bgcolor: '#ffffff',
+                legend: { 
+                    font: { color: '#333' },
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: '#4a7c59',
+                    borderwidth: 1
+                }
+            };
+
+            Plotly.newPlot('isoclinePlot', [iso1_trace, iso2_trace, vector_trace], layout, {responsive: true});
+        }
+
+        function determineOutcome(K1, K2, alpha, beta) {
+            const ratio1 = K1 / K2;
+            const ratio2 = 1 / beta;
+            
+            let outcome = '';
+            let outcomeClass = '';
+            
+            if (ratio1 > alpha && ratio2 > ratio1) {
+                outcome = 'Case 1: Species 1 Wins - Species 1 will competitively exclude Species 2';
+                outcomeClass = 'exclusion';
+            } else if (ratio1 < alpha && ratio2 < ratio1) {
+                outcome = 'Case 2: Species 2 Wins - Species 2 will competitively exclude Species 1';
+                outcomeClass = 'exclusion';
+            } else if (ratio1 > alpha && ratio2 < ratio1) {
+                outcome = 'Case 3: Stable Coexistence - Both species will coexist at equilibrium';
+                outcomeClass = '';
+            } else {
+                outcome = 'Case 4: Unstable Equilibrium - Winner depends on initial conditions';
+                outcomeClass = 'unstable';
+            }
+            
+            const outcomeBox = document.getElementById('outcome');
+            outcomeBox.className = `outcome-box ${outcomeClass}`;
+            document.getElementById('outcomeText').textContent = outcome;
+        }
+
+        function showCase(caseNum) {
+            let K1, K2, alpha, beta;
+            
+            switch(caseNum) {
+                case 1: // Species 1 wins
+                    K1 = 100; K2 = 80; alpha = 0.6; beta = 1.5;
+                    break;
+                case 2: // Species 2 wins
+                    K1 = 80; K2 = 100; alpha = 1.5; beta = 0.6;
+                    break;
+                case 3: // Coexistence
+                    K1 = 100; K2 = 80; alpha = 0.6; beta = 0.6;
+                    break;
+                case 4: // Unstable
+                    K1 = 100; K2 = 80; alpha = 1.5; beta = 1.5;
+                    break;
+            }
+
+            plotCaseExample(K1, K2, alpha, beta, caseNum);
+        }
+
+        function plotCaseExample(K1, K2, alpha, beta, caseNum) {
+            const maxRange = Math.max(K1, K2, K1/alpha, K2/beta) * 1.2;
+            const N1_range = Array.from({length: 200}, (_, i) => i * maxRange / 199);
+            const isocline1 = N1_range.map(n1 => Math.max(0, (K1 - n1) / alpha));
+            const isocline2 = N1_range.map(n1 => Math.max(0, K2 - beta * n1));
+
+            // Create vector field
+            const vectorX = [];
+            const vectorY = [];
+            const vectorU = [];
+            const vectorV = [];
+            
+            const gridSize = 12;
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const n1 = (i / (gridSize - 1)) * maxRange * 0.9;
+                    const n2 = (j / (gridSize - 1)) * maxRange * 0.9;
+                    
+                    if (n1 > 0 && n2 > 0) {
+                        const dn1dt = 0.1 * n1 * (K1 - n1 - alpha * n2) / K1;
+                        const dn2dt = 0.1 * n2 * (K2 - n2 - beta * n1) / K2;
+                        
+                        const magnitude = Math.sqrt(dn1dt * dn1dt + dn2dt * dn2dt);
+                        if (magnitude > 0.001) {
+                            vectorX.push(n1);
+                            vectorY.push(n2);
+                            vectorU.push(dn1dt / magnitude * 4);
+                            vectorV.push(dn2dt / magnitude * 4);
+                        }
+                    }
+                }
+            }
+
+            const iso1_trace = {
+                x: N1_range,
+                y: isocline1,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Species 1 Isocline',
+                line: { color: '#2c5530', width: 4 }
+            };
+
+            const iso2_trace = {
+                x: N1_range,
+                y: isocline2,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Species 2 Isocline',
+                line: { color: '#4a7c59', width: 4 }
+            };
+
+            const vector_trace = {
+                x: vectorX,
+                y: vectorY,
+                u: vectorU,
+                v: vectorV,
+                type: 'cone',
+                name: 'Flow Direction',
+                colorscale: [[0, '#ffc107'], [1, '#dc3545']],
+                showscale: false,
+                sizemode: 'absolute',
+                sizeref: 1.5
+            };
+
+            // Add equilibrium points
+            let eqPoints = [];
+            if (caseNum === 3) {
+                // Stable coexistence
+                const n1_eq = (K1 - alpha * K2) / (1 - alpha * beta);
+                const n2_eq = (K2 - beta * K1) / (1 - alpha * beta);
+                if (n1_eq > 0 && n2_eq > 0) {
+                    eqPoints.push({
+                        x: [n1_eq],
+                        y: [n2_eq],
+                        type: 'scatter',
+                        mode: 'markers',
+                        name: 'Stable Equilibrium',
+                        marker: { size: 15, color: '#2c5530', symbol: 'circle' }
+                    });
+                }
+            } else if (caseNum === 4) {
+                // Unstable equilibrium
+                const n1_eq = (K1 - alpha * K2) / (1 - alpha * beta);
+                const n2_eq = (K2 - beta * K1) / (1 - alpha * beta);
+                if (n1_eq > 0 && n2_eq > 0) {
+                    eqPoints.push({
+                        x: [n1_eq],
+                        y: [n2_eq],
+                        type: 'scatter',
+                        mode: 'markers',
+                        name: 'Unstable Equilibrium',
+                        marker: { size: 15, color: '#dc3545', symbol: 'x' }
+                    });
+                }
+            }
+
+            // Add corner equilibria
+            eqPoints.push({
+                x: [K1, 0],
+                y: [0, K2],
+                type: 'scatter',
+                mode: 'markers',
+                name: 'Corner Equilibria',
+                marker: { size: 12, color: '#ffc107', symbol: 'square' }
+            });
+
+            const traces = [iso1_trace, iso2_trace, vector_trace, ...eqPoints];
+
+            const caseNames = {
+                1: 'Case 1: Species 1 Wins',
+                2: 'Case 2: Species 2 Wins', 
+                3: 'Case 3: Stable Coexistence',
+                4: 'Case 4: Unstable Equilibrium'
+            };
+
+            const layout = {
+                title: { 
+                    text: caseNames[caseNum],
+                    font: { color: '#333', size: 18 }
+                },
+                xaxis: { 
+                    title: { text: 'Species 1 Population (N₁)', font: { color: '#333' } }, 
+                    range: [0, maxRange],
+                    color: '#333',
+                    gridcolor: '#e2e8f0',
+                    tickfont: { color: '#333' }
+                },
+                yaxis: { 
+                    title: { text: 'Species 2 Population (N₂)', font: { color: '#333' } }, 
+                    range: [0, maxRange],
+                    color: '#333',
+                    gridcolor: '#e2e8f0',
+                    tickfont: { color: '#333' }
+                },
+                font: { family: 'Georgia, serif', color: '#333' },
+                plot_bgcolor: '#ffffff',
+                paper_bgcolor: '#ffffff',
+                legend: { 
+                    font: { color: '#333' },
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: '#4a7c59',
+                    borderwidth: 1
+                }
+            };
+
+            Plotly.newPlot('casePlot', traces, layout, {responsive: true});
+        }
+
+        // Initialize with default simulation
+        window.onload = function() {
+            runSimulation();
+            showCase(3); // Show coexistence case by default
+        };
+    </script>
+</body>
+</html>
