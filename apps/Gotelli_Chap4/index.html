@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metapopulations: Interactive Study Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #dc2626;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #60a5fa;
+            --secondary-color: #3b82f6;
+            --accent-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --border-color: #334155;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .mode-toggle, .theme-toggle {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .mode-toggle {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .theme-toggle {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .mode-toggle:hover, .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-color);
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-weight: bold;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px var(--shadow-color);
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .interactive-panel {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        [data-theme="dark"] .interactive-panel {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+        }
+
+        .slider-container {
+            margin: 1rem 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: var(--border-color);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .equation-box {
+            background: #f8f9fa;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        [data-theme="dark"] .equation-box {
+            background: #34495e;
+            color: var(--text-color);
+        }
+
+        .model-selector {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .model-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--secondary-color);
+            background: transparent;
+            color: var(--secondary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .model-btn.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .practice-question {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid var(--success-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        [data-theme="dark"] .practice-question {
+            background: linear-gradient(135deg, #2c5530, #1e3a24);
+        }
+
+        .question-options {
+            margin: 1rem 0;
+        }
+
+        .option {
+            display: block;
+            margin: 0.5rem 0;
+            padding: 10px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .option.correct {
+            border-color: var(--success-color);
+            background: #d4edda;
+        }
+
+        .option.incorrect {
+            border-color: var(--accent-color);
+            background: #f8d7da;
+        }
+
+        [data-theme="dark"] .option.correct {
+            background: #155724;
+        }
+
+        [data-theme="dark"] .option.incorrect {
+            background: #721c24;
+        }
+
+        .explanation {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        [data-theme="dark"] .explanation {
+            background: #0c4a6e;
+            border-color: #0ea5e9;
+        }
+
+        .progress-bar {
+            background: var(--border-color);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            background: var(--success-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .collapsible {
+            background: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            margin: 1rem 0;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible:hover {
+            opacity: 0.8;
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--card-bg);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .collapsible-content.active {
+            max-height: 1000px;
+            padding: 1rem;
+        }
+
+        .disclaimer {
+            border-left: 4px solid var(--warning-color);
+            background: #fff8e1;
+            padding: 1em;
+            margin-top: 2rem;
+            border-radius: 5px;
+        }
+
+        [data-theme="dark"] .disclaimer {
+            background: #3e2723;
+            color: var(--text-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .model-selector {
+                flex-direction: column;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Interactive Metapopulation Study Guide</h1>
+            <p>Chapter 4: Understanding Population of Populations</p>
+        </div>
+
+        <div class="controls">
+            <button class="mode-toggle" onclick="toggleMode()">Switch to Exam Practice Mode</button>
+            <button class="theme-toggle" onclick="toggleTheme()">Dark Theme</button>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="openTab(event, 'concepts')">Concepts</button>
+            <button class="tab" onclick="openTab(event, 'models')">Mathematical Models</button>
+            <button class="tab" onclick="openTab(event, 'simulations')">Interactive Simulations</button>
+            <button class="tab" onclick="openTab(event, 'examples')">Real Examples</button>
+            <button class="tab" onclick="openTab(event, 'practice')">Practice Questions</button>
+        </div>
+
+        <!-- Concepts Tab -->
+        <div id="concepts" class="tab-content active">
+            <div class="card">
+                <h2 class="section-title">What are Metapopulations?</h2>
+                <p>A metapopulation is a <strong>"population of populations"</strong> - a group of several local populations that are linked by immigration and emigration.</p>
+                
+                <div class="interactive-panel">
+                    <h3>Key Conceptual Shifts</h3>
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        Measurement Shift: Size → Persistence
+                    </div>
+                    <div class="collapsible-content">
+                        <p>Instead of tracking population size (N), we focus on whether populations persist (1) or go extinct (0). We measure the <strong>fraction of sites occupied (f)</strong>.</p>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        Spatial Scale Shift: Local → Regional
+                    </div>
+                    <div class="collapsible-content">
+                        <p>We study equilibrium at the <strong>landscape level</strong> rather than focusing on individual populations. Local extinctions are normal, but regional persistence is the goal.</p>
+                    </div>
+                </div>
+
+                <div class="equation-box">
+                    <p><strong>Fundamental Metapopulation Equation:</strong></p>
+                    $$\frac{df}{dt} = I - E$$
+                    <p>Where I = Immigration rate, E = Extinction rate</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="section-title">Extinction Risk: Local vs Regional</h2>
+                
+                <div class="interactive-panel">
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Local Extinction Probability (pe):</span>
+                            <span id="peValue">0.7</span>
+                        </div>
+                        <input type="range" min="0.1" max="0.9" step="0.1" value="0.7" class="slider" id="peSlider">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Number of Patches (x):</span>
+                            <span id="patchValue">5</span>
+                        </div>
+                        <input type="range" min="1" max="20" step="1" value="5" class="slider" id="patchSlider">
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="extinctionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="equation-box">
+                    <p><strong>Regional Persistence Probability:</strong></p>
+                    $$P_x = 1 - (p_e)^x$$
+                    <p>Multiple patches "spread the risk" of extinction!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mathematical Models Tab -->
+        <div id="models" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">Four Metapopulation Models</h2>
+                
+                <div class="model-selector">
+                    <button class="model-btn active" onclick="selectModel('island-mainland')">Island-Mainland</button>
+                    <button class="model-btn" onclick="selectModel('internal')">Internal Colonization</button>
+                    <button class="model-btn" onclick="selectModel('rescue')">Rescue Effect</button>
+                    <button class="model-btn" onclick="selectModel('combined')">Combined Model</button>
+                </div>
+
+                <div id="island-mainland" class="model-content active">
+                    <h3>Island-Mainland Model</h3>
+                    <p><strong>Assumptions:</strong> Constant colonization from external source (mainland), independent extinctions</p>
+                    
+                    <div class="equation-box">
+                        $$\frac{df}{dt} = p_i(1-f) - p_e f$$
+                        $$\text{Equilibrium: } \hat{f} = \frac{p_i}{p_i + p_e}$$
+                    </div>
+                    
+                    <div class="interactive-panel">
+                        <p><strong>Key Insight:</strong> Metapopulation always persists (f̂ > 0) due to external propagule rain, even if pe >> pi</p>
+                    </div>
+                </div>
+
+                <div id="internal" class="model-content">
+                    <h3>Internal Colonization Model</h3>
+                    <p><strong>Assumptions:</strong> Colonization only from occupied patches, no external source</p>
+                    
+                    <div class="equation-box">
+                        $\frac{df}{dt} = if(1-f) - p_e f$
+                        $\text{Equilibrium: } \hat{f} = 1 - \frac{p_e}{i}$
+                    </div>
+                    
+                    <div class="interactive-panel">
+                        <p><strong>Key Insight:</strong> Metapopulation persists only if i > pe. If condition not met, regional extinction occurs!</p>
+                    </div>
+                </div>
+
+                <div id="rescue" class="model-content">
+                    <h3>Rescue Effect Model</h3>
+                    <p><strong>Assumptions:</strong> External colonization + immigration reduces extinction probability</p>
+                    
+                    <div class="equation-box">
+                        $\frac{df}{dt} = p_i(1-f) - ef(1-f)$
+                        $\text{Equilibrium: } \hat{f} = \frac{p_i}{e}$
+                    </div>
+                    
+                    <div class="interactive-panel">
+                        <p><strong>Key Insight:</strong> If e < pi, landscape becomes saturated (f̂ = 1). Immigration "rescues" declining populations!</p>
+                    </div>
+                </div>
+
+                <div id="combined" class="model-content">
+                    <h3>Combined Model</h3>
+                    <p><strong>Assumptions:</strong> Internal colonization + rescue effect (fully closed system)</p>
+                    
+                    <div class="equation-box">
+                        $\frac{df}{dt} = if(1-f) - ef(1-f)$
+                        $\text{Outcome depends on i vs e relationship}$
+                    </div>
+                    
+                    <div class="interactive-panel">
+                        <p><strong>Key Insight:</strong> If i > e → saturation; if e > i → extinction; if i = e → neutral equilibrium</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Simulations Tab -->
+        <div id="simulations" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">Interactive Metapopulation Simulator</h2>
+                
+                <div class="interactive-panel">
+                    <h3>Model Parameters</h3>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Immigration Parameter (pi or i):</span>
+                            <span id="immigrationValue">0.3</span>
+                        </div>
+                        <input type="range" min="0.1" max="1.0" step="0.1" value="0.3" class="slider" id="immigrationSlider">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Extinction Parameter (pe or e):</span>
+                            <span id="extinctionValue">0.4</span>
+                        </div>
+                        <input type="range" min="0.1" max="1.0" step="0.1" value="0.4" class="slider" id="extinctionSlider">
+                    </div>
+
+                    <div class="model-selector">
+                        <button class="model-btn active" onclick="setSimulationModel('island-mainland')">Island-Mainland</button>
+                        <button class="model-btn" onclick="setSimulationModel('internal')">Internal</button>
+                        <button class="model-btn" onclick="setSimulationModel('rescue')">Rescue</button>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="simulationChart"></canvas>
+                    </div>
+
+                    <div id="equilibriumResult" style="text-align: center; font-size: 1.2rem; font-weight: bold; margin: 1rem 0;">
+                        <p>Equilibrium fraction of occupied sites: <span id="fHat">0.43</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real Examples Tab -->
+        <div id="examples" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">Bay Checkerspot Butterfly</h2>
+                <p><strong>Location:</strong> Northern California serpentine grasslands</p>
+                <p><strong>Model Type:</strong> Island-Mainland (Morgan Hill = mainland source)</p>
+                
+                <div class="interactive-panel">
+                    <h3>Key Findings</h3>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li>Local extinctions following 1975-1977 drought</li>
+                        <li>Successful recolonizations from Morgan Hill population</li>
+                        <li>Colonization probability depends on distance and patch quality</li>
+                        <li>Conservation requires protecting the "mainland" source</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="section-title">Heathland Carabid Beetles</h2>
+                <p><strong>Location:</strong> Northern Netherlands</p>
+                <p><strong>Study Duration:</strong> 35+ years</p>
+                
+                <div class="interactive-panel">
+                    <h3>Contrasting Species</h3>
+                    
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        Pterostichus versicolor - Asynchronous Dynamics
+                    </div>
+                    <div class="collapsible-content">
+                        <p><strong>Pattern:</strong> Populations fluctuate independently</p>
+                        <p><strong>Result:</strong> Almost no extinctions (source populations always available)</p>
+                        <p><strong>Mechanism:</strong> Risk spreading through metapopulation structure</p>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        Calathus melanocephalus - Synchronous Dynamics
+                    </div>
+                    <div class="collapsible-content">
+                        <p><strong>Pattern:</strong> Populations fluctuate in synchrony</p>
+                        <p><strong>Result:</strong> Frequent extinctions when conditions are uniformly bad</p>
+                        <p><strong>Mechanism:</strong> No source populations available during crashes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice Questions Tab -->
+        <div id="practice" class="tab-content">
+            <div class="practice-question">
+                <h3>Question 1: Island-Mainland Model</h3>
+                <p>An ant lion metapopulation has pi = 0.2 and pe = 0.4. What fraction of islands will be occupied at equilibrium?</p>
+                
+                <div class="question-options">
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q1" value="a"> A) 0.67
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, true)">
+                        <input type="radio" name="q1" value="b"> B) 0.33
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q1" value="c"> C) 0.50
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q1" value="d"> D) 0.80
+                    </label>
+                </div>
+                
+                <div class="explanation">
+                    <strong>Correct Answer: B) 0.33</strong><br>
+                    Using the island-mainland equilibrium formula: f̂ = pi/(pi + pe) = 0.2/(0.2 + 0.4) = 0.33
+                </div>
+            </div>
+
+            <div class="practice-question">
+                <h3>Question 2: Internal Colonization</h3>
+                <p>A metapopulation with internal colonization has i = 0.3 and pe = 0.5. What will happen to this metapopulation?</p>
+                
+                <div class="question-options">
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q2" value="a"> A) Reach stable equilibrium at f = 0.6
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, true)">
+                        <input type="radio" name="q2" value="b"> B) Go regionally extinct
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q2" value="c"> C) Reach carrying capacity
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q2" value="d"> D) Oscillate indefinitely
+                    </label>
+                </div>
+                
+                <div class="explanation">
+                    <strong>Correct Answer: B) Go regionally extinct</strong><br>
+                    Since i (0.3) < pe (0.5), the metapopulation cannot persist. The equilibrium f̂ = 1 - pe/i = 1 - 0.5/0.3 < 0, indicating extinction.
+                </div>
+            </div>
+
+            <div class="practice-question">
+                <h3>Question 3: Risk Spreading</h3>
+                <p>Why do multiple patches reduce extinction risk even when each patch has high local extinction probability?</p>
+                
+                <div class="question-options">
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q3" value="a"> A) Each patch becomes more stable
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, true)">
+                        <input type="radio" name="q3" value="b"> B) Regional persistence probability increases with patch number
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q3" value="c"> C) Local extinction rates decrease
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q3" value="d"> D) Migration rates increase automatically
+                    </label>
+                </div>
+                
+                <div class="explanation">
+                    <strong>Correct Answer: B) Regional persistence probability increases with patch number</strong><br>
+                    The probability of regional persistence Px = 1 - (pe)^x increases rapidly as x increases, even with high pe. This is the "spreading the risk" principle.
+                </div>
+            </div>
+
+            <div class="practice-question">
+                <h3>Question 4: Rescue Effect</h3>
+                <p>Which statement best describes the rescue effect in metapopulations?</p>
+                
+                <div class="question-options">
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q4" value="a"> A) External colonization increases
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, true)">
+                        <input type="radio" name="q4" value="b"> B) Immigration reduces local extinction probability
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q4" value="c"> C) Patch quality improves over time
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q4" value="d"> D) Larger patches are more stable
+                    </label>
+                </div>
+                
+                <div class="explanation">
+                    <strong>Correct Answer: B) Immigration reduces local extinction probability</strong><br>
+                    The rescue effect occurs when immigrants boost local population sizes, reducing the probability of extinction due to demographic and environmental stochasticity.
+                </div>
+            </div>
+
+            <div class="practice-question">
+                <h3>Question 5: Model Assumptions</h3>
+                <p>Which assumption is NOT typically made in basic metapopulation models?</p>
+                
+                <div class="question-options">
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q5" value="a"> A) Homogeneous patches
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q5" value="b"> B) No time lags in population response
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, true)">
+                        <input type="radio" name="q5" value="c"> C) Spatial arrangement of patches matters
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q5" value="d"> D) Large number of patches
+                    </label>
+                </div>
+                
+                <div class="explanation">
+                    <strong>Correct Answer: C) Spatial arrangement of patches matters</strong><br>
+                    Basic metapopulation models assume NO spatial structure - colonization probability depends only on overall f, not on spatial arrangement of occupied patches.
+                </div>
+            </div>
+
+            <div class="practice-question">
+                <h3>Question 6: Conservation Application</h3>
+                <p>For the Bay Checkerspot butterfly, why is protecting the Morgan Hill population critical?</p>
+                
+                <div class="question-options">
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q6" value="a"> A) It has the highest genetic diversity
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, true)">
+                        <input type="radio" name="q6" value="b"> B) It serves as the mainland source for recolonization
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q6" value="c"> C) It has the best habitat quality
+                    </label>
+                    <label class="option" onclick="checkAnswer(this, false)">
+                        <input type="radio" name="q6" value="d"> D) It is the oldest population
+                    </label>
+                </div>
+                
+                <div class="explanation">
+                    <strong>Correct Answer: B) It serves as the mainland source for recolonization</strong><br>
+                    Morgan Hill is the large, persistent population that provides colonists for empty patches after local extinctions, making it essential for metapopulation persistence.
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This content is provided for educational purposes only and may contain inaccuracies. Please consult your instructor or official sources for verification.
+        </div>
+    </div>
+
+    <script>
+        // MathJax configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [[', '], ['\\(', '\\)']],
+                displayMath: [['$', '$'], ['\\[', '\\]']]
+            }
+        };
+
+        // Global variables
+        let currentMode = 'concept';
+        let currentTheme = 'light';
+        let currentModel = 'island-mainland';
+        let simulationModel = 'island-mainland';
+        let extinctionChart, simulationChart;
+        let progress = 0;
+
+        // Initialize charts and event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            setupEventListeners();
+            updateProgress();
+            loadUserProgress();
+        });
+
+        // Theme toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', currentTheme);
+            document.querySelector('.theme-toggle').textContent = 
+                currentTheme === 'light' ? '🌙 Dark Theme' : '☀️ Light Theme';
+            saveUserProgress();
+        }
+
+        // Mode toggle
+        function toggleMode() {
+            currentMode = currentMode === 'concept' ? 'practice' : 'concept';
+            const button = document.querySelector('.mode-toggle');
+            if (currentMode === 'practice') {
+                button.textContent = 'Switch to Concept Mode';
+                openTab(null, 'practice');
+            } else {
+                button.textContent = 'Switch to Exam Practice Mode';
+                openTab(null, 'concepts');
+            }
+            saveUserProgress();
+        }
+
+        // Tab functionality
+        function openTab(evt, tabName) {
+            const tabcontents = document.getElementsByClassName('tab-content');
+            const tabs = document.getElementsByClassName('tab');
+            
+            for (let i = 0; i < tabcontents.length; i++) {
+                tabcontents[i].classList.remove('active');
+            }
+            
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            if (evt) evt.currentTarget.classList.add('active');
+            
+            // Update progress
+            updateProgress();
+        }
+
+        // Model selection
+        function selectModel(modelName) {
+            currentModel = modelName;
+            
+            // Update button states
+            document.querySelectorAll('.model-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show corresponding model content
+            document.querySelectorAll('.model-content').forEach(content => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
+            
+            const modelContent = document.getElementById(modelName);
+            if (modelContent) {
+                modelContent.classList.add('active');
+                modelContent.style.display = 'block';
+            }
+        }
+
+        // Simulation model selection
+        function setSimulationModel(modelName) {
+            simulationModel = modelName;
+            
+            // Update button states
+            document.querySelectorAll('#simulations .model-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Find and activate the correct button
+            let buttonToActivate;
+            switch(modelName) {
+                case 'island-mainland':
+                    buttonToActivate = document.querySelector('[onclick="setSimulationModel(\'island-mainland\')"]');
+                    break;
+                case 'internal':
+                    buttonToActivate = document.querySelector('[onclick="setSimulationModel(\'internal\')"]');
+                    break;
+                case 'rescue':
+                    buttonToActivate = document.querySelector('[onclick="setSimulationModel(\'rescue\')"]');
+                    break;
+            }
+            
+            if (buttonToActivate) {
+                buttonToActivate.classList.add('active');
+            }
+            
+            updateSimulation();
+        }
+
+        // Collapsible functionality
+        function toggleCollapsible(element) {
+            element.classList.toggle('active');
+            const content = element.nextElementSibling;
+            content.classList.toggle('active');
+        }
+
+        // Answer checking
+        function checkAnswer(element, isCorrect) {
+            const allOptions = element.parentNode.querySelectorAll('.option');
+            const explanation = element.parentNode.nextElementSibling;
+            
+            // Remove previous styling
+            allOptions.forEach(option => {
+                option.classList.remove('correct', 'incorrect');
+            });
+            
+            // Style the selected answer
+            if (isCorrect) {
+                element.classList.add('correct');
+                progress += 1;
+            } else {
+                element.classList.add('incorrect');
+                // Show correct answer
+                allOptions.forEach(option => {
+                    if (option.onclick.toString().includes('true')) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Show explanation
+            explanation.style.display = 'block';
+            updateProgress();
+            saveUserProgress();
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            const totalQuestions = 6;
+            const progressPercent = Math.min((progress / totalQuestions) * 100, 100);
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+        }
+
+        // Local storage for user progress
+        function saveUserProgress() {
+            const userProgress = {
+                theme: currentTheme,
+                mode: currentMode,
+                progress: progress,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('metapopulation_progress', JSON.stringify(userProgress));
+        }
+
+        function loadUserProgress() {
+            const saved = localStorage.getItem('metapopulation_progress');
+            if (saved) {
+                const userProgress = JSON.parse(saved);
+                progress = userProgress.progress || 0;
+                updateProgress();
+            }
+        }
+
+        // Event listeners setup
+        function setupEventListeners() {
+            // Extinction risk sliders
+            const peSlider = document.getElementById('peSlider');
+            const patchSlider = document.getElementById('patchSlider');
+            
+            peSlider.addEventListener('input', function() {
+                document.getElementById('peValue').textContent = this.value;
+                updateExtinctionChart();
+            });
+            
+            patchSlider.addEventListener('input', function() {
+                document.getElementById('patchValue').textContent = this.value;
+                updateExtinctionChart();
+            });
+
+            // Simulation sliders
+            const immigrationSlider = document.getElementById('immigrationSlider');
+            const extinctionSlider = document.getElementById('extinctionSlider');
+            
+            immigrationSlider.addEventListener('input', function() {
+                document.getElementById('immigrationValue').textContent = this.value;
+                updateSimulation();
+            });
+            
+            extinctionSlider.addEventListener('input', function() {
+                document.getElementById('extinctionValue').textContent = this.value;
+                updateSimulation();
+            });
+        }
+
+        // Chart initialization
+        function initializeCharts() {
+            // Extinction risk chart
+            const extinctionCtx = document.getElementById('extinctionChart').getContext('2d');
+            extinctionChart = new Chart(extinctionCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Regional Persistence Probability',
+                        data: [],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Regional Persistence vs Number of Patches'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Number of Patches'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Persistence Probability'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            // Simulation chart
+            const simulationCtx = document.getElementById('simulationChart').getContext('2d');
+            simulationChart = new Chart(simulationCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Fraction Occupied (f)',
+                        data: [],
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Metapopulation Dynamics Over Time'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Fraction of Sites Occupied'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            updateExtinctionChart();
+            updateSimulation();
+        }
+
+        // Update extinction chart
+        function updateExtinctionChart() {
+            const pe = parseFloat(document.getElementById('peSlider').value);
+            const maxPatches = parseInt(document.getElementById('patchSlider').value);
+            
+            const labels = [];
+            const data = [];
+            
+            for (let x = 1; x <= maxPatches; x++) {
+                labels.push(x);
+                const persistence = 1 - Math.pow(pe, x);
+                data.push(persistence);
+            }
+            
+            extinctionChart.data.labels = labels;
+            extinctionChart.data.datasets[0].data = data;
+            extinctionChart.update();
+        }
+
+        // Update simulation
+        function updateSimulation() {
+            const immigration = parseFloat(document.getElementById('immigrationSlider').value);
+            const extinction = parseFloat(document.getElementById('extinctionSlider').value);
+            
+            let equilibrium, trajectory;
+            
+            switch(simulationModel) {
+                case 'island-mainland':
+                    equilibrium = immigration / (immigration + extinction);
+                    trajectory = simulateIslandMainland(immigration, extinction);
+                    break;
+                case 'internal':
+                    equilibrium = Math.max(0, 1 - extinction / immigration);
+                    trajectory = simulateInternal(immigration, extinction);
+                    break;
+                case 'rescue':
+                    equilibrium = Math.min(1, immigration / extinction);
+                    trajectory = simulateRescue(immigration, extinction);
+                    break;
+            }
+            
+            document.getElementById('fHat').textContent = equilibrium.toFixed(3);
+            
+            simulationChart.data.labels = trajectory.time;
+            simulationChart.data.datasets[0].data = trajectory.f;
+            simulationChart.update();
+        }
+
+        // Simulation functions
+        function simulateIslandMainland(pi, pe) {
+            const time = [];
+            const f = [];
+            let currentF = 0.1; // Starting fraction
+            const dt = 0.1;
+            
+            for (let t = 0; t <= 20; t += dt) {
+                time.push(t.toFixed(1));
+                f.push(currentF);
+                
+                const dfdt = pi * (1 - currentF) - pe * currentF;
+                currentF += dfdt * dt;
+                currentF = Math.max(0, Math.min(1, currentF));
+            }
+            
+            return { time, f };
+        }
+
+        function simulateInternal(i, pe) {
+            const time = [];
+            const f = [];
+            let currentF = 0.5; // Starting fraction
+            const dt = 0.1;
+            
+            for (let t = 0; t <= 20; t += dt) {
+                time.push(t.toFixed(1));
+                f.push(currentF);
+                
+                const dfdt = i * currentF * (1 - currentF) - pe * currentF;
+                currentF += dfdt * dt;
+                currentF = Math.max(0, Math.min(1, currentF));
+            }
+            
+            return { time, f };
+        }
+
+        function simulateRescue(pi, e) {
+            const time = [];
+            const f = [];
+            let currentF = 0.3; // Starting fraction
+            const dt = 0.1;
+            
+            for (let t = 0; t <= 20; t += dt) {
+                time.push(t.toFixed(1));
+                f.push(currentF);
+                
+                const dfdt = pi * (1 - currentF) - e * currentF * (1 - currentF);
+                currentF += dfdt * dt;
+                currentF = Math.max(0, Math.min(1, currentF));
+            }
+            
+            return { time, f };
+        }
+    </script>
+</body>
+</html>
