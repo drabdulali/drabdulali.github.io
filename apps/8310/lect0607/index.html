@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metapopulation Ecology: A Complete Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: #ffffff;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background: #ffffff;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #2c5530;
+        }
+
+        .section h2 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e8f5e8;
+        }
+
+        .section h3 {
+            color: #4a7c59;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid #4a7c59;
+        }
+
+        .concept-card h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+
+        .equation-box {
+            background: #1a3d20;
+            color: #ffffff;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .simulation-container {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            border: 2px solid #4a7c59;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .control-group label {
+            color: #2c5530;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .control-group input {
+            padding: 0.5rem;
+            border: 2px solid #4a7c59;
+            border-radius: 4px;
+            width: 100px;
+        }
+
+        .button {
+            background: #2c5530;
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background: #1a3d20;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .math-display {
+            background: linear-gradient(135deg, #1a3d20, #2c5530);
+            color: #ffffff;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, #4a7c59, #2c5530);
+            color: #ffffff;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffffff;
+        }
+
+        .patch-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            margin: 1rem 0;
+            max-width: 300px;
+        }
+
+        .patch {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid #4a7c59;
+        }
+
+        .patch.occupied {
+            background: #2c5530;
+        }
+
+        .patch.empty {
+            background: #f8f9fa;
+        }
+
+        .patch.destroyed {
+            background: #666;
+        }
+
+        .navigation {
+            background: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Metapopulation Ecology</h1>
+        <p>A Complete Guide to Population Networks and Spatial Dynamics</p>
+    </div>
+
+    <div class="navigation">
+        <div class="nav-links">
+            <a href="#introduction">Introduction</a>
+            <a href="#levins-model">Levins Model</a>
+            <a href="#island-mainland">Island-Mainland</a>
+            <a href="#source-sink">Source-Sink</a>
+            <a href="#applications">Applications</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <section id="introduction" class="section">
+            <h2>Introduction to Metapopulations</h2>
+            
+            <div class="concept-card">
+                <h4>What is a Metapopulation?</h4>
+                <p>A metapopulation is a collection of spatially separated populations of the same species that are connected by occasional migration. These populations exist in discrete habitat patches separated by unsuitable matrix habitat.</p>
+            </div>
+
+            <h3>Key Concepts</h3>
+            
+            <div class="grid">
+                <div class="concept-card">
+                    <h4>Closed vs. Open Populations</h4>
+                    <p><strong>Closed populations:</strong> No immigration or emigration - only births and deaths affect population size.</p>
+                    <p><strong>Open populations:</strong> Connected by migration, allowing regional persistence even with local extinctions.</p>
+                </div>
+                
+                <div class="concept-card">
+                    <h4>Patches and Matrix</h4>
+                    <p><strong>Patches:</strong> Discrete habitat areas that can support local populations.</p>
+                    <p><strong>Matrix:</strong> Surrounding unsuitable habitat that separates patches.</p>
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <strong>Key Insight:</strong> Metapopulations allow regional persistence through recolonization even when individual patches experience extinction.
+            </div>
+
+            <h3>Historical Context</h3>
+            <div class="chart-container">
+                <canvas id="citationChart"></canvas>
+            </div>
+        </section>
+
+        <section id="levins-model" class="section">
+            <h2>Levins' Model (Internal Colonization)</h2>
+            
+            <div class="concept-card">
+                <h4>Model Assumptions</h4>
+                <ul>
+                    <li>Many identical patches in the system</li>
+                    <li>Spatially implicit (no explicit spatial structure)</li>
+                    <li>Each patch is either occupied or unoccupied</li>
+                    <li>Two processes: extinction and colonization</li>
+                    <li>Colonization rate depends on occupied patches</li>
+                </ul>
+            </div>
+
+            <h3>Mathematical Framework</h3>
+            
+            <div class="math-display">
+                <p>The Levins equation describes the change in proportion of occupied patches:</p>
+                $$\frac{dP}{dt} = cP(1-P) - mP$$
+                <p>Where:</p>
+                <ul style="text-align: left; margin-top: 1rem;">
+                    <li>$P$ = proportion of patches occupied</li>
+                    <li>$c$ = colonization rate</li>
+                    <li>$m$ = extinction rate</li>
+                    <li>$(1-P)$ = proportion of empty patches available for colonization</li>
+                </ul>
+            </div>
+
+            <h3>Equilibrium Analysis</h3>
+            
+            <div class="math-display">
+                <p>At equilibrium, $\frac{dP}{dt} = 0$:</p>
+                $$cP^*(1-P^*) = mP^*$$
+                <p>Solving for $P^*$:</p>
+                $$P^* = 1 - \frac{m}{c} \quad \text{(if } c > m\text{)}$$
+                $$P^* = 0 \quad \text{(if } m \geq c\text{)}$$
+            </div>
+
+            <div class="key-insight">
+                <strong>Critical Threshold:</strong> The metapopulation persists only when colonization rate exceeds extinction rate ($c > m$).
+            </div>
+
+            <h3>Interactive Levins Model Simulation</h3>
+            <div class="simulation-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="colonization">Colonization Rate (c)</label>
+                        <input type="number" id="colonization" value="0.3" step="0.01" min="0" max="1">
+                    </div>
+                    <div class="control-group">
+                        <label for="extinction">Extinction Rate (m)</label>
+                        <input type="number" id="extinction" value="0.1" step="0.01" min="0" max="1">
+                    </div>
+                    <div class="control-group">
+                        <label for="initial">Initial P</label>
+                        <input type="number" id="initial" value="0.1" step="0.01" min="0" max="1">
+                    </div>
+                    <button class="button" onclick="runLevinsSimulation()">Run Simulation</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="levinsChart"></canvas>
+                </div>
+                
+                <div id="levinsResults"></div>
+            </div>
+
+            <h3>Graphical Analysis</h3>
+            <div class="chart-container">
+                <canvas id="levinsPhaseChart"></canvas>
+            </div>
+
+            <h3>Impact of Habitat Destruction</h3>
+            
+            <div class="math-display">
+                <p>When a proportion $D$ of patches are destroyed:</p>
+                $$\frac{dP}{dt} = cP(1-P-D) - mP$$
+                <p>New equilibrium:</p>
+                $$P^* = 1 - \frac{m}{c} - D$$
+            </div>
+
+            <div class="key-insight">
+                <strong>Metapopulation Meltdown:</strong> Removing unoccupied patches reduces occupied patches by the same amount! The population goes extinct when $D \geq 1 - \frac{m}{c}$.
+            </div>
+
+            <div class="simulation-container">
+                <h4>Habitat Destruction Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="destruction">Destruction Level (D)</label>
+                        <input type="number" id="destruction" value="0" step="0.01" min="0" max="1">
+                    </div>
+                    <button class="button" onclick="updateDestruction()">Update</button>
+                </div>
+                
+                <div class="patch-grid" id="patchGrid"></div>
+                <div id="destructionResults"></div>
+            </div>
+        </section>
+
+        <section id="island-mainland" class="section">
+            <h2>Island-Mainland Model</h2>
+            
+            <div class="concept-card">
+                <h4>Model Characteristics</h4>
+                <ul>
+                    <li>Large mainland population that never goes extinct</li>
+                    <li>Smaller island populations connected to mainland</li>
+                    <li>No internal colonization between islands</li>
+                    <li>Colonization comes only from mainland</li>
+                </ul>
+            </div>
+
+            <h3>Mathematical Framework</h3>
+            
+            <div class="math-display">
+                <p>Island-mainland equation:</p>
+                $$\frac{dP}{dt} = c(1-P) - mP$$
+                <p>Note: Colonization term is $c(1-P)$ instead of $cP(1-P)$</p>
+                <p>Equilibrium:</p>
+                $$P^* = \frac{c}{c + m}$$
+            </div>
+
+            <div class="key-insight">
+                <strong>Key Difference:</strong> Island populations always persist if $c > 0$ (as long as the mainland exists), unlike Levins' model which requires $c > m$.
+            </div>
+
+            <h3>Comparison: Levins vs. Island-Mainland</h3>
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Island-Mainland Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="islandColonization">Colonization Rate (c)</label>
+                        <input type="number" id="islandColonization" value="0.2" step="0.01" min="0" max="1">
+                    </div>
+                    <div class="control-group">
+                        <label for="islandExtinction">Extinction Rate (m)</label>
+                        <input type="number" id="islandExtinction" value="0.3" step="0.01" min="0" max="1">
+                    </div>
+                    <button class="button" onclick="runIslandSimulation()">Run Simulation</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="islandChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="source-sink" class="section">
+            <h2>Source-Sink Dynamics</h2>
+            
+            <div class="concept-card">
+                <h4>Definitions</h4>
+                <p><strong>Source:</strong> A habitat patch where birth rate exceeds death rate, producing a surplus of individuals that emigrate.</p>
+                <p><strong>Sink:</strong> A habitat patch where death rate exceeds birth rate, requiring immigration to persist.</p>
+            </div>
+
+            <h3>Mathematical Criteria</h3>
+            
+            <div class="math-display">
+                <p>For a patch with intrinsic growth rate $r$ and carrying capacity $K$:</p>
+                <p><strong>Source:</strong> $r > 0$ (population can grow when rare)</p>
+                <p><strong>Sink:</strong> $r \leq 0$ (population cannot sustain itself)</p>
+                <p>With migration rate $m$ and death rate $d$:</p>
+                <p>Expected residence time = $\frac{1}{m + d}$</p>
+            </div>
+
+            <h3>Two-Patch Model with Migration</h3>
+            
+            <div class="math-display">
+                <p>For two patches with carrying capacities $K_1$ and $K_2$, and migration rate $m$:</p>
+                $$\frac{dN_1}{dt} = r_1N_1\left(1-\frac{N_1}{K_1}\right) - mN_1 + mN_2$$
+                $$\frac{dN_2}{dt} = r_2N_2\left(1-\frac{N_2}{K_2}\right) - mN_2 + mN_1$$
+            </div>
+
+            <div class="simulation-container">
+                <h4>Source-Sink Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="r1">Growth Rate 1</label>
+                        <input type="number" id="r1" value="0.5" step="0.1" min="-1" max="2">
+                    </div>
+                    <div class="control-group">
+                        <label for="r2">Growth Rate 2</label>
+                        <input type="number" id="r2" value="-0.2" step="0.1" min="-1" max="2">
+                    </div>
+                    <div class="control-group">
+                        <label for="K1">Carrying Capacity 1</label>
+                        <input type="number" id="K1" value="100" step="10" min="10" max="200">
+                    </div>
+                    <div class="control-group">
+                        <label for="K2">Carrying Capacity 2</label>
+                        <input type="number" id="K2" value="80" step="10" min="10" max="200">
+                    </div>
+                    <div class="control-group">
+                        <label for="migration">Migration Rate</label>
+                        <input type="number" id="migration" value="0.1" step="0.01" min="0" max="1">
+                    </div>
+                    <button class="button" onclick="runSourceSinkSimulation()">Run Simulation</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="sourceSinkChart"></canvas>
+                </div>
+                
+                <div id="sourceSinkResults"></div>
+            </div>
+
+            <div class="key-insight">
+                <strong>Conservation Implication:</strong> High-density areas may be sinks supported by low-density sources. Protect the sources, not just where you see the most animals!
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Synchrony and Stability</h2>
+            
+            <div class="concept-card">
+                <h4>Synchrony vs. Asynchrony</h4>
+                <p><strong>Synchrony:</strong> Populations fluctuate in unison - increases extinction risk.</p>
+                <p><strong>Asynchrony:</strong> Populations fluctuate independently - stabilizes metapopulation.</p>
+            </div>
+
+            <h3>Factors Affecting Synchrony</h3>
+            
+            <div class="grid">
+                <div class="concept-card">
+                    <h4>Causes of Synchrony</h4>
+                    <ul>
+                        <li>Global environmental variation</li>
+                        <li>High migration rates</li>
+                        <li>Similar local conditions</li>
+                    </ul>
+                </div>
+                
+                <div class="concept-card">
+                    <h4>Causes of Asynchrony</h4>
+                    <ul>
+                        <li>Local environmental variation</li>
+                        <li>Distance-dependent dispersal</li>
+                        <li>Chaotic dynamics</li>
+                        <li>Different patch qualities</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <strong>Stability Principle:</strong> Asynchrony increases metapopulation persistence by ensuring some patches remain occupied when others go extinct.
+            </div>
+
+            <div class="simulation-container">
+                <h4>Synchrony Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="globalNoise">Global Noise</label>
+                        <input type="number" id="globalNoise" value="0.1" step="0.01" min="0" max="0.5">
+                    </div>
+                    <div class="control-group">
+                        <label for="localNoise">Local Noise</label>
+                        <input type="number" id="localNoise" value="0.2" step="0.01" min="0" max="0.5">
+                    </div>
+                    <div class="control-group">
+                        <label for="migrationSync">Migration Rate</label>
+                        <input type="number" id="migrationSync" value="0.05" step="0.01" min="0" max="0.3">
+                    </div>
+                    <button class="button" onclick="runSynchronySimulation()">Run Simulation</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="synchronyChart"></canvas>
+                </div>
+                
+                <div id="synchronyResults"></div>
+            </div>
+        </section>
+
+        <section id="applications" class="section">
+            <h2>Conservation Applications</h2>
+            
+            <h3>Corridor Design</h3>
+            <div class="concept-card">
+                <h4>Benefits of Corridors</h4>
+                <p>Corridors increase connectivity between patches, enhancing colonization rates and reducing extinction probability through the rescue effect.</p>
+            </div>
+
+            <div class="math-display">
+                <p>Effect of corridors on colonization rate:</p>
+                <p>Higher connectivity → Higher $c$ → Higher $P^* = 1 - \frac{m}{c}$</p>
+            </div>
+
+            <h3>Reserve Design Principles</h3>
+            
+            <div class="grid">
+                <div class="concept-card">
+                    <h4>Single Large or Several Small (SLOSS)</h4>
+                    <p>Metapopulation theory suggests several small reserves may be better than one large reserve if they reduce synchrony and provide stepping stones for dispersal.</p>
+                </div>
+                
+                <div class="concept-card">
+                    <h4>Minimum Viable Metapopulation</h4>
+                    <p>The smallest number of connected populations needed for long-term persistence, considering stochastic events and habitat loss.</p>
+                </div>
+            </div>
+
+            <h3>Key Conservation Insights</h3>
+            
+            <div class="key-insight">
+                <strong>Empty Patches Matter:</strong> Unoccupied suitable habitat is essential for metapopulation persistence - protect potential habitat, not just occupied sites.
+            </div>
+
+            <div class="key-insight">
+                <strong>Source Identification:</strong> Focus protection on source populations that support regional persistence, even if sink populations appear more abundant.
+            </div>
+
+            <div class="key-insight">
+                <strong>Connectivity is Critical:</strong> Maintain or restore corridors and stepping-stone habitats to facilitate recolonization after local extinctions.
+            </div>
+
+            <h3>Climate Change Implications</h3>
+            <div class="concept-card">
+                <h4>Shifting Metapopulations</h4>
+                <p>Climate change can alter source-sink dynamics, requiring adaptive management and assisted migration to maintain connectivity across changing landscapes.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Advanced Topics</h2>
+            
+            <h3>Rescue Effect</h3>
+            <div class="concept-card">
+                <h4>Definition</h4>
+                <p>Immigration reduces extinction probability by supplementing declining local populations before they reach zero.</p>
+            </div>
+
+            <h3>Allee Effects in Metapopulations</h3>
+            <div class="concept-card">
+                <h4>Impact on Colonization</h4>
+                <p>Allee effects can create colonization thresholds - small founding populations may fail to establish, requiring multiple colonization events or larger propagule sizes.</p>
+            </div>
+
+            <h3>Spatial Autocorrelation</h3>
+            <div class="concept-card">
+                <h4>Distance-Dependent Processes</h4>
+                <p>Closer patches are more likely to be similar in occupancy status due to higher migration rates and similar environmental conditions.</p>
+            </div>
+
+            <h3>Stochastic Metapopulation Models</h3>
+            <div class="math-display">
+                <p>Including demographic and environmental stochasticity:</p>
+                $$P(\text{extinction}) = \exp\left(-\frac{2(r - \sigma^2/2)N}{\sigma^2}\right)$$
+                <p>Where $\sigma^2$ represents environmental variance and $N$ is population size.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Initialize charts and simulations
+        let levinsChart, islandChart, sourceSinkChart, synchronyChart;
+
+        // Citation growth chart
+        const citationCtx = document.getElementById('citationChart').getContext('2d');
+        new Chart(citationCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1970', '1975', '1980', '1985', '1990', '1995'],
+                datasets: [{
+                    label: 'Citations per Year',
+                    data: [0.008, 0.015, 0.018, 0.008, 0.015, 0.15],
+                    backgroundColor: '#2c5530',
+                    borderColor: '#4a7c59',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Standardized Citations'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Growth of Metapopulation Literature'
+                    }
+                }
+            }
+        });
+
+        // Levins phase diagram
+        const phaseCtx = document.getElementById('levinsPhaseChart').getContext('2d');
+        const pValues = Array.from({length: 101}, (_, i) => i / 100);
+        const colonizationRate = pValues.map(p => 0.3 * p * (1 - p));
+        const extinctionRate = pValues.map(p => 0.1 * p);
+
+        new Chart(phaseCtx, {
+            type: 'line',
+            data: {
+                labels: pValues,
+                datasets: [{
+                    label: 'Colonization: cP(1-P)',
+                    data: colonizationRate,
+                    borderColor: '#2c5530',
+                    backgroundColor: 'transparent',
+                    tension: 0.4
+                }, {
+                    label: 'Extinction: mP',
+                    data: extinctionRate,
+                    borderColor: '#4a7c59',
+                    backgroundColor: 'transparent',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Proportion Occupied (P)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Rate'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Levins Model: Colonization vs Extinction Rates'
+                    }
+                }
+            }
+        });
+
+        // Comparison chart
+        const compCtx = document.getElementById('comparisonChart').getContext('2d');
+        const cValues = Array.from({length: 50}, (_, i) => (i + 1) / 50);
+        const levinsP = cValues.map(c => Math.max(0, 1 - 0.2/c));
+        const islandP = cValues.map(c => c / (c + 0.2));
+
+        new Chart(compCtx, {
+            type: 'line',
+            data: {
+                labels: cValues,
+                datasets: [{
+                    label: 'Levins Model',
+                    data: levinsP,
+                    borderColor: '#2c5530',
+                    backgroundColor: 'transparent',
+                    tension: 0.4
+                }, {
+                    label: 'Island-Mainland Model',
+                    data: islandP,
+                    borderColor: '#4a7c59',
+                    backgroundColor: 'transparent',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Colonization Rate (c)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Equilibrium P*'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Comparison: Levins vs Island-Mainland (m = 0.2)'
+                    }
+                }
+            }
+        });
+
+        function runLevinsSimulation() {
+            const c = parseFloat(document.getElementById('colonization').value);
+            const m = parseFloat(document.getElementById('extinction').value);
+            const P0 = parseFloat(document.getElementById('initial').value);
+            
+            const dt = 0.1;
+            const steps = 500;
+            const timeData = [];
+            const pData = [];
+            
+            let P = P0;
+            
+            for (let i = 0; i <= steps; i++) {
+                timeData.push(i * dt);
+                pData.push(P);
+                
+                const dPdt = c * P * (1 - P) - m * P;
+                P = Math.max(0, Math.min(1, P + dPdt * dt));
+            }
+            
+            if (levinsChart) {
+                levinsChart.destroy();
+            }
+            
+            const ctx = document.getElementById('levinsChart').getContext('2d');
+            levinsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData,
+                    datasets: [{
+                        label: 'Proportion Occupied',
+                        data: pData,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Proportion Occupied (P)'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Levins Model Simulation'
+                        }
+                    }
+                }
+            });
+            
+            const equilibrium = c > m ? (1 - m/c).toFixed(3) : 0;
+            const finalP = pData[pData.length - 1].toFixed(3);
+            
+            document.getElementById('levinsResults').innerHTML = `
+                <div class="key-insight">
+                    <strong>Results:</strong><br>
+                    Theoretical Equilibrium P* = ${equilibrium}<br>
+                    Final Simulated P = ${finalP}<br>
+                    ${c > m ? 'Metapopulation persists' : 'Metapopulation goes extinct'}
+                </div>
+            `;
+        }
+
+        function updateDestruction() {
+            const D = parseFloat(document.getElementById('destruction').value);
+            const c = 0.3;
+            const m = 0.1;
+            
+            const grid = document.getElementById('patchGrid');
+            grid.innerHTML = '';
+            
+            const totalPatches = 100;
+            const destroyedPatches = Math.floor(D * totalPatches);
+            const originalEquilibrium = 1 - m/c;
+            const occupiedPatches = Math.floor(Math.max(0, originalEquilibrium - D) * totalPatches);
+            
+            for (let i = 0; i < totalPatches; i++) {
+                const patch = document.createElement('div');
+                patch.className = 'patch';
+                
+                if (i < destroyedPatches) {
+                    patch.classList.add('destroyed');
+                } else if (i < destroyedPatches + occupiedPatches) {
+                    patch.classList.add('occupied');
+                } else {
+                    patch.classList.add('empty');
+                }
+                
+                grid.appendChild(patch);
+            }
+            
+            const newEquilibrium = Math.max(0, originalEquilibrium - D);
+            
+            document.getElementById('destructionResults').innerHTML = `
+                <div class="key-insight">
+                    <strong>Results:</strong><br>
+                    Original P* = ${originalEquilibrium.toFixed(3)}<br>
+                    With ${(D*100).toFixed(1)}% destruction: P* = ${newEquilibrium.toFixed(3)}<br>
+                    ${newEquilibrium <= 0 ? 'EXTINCTION!' : 'Metapopulation survives'}
+                </div>
+            `;
+        }
+
+        function runIslandSimulation() {
+            const c = parseFloat(document.getElementById('islandColonization').value);
+            const m = parseFloat(document.getElementById('islandExtinction').value);
+            
+            const dt = 0.1;
+            const steps = 500;
+            const timeData = [];
+            const pData = [];
+            
+            let P = 0.1; // Start with low occupancy
+            
+            for (let i = 0; i <= steps; i++) {
+                timeData.push(i * dt);
+                pData.push(P);
+                
+                const dPdt = c * (1 - P) - m * P;
+                P = Math.max(0, Math.min(1, P + dPdt * dt));
+            }
+            
+            if (islandChart) {
+                islandChart.destroy();
+            }
+            
+            const ctx = document.getElementById('islandChart').getContext('2d');
+            islandChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData,
+                    datasets: [{
+                        label: 'Proportion Occupied',
+                        data: pData,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Proportion Occupied (P)'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Island-Mainland Model Simulation'
+                        }
+                    }
+                }
+            });
+        }
+
+        function runSourceSinkSimulation() {
+            const r1 = parseFloat(document.getElementById('r1').value);
+            const r2 = parseFloat(document.getElementById('r2').value);
+            const K1 = parseFloat(document.getElementById('K1').value);
+            const K2 = parseFloat(document.getElementById('K2').value);
+            const migRate = parseFloat(document.getElementById('migration').value);
+            
+            const dt = 0.01;
+            const steps = 2000;
+            const timeData = [];
+            const n1Data = [];
+            const n2Data = [];
+            
+            let N1 = K1 * 0.5;
+            let N2 = K2 * 0.3;
+            
+            for (let i = 0; i <= steps; i++) {
+                if (i % 10 === 0) { // Record every 10th step
+                    timeData.push(i * dt);
+                    n1Data.push(N1);
+                    n2Data.push(N2);
+                }
+                
+                const growth1 = r1 * N1 * (1 - N1/K1);
+                const growth2 = r2 * N2 * (1 - N2/K2);
+                const migration1to2 = migRate * N1;
+                const migration2to1 = migRate * N2;
+                
+                const dN1dt = growth1 - migration1to2 + migration2to1;
+                const dN2dt = growth2 - migration2to1 + migration1to2;
+                
+                N1 = Math.max(0, N1 + dN1dt * dt);
+                N2 = Math.max(0, N2 + dN2dt * dt);
+            }
+            
+            if (sourceSinkChart) {
+                sourceSinkChart.destroy();
+            }
+            
+            const ctx = document.getElementById('sourceSinkChart').getContext('2d');
+            sourceSinkChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData,
+                    datasets: [{
+                        label: 'Population 1',
+                        data: n1Data,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'transparent',
+                        tension: 0.4
+                    }, {
+                        label: 'Population 2',
+                        data: n2Data,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'transparent',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Size'
+                            },
+                            min: 0
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Source-Sink Dynamics'
+                        }
+                    }
+                }
+            });
+            
+            const finalN1 = n1Data[n1Data.length - 1].toFixed(1);
+            const finalN2 = n2Data[n2Data.length - 1].toFixed(1);
+            const type1 = r1 > 0 ? 'Source' : 'Sink';
+            const type2 = r2 > 0 ? 'Source' : 'Sink';
+            
+            document.getElementById('sourceSinkResults').innerHTML = `
+                <div class="key-insight">
+                    <strong>Results:</strong><br>
+                    Population 1 (r=${r1}): ${type1} - Final size: ${finalN1}<br>
+                    Population 2 (r=${r2}): ${type2} - Final size: ${finalN2}<br>
+                    ${r2 <= 0 && finalN2 > 0 ? 'Sink population persists due to immigration!' : ''}
+                </div>
+            `;
+        }
+
+        function runSynchronySimulation() {
+            const globalNoise = parseFloat(document.getElementById('globalNoise').value);
+            const localNoise = parseFloat(document.getElementById('localNoise').value);
+            const migRate = parseFloat(document.getElementById('migrationSync').value);
+            
+            const dt = 0.1;
+            const steps = 500;
+            const timeData = [];
+            const pop1Data = [];
+            const pop2Data = [];
+            const pop3Data = [];
+            
+            let N1 = 50, N2 = 45, N3 = 55;
+            const K = 100;
+            const r = 0.5;
+            
+            for (let i = 0; i <= steps; i++) {
+                timeData.push(i * dt);
+                pop1Data.push(N1);
+                pop2Data.push(N2);
+                pop3Data.push(N3);
+                
+                // Global environmental effect
+                const globalEffect = (Math.random() - 0.5) * globalNoise;
+                
+                // Local environmental effects
+                const local1 = (Math.random() - 0.5) * localNoise;
+                const local2 = (Math.random() - 0.5) * localNoise;
+                const local3 = (Math.random() - 0.5) * localNoise;
+                
+                // Growth with environmental stochasticity
+                const r1 = r + globalEffect + local1;
+                const r2 = r + globalEffect + local2;
+                const r3 = r + globalEffect + local3;
+                
+                const growth1 = r1 * N1 * (1 - N1/K);
+                const growth2 = r2 * N2 * (1 - N2/K);
+                const growth3 = r3 * N3 * (1 - N3/K);
+                
+                // Migration
+                const mig12 = migRate * (N1 - N2);
+                const mig13 = migRate * (N1 - N3);
+                const mig23 = migRate * (N2 - N3);
+                
+                const dN1dt = growth1 - mig12 - mig13;
+                const dN2dt = growth2 + mig12 - mig23;
+                const dN3dt = growth3 + mig13 + mig23;
+                
+                N1 = Math.max(1, N1 + dN1dt * dt);
+                N2 = Math.max(1, N2 + dN2dt * dt);
+                N3 = Math.max(1, N3 + dN3dt * dt);
+            }
+            
+            if (synchronyChart) {
+                synchronyChart.destroy();
+            }
+            
+            const ctx = document.getElementById('synchronyChart').getContext('2d');
+            synchronyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData,
+                    datasets: [{
+                        label: 'Population 1',
+                        data: pop1Data,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'transparent',
+                        tension: 0.4
+                    }, {
+                        label: 'Population 2',
+                        data: pop2Data,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'transparent',
+                        tension: 0.4
+                    }, {
+                        label: 'Population 3',
+                        data: pop3Data,
+                        borderColor: '#1a3d20',
+                        backgroundColor: 'transparent',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Size'
+                            },
+                            min: 0
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Population Synchrony with Environmental Noise'
+                        }
+                    }
+                }
+            });
+            
+            // Calculate correlation between populations
+            const correlation12 = calculateCorrelation(pop1Data, pop2Data);
+            const correlation13 = calculateCorrelation(pop1Data, pop3Data);
+            const correlation23 = calculateCorrelation(pop2Data, pop3Data);
+            const avgCorrelation = (correlation12 + correlation13 + correlation23) / 3;
+            
+            document.getElementById('synchronyResults').innerHTML = `
+                <div class="key-insight">
+                    <strong>Synchrony Analysis:</strong><br>
+                    Average correlation: ${avgCorrelation.toFixed(3)}<br>
+                    ${avgCorrelation > 0.7 ? 'High synchrony - increased extinction risk' : 
+                      avgCorrelation > 0.3 ? 'Moderate synchrony' : 
+                      'Low synchrony - stabilizing asynchrony'}
+                </div>
+            `;
+        }
+
+        function calculateCorrelation(x, y) {
+            const n = x.length;
+            const sumX = x.reduce((a, b) => a + b, 0);
+            const sumY = y.reduce((a, b) => a + b, 0);
+            const sumXY = x.reduce((acc, xi, i) => acc + xi * y[i], 0);
+            const sumX2 = x.reduce((acc, xi) => acc + xi * xi, 0);
+            const sumY2 = y.reduce((acc, yi) => acc + yi * yi, 0);
+            
+            const numerator = n * sumXY - sumX * sumY;
+            const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+            
+            return denominator === 0 ? 0 : numerator / denominator;
+        }
+
+        // Initialize patch grid
+        updateDestruction();
+        
+        // Run initial simulations
+        runLevinsSimulation();
+        runIslandSimulation();
+        runSourceSinkSimulation();
+        runSynchronySimulation();
+    </script>
+</body>
+</html>
