@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Probability Distributions Explorer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header matching your site */
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Section cards matching your site */
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            color: #2c5530;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Control grids matching your site */
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .control-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #4a7c59;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .control-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .control-card h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .control-card label {
+            display: block;
+            color: #2c5530;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .control-card select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Georgia', serif;
+            transition: border-color 0.3s;
+        }
+
+        .control-card select:focus {
+            outline: none;
+            border-color: #4a7c59;
+        }
+
+        /* Parameter controls */
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .parameter-control {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: border-color 0.3s;
+        }
+
+        .parameter-control:hover {
+            border-color: #4a7c59;
+        }
+
+        .parameter-control label {
+            display: block;
+            color: #2c5530;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e9ecef;
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        .slider:hover {
+            background: #dee2e6;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #2c5530;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+            border: none;
+        }
+
+        .parameter-value {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Description box matching your site */
+        .description-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border: 2px solid #4a7c59;
+        }
+
+        .description-box p {
+            color: #2c5530;
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* Formula box styles */
+        .formula-box {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border-left: 5px solid #4a7c59;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .formula-title {
+            color: #2c5530;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .formula-content {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        .formula-explanation {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        /* Stats display matching your site style */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .stat-item:hover {
+            border-color: #4a7c59;
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: bold;
+        }
+
+        /* Chart container */
+        .chart-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .chart-title {
+            color: #2c5530;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            height: 400px;
+            background: #fafbfc;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+        }
+
+        /* Buttons matching your site */
+        .btn {
+            background: #4a7c59;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+        }
+
+        .btn:hover {
+            background: #2c5530;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #495057;
+        }
+
+        /* Concept cards matching your site */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 5px solid #4a7c59;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .concept-card h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .concept-card p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Enhanced concept cards for mathematical explanations */
+        .concept-card-large {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 2rem;
+            border-radius: 10px;
+            border-left: 5px solid #4a7c59;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card-large:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .concept-card-large h4 {
+            color: #2c5530;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .concept-card-large .formula-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .concept-card-large .explanation {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-top: 1rem;
+        }
+
+        /* Back link matching your site */
+        .back-link {
+            display: inline-block;
+            background: #4a7c59;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            background: #2c5530;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .parameter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4a7c59;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* KaTeX styling adjustments */
+        .katex {
+            font-size: 1.1em;
+        }
+
+        .katex-display {
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header matching your site's style -->
+        <div class="header">
+            <div class="header-content">
+                <h1>Interactive Probability Distributions Explorer</h1>
+                <p class="subtitle">Comprehensive tool for understanding statistical distributions with real-time visualizations and mathematical formulas</p>
+            </div>
+        </div>
+
+        <!-- Distribution Selection Section -->
+        <div class="section">
+            <h2 class="section-title">Distribution Selection</h2>
+            <div class="control-grid">
+                <div class="control-card">
+                    <h3>Category</h3>
+                    <label for="categorySelect">Distribution Type</label>
+                    <select id="categorySelect">
+                        <option value="continuous">Continuous Distributions</option>
+                        <option value="discrete">Discrete Distributions</option>
+                    </select>
+                </div>
+
+                <div class="control-card">
+                    <h3>Distribution</h3>
+                    <label for="distributionSelect">Select Distribution</label>
+                    <select id="distributionSelect">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="description-box">
+                <p id="distributionDescription">Select a distribution to see its description and applications.</p>
+            </div>
+
+            <!-- Formula Section -->
+            <div id="formulaSection" class="formula-box">
+                <div class="formula-title">Mathematical Formula</div>
+                <div id="formulaContent" class="formula-content">
+                    <!-- Formula will be populated by JavaScript -->
+                </div>
+                <div id="formulaExplanation" class="formula-explanation">
+                    <!-- Explanation will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Parameters Section -->
+        <div class="section">
+            <h2 class="section-title">Distribution Parameters</h2>
+            <div id="parametersContainer" class="parameter-grid">
+                <!-- Parameter controls will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="section">
+            <h2 class="section-title">Distribution Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div id="meanValue" class="stat-value">0.000</div>
+                    <div class="stat-label">Mean (μ)</div>
+                </div>
+                <div class="stat-item">
+                    <div id="varianceValue" class="stat-value">0.000</div>
+                    <div class="stat-label">Variance (σ²)</div>
+                </div>
+                <div class="stat-item">
+                    <div id="stddevValue" class="stat-value">0.000</div>
+                    <div class="stat-label">Standard Deviation (σ)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualization Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <h3 id="chartTitle" class="chart-title">Probability Density Function (PDF)</h3>
+                <button id="toggleCDF" class="btn btn-secondary">Show CDF</button>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Enhanced Key Concepts Section -->
+        <div class="section">
+            <h2 class="section-title">Key Concepts & Mathematical Foundations</h2>
+            
+            <!-- PDF vs PMF Explanation -->
+            <div class="concept-card-large">
+                <h4>Probability Density Functions (PDF) vs Probability Mass Functions (PMF)</h4>
+                
+                <div class="formula-section">
+                    <strong>For Continuous Distributions (PDF):</strong>
+                    <div id="pdfFormula" style="text-align: center; margin: 1rem 0;"></div>
+                    <div class="explanation">
+                        The PDF gives the density of probability at each point. The probability of any exact value is 0, but we can find probabilities over intervals. The area under the PDF curve between two points gives the probability that the random variable falls in that interval.
+                    </div>
+                </div>
+
+                <div class="formula-section">
+                    <strong>For Discrete Distributions (PMF):</strong>
+                    <div id="pmfFormula" style="text-align: center; margin: 1rem 0;"></div>
+                    <div class="explanation">
+                        The PMF gives the probability that a discrete random variable takes on a specific value. Unlike PDFs, PMF values represent actual probabilities and must sum to 1 across all possible values.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cumulative Distribution Function -->
+            <div class="concept-card-large">
+                <h4>Cumulative Distribution Function (CDF)</h4>
+                
+                <div class="formula-section">
+                    <strong>For Continuous Variables:</strong>
+                    <div id="cdfContinuousFormula" style="text-align: center; margin: 1rem 0;"></div>
+                </div>
+
+                <div class="formula-section">
+                    <strong>For Discrete Variables:</strong>
+                    <div id="cdfDiscreteFormula" style="text-align: center; margin: 1rem 0;"></div>
+                </div>
+
+                <div class="explanation">
+                    The CDF gives the probability that a random variable X is less than or equal to x. It's a non-decreasing function that ranges from 0 to 1, providing cumulative probabilities.
+                </div>
+            </div>
+
+            <!-- Statistical Moments -->
+            <div class="concept-card-large">
+                <h4>Statistical Moments</h4>
+                
+                <div class="formula-section">
+                    <strong>Expected Value (Mean):</strong>
+                    <div id="meanFormulaContent" style="text-align: center; margin: 1rem 0;"></div>
+                </div>
+
+                <div class="formula-section">
+                    <strong>Variance:</strong>
+                    <div id="varianceFormulaContent" style="text-align: center; margin: 1rem 0;"></div>
+                </div>
+
+                <div class="formula-section">
+                    <strong>Standard Deviation:</strong>
+                    <div id="stddevFormulaContent" style="text-align: center; margin: 1rem 0;"></div>
+                </div>
+
+                <div class="explanation">
+                    These moments describe the shape and characteristics of distributions. The mean indicates central tendency, variance measures spread, and standard deviation provides spread in the same units as the original data.
+                </div>
+            </div>
+
+            <!-- Application Grid -->
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Discrete vs Continuous</h4>
+                    <p><strong>Discrete:</strong> Countable outcomes (coin flips, species counts). Uses Probability Mass Function (PMF).<br/><br/>
+                    <strong>Continuous:</strong> Measurable quantities (height, weight, time). Uses Probability Density Function (PDF).</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Distribution Parameters</h4>
+                    <p>Parameters control the shape, location, and scale of distributions. Adjusting them shows how distributions behave under different conditions, crucial for statistical modeling and hypothesis testing.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Ecological Applications</h4>
+                    <p>Each distribution models different ecological phenomena: Normal for trait measurements, Poisson for species counts, Exponential for survival times, Binomial for success/failure events in field studies.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Statistical Inference</h4>
+                    <p>Understanding these distributions is fundamental for hypothesis testing, confidence intervals, and parameter estimation in ecological research and data analysis.</p>
+                </div>
+            </div>
+        </div>
+
+        <a href="../../index.html" class="back-link">← Back to Main Site</a>
+    </div>
+
+    <script>
+        // Global variables
+        let chart = null;
+        let showCDF = false;
+        let currentCategory = 'continuous';
+        let currentDistribution = 'normal';
+        let parameters = {};
+
+        // Distribution definitions with enhanced descriptions and formulas
+        const distributions = {
+            continuous: {
+                normal: {
+                    name: 'Normal Distribution',
+                    params: { mu: 0, sigma: 1 },
+                    ranges: { mu: [-5, 5], sigma: [0.1, 3] },
+                    description: 'The ubiquitous bell-shaped curve fundamental to statistics. Models many biological traits, measurement errors, and serves as the foundation for numerous statistical tests through the Central Limit Theorem.',
+                    formula: 'f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} e^{-\\frac{1}{2}\\left(\\frac{x-\\mu}{\\sigma}\\right)^2}',
+                    explanation: 'Where μ is the mean (location parameter) and σ is the standard deviation (scale parameter). The normal distribution is symmetric around μ.'
+                },
+                uniform: {
+                    name: 'Uniform Distribution',
+                    params: { a: 0, b: 1 },
+                    ranges: { a: [-2, 2], b: [0, 4] },
+                    description: 'All values within an interval are equally likely. Used in random sampling, null hypothesis testing, and as a building block for generating other random distributions.',
+                    formula: 'f(x) = \\begin{cases} \\frac{1}{b-a} & \\text{for } a \\leq x \\leq b \\\\ 0 & \\text{otherwise} \\end{cases}',
+                    explanation: 'Where a and b are the lower and upper bounds. Every value in [a,b] has equal probability density.'
+                },
+                exponential: {
+                    name: 'Exponential Distribution',
+                    params: { lambda: 1 },
+                    ranges: { lambda: [0.1, 3] },
+                    description: 'Models waiting times between events in Poisson processes. Common in survival analysis, reliability engineering, and modeling time between ecological events with constant hazard rates.',
+                    formula: 'f(x) = \\lambda e^{-\\lambda x} \\quad \\text{for } x \\geq 0',
+                    explanation: 'Where λ is the rate parameter. The distribution has the memoryless property: P(X > s+t | X > s) = P(X > t).'
+                },
+                gamma: {
+                    name: 'Gamma Distribution',
+                    params: { alpha: 2, beta: 1 },
+                    ranges: { alpha: [0.5, 5], beta: [0.1, 3] },
+                    description: 'Flexible distribution for positive continuous data. Generalizes the exponential distribution and is used for modeling size distributions, waiting times, and Bayesian prior distributions.',
+                    formula: 'f(x) = \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)} x^{\\alpha-1} e^{-\\beta x} \\quad \\text{for } x \\geq 0',
+                    explanation: 'Where α is the shape parameter and β is the rate parameter. Γ(α) is the gamma function. When α=1, reduces to exponential distribution.'
+                },
+                beta: {
+                    name: 'Beta Distribution',
+                    params: { alpha: 2, beta: 2 },
+                    ranges: { alpha: [0.5, 5], beta: [0.5, 5] },
+                    description: 'Defined on [0,1] interval, perfect for modeling proportions, probabilities, and percentages. Widely used in Bayesian statistics as a conjugate prior for binomial distributions.',
+                    formula: 'f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1-x)^{\\beta-1} \\quad \\text{for } 0 \\leq x \\leq 1',
+                    explanation: 'Where α and β are shape parameters. When α=β=1, reduces to uniform distribution on [0,1].'
+                },
+                weibull: {
+                    name: 'Weibull Distribution',
+                    params: { k: 2, lambda: 1 },
+                    ranges: { k: [0.5, 3], lambda: [0.5, 3] },
+                    description: 'Versatile distribution for modeling reliability, survival times, and extreme events. Shape parameter determines whether failure rate increases, decreases, or remains constant over time.',
+                    formula: 'f(x) = \\frac{k}{\\lambda} \\left(\\frac{x}{\\lambda}\\right)^{k-1} e^{-(x/\\lambda)^k} \\quad \\text{for } x \\geq 0',
+                    explanation: 'Where k is the shape parameter and λ is the scale parameter. When k=1, reduces to exponential distribution.'
+                },
+                lognormal: {
+                    name: 'Lognormal Distribution',
+                    params: { mu: 0, sigma: 1 },
+                    ranges: { mu: [-1, 1], sigma: [0.1, 1.5] },
+                    description: 'When the logarithm of a variable is normally distributed. Common for modeling sizes, concentrations, and economic variables due to multiplicative growth processes.',
+                    formula: 'f(x) = \\frac{1}{x\\sigma\\sqrt{2\\pi}} e^{-\\frac{(\\ln x - \\mu)^2}{2\\sigma^2}} \\quad \\text{for } x > 0',
+                    explanation: 'Where μ and σ are the mean and standard deviation of the underlying normal distribution (ln(X) ~ N(μ,σ²)).'
+                },
+                t: {
+                    name: 'Student\'s t-Distribution',
+                    params: { df: 5 },
+                    ranges: { df: [1, 20] },
+                    description: 'Heavy-tailed symmetric distribution used when population variance is unknown. Essential for small sample hypothesis testing and confidence interval construction.',
+                    formula: 'f(x) = \\frac{\\Gamma\\left(\\frac{\\nu+1}{2}\\right)}{\\sqrt{\\nu\\pi}\\,\\Gamma\\left(\\frac{\\nu}{2}\\right)} \\left(1 + \\frac{x^2}{\\nu}\\right)^{-\\frac{\\nu+1}{2}}',
+                    explanation: 'Where ν is the degrees of freedom. As ν→∞, the t-distribution approaches the standard normal distribution.'
+                },
+                chisquare: {
+                    name: 'Chi-Square Distribution',
+                    params: { df: 3 },
+                    ranges: { df: [1, 10] },
+                    description: 'Sum of squared standard normal variables. Fundamental for goodness-of-fit tests, tests of independence, and variance estimation in statistical inference.',
+                    formula: 'f(x) = \\frac{1}{2^{k/2}\\Gamma(k/2)} x^{k/2-1} e^{-x/2} \\quad \\text{for } x \\geq 0',
+                    explanation: 'Where k is the degrees of freedom. If Z₁,...,Zₖ are independent standard normal variables, then ∑Zᵢ² follows χ²(k).'
+                },
+                f: {
+                    name: 'F-Distribution',
+                    params: { df1: 5, df2: 10 },
+                    ranges: { df1: [1, 10], df2: [1, 20] },
+                    description: 'Ratio of two chi-square distributions. Central to ANOVA, regression F-tests, and comparing variances between groups in experimental design.',
+                    formula: 'f(x) = \\frac{\\Gamma\\left(\\frac{d_1+d_2}{2}\\right)}{\\Gamma\\left(\\frac{d_1}{2}\\right)\\Gamma\\left(\\frac{d_2}{2}\\right)} \\left(\\frac{d_1}{d_2}\\right)^{d_1/2} \\frac{x^{d_1/2-1}}{\\left(1+\\frac{d_1}{d_2}x\\right)^{(d_1+d_2)/2}}',
+                    explanation: 'Where d₁ and d₂ are the numerator and denominator degrees of freedom. Used for testing equality of variances and in ANOVA.'
+                }
+            },
+            discrete: {
+                bernoulli: {
+                    name: 'Bernoulli Distribution',
+                    params: { p: 0.5 },
+                    ranges: { p: [0.01, 0.99] },
+                    description: 'Single trial with two outcomes (success/failure). Foundation for more complex distributions and models binary ecological phenomena like presence/absence or survival/death.',
+                    formula: 'P(X = k) = \\begin{cases} p & \\text{if } k = 1 \\\\ 1-p & \\text{if } k = 0 \\end{cases}',
+                    explanation: 'Where p is the probability of success. This is the building block for the binomial distribution.'
+                },
+                binomial: {
+                    name: 'Binomial Distribution',
+                    params: { n: 10, p: 0.5 },
+                    ranges: { n: [1, 30], p: [0.01, 0.99] },
+                    description: 'Number of successes in n independent trials. Models seed germination rates, treatment success rates, and any scenario with fixed trials and constant success probability.',
+                    formula: 'P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k} \\quad \\text{for } k = 0, 1, 2, ..., n',
+                    explanation: 'Where n is the number of trials, p is the success probability, and (n choose k) is the binomial coefficient.'
+                },
+                geometric: {
+                    name: 'Geometric Distribution',
+                    params: { p: 0.3 },
+                    ranges: { p: [0.01, 0.99] },
+                    description: 'Number of trials until first success. Models time to first reproduction, search time until prey capture, or trials until finding a suitable habitat.',
+                    formula: 'P(X = k) = (1-p)^{k-1} p \\quad \\text{for } k = 1, 2, 3, ...',
+                    explanation: 'Where p is the success probability and k is the trial number of the first success. Has the memoryless property.'
+                },
+                poisson: {
+                    name: 'Poisson Distribution',
+                    params: { lambda: 3 },
+                    ranges: { lambda: [0.1, 10] },
+                    description: 'Number of events in fixed intervals when events occur independently at constant rate. Perfect for modeling species counts, mutation rates, and rare ecological events.',
+                    formula: 'P(X = k) = \\frac{\\lambda^k e^{-\\lambda}}{k!} \\quad \\text{for } k = 0, 1, 2, ...',
+                    explanation: 'Where λ is both the mean and variance. Often approximates binomial when n is large and p is small (λ = np).'
+                },
+                negbinomial: {
+                    name: 'Negative Binomial Distribution',
+                    params: { r: 3, p: 0.4 },
+                    ranges: { r: [1, 10], p: [0.01, 0.99] },
+                    description: 'Models overdispersed count data where variance exceeds mean. Common in ecology for aggregated species distributions and parasite counts with clustering.',
+                    formula: 'P(X = k) = \\binom{k-1}{r-1} p^r (1-p)^{k-r} \\quad \\text{for } k = r, r+1, r+2, ...',
+                    explanation: 'Where r is the number of successes and p is the success probability. Models the trial number of the r-th success.'
+                },
+                hypergeometric: {
+                    name: 'Hypergeometric Distribution',
+                    params: { N: 20, K: 7, n: 10 },
+                    ranges: { N: [10, 50], K: [1, 25], n: [1, 25] },
+                    description: 'Sampling without replacement from finite populations. Essential for mark-recapture studies, genetic sampling, and conservation genetics applications.',
+                    formula: 'P(X = k) = \\frac{\\binom{K}{k}\\binom{N-K}{n-k}}{\\binom{N}{n}}',
+                    explanation: 'Where N is population size, K is number of success items, n is sample size, and k is observed successes.'
+                },
+                discrete_uniform: {
+                    name: 'Discrete Uniform Distribution',
+                    params: { a: 1, b: 6 },
+                    ranges: { a: [1, 5], b: [2, 10] },
+                    description: 'All discrete outcomes equally likely. Models fair dice, random habitat selection, or any situation where each outcome has equal probability.',
+                    formula: 'P(X = k) = \\frac{1}{b-a+1} \\quad \\text{for } k = a, a+1, ..., b',
+                    explanation: 'Where a and b are the lower and upper bounds. Each of the (b-a+1) possible values has equal probability.'
+                }
+            }
+        };
+
+        // Mathematical utility functions
+        function gamma(z) {
+            if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+            z -= 1;
+            let x = 0.99999999999980993;
+            const p = [676.5203681218851, -1259.1392167224028, 771.32342877765313, 
+                      -176.61502916214059, 12.507343278686905, -0.13857109526572012, 
+                      9.9843695780195716e-6, 1.5056327351493116e-7];
+            for (let i = 0; i < p.length; i++) {
+                x += p[i] / (z + i + 1);
+            }
+            const t = z + p.length - 0.5;
+            return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+        }
+
+        function factorial(n) {
+            if (n <= 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function binomialCoeff(n, k) {
+            if (k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+
+        // PMF functions for discrete distributions
+        function getPMF(x, dist, params) {
+            switch (dist) {
+                case 'bernoulli':
+                    return x === 1 ? params.p : (x === 0 ? 1 - params.p : 0);
+                
+                case 'binomial':
+                    if (x < 0 || x > params.n || !Number.isInteger(x)) return 0;
+                    return binomialCoeff(params.n, x) * Math.pow(params.p, x) * Math.pow(1 - params.p, params.n - x);
+                
+                case 'geometric':
+                    return x >= 1 && Number.isInteger(x) ? Math.pow(1 - params.p, x - 1) * params.p : 0;
+                
+                case 'poisson':
+                    if (x < 0 || !Number.isInteger(x)) return 0;
+                    return (Math.pow(params.lambda, x) * Math.exp(-params.lambda)) / factorial(x);
+                
+                case 'negbinomial':
+                    if (x < params.r || !Number.isInteger(x)) return 0;
+                    return binomialCoeff(x - 1, params.r - 1) * Math.pow(params.p, params.r) * Math.pow(1 - params.p, x - params.r);
+                
+                case 'hypergeometric':
+                    const maxVal = Math.min(params.n, params.K);
+                    const minVal = Math.max(0, params.n - params.N + params.K);
+                    if (x < minVal || x > maxVal || !Number.isInteger(x)) return 0;
+                    return (binomialCoeff(params.K, x) * binomialCoeff(params.N - params.K, params.n - x)) / 
+                           binomialCoeff(params.N, params.n);
+                
+                case 'discrete_uniform':
+                    return (x >= params.a && x <= params.b && Number.isInteger(x)) ? 
+                        1 / (params.b - params.a + 1) : 0;
+                
+                default:
+                    return 0;
+            }
+        }
+
+        // PDF functions for continuous distributions
+        function getPDF(x, dist, params) {
+            switch (dist) {
+                case 'normal':
+                    return (1 / (params.sigma * Math.sqrt(2 * Math.PI))) * 
+                           Math.exp(-0.5 * Math.pow((x - params.mu) / params.sigma, 2));
+                
+                case 'uniform':
+                    return (x >= params.a && x <= params.b) ? 1 / (params.b - params.a) : 0;
+                
+                case 'exponential':
+                    return x >= 0 ? params.lambda * Math.exp(-params.lambda * x) : 0;
+                
+                case 'gamma':
+                    return x >= 0 ? 
+                        (Math.pow(params.beta, params.alpha) / gamma(params.alpha)) * 
+                        Math.pow(x, params.alpha - 1) * Math.exp(-params.beta * x) : 0;
+                
+                case 'beta':
+                    return (x >= 0 && x <= 1) ? 
+                        (gamma(params.alpha + params.beta) / (gamma(params.alpha) * gamma(params.beta))) * 
+                        Math.pow(x, params.alpha - 1) * Math.pow(1 - x, params.beta - 1) : 0;
+                
+                case 'weibull':
+                    return x >= 0 ? 
+                        (params.k / params.lambda) * Math.pow(x / params.lambda, params.k - 1) * 
+                        Math.exp(-Math.pow(x / params.lambda, params.k)) : 0;
+                
+                case 'lognormal':
+                    return x > 0 ? 
+                        (1 / (x * params.sigma * Math.sqrt(2 * Math.PI))) * 
+                        Math.exp(-0.5 * Math.pow((Math.log(x) - params.mu) / params.sigma, 2)) : 0;
+                
+                case 't':
+                    return (gamma((params.df + 1) / 2) / (Math.sqrt(params.df * Math.PI) * gamma(params.df / 2))) * 
+                           Math.pow(1 + x * x / params.df, -(params.df + 1) / 2);
+                
+                case 'chisquare':
+                    return x >= 0 ? 
+                        (1 / (Math.pow(2, params.df / 2) * gamma(params.df / 2))) * 
+                        Math.pow(x, params.df / 2 - 1) * Math.exp(-x / 2) : 0;
+                
+                case 'f':
+                    return x >= 0 ? 
+                        (gamma((params.df1 + params.df2) / 2) / (gamma(params.df1 / 2) * gamma(params.df2 / 2))) * 
+                        Math.pow(params.df1 / params.df2, params.df1 / 2) * 
+                        Math.pow(x, params.df1 / 2 - 1) * 
+                        Math.pow(1 + (params.df1 / params.df2) * x, -(params.df1 + params.df2) / 2) : 0;
+                
+                default:
+                    return 0;
+            }
+        }
+
+        // Generate data for plotting
+        function generateData() {
+            const data = { labels: [], values: [] };
+            const isDiscrete = currentCategory === 'discrete';
+            
+            if (isDiscrete) {
+                let start, end;
+                
+                switch (currentDistribution) {
+                    case 'bernoulli':
+                        start = 0; end = 1;
+                        break;
+                    case 'binomial':
+                        start = 0; end = parameters.n;
+                        break;
+                    case 'geometric':
+                        start = 1; end = Math.min(20, Math.ceil(3 / parameters.p));
+                        break;
+                    case 'poisson':
+                        start = 0; end = Math.min(20, Math.ceil(parameters.lambda + 4 * Math.sqrt(parameters.lambda)));
+                        break;
+                    case 'negbinomial':
+                        start = parameters.r; end = Math.min(30, parameters.r + Math.ceil(10 / parameters.p));
+                        break;
+                    case 'hypergeometric':
+                        start = Math.max(0, parameters.n - parameters.N + parameters.K);
+                        end = Math.min(parameters.n, parameters.K);
+                        break;
+                    case 'discrete_uniform':
+                        start = parameters.a; end = parameters.b;
+                        break;
+                    default:
+                        start = 0; end = 10;
+                }
+                
+                for (let x = start; x <= end; x++) {
+                    const prob = getPMF(x, currentDistribution, parameters);
+                    data.labels.push(x);
+                    data.values.push(prob);
+                }
+            } else {
+                let start, end, step;
+                
+                switch (currentDistribution) {
+                    case 'normal':
+                        start = parameters.mu - 4 * parameters.sigma;
+                        end = parameters.mu + 4 * parameters.sigma;
+                        step = (end - start) / 200;
+                        break;
+                    case 'uniform':
+                        start = parameters.a - 0.5;
+                        end = parameters.b + 0.5;
+                        step = (end - start) / 200;
+                        break;
+                    case 'exponential':
+                    case 'gamma':
+                    case 'weibull':
+                    case 'chisquare':
+                    case 'f':
+                        start = 0;
+                        end = 10;
+                        step = 0.05;
+                        break;
+                    case 'beta':
+                        start = 0;
+                        end = 1;
+                        step = 0.005;
+                        break;
+                    case 'lognormal':
+                        start = 0.01;
+                        end = 5;
+                        step = 0.025;
+                        break;
+                    case 't':
+                        start = -5;
+                        end = 5;
+                        step = 0.05;
+                        break;
+                    default:
+                        start = -5; end = 5; step = 0.05;
+                }
+                
+                for (let x = start; x <= end; x += step) {
+                    const prob = getPDF(x, currentDistribution, parameters);
+                    data.labels.push(Number(x.toFixed(3)));
+                    data.values.push(prob);
+                }
+            }
+            
+            return data;
+        }
+
+        // Calculate statistics
+        function calculateStats() {
+            const params = parameters;
+            let mean, variance;
+            
+            if (currentCategory === 'continuous') {
+                switch (currentDistribution) {
+                    case 'normal':
+                        mean = params.mu;
+                        variance = params.sigma * params.sigma;
+                        break;
+                    case 'uniform':
+                        mean = (params.a + params.b) / 2;
+                        variance = Math.pow(params.b - params.a, 2) / 12;
+                        break;
+                    case 'exponential':
+                        mean = 1 / params.lambda;
+                        variance = 1 / (params.lambda * params.lambda);
+                        break;
+                    case 'gamma':
+                        mean = params.alpha / params.beta;
+                        variance = params.alpha / (params.beta * params.beta);
+                        break;
+                    case 'beta':
+                        mean = params.alpha / (params.alpha + params.beta);
+                        variance = (params.alpha * params.beta) / (Math.pow(params.alpha + params.beta, 2) * (params.alpha + params.beta + 1));
+                        break;
+                    case 'weibull':
+                        mean = params.lambda * gamma(1 + 1 / params.k);
+                        variance = params.lambda * params.lambda * (gamma(1 + 2 / params.k) - Math.pow(gamma(1 + 1 / params.k), 2));
+                        break;
+                    case 'lognormal':
+                        mean = Math.exp(params.mu + params.sigma * params.sigma / 2);
+                        variance = (Math.exp(params.sigma * params.sigma) - 1) * Math.exp(2 * params.mu + params.sigma * params.sigma);
+                        break;
+                    case 't':
+                        mean = params.df > 1 ? 0 : 'Undefined';
+                        variance = params.df > 2 ? params.df / (params.df - 2) : 'Undefined';
+                        break;
+                    case 'chisquare':
+                        mean = params.df;
+                        variance = 2 * params.df;
+                        break;
+                    case 'f':
+                        mean = params.df2 > 2 ? params.df2 / (params.df2 - 2) : 'Undefined';
+                        variance = params.df2 > 4 ? (2 * params.df2 * params.df2 * (params.df1 + params.df2 - 2)) / (params.df1 * (params.df2 - 2) * (params.df2 - 2) * (params.df2 - 4)) : 'Undefined';
+                        break;
+                    default:
+                        mean = 'N/A';
+                        variance = 'N/A';
+                }
+            } else {
+                switch (currentDistribution) {
+                    case 'bernoulli':
+                        mean = params.p;
+                        variance = params.p * (1 - params.p);
+                        break;
+                    case 'binomial':
+                        mean = params.n * params.p;
+                        variance = params.n * params.p * (1 - params.p);
+                        break;
+                    case 'geometric':
+                        mean = 1 / params.p;
+                        variance = (1 - params.p) / (params.p * params.p);
+                        break;
+                    case 'poisson':
+                        mean = params.lambda;
+                        variance = params.lambda;
+                        break;
+                    case 'negbinomial':
+                        mean = params.r / params.p;
+                        variance = params.r * (1 - params.p) / (params.p * params.p);
+                        break;
+                    case 'hypergeometric':
+                        mean = params.n * params.K / params.N;
+                        variance = params.n * (params.K / params.N) * (1 - params.K / params.N) * (params.N - params.n) / (params.N - 1);
+                        break;
+                    case 'discrete_uniform':
+                        mean = (params.a + params.b) / 2;
+                        variance = ((params.b - params.a + 1) * (params.b - params.a + 1) - 1) / 12;
+                        break;
+                    default:
+                        mean = 'N/A';
+                        variance = 'N/A';
+                }
+            }
+            
+            return { 
+                mean, 
+                variance, 
+                stddev: typeof variance === 'number' ? Math.sqrt(variance) : 'N/A' 
+            };
+        }
+
+        // Update distribution-specific formula display
+        function updateFormula() {
+            const dist = distributions[currentCategory][currentDistribution];
+            const formulaContent = document.getElementById('formulaContent');
+            const formulaExplanation = document.getElementById('formulaExplanation');
+            
+            // Render the formula using KaTeX
+            katex.render(dist.formula, formulaContent, {
+                displayMode: true,
+                throwOnError: false
+            });
+            
+            formulaExplanation.textContent = dist.explanation;
+        }
+
+        // Update general mathematical concepts
+        function updateMathConcepts() {
+            // PDF/PMF formulas
+            const pdfFormula = document.getElementById('pdfFormula');
+            const pmfFormula = document.getElementById('pmfFormula');
+            
+            katex.render('P(a \\leq X \\leq b) = \\int_a^b f(x) dx', pdfFormula, {
+                displayMode: true,
+                throwOnError: false
+            });
+            
+            katex.render('P(X = k) = f(k), \\quad \\sum_{k} P(X = k) = 1', pmfFormula, {
+                displayMode: true,
+                throwOnError: false
+            });
+
+            // CDF formulas
+            const cdfContinuous = document.getElementById('cdfContinuousFormula');
+            const cdfDiscrete = document.getElementById('cdfDiscreteFormula');
+            
+            katex.render('F(x) = P(X \\leq x) = \\int_{-\\infty}^x f(t) dt', cdfContinuous, {
+                displayMode: true,
+                throwOnError: false
+            });
+            
+            katex.render('F(x) = P(X \\leq x) = \\sum_{k \\leq x} P(X = k)', cdfDiscrete, {
+                displayMode: true,
+                throwOnError: false
+            });
+
+            // Statistical moments formulas
+            const meanFormula = document.getElementById('meanFormulaContent');
+            const varianceFormula = document.getElementById('varianceFormulaContent');
+            const stddevFormula = document.getElementById('stddevFormulaContent');
+            
+            katex.render('E[X] = \\begin{cases} \\int_{-\\infty}^{\\infty} x f(x) dx & \\text{(continuous)} \\\\ \\sum_{k} k P(X = k) & \\text{(discrete)} \\end{cases}', meanFormula, {
+                displayMode: true,
+                throwOnError: false
+            });
+            
+            katex.render('\\text{Var}(X) = E[X^2] - (E[X])^2 = E[(X - \\mu)^2]', varianceFormula, {
+                displayMode: true,
+                throwOnError: false
+            });
+            
+            katex.render('\\sigma = \\sqrt{\\text{Var}(X)}', stddevFormula, {
+                displayMode: true,
+                throwOnError: false
+            });
+        }
+
+        // Update display functions
+        function updateDistributionSelect() {
+            const select = document.getElementById('distributionSelect');
+            select.innerHTML = '';
+            
+            Object.entries(distributions[currentCategory]).forEach(([key, dist]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = dist.name;
+                select.appendChild(option);
+            });
+            
+            currentDistribution = Object.keys(distributions[currentCategory])[0];
+            select.value = currentDistribution;
+        }
+
+        function updateParameters() {
+            const dist = distributions[currentCategory][currentDistribution];
+            parameters = { ...dist.params };
+            
+            const container = document.getElementById('parametersContainer');
+            container.innerHTML = '';
+            
+            Object.keys(dist.params).forEach(param => {
+                const div = document.createElement('div');
+                div.className = 'parameter-control';
+                
+                const paramLabel = {
+                    'mu': 'μ (mean)',
+                    'sigma': 'σ (std dev)',
+                    'lambda': 'λ (rate)',
+                    'alpha': 'α (shape)',
+                    'beta': 'β (rate/shape)',
+                    'df': 'degrees of freedom',
+                    'df1': 'df1 (numerator)',
+                    'df2': 'df2 (denominator)',
+                    'k': 'k (shape)',
+                    'n': 'n (trials)',
+                    'r': 'r (successes)',
+                    'p': 'p (probability)',
+                    'N': 'N (population)',
+                    'K': 'K (successes in pop)',
+                    'a': 'a (lower bound)',
+                    'b': 'b (upper bound)'
+                }[param] || param;
+                
+                div.innerHTML = `
+                    <label for="${param}Slider">${paramLabel}</label>
+                    <input
+                        type="range"
+                        id="${param}Slider"
+                        class="slider"
+                        min="${dist.ranges[param][0]}"
+                        max="${dist.ranges[param][1]}"
+                        step="${['n', 'r', 'df', 'df1', 'df2', 'N', 'K', 'a', 'b'].includes(param) ? 1 : 0.1}"
+                        value="${dist.params[param]}"
+                    />
+                    <div id="${param}Value" class="parameter-value">${dist.params[param]}</div>
+                `;
+                container.appendChild(div);
+                
+                // Add event listener
+                const slider = document.getElementById(`${param}Slider`);
+                const valueDisplay = document.getElementById(`${param}Value`);
+                
+                slider.addEventListener('input', function() {
+                    const value = parseFloat(this.value);
+                    parameters[param] = value;
+                    valueDisplay.textContent = value;
+                    updateDisplay();
+                });
+            });
+            
+            // Update description and formula
+            document.getElementById('distributionDescription').textContent = dist.description;
+            updateFormula();
+        }
+
+        function updateStats() {
+            const stats = calculateStats();
+            
+            document.getElementById('meanValue').textContent = 
+                typeof stats.mean === 'number' ? stats.mean.toFixed(3) : stats.mean;
+            document.getElementById('varianceValue').textContent = 
+                typeof stats.variance === 'number' ? stats.variance.toFixed(3) : stats.variance;
+            document.getElementById('stddevValue').textContent = 
+                typeof stats.stddev === 'number' ? stats.stddev.toFixed(3) : stats.stddev;
+        }
+
+        function updateChart() {
+            const data = generateData();
+            const isDiscrete = currentCategory === 'discrete';
+            
+            // Update chart title
+            document.getElementById('chartTitle').textContent = 
+                isDiscrete ? 'Probability Mass Function (PMF)' : 'Probability Density Function (PDF)';
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            
+            chart = new Chart(ctx, {
+                type: isDiscrete ? 'bar' : 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: isDiscrete ? 'Probability' : 'Density',
+                        data: data.values,
+                        backgroundColor: isDiscrete ? 'rgba(74, 124, 89, 0.7)' : 'rgba(74, 124, 89, 0.2)',
+                        borderColor: '#4a7c59',
+                        borderWidth: 2,
+                        fill: !isDiscrete,
+                        tension: isDiscrete ? 0 : 0.4,
+                        pointRadius: isDiscrete ? 0 : 1,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(44, 85, 48, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#4a7c59',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(4)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Value',
+                                color: '#2c5530',
+                                font: {
+                                    family: 'Georgia',
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(44, 85, 48, 0.1)',
+                                borderColor: '#4a7c59'
+                            },
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    family: 'Georgia'
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: isDiscrete ? 'Probability' : 'Density',
+                                color: '#2c5530',
+                                font: {
+                                    family: 'Georgia',
+                                    weight: 'bold'
+                                }
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(44, 85, 48, 0.1)',
+                                borderColor: '#4a7c59'
+                            },
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    family: 'Georgia'
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: isDiscrete ? 0 : 1,
+                            hoverRadius: 4
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        function updateDisplay() {
+            updateStats();
+            updateChart();
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            document.getElementById('categorySelect').addEventListener('change', function() {
+                currentCategory = this.value;
+                updateDistributionSelect();
+                updateParameters();
+                updateDisplay();
+            });
+
+            document.getElementById('distributionSelect').addEventListener('change', function() {
+                currentDistribution = this.value;
+                updateParameters();
+                updateDisplay();
+            });
+
+            document.getElementById('toggleCDF').addEventListener('click', function() {
+                showCDF = !showCDF;
+                this.textContent = showCDF ? 'Show PDF/PMF' : 'Show CDF';
+                this.className = showCDF ? 'btn' : 'btn btn-secondary';
+                // CDF functionality would be implemented here
+                // For now, just toggle the button appearance
+            });
+        }
+
+        // Initialize the application
+        function initialize() {
+            setupEventListeners();
+            updateDistributionSelect();
+            updateParameters();
+            updateMathConcepts();
+            updateDisplay();
+        }
+
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+</html>
