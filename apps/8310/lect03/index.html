@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Ecology: Stochasticity and Variation</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            background-color: #1a3d20;
+            color: #ffffff;
+            padding: 2rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.8);
+            margin-top: 0.5rem;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Sections */
+        .section {
+            background-color: #ffffff;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #2c5530;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+        
+        .section h3 {
+            color: #4a7c59;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Concept Cards */
+        .concept-card {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+        }
+        
+        .concept-card h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Mathematical Equations */
+        .equation {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid #e8f5e8;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #2c5530;
+        }
+        
+        .equation-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+        
+        /* Graphs and Simulations */
+        .graph-container {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #e8f5e8;
+            background-color: #ffffff;
+        }
+        
+        /* Controls */
+        .controls {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        label {
+            color: #2c5530;
+            font-weight: 500;
+        }
+        
+        input[type="range"] {
+            width: 150px;
+            accent-color: #4a7c59;
+        }
+        
+        input[type="number"] {
+            width: 60px;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #4a7c59;
+            border-radius: 4px;
+            color: #2c5530;
+        }
+        
+        button {
+            background-color: #4a7c59;
+            color: #ffffff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2c5530;
+        }
+        
+        /* Key Points */
+        .key-points {
+            background-color: #f0f8f0;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #2c5530;
+        }
+        
+        .key-points h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        .key-points ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .key-points li {
+            color: #666;
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .key-points li:before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #4a7c59;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e8f5e8;
+        }
+        
+        th {
+            background-color: #2c5530;
+            color: #ffffff;
+            font-weight: 500;
+        }
+        
+        tr:hover {
+            background-color: #f0f8f0;
+        }
+        
+        /* Navigation Boxes */
+        .nav-boxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .nav-box {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #4a7c59;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #2c5530;
+            display: block;
+        }
+        
+        .nav-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #4a7c59 0%, #2c5530 100%);
+            color: #ffffff;
+        }
+        
+        .nav-box h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Population Ecology: Stochasticity and Variation</h1>
+        <p class="subtitle">Understanding Deterministic and Stochastic Models in Population Dynamics</p>
+    </div>
+    
+    <div class="container">
+        <!-- Navigation Boxes -->
+        <div class="nav-boxes">
+            <div class="nav-box" onclick="document.getElementById('deterministic-stochastic').scrollIntoView({behavior: 'smooth'})">
+                <h3>Deterministic vs Stochastic</h3>
+            </div>
+            <div class="nav-box" onclick="document.getElementById('demographic-stochasticity').scrollIntoView({behavior: 'smooth'})">
+                <h3>Demographic Stochasticity</h3>
+            </div>
+            <div class="nav-box" onclick="document.getElementById('environmental-stochasticity').scrollIntoView({behavior: 'smooth'})">
+                <h3>Environmental Stochasticity</h3>
+            </div>
+            <div class="nav-box" onclick="document.getElementById('demographic-heterogeneity').scrollIntoView({behavior: 'smooth'})">
+                <h3>Demographic Heterogeneity</h3>
+            </div>
+            <div class="nav-box" onclick="document.getElementById('melbourne-hastings').scrollIntoView({behavior: 'smooth'})">
+                <h3>Melbourne & Hastings Study</h3>
+            </div>
+            <div class="nav-box" onclick="document.getElementById('resilience').scrollIntoView({behavior: 'smooth'})">
+                <h3>Population Resilience</h3>
+            </div>
+        </div>
+        
+        <!-- Section 1: Deterministic vs Stochastic Models -->
+        <section id="deterministic-stochastic" class="section">
+            <h2>Deterministic vs. Stochastic Models</h2>
+            
+            <div class="concept-card">
+                <h4>Deterministic Models</h4>
+                <p>Models that exactly predict the future state of a system given starting conditions and parameter values. If repeated with the same conditions, the outcome will be identical every time.</p>
+            </div>
+            
+            <div class="concept-card">
+                <h4>Stochastic Models</h4>
+                <p>Models that incorporate randomness and variation. These models recognize that real populations are subject to random events and environmental fluctuations.</p>
+            </div>
+            
+            <div class="key-points">
+                <h4>Why Use Stochastic Models?</h4>
+                <ul>
+                    <li>Deterministic models are useful and easier to analyze, but unrealistic</li>
+                    <li>Real populations experience random variation in births, deaths, and environmental conditions</li>
+                    <li>Stochastic models can predict extinction risk and population variability</li>
+                </ul>
+            </div>
+            
+            <div class="graph-container">
+                <h3>Comparison: Deterministic vs Stochastic Growth</h3>
+                <canvas id="deterministicVsStochastic" width="800" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="runDeterministicStochasticComparison()">Run Simulation</button>
+                    <div class="control-group">
+                        <label>Initial Population:</label>
+                        <input type="number" id="n0Comparison" value="10" min="1" max="100">
+                    </div>
+                    <div class="control-group">
+                        <label>Growth Rate (r):</label>
+                        <input type="range" id="rComparison" min="0" max="0.5" step="0.01" value="0.1">
+                        <span id="rComparisonValue">0.1</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 2: Sources of Variation -->
+        <section class="section">
+            <h2>Sources of Variation in Population Models</h2>
+            
+            <p>Variation in population dynamics can arise from several sources, each with different effects on population size, growth, spatial and temporal patterns, and extinction risk.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source of Variation</th>
+                        <th>Description</th>
+                        <th>Primary Effects</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Demographic Stochasticity</td>
+                        <td>Random variation in individual births and deaths</td>
+                        <td>Most important at small population sizes</td>
+                    </tr>
+                    <tr>
+                        <td>Environmental Stochasticity</td>
+                        <td>Fluctuations in environmental conditions</td>
+                        <td>Affects all individuals simultaneously</td>
+                    </tr>
+                    <tr>
+                        <td>Demographic Heterogeneity</td>
+                        <td>Individual differences in vital rates</td>
+                        <td>Creates variation in survival and reproduction</td>
+                    </tr>
+                    <tr>
+                        <td>Sex Ratio Variation</td>
+                        <td>Random variation in male/female production</td>
+                        <td>Can limit population growth at small sizes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Section 3: Demographic Stochasticity -->
+        <section id="demographic-stochasticity" class="section">
+            <h2>Demographic Stochasticity</h2>
+            
+            <div class="concept-card">
+                <h4>Definition</h4>
+                <p>In its pure form, all individuals have the same death and birth rates. However, births and deaths are discrete and probabilistic events, yielding demographic stochasticity. This represents the randomness inherent in whether any particular individual reproduces or dies in a given time period.</p>
+            </div>
+            
+            <div class="equation">
+                <p>For exponential growth with r = b - d:</p>
+                <p><strong>Pr(extinction) = (d/b)<sup>N₀</sup></strong></p>
+                <p class="equation-label">where N₀ is the initial population size</p>
+            </div>
+            
+            <div class="key-points">
+                <h4>Key Characteristics</h4>
+                <ul>
+                    <li>Extinction caused by low N and "unfortunate coincidences"</li>
+                    <li>Most important at small population sizes</li>
+                    <li>High N eliminates this "sampling" error</li>
+                    <li>Includes stochastic sex determination</li>
+                </ul>
+            </div>
+            
+            <div class="graph-container">
+                <h3>Demographic Stochasticity Simulation</h3>
+                <canvas id="demographicStochasticity" width="800" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="runDemographicStochasticity()">Run Simulation</button>
+                    <div class="control-group">
+                        <label>Initial Population:</label>
+                        <input type="number" id="n0Demo" value="4" min="1" max="50">
+                    </div>
+                    <div class="control-group">
+                        <label>Birth Rate (b):</label>
+                        <input type="range" id="bDemo" min="0" max="2" step="0.1" value="1.1">
+                        <span id="bDemoValue">1.1</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Death Rate (d):</label>
+                        <input type="range" id="dDemo" min="0" max="2" step="0.1" value="1.0">
+                        <span id="dDemoValue">1.0</span>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; color: #666;">Multiple trajectories shown. Some populations go extinct due to random chance.</p>
+            </div>
+        </section>
+        
+        <!-- Section 4: Environmental Stochasticity -->
+        <section id="environmental-stochasticity" class="section">
+            <h2>Environmental Stochasticity</h2>
+            
+            <div class="concept-card">
+                <h4>Definition</h4>
+                <p>Fluctuations in the environment that cause variation in birth and death rates. Unlike demographic stochasticity, these fluctuations affect all members of the population simultaneously.</p>
+            </div>
+            
+            <h3>Discrete Time Models</h3>
+            <div class="equation">
+                <p>N<sub>t</sub> = N₀ × λ₁ × λ₂ × ... × λ<sub>t</sub></p>
+                <p class="equation-label">where λᵢ varies through time</p>
+            </div>
+            
+            <div class="key-points">
+                <h4>Important Insight</h4>
+                <ul>
+                    <li>The arithmetic mean of λ is NOT what determines long-term growth</li>
+                    <li>The geometric mean determines long-term population fate</li>
+                    <li>Example: Population with λ alternating between 0.5 and 1.5 declines!</li>
+                    <li>Geometric mean = √(0.5 × 1.5) = 0.866 < 1</li>
+                </ul>
+            </div>
+            
+            <h3>Continuous Time Models</h3>
+            <div class="equation">
+                <p>dN/dt = r(t)N</p>
+                <p class="equation-label">where r varies through time</p>
+            </div>
+            
+            <p>In continuous time, the arithmetic mean of r DOES determine long-term growth (unlike discrete time).</p>
+            
+            <div class="graph-container">
+                <h3>Environmental Stochasticity: Good Years vs Bad Years</h3>
+                <canvas id="environmentalStochasticity" width="800" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="runEnvironmentalStochasticity()">Run Simulation</button>
+                    <div class="control-group">
+                        <label>Good Year λ:</label>
+                        <input type="range" id="lambdaGood" min="1" max="2" step="0.1" value="1.5">
+                        <span id="lambdaGoodValue">1.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Bad Year λ:</label>
+                        <input type="range" id="lambdaBad" min="0" max="1" step="0.1" value="0.5">
+                        <span id="lambdaBadValue">0.5</span>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; color: #666;">Compare with deterministic model using arithmetic mean λ.</p>
+            </div>
+            
+            <h3>Environmental Stochasticity with Logistic Growth</h3>
+            <div class="concept-card">
+                <h4>Varying Carrying Capacity</h4>
+                <p>When K varies stochastically, the average population size is lower than the average K:</p>
+                <div class="equation">
+                    <p>N̄ ≈ K̄ - σ²<sub>K</sub>/2</p>
+                    <p class="equation-label">where σ²<sub>K</sub> is the variance in carrying capacity</p>
+                </div>
+            </div>
+            
+            <div class="graph-container">
+                <h3>Tracking Environmental Variation in K</h3>
+                <canvas id="trackingK" width="800" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="runTrackingK()">Run Simulation</button>
+                    <div class="control-group">
+                        <label>Growth Rate (r):</label>
+                        <input type="range" id="rTracking" min="0.1" max="1" step="0.1" value="0.5">
+                        <span id="rTrackingValue">0.5</span>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; color: #666;">Higher r allows better tracking of environmental fluctuations.</p>
+            </div>
+        </section>
+        
+        <!-- Section 5: Demographic Heterogeneity -->
+        <section id="demographic-heterogeneity" class="section">
+            <h2>Demographic Heterogeneity</h2>
+            
+            <div class="concept-card">
+                <h4>Definition</h4>
+                <p>Individuals are not identical - they differ in size, local resource conditions, nutritional state, and other factors. This introduces variation (random or deterministic) among individuals in vital rates.</p>
+            </div>
+            
+            <div class="key-points">
+                <h4>Example: Frailty Variation</h4>
+                <ul>
+                    <li>Individuals vary in their mortality rate</li>
+                    <li>Creates non-exponential survivorship curves</li>
+                    <li>Aggregate population shows different dynamics than expected</li>
+                    <li>Can be misinterpreted as environmental stochasticity</li>
+                </ul>
+            </div>
+            
+            <div class="graph-container">
+                <h3>Survivorship with Heterogeneous Mortality</h3>
+                <canvas id="demographicHeterogeneity" width="800" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="runDemographicHeterogeneity()">Generate Survivorship Curves</button>
+                </div>
+                <p style="margin-top: 1rem; color: #666;">Shows how individual variation in mortality creates curved survivorship patterns.</p>
+            </div>
+        </section>
+        
+        <!-- Section 6: Melbourne and Hastings Study -->
+        <section id="melbourne-hastings" class="section">
+            <h2>Melbourne and Hastings (2008) Study</h2>
+            
+            <div class="concept-card">
+                <h4>Study Overview</h4>
+                <p>Used the Ricker model to incorporate all sources of variation and examined their effects on extinction risk and population dynamics.</p>
+                <div class="equation">
+                    <p>E[N<sub>t+1</sub>] = RN<sub>t</sub>e<sup>-aN<sub>t</sub></sup></p>
+                    <p class="equation-label">Ricker model with stochastic components</p>
+                </div>
+            </div>
+            
+            <h3>Key Findings</h3>
+            <div class="key-points">
+                <h4>From Tribolium (Flour Beetle) Data</h4>
+                <ul>
+                    <li>Demographic or environmental stochasticity alone fail to explain dynamics</li>
+                    <li>Need ALL sources of variation for accurate predictions</li>
+                    <li>Demographic heterogeneity has at least as great an effect as environmental stochasticity</li>
+                    <li>Effects of demographic heterogeneity may have been historically misinterpreted</li>
+                </ul>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Sources Included</th>
+                        <th>Fit Quality</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Poisson</td>
+                        <td>Demographic Stochasticity only</td>
+                        <td>Poor</td>
+                    </tr>
+                    <tr>
+                        <td>Negative Binomial Environmental</td>
+                        <td>DS + Environmental Stochasticity</td>
+                        <td>Better</td>
+                    </tr>
+                    <tr>
+                        <td>Negative Binomial Demographic</td>
+                        <td>DS + Demographic Heterogeneity</td>
+                        <td>Better</td>
+                    </tr>
+                    <tr>
+                        <td>Full Model</td>
+                        <td>DS + ES + DH + Sex Ratio</td>
+                        <td>Best</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="graph-container">
+                <h3>Extinction Risk vs Growth Rate (R)</h3>
+                <canvas id="extinctionRisk" width="800" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="drawExtinctionRisk()">Show Relationship</button>
+                </div>
+                <p style="margin-top: 1rem; color: #666;">Non-monotonic relationship: extinction risk first decreases then increases with R.</p>
+            </div>
+        </section>
+        
+        <!-- Section 7: Population Resilience -->
+        <section id="resilience" class="section">
+            <h2>Population Resilience and Critical Transitions</h2>
+            
+            <div class="concept-card">
+                <h4>Gradually Changing Environments</h4>
+                <p>What happens when environmental conditions gradually deteriorate? Understanding early warning signals is crucial for conservation.</p>
+            </div>
+            
+            <h3>Response to Parameter Changes</h3>
+            <div class="key-points">
+                <h4>Two Scenarios</h4>
+                <ul>
+                    <li><strong>Declining K:</strong> Population tracks the decline smoothly</li>
+                    <li><strong>Declining r:</strong> Population appears stable until sudden collapse</li>
+                </ul>
+            </div>
+            
+            <div class="graph-container">
+                <h3>Critical Slowing Down</h3>
+                <canvas id="criticalSlowing" width="800" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="runCriticalSlowing()">Simulate Declining r</button>
+                    <div class="control-group">
+                        <label>Add Perturbations:</label>
+                        <input type="checkbox" id="addPerturbations" checked>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; color: #666;">As r approaches 0, recovery from perturbations becomes slower (critical slowing down).</p>
+            </div>
+            
+            <div class="concept-card">
+                <h4>Early Warning Signals</h4>
+                <p>Before population collapse:</p>
+                <ul style="margin-left: 2rem; color: #666;">
+                    <li>Slower recovery from disturbances</li>
+                    <li>Increased variance in population size</li>
+                    <li>Increased autocorrelation</li>
+                    <li>These signals indicate declining resilience</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Summary Section -->
+        <section class="section">
+            <h2>Summary and Key Takeaways</h2>
+            
+            <div class="key-points">
+                <h4>Understanding Population Stochasticity</h4>
+                <ul>
+                    <li>Real populations require stochastic models for accurate predictions</li>
+                    <li>Multiple sources of variation interact to determine population fate</li>
+                    <li>Small populations are especially vulnerable to demographic stochasticity</li>
+                    <li>Environmental variance has multiplicative effects in discrete time</li>
+                    <li>Individual heterogeneity creates complex population patterns</li>
+                    <li>Early warning signals can predict population collapse</li>
+                </ul>
+            </div>
+            
+            <div class="concept-card" style="background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%); color: #ffffff;">
+                <h4>Applications to Conservation</h4>
+                <p>Understanding these concepts is crucial for:</p>
+                <ul style="margin-left: 2rem;">
+                    <li>Predicting extinction risk for endangered species</li>
+                    <li>Designing effective conservation strategies</li>
+                    <li>Identifying populations at risk before collapse</li>
+                    <li>Managing populations under environmental change</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // Utility functions
+        function clearCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function drawAxes(ctx, width, height, xlabel, ylabel) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            
+            // Draw axes
+            ctx.beginPath();
+            ctx.moveTo(50, height - 50);
+            ctx.lineTo(width - 30, height - 50);
+            ctx.moveTo(50, height - 50);
+            ctx.lineTo(50, 30);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(xlabel, width/2, height - 10);
+            
+            ctx.save();
+            ctx.translate(15, height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText(ylabel, 0, 0);
+            ctx.restore();
+        }
+        
+        // Update slider values
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const valueSpan = document.getElementById(this.id + 'Value');
+                if (valueSpan) {
+                    valueSpan.textContent = this.value;
+                }
+            });
+        });
+        
+        // 1. Deterministic vs Stochastic Comparison
+        function runDeterministicStochasticComparison() {
+            const canvas = document.getElementById('deterministicVsStochastic');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            clearCanvas('deterministicVsStochastic');
+            drawAxes(ctx, width, height, 'Time', 'Population Size');
+            
+            const n0 = parseInt(document.getElementById('n0Comparison').value);
+            const r = parseFloat(document.getElementById('rComparison').value);
+            const timeSteps = 100;
+            
+            // Deterministic trajectory
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let t = 0; t <= timeSteps; t++) {
+                const n = n0 * Math.exp(r * t);
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * Math.min(n / (n0 * 50), 1);
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Stochastic trajectories
+            for (let sim = 0; sim < 5; sim++) {
+                ctx.strokeStyle = `rgba(74, 124, 89, ${0.3 + sim * 0.1})`;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                
+                let n = n0;
+                for (let t = 0; t <= timeSteps; t++) {
+                    const x = 50 + (width - 80) * t / timeSteps;
+                    const y = height - 50 - (height - 100) * Math.min(n / (n0 * 50), 1);
+                    
+                    if (t === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                    
+                    // Stochastic growth with environmental noise
+                    const noise = (Math.random() - 0.5) * 0.2;
+                    n = n * Math.exp(r + noise);
+                    if (n < 0.1) n = 0; // Extinction threshold
+                }
+                ctx.stroke();
+            }
+            
+            // Legend
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#2c5530';
+            ctx.fillText('Deterministic', width - 150, 50);
+            ctx.fillStyle = '#4a7c59';
+            ctx.fillText('Stochastic', width - 150, 70);
+        }
+        
+        // 2. Demographic Stochasticity Simulation
+        function runDemographicStochasticity() {
+            const canvas = document.getElementById('demographicStochasticity');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            clearCanvas('demographicStochasticity');
+            drawAxes(ctx, width, height, 'Time', 'Number of Individuals');
+            
+            const n0 = parseInt(document.getElementById('n0Demo').value);
+            const b = parseFloat(document.getElementById('bDemo').value);
+            const d = parseFloat(document.getElementById('dDemo').value);
+            const timeSteps = 60;
+            const numSims = 10;
+            
+            let extinctCount = 0;
+            
+            for (let sim = 0; sim < numSims; sim++) {
+                ctx.strokeStyle = `hsla(140, 30%, ${30 + sim * 5}%, 0.7)`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                let n = n0;
+                let extinct = false;
+                
+                for (let t = 0; t <= timeSteps; t++) {
+                    const x = 50 + (width - 80) * t / timeSteps;
+                    const y = height - 50 - (height - 100) * Math.min(n / 100, 1);
+                    
+                    if (t === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                    
+                    if (n === 0) {
+                        extinct = true;
+                        break;
+                    }
+                    
+                    // Birth-death process
+                    let births = 0;
+                    let deaths = 0;
+                    
+                    for (let i = 0; i < n; i++) {
+                        if (Math.random() < b / (b + d)) births++;
+                        if (Math.random() < d / (b + d)) deaths++;
+                    }
+                    
+                    n = n + births - deaths;
+                    if (n < 0) n = 0;
+                }
+                
+                ctx.stroke();
+                if (extinct) extinctCount++;
+            }
+            
+            // Show extinction probability
+            ctx.fillStyle = '#2c5530';
+            ctx.font = '14px Arial';
+            ctx.fillText(`Extinctions: ${extinctCount}/${numSims}`, width - 150, 50);
+            
+            // Theoretical extinction probability
+            if (b > d) {
+                const pExt = Math.pow(d/b, n0);
+                ctx.fillText(`Theoretical P(ext): ${pExt.toFixed(3)}`, width - 150, 70);
+            }
+        }
+        
+        // 3. Environmental Stochasticity
+        function runEnvironmentalStochasticity() {
+            const canvas = document.getElementById('environmentalStochasticity');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            clearCanvas('environmentalStochasticity');
+            drawAxes(ctx, width, height, 'Time', 'Population Size (log scale)');
+            
+            const lambdaGood = parseFloat(document.getElementById('lambdaGood').value);
+            const lambdaBad = parseFloat(document.getElementById('lambdaBad').value);
+            const timeSteps = 50;
+            const n0 = 100;
+            
+            // Stochastic with alternating good/bad years
+            ctx.strokeStyle = '#4a7c59';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            let n = n0;
+            for (let t = 0; t <= timeSteps; t++) {
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * Math.log(n) / Math.log(1000);
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                
+                // Alternate between good and bad years
+                const lambda = (t % 2 === 0) ? lambdaGood : lambdaBad;
+                n = n * lambda;
+            }
+            ctx.stroke();
+            
+            // Deterministic with arithmetic mean
+            const lambdaArithmetic = (lambdaGood + lambdaBad) / 2;
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            
+            n = n0;
+            for (let t = 0; t <= timeSteps; t++) {
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * Math.log(n) / Math.log(1000);
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                
+                n = n * lambdaArithmetic;
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Deterministic with geometric mean
+            const lambdaGeometric = Math.sqrt(lambdaGood * lambdaBad);
+            ctx.strokeStyle = '#1a3d20';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            n = n0;
+            for (let t = 0; t <= timeSteps; t++) {
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * Math.log(n) / Math.log(1000);
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                
+                n = n * lambdaGeometric;
+            }
+            ctx.stroke();
+            
+            // Legend
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#4a7c59';
+            ctx.fillText('Alternating λ', width - 150, 50);
+            ctx.fillStyle = '#2c5530';
+            ctx.fillText('Arithmetic mean', width - 150, 70);
+            ctx.fillStyle = '#1a3d20';
+            ctx.fillText('Geometric mean', width - 150, 90);
+            
+            // Show means
+            ctx.fillStyle = '#666';
+            ctx.fillText(`λ arithmetic: ${lambdaArithmetic.toFixed(2)}`, 60, 50);
+            ctx.fillText(`λ geometric: ${lambdaGeometric.toFixed(2)}`, 60, 70);
+        }
+        
+        // 4. Tracking K variation
+        function runTrackingK() {
+            const canvas = document.getElementById('trackingK');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            clearCanvas('trackingK');
+            drawAxes(ctx, width, height, 'Time', 'Population Size');
+            
+            const r = parseFloat(document.getElementById('rTracking').value);
+            const timeSteps = 100;
+            const Kmean = 100;
+            const Kamp = 30;
+            
+            // Draw varying K
+            ctx.strokeStyle = '#e8f5e8';
+            ctx.fillStyle = '#e8f5e8';
+            ctx.beginPath();
+            
+            for (let t = 0; t <= timeSteps; t++) {
+                const K = Kmean + Kamp * Math.sin(2 * Math.PI * t / 20);
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * K / (Kmean + Kamp);
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            
+            // Fill area under K
+            for (let t = timeSteps; t >= 0; t--) {
+                const x = 50 + (width - 80) * t / timeSteps;
+                ctx.lineTo(x, height - 50);
+            }
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw K line
+            ctx.strokeStyle = '#4a7c59';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            
+            for (let t = 0; t <= timeSteps; t++) {
+                const K = Kmean + Kamp * Math.sin(2 * Math.PI * t / 20);
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * K / (Kmean + Kamp);
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Simulate two populations with different r
+            const rValues = [0.1, r];
+            const colors = ['#666', '#2c5530'];
+            
+            for (let i = 0; i < rValues.length; i++) {
+                ctx.strokeStyle = colors[i];
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                let N = Kmean;
+                for (let t = 0; t <= timeSteps; t++) {
+                    const K = Kmean + Kamp * Math.sin(2 * Math.PI * t / 20);
+                    const x = 50 + (width - 80) * t / timeSteps;
+                    const y = height - 50 - (height - 100) * N / (Kmean + Kamp);
+                    
+                    if (t === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                    
+                    // Logistic growth
+                    N = N + rValues[i] * N * (1 - N/K);
+                }
+                ctx.stroke();
+            }
+            
+            // Legend
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#4a7c59';
+            ctx.fillText('Carrying capacity K', width - 150, 50);
+            ctx.fillStyle = '#666';
+            ctx.fillText('r = 0.1 (slow)', width - 150, 70);
+            ctx.fillStyle = '#2c5530';
+            ctx.fillText(`r = ${r} (selected)`, width - 150, 90);
+        }
+        
+        // 5. Demographic Heterogeneity
+        function runDemographicHeterogeneity() {
+            const canvas = document.getElementById('demographicHeterogeneity');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            clearCanvas('demographicHeterogeneity');
+            drawAxes(ctx, width, height, 'Time', 'Number Alive (log scale)');
+            
+            const timeSteps = 40;
+            const initialPop = 100;
+            
+            // Define groups with different mortality rates
+            const groups = [
+                { name: 'Best', mortality: 0.05, color: '#4a7c59', pop: initialPop/5 },
+                { name: 'Good', mortality: 0.08, color: '#5a8c69', pop: initialPop/5 },
+                { name: 'Average', mortality: 0.12, color: '#6a9c79', pop: initialPop/5 },
+                { name: 'Poor', mortality: 0.18, color: '#7aac89', pop: initialPop/5 },
+                { name: 'Worst', mortality: 0.25, color: '#8abc99', pop: initialPop/5 }
+            ];
+            
+            // Draw individual group survivorship
+            groups.forEach((group, index) => {
+                ctx.strokeStyle = group.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                let alive = group.pop;
+                for (let t = 0; t <= timeSteps; t++) {
+                    const x = 50 + (width - 80) * t / timeSteps;
+                    const y = height - 50 - (height - 100) * Math.log(alive + 1) / Math.log(initialPop);
+                    
+                    if (t === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                    
+                    alive = alive * (1 - group.mortality);
+                }
+                ctx.stroke();
+            });
+            
+            // Draw aggregate survivorship
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            
+            for (let t = 0; t <= timeSteps; t++) {
+                let totalAlive = 0;
+                groups.forEach(group => {
+                    totalAlive += group.pop * Math.pow(1 - group.mortality, t);
+                });
+                
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * Math.log(totalAlive + 1) / Math.log(initialPop);
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Draw homogeneous population for comparison
+            ctx.strokeStyle = '#1a3d20';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            
+            const avgMortality = groups.reduce((sum, g) => sum + g.mortality, 0) / groups.length;
+            let alive = initialPop;
+            for (let t = 0; t <= timeSteps; t++) {
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * Math.log(alive + 1) / Math.log(initialPop);
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                
+                alive = alive * (1 - avgMortality);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Legend
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#2c5530';
+            ctx.fillText('Aggregate (heterogeneous)', width - 200, 50);
+            ctx.fillStyle = '#1a3d20';
+            ctx.fillText('Homogeneous (average)', width - 200, 70);
+        }
+        
+        // 6. Extinction Risk vs R
+        function drawExtinctionRisk() {
+            const canvas = document.getElementById('extinctionRisk');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            clearCanvas('extinctionRisk');
+            drawAxes(ctx, width, height, 'Finite Rate of Increase (R)', 'Mean Time to Extinction (log scale)');
+            
+            // Simulated data points showing non-monotonic relationship
+            const data = [
+                { R: 2, time: 15 },
+                { R: 3, time: 50 },
+                { R: 4, time: 200 },
+                { R: 5, time: 1500 },
+                { R: 6, time: 8000 },
+                { R: 7, time: 20000 },
+                { R: 8, time: 22000 },
+                { R: 9, time: 18000 },
+                { R: 10, time: 12000 },
+                { R: 11, time: 8000 },
+                { R: 12, time: 5000 },
+                { R: 14, time: 2000 },
+                { R: 16, time: 800 },
+                { R: 18, time: 400 },
+                { R: 20, time: 200 }
+            ];
+            
+            // Draw different model predictions
+            const models = [
+                { name: 'P (Demo. Stoch. only)', color: '#8abc99', factor: 0.3 },
+                { name: 'NBe (+ Env. Stoch.)', color: '#6a9c79', factor: 0.7 },
+                { name: 'NBg (All sources)', color: '#2c5530', factor: 1.0 }
+            ];
+            
+            models.forEach((model, modelIndex) => {
+                ctx.strokeStyle = model.color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                data.forEach((point, i) => {
+                    const x = 50 + (width - 80) * (point.R - 2) / 18;
+                    const adjustedTime = point.time * model.factor * (1 + modelIndex * 0.2);
+                    const y = height - 50 - (height - 100) * Math.log(adjustedTime) / Math.log(50000);
+                    
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+                
+                // Add data points
+                ctx.fillStyle = model.color;
+                data.forEach((point) => {
+                    const x = 50 + (width - 80) * (point.R - 2) / 18;
+                    const adjustedTime = point.time * model.factor * (1 + modelIndex * 0.2);
+                    const y = height - 50 - (height - 100) * Math.log(adjustedTime) / Math.log(50000);
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+            });
+            
+            // Legend
+            ctx.font = '12px Arial';
+            models.forEach((model, i) => {
+                ctx.fillStyle = model.color;
+                ctx.fillText(model.name, 60, 50 + i * 20);
+            });
+            
+            // Add annotation
+            ctx.fillStyle = '#666';
+            ctx.font = '11px Arial';
+            ctx.fillText('Peak persistence at intermediate R', width/2 - 80, height - 60);
+        }
+        
+        // 7. Critical Slowing Down
+        function runCriticalSlowing() {
+            const canvas = document.getElementById('criticalSlowing');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            clearCanvas('criticalSlowing');
+            drawAxes(ctx, width, height, 'Time', 'Population Size');
+            
+            const timeSteps = 200;
+            const K = 100;
+            const addPerturbations = document.getElementById('addPerturbations').checked;
+            
+            // Simulate declining r
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            let N = K;
+            for (let t = 0; t <= timeSteps; t++) {
+                // Gradually decline r from 0.5 to -0.05
+                const r = 0.5 - (0.55 * t / timeSteps);
+                
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * N / K;
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                
+                // Logistic growth
+                N = N + r * N * (1 - N/K);
+                
+                // Add perturbations
+                if (addPerturbations && t % 20 === 0 && t > 0) {
+                    N = N * 0.9; // 10% reduction
+                }
+                
+                if (N < 0.1) N = 0;
+            }
+            ctx.stroke();
+            
+            // Draw r value
+            ctx.strokeStyle = '#4a7c59';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            
+            for (let t = 0; t <= timeSteps; t++) {
+                const r = 0.5 - (0.55 * t / timeSteps);
+                const x = 50 + (width - 80) * t / timeSteps;
+                const y = height - 50 - (height - 100) * (r + 0.1) / 0.6;
+                
+                if (t === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw critical point
+            const criticalX = 50 + (width - 80) * (0.5 / 0.55);
+            ctx.strokeStyle = '#1a3d20';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(criticalX, height - 50);
+            ctx.lineTo(criticalX, 30);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#2c5530';
+            ctx.font = '14px Arial';
+            ctx.fillText('Population size', 60, 50);
+            ctx.fillStyle = '#4a7c59';
+            ctx.fillText('Growth rate r', 60, 70);
+            ctx.fillStyle = '#1a3d20';
+            ctx.fillText('r = 0', criticalX - 15, 20);
+            
+            if (addPerturbations) {
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Arial';
+                ctx.fillText('Perturbations added every 20 time steps', width/2 - 100, height - 60);
+            }
+        }
+        
+        // Initialize graphs on page load
+        window.onload = function() {
+            try {
+                runDeterministicStochasticComparison();
+                runDemographicStochasticity();
+                runEnvironmentalStochasticity();
+                runTrackingK();
+                // Initialize the other graphs when their buttons are clicked
+                console.log('All initial graphs loaded successfully');
+            } catch (error) {
+                console.error('Error initializing graphs:', error);
+            }
+        };
+    </script>
+</body>
+</html>
