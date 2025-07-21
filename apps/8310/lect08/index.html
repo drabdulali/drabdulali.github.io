@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Foraging Theory - Interactive Guide</title>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-dark: rgba(0,0,0,0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 8px var(--shadow-medium);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .concept-section {
+            background: var(--white);
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            border-left: 5px solid var(--medium-green);
+        }
+
+        .concept-section h2 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 0.5rem;
+        }
+
+        .concept-section h3 {
+            color: var(--medium-green);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .math-equation {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .interactive-demo {
+            background: var(--light-green-2);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 2px dashed var(--medium-green);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .control-group input, .control-group select {
+            padding: 0.5rem;
+            border: 2px solid var(--medium-green);
+            border-radius: 5px;
+            background: var(--white);
+        }
+
+        .graph-container {
+            width: 100%;
+            height: 400px;
+            background: var(--white);
+            border: 2px solid var(--medium-green);
+            border-radius: 8px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .graph-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--medium-green);
+        }
+
+        .concept-card h4 {
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .simulation-button {
+            background: var(--medium-green);
+            color: var(--white);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .simulation-button:hover {
+            background: var(--dark-green);
+        }
+
+        .highlight-box {
+            background: var(--light-green-1);
+            padding: 1rem;
+            border-left: 4px solid var(--dark-green);
+            margin: 1rem 0;
+            border-radius: 5px;
+        }
+
+        .formula {
+            font-style: italic;
+            color: var(--very-dark-green);
+            font-weight: bold;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .reasoning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #f39c12;
+        }
+
+        .reasoning-box h4 {
+            color: #e67e22;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                flex-direction: column;
+            }
+        }
+
+        .animation-container {
+            position: relative;
+            height: 300px;
+            background: var(--white);
+            border: 2px solid var(--medium-green);
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .forager {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--dark-green);
+            border-radius: 50%;
+            transition: all 0.5s ease;
+        }
+
+        .patch {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid var(--medium-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--dark-green);
+        }
+
+        .prey-item {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--medium-green);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Optimal Foraging Theory</h1>
+        <p>An Interactive Guide to Understanding Animal Foraging Behavior</p>
+    </div>
+
+    <div class="container">
+        <!-- Introduction -->
+        <div class="concept-section">
+            <h2>Introduction to Optimal Foraging Theory</h2>
+            <p>Optimal Foraging Theory (OFT) predicts how animals should behave when searching for food to maximize their fitness. The theory assumes that natural selection has shaped foraging behaviors to optimize energy gain relative to costs and risks.</p>
+            
+            <div class="highlight-box">
+                <strong>Core Assumption:</strong> Animals behave as if they are trying to maximize their net rate of energy intake: <span class="formula">E/T</span> where E = energy gained and T = time spent foraging.
+            </div>
+        </div>
+
+        <!-- Patch Selection and MVT -->
+        <div class="concept-section">
+            <h2>Patch Selection and Marginal Value Theorem</h2>
+            
+            <h3>The Marginal Value Theorem (MVT)</h3>
+            <p>When should a forager leave a patch? The MVT provides the answer: leave when the marginal value (instantaneous rate of gain) equals the expected return rate in the environment.</p>
+            
+            <div class="math-equation">
+                <strong>MVT Decision Rule:</strong><br>
+                Leave patch when: <span class="formula">dg/dT = R<sub>n</sub>*</span><br>
+                Where g(T) = cumulative energy gain after time T in patch<br>
+                R<sub>n</sub>* = expected return rate in environment
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Interactive MVT Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Travel Time</label>
+                        <input type="range" id="travelTime" min="1" max="10" value="3">
+                        <span id="travelTimeValue">3</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Patch Quality</label>
+                        <input type="range" id="patchQuality" min="1" max="10" value="5">
+                        <span id="patchQualityValue">5</span>
+                    </div>
+                </div>
+                <button class="simulation-button" onclick="runMVTSimulation()">Run MVT Simulation</button>
+                <div class="graph-container">
+                    <canvas id="mvtCanvas" class="graph-canvas"></canvas>
+                </div>
+                <div id="mvtReasoning" class="reasoning-box" style="display:none;">
+                    <h4> Why Leave at This Point?</h4>
+                    <div id="mvtReasoningText"></div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h4>Key MVT Predictions:</h4>
+                <ul>
+                    <li>Leave at a fixed marginal value (independent of patch quality)</li>
+                    <li>Stay longer in higher quality patches</li>
+                    <li>When patches are denser (shorter travel time), leave patches earlier</li>
+                    <li>Skip patches where initial gain rate &lt; R<sub>n</sub>*</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Functional Responses -->
+        <div class="concept-section">
+            <h2>Functional Responses</h2>
+            <p>Functional responses describe how feeding rate changes with prey density. There are three classic types:</p>
+
+            <div class="two-column">
+                <div>
+                    <h3>Type I: Linear Response</h3>
+                    <div class="math-equation">
+                        <span class="formula">Feeding Rate = aN</span><br>
+                        Where a = attack coefficient, N = prey density
+                    </div>
+                    <p>Assumes no handling time - all encountered prey are eaten instantly.</p>
+                </div>
+                <div>
+                    <h3>Type II: Saturating Response</h3>
+                    <div class="math-equation">
+                        <span class="formula">Feeding Rate = aN/(1 + aNh)</span><br>
+                        Where h = handling time per prey
+                    </div>
+                    <p>Most common in nature - handling time limits maximum feeding rate.</p>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Functional Response Simulator</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Attack Coefficient (a)</label>
+                        <input type="range" id="attackCoeff" min="0.1" max="2" step="0.1" value="0.5">
+                        <span id="attackCoeffValue">0.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Handling Time (h)</label>
+                        <input type="range" id="handlingTime" min="0" max="5" step="0.1" value="1">
+                        <span id="handlingTimeValue">1</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Response Type</label>
+                        <select id="responseType">
+                            <option value="1">Type I</option>
+                            <option value="2" selected>Type II</option>
+                            <option value="3">Type III</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="simulation-button" onclick="plotFunctionalResponse()">Plot Response</button>
+                <div class="graph-container">
+                    <canvas id="functionalResponseCanvas" class="graph-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prey Selection -->
+        <div class="concept-section">
+            <h2>Prey Selection and Optimal Diet Theory</h2>
+            
+            <h3>The Zero-One Rule</h3>
+            <p>Optimal diet theory predicts that predators should either always attack a prey type when encountered (P<sub>i</sub> = 1) or always ignore it (P<sub>i</sub> = 0). No partial preferences!</p>
+
+            <div class="math-equation">
+                <strong>Profitability Ranking:</strong><br>
+                Rank prey by <span class="formula">e<sub>i</sub>/h<sub>i</sub></span><br>
+                Where e<sub>i</sub> = energy content, h<sub>i</sub> = handling time
+            </div>
+
+            <div class="math-equation">
+                <strong>Energy Intake Rate:</strong><br>
+                <span class="formula">E/T = Σ(a<sub>i</sub>N<sub>i</sub>P<sub>i</sub>e<sub>i</sub>) / (1 + Σ(a<sub>i</sub>N<sub>i</sub>P<sub>i</sub>h<sub>i</sub>))</span>
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Prey Selection Simulator</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Large Prey Density</label>
+                        <input type="range" id="largePrey" min="0" max="20" value="5">
+                        <span id="largePreyValue">5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Small Prey Density</label>
+                        <input type="range" id="smallPrey" min="0" max="50" value="20">
+                        <span id="smallPreyValue">20</span>
+                    </div>
+                </div>
+                <button class="simulation-button" onclick="calculateOptimalDiet()">Calculate Optimal Diet</button>
+                <div class="graph-container">
+                    <canvas id="preySelectionCanvas" class="graph-canvas"></canvas>
+                </div>
+                <div id="dietResult" class="highlight-box" style="display:none;">
+                    <h4>Optimal Diet Composition:</h4>
+                    <div id="dietComposition"></div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h4>Key Prey Selection Insights:</h4>
+                <ul>
+                    <li>Attack if e<sub>i</sub>/h<sub>i</sub> > E*/T*, else ignore</li>
+                    <li>Inclusion depends only on density of MORE valuable prey</li>
+                    <li>A prey type's own density doesn't affect whether it's included in diet</li>
+                    <li>As better prey become common, drop lower quality items from diet</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Risk and Predation -->
+        <div class="concept-section">
+            <h2>Predation Risk and the μ/g Rule</h2>
+            
+            <h3>Beyond Energy: Incorporating Risk</h3>
+            <p>Real foragers must balance energy gain against predation risk. The μ/g rule suggests minimizing the ratio of mortality risk to growth rate.</p>
+
+            <div class="math-equation">
+                <strong>Risk-Growth Tradeoff:</strong><br>
+                Minimize <span class="formula">μ/g</span><br>
+                Where μ = mortality rate, g = growth rate<br><br>
+                <strong>Why?</strong> 1/g = time spent at a size<br>
+                So μ × (1/g) = mortality probability at that size
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Risk-Growth Simulation</h4>
+                <div class="animation-container" id="riskAnimation">
+                    <div class="forager" id="forager" style="left: 50px; top: 50px;"></div>
+                </div>
+                <div class="controls">
+                    <button class="simulation-button" onclick="simulateHabitatChoice()">Simulate Habitat Choice</button>
+                    <button class="simulation-button" onclick="resetRiskSimulation()">Reset</button>
+                </div>
+                <div id="riskResults" class="highlight-box" style="display:none;"></div>
+            </div>
+
+            <div class="concept-card">
+                <h4>Size-Dependent Risk Effects:</h4>
+                <ul>
+                    <li>Small individuals: High predation risk, seek safety over food</li>
+                    <li>Large individuals: Lower risk, can exploit profitable but risky habitats</li>
+                    <li>Ontogenetic habitat shifts driven by changing risk-growth tradeoffs</li>
+                    <li>Population consequences: Stage-structured interactions</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Habitat Selection -->
+        <div class="concept-section">
+            <h2>Habitat Selection</h2>
+            
+            <h3>Scaling Up from Foraging Decisions</h3>
+            <p>Habitat choice emerges from patch-level foraging decisions. Animals should use habitats in proportion to their profitability, but predation risk complicates this simple rule.</p>
+
+            <div class="interactive-demo">
+                <h4>Habitat Profitability vs Risk</h4>
+                <div class="two-column">
+                    <div>
+                        <h4>Open Water Habitat</h4>
+                        <div class="concept-card">
+                            <p><strong>Energy Gain:</strong> High (zooplankton)</p>
+                            <p><strong>Predation Risk:</strong> High (exposed)</p>
+                            <p><strong>Best for:</strong> Large individuals</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Vegetation Habitat</h4>
+                        <div class="concept-card">
+                            <p><strong>Energy Gain:</strong> Low (benthos)</p>
+                            <p><strong>Predation Risk:</strong> Low (shelter)</p>
+                            <p><strong>Best for:</strong> Small individuals</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Individual Size</label>
+                        <input type="range" id="individualSize" min="1" max="10" value="5">
+                        <span id="individualSizeValue">5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Predator Density</label>
+                        <input type="range" id="predatorDensity" min="0" max="10" value="3">
+                        <span id="predatorDensityValue">3</span>
+                    </div>
+                </div>
+                <button class="simulation-button" onclick="predictHabitatUse()">Predict Habitat Use</button>
+                <div id="habitatResult" class="highlight-box" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Population and Community Effects -->
+        <div class="concept-section">
+            <h2>Population and Community Effects</h2>
+            
+            <h3>From Individual Behavior to Population Dynamics</h3>
+            <p>Individual foraging decisions scale up to affect population growth, community structure, and ecosystem dynamics.</p>
+
+            <div class="concept-card">
+                <h4>Demographic Compensation in Bluegill:</h4>
+                <ul>
+                    <li>Small bluegill: Forced into low-quality vegetation habitat</li>
+                    <li>Large bluegill: Access profitable open water with zooplankton</li>
+                    <li>Intraspecific competition: Adults suppress juvenile growth</li>
+                    <li>Population regulation: Density-dependent habitat shifts</li>
+                </ul>
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Stage-Structured Population Model</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Initial Juveniles</label>
+                        <input type="range" id="initialJuveniles" min="10" max="100" value="50">
+                        <span id="initialJuvenilesValue">50</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Initial Adults</label>
+                        <input type="range" id="initialAdults" min="5" max="50" value="20">
+                        <span id="initialAdultsValue">20</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Reproduction Rate</label>
+                        <input type="range" id="reproductionRate" min="0.5" max="5" step="0.1" value="2">
+                        <span id="reproductionRateValue">2</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Competition Strength</label>
+                        <input type="range" id="competitionStrength" min="0.1" max="2" step="0.1" value="1">
+                        <span id="competitionStrengthValue">1</span>
+                    </div>
+                </div>
+                <div class="graph-container">
+                    <canvas id="populationCanvas" class="graph-canvas"></canvas>
+                </div>
+                <div class="controls">
+                    <button class="simulation-button" onclick="runPopulationModel()">Run Population Simulation</button>
+                    <button class="simulation-button" onclick="resetPopulation()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applications and Testing -->
+        <div class="concept-section">
+            <h2>Empirical Testing and Applications</h2>
+            
+            <h3>Laboratory and Field Studies</h3>
+            <p>Optimal foraging theory has been extensively tested in laboratory and field experiments, particularly with bluegill sunfish as a model system.</p>
+
+            <div class="two-column">
+                <div class="concept-card">
+                    <h4>Laboratory Tests</h4>
+                    <ul>
+                        <li>Controlled prey densities</li>
+                        <li>Manipulated patch quality</li>
+                        <li>Measured giving-up times</li>
+                        <li>Strong support for MVT predictions</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Field Applications</h4>
+                    <ul>
+                        <li>Natural lake systems</li>
+                        <li>Seasonal diet shifts</li>
+                        <li>Size-specific habitat use</li>
+                        <li>Growth rate predictions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Key Findings:</strong> OFT successfully predicts diet composition, habitat use patterns, and growth rates in natural systems, though real animals often deviate from optimal predictions due to constraints not included in simple models.
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="concept-section">
+            <h2>Summary and Insights</h2>
+            
+            <div class="concept-card">
+                <h4>Core Principles of Optimal Foraging Theory:</h4>
+                <ul>
+                    <li><strong>Optimization:</strong> Animals behave as if maximizing net energy gain</li>
+                    <li><strong>Marginal Value Theorem:</strong> Universal rule for patch departure times</li>
+                    <li><strong>Zero-One Rule:</strong> All-or-nothing prey preferences</li>
+                    <li><strong>Risk-Growth Tradeoffs:</strong> Energy gain balanced against mortality risk</li>
+                    <li><strong>Scaling Effects:</strong> Individual decisions affect population dynamics</li>
+                    <li><strong>Empirical Success:</strong> Theory predicts real animal behavior remarkably well</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Broader Implications:</strong> OFT provides a foundation for understanding how behavioral ecology connects to population biology, community structure, and ecosystem function. It demonstrates how evolutionary optimization at the individual level can explain complex ecological patterns.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize canvas contexts
+        let mvtCanvas, functionalResponseCanvas, populationCanvas, preySelectionCanvas;
+        let mvtCtx, frCtx, popCtx, preyCtx;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize canvases
+            mvtCanvas = document.getElementById('mvtCanvas');
+            functionalResponseCanvas = document.getElementById('functionalResponseCanvas');
+            populationCanvas = document.getElementById('populationCanvas');
+            preySelectionCanvas = document.getElementById('preySelectionCanvas');
+            
+            if (mvtCanvas) mvtCtx = mvtCanvas.getContext('2d');
+            if (functionalResponseCanvas) frCtx = functionalResponseCanvas.getContext('2d');
+            if (populationCanvas) popCtx = populationCanvas.getContext('2d');
+            if (preySelectionCanvas) preyCtx = preySelectionCanvas.getContext('2d');
+
+            // Set canvas sizes
+            [mvtCanvas, functionalResponseCanvas, populationCanvas, preySelectionCanvas].forEach(canvas => {
+                if (canvas) {
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                }
+            });
+
+            // Add event listeners for sliders
+            const sliders = ['travelTime', 'patchQuality', 'attackCoeff', 'handlingTime', 'largePrey', 'smallPrey', 'individualSize', 'predatorDensity', 'initialJuveniles', 'initialAdults', 'reproductionRate', 'competitionStrength'];
+            sliders.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', updateSliderValue);
+                }
+            });
+
+            // Initial plots
+            runMVTSimulation();
+            plotFunctionalResponse();
+            calculateOptimalDiet();
+        });
+
+        function updateSliderValue(event) {
+            const slider = event.target;
+            const valueSpan = document.getElementById(slider.id + 'Value');
+            if (valueSpan) {
+                valueSpan.textContent = slider.value;
+            }
+        }
+
+        function runMVTSimulation() {
+            if (!mvtCtx) return;
+            
+            const travelTime = parseFloat(document.getElementById('travelTime').value);
+            const patchQuality = parseFloat(document.getElementById('patchQuality').value);
+            
+            mvtCtx.clearRect(0, 0, mvtCanvas.width, mvtCanvas.height);
+            
+            // Draw axes
+            mvtCtx.strokeStyle = '#2c5530';
+            mvtCtx.lineWidth = 2;
+            mvtCtx.beginPath();
+            mvtCtx.moveTo(50, mvtCanvas.height - 50);
+            mvtCtx.lineTo(mvtCanvas.width - 50, mvtCanvas.height - 50);
+            mvtCtx.moveTo(50, 50);
+            mvtCtx.lineTo(50, mvtCanvas.height - 50);
+            mvtCtx.stroke();
+            
+            // Labels
+            mvtCtx.fillStyle = '#2c5530';
+            mvtCtx.font = '14px Arial';
+            mvtCtx.fillText('Time in Patch', mvtCanvas.width/2 - 50, mvtCanvas.height - 10);
+            mvtCtx.save();
+            mvtCtx.translate(15, mvtCanvas.height/2);
+            mvtCtx.rotate(-Math.PI/2);
+            mvtCtx.fillText('Cumulative Energy Gain', -80, 0);
+            mvtCtx.restore();
+            
+            // Draw cumulative gain curve
+            mvtCtx.strokeStyle = '#4a7c59';
+            mvtCtx.lineWidth = 3;
+            mvtCtx.beginPath();
+            
+            const maxTime = 20;
+            const optimalTime = Math.max(0.5, Math.log(patchQuality / Math.max(0.1, travelTime) + 1) * 3);
+            
+            for (let t = 0; t <= maxTime; t += 0.1) {
+                const x = 50 + (t / maxTime) * (mvtCanvas.width - 100);
+                const gain = patchQuality * (1 - Math.exp(-t/3)); // Diminishing returns
+                const y = mvtCanvas.height - 50 - (gain / 10) * (mvtCanvas.height - 100);
+                
+                if (t === 0) {
+                    mvtCtx.moveTo(x, y);
+                } else {
+                    mvtCtx.lineTo(x, y);
+                }
+            }
+            mvtCtx.stroke();
+            
+            // Calculate expected return rate
+            const totalTime = optimalTime + travelTime;
+            const gainAtOptimal = patchQuality * (1 - Math.exp(-optimalTime/3));
+            const expectedReturnRate = gainAtOptimal / totalTime;
+            
+            // Draw travel time line (showing slope = expected return rate)
+            mvtCtx.strokeStyle = '#1a3d20';
+            mvtCtx.lineWidth = 2;
+            mvtCtx.setLineDash([5, 5]);
+            mvtCtx.beginPath();
+            mvtCtx.moveTo(50 - (travelTime / maxTime) * (mvtCanvas.width - 100), mvtCanvas.height - 50);
+            mvtCtx.lineTo(50 + (optimalTime / maxTime) * (mvtCanvas.width - 100), 
+                         mvtCanvas.height - 50 - (gainAtOptimal / 10) * (mvtCanvas.height - 100));
+            mvtCtx.stroke();
+            mvtCtx.setLineDash([]);
+            
+            // Draw tangent line at optimal point (marginal value)
+            const marginalValue = (patchQuality / 3) * Math.exp(-optimalTime/3);
+            mvtCtx.strokeStyle = '#e74c3c';
+            mvtCtx.lineWidth = 2;
+            mvtCtx.beginPath();
+            const optimalX = 50 + (optimalTime / maxTime) * (mvtCanvas.width - 100);
+            const optimalY = mvtCanvas.height - 50 - (gainAtOptimal / 10) * (mvtCanvas.height - 100);
+            const tangentLength = 80;
+            mvtCtx.moveTo(optimalX - tangentLength/2, optimalY + (marginalValue * tangentLength/2) * (mvtCanvas.height - 100) / 10);
+            mvtCtx.lineTo(optimalX + tangentLength/2, optimalY - (marginalValue * tangentLength/2) * (mvtCanvas.height - 100) / 10);
+            mvtCtx.stroke();
+            
+            // Mark optimal leaving time
+            mvtCtx.fillStyle = '#2c5530';
+            mvtCtx.beginPath();
+            mvtCtx.arc(optimalX, optimalY, 6, 0, 2 * Math.PI);
+            mvtCtx.fill();
+            
+            mvtCtx.fillStyle = '#2c5530';
+            mvtCtx.font = '12px Arial';
+            mvtCtx.fillText('Optimal leaving time', optimalX + 10, optimalY - 10);
+            
+            // Show reasoning
+            const reasoningDiv = document.getElementById('mvtReasoning');
+            const reasoningText = document.getElementById('mvtReasoningText');
+            
+            reasoningText.innerHTML = `
+                <strong>Optimal leaving time:</strong> ${optimalTime.toFixed(1)} time units<br>
+                <strong>Expected return rate:</strong> ${expectedReturnRate.toFixed(2)} energy/time<br>
+                <strong>Marginal value at departure:</strong> ${marginalValue.toFixed(2)} energy/time<br><br>
+                
+                <strong>Why leave now?</strong><br>
+                • The <span style="color: #e74c3c; font-weight: bold;">red tangent line</span> shows the instantaneous rate of energy gain at this moment<br>
+                • The <span style="color: #1a3d20; font-weight: bold;">dashed line</span> shows the overall return rate including travel time<br>
+                • When these slopes are equal, it's optimal to leave<br>
+                • Staying longer would give diminishing returns below the environmental average<br>
+                • Leaving earlier would waste the patch's remaining high-value resources
+            `;
+            reasoningDiv.style.display = 'block';
+        }
+
+        function plotFunctionalResponse() {
+            if (!frCtx) return;
+            
+            const a = parseFloat(document.getElementById('attackCoeff').value);
+            const h = parseFloat(document.getElementById('handlingTime').value);
+            const type = parseInt(document.getElementById('responseType').value);
+            
+            frCtx.clearRect(0, 0, functionalResponseCanvas.width, functionalResponseCanvas.height);
+            
+            // Draw axes
+            frCtx.strokeStyle = '#2c5530';
+            frCtx.lineWidth = 2;
+            frCtx.beginPath();
+            frCtx.moveTo(50, functionalResponseCanvas.height - 50);
+            frCtx.lineTo(functionalResponseCanvas.width - 50, functionalResponseCanvas.height - 50);
+            frCtx.moveTo(50, 50);
+            frCtx.lineTo(50, functionalResponseCanvas.height - 50);
+            frCtx.stroke();
+            
+            // Labels
+            frCtx.fillStyle = '#2c5530';
+            frCtx.font = '14px Arial';
+            frCtx.fillText('Prey Density (N)', functionalResponseCanvas.width/2 - 50, functionalResponseCanvas.height - 10);
+            frCtx.save();
+            frCtx.translate(15, functionalResponseCanvas.height/2);
+            frCtx.rotate(-Math.PI/2);
+            frCtx.fillText('Feeding Rate', -40, 0);
+            frCtx.restore();
+            
+            // Draw functional response curve
+            frCtx.strokeStyle = '#4a7c59';
+            frCtx.lineWidth = 3;
+            frCtx.beginPath();
+            
+            const maxN = 50;
+            for (let N = 0; N <= maxN; N += 0.5) {
+                const x = 50 + (N / maxN) * (functionalResponseCanvas.width - 100);
+                let feedingRate;
+                
+                switch(type) {
+                    case 1: // Type I
+                        feedingRate = a * N;
+                        break;
+                    case 2: // Type II
+                        feedingRate = (a * N) / (1 + a * N * h);
+                        break;
+                    case 3: // Type III
+                        feedingRate = (a * N * N) / (1 + a * N * N * h);
+                        break;
+                }
+                
+                const maxRate = 20;
+                const y = functionalResponseCanvas.height - 50 - (feedingRate / maxRate) * (functionalResponseCanvas.height - 100);
+                
+                if (N === 0) {
+                    frCtx.moveTo(x, y);
+                } else {
+                    frCtx.lineTo(x, y);
+                }
+            }
+            frCtx.stroke();
+            
+            // Add asymptote for Type II
+            if (type === 2 && h > 0) {
+                const asymptote = 1 / h;
+                const asymptoteY = functionalResponseCanvas.height - 50 - (asymptote / 20) * (functionalResponseCanvas.height - 100);
+                
+                frCtx.strokeStyle = '#1a3d20';
+                frCtx.setLineDash([5, 5]);
+                frCtx.beginPath();
+                frCtx.moveTo(50, asymptoteY);
+                frCtx.lineTo(functionalResponseCanvas.width - 50, asymptoteY);
+                frCtx.stroke();
+                frCtx.setLineDash([]);
+                
+                frCtx.fillStyle = '#1a3d20';
+                frCtx.font = '12px Arial';
+                frCtx.fillText('1/h (max rate)', functionalResponseCanvas.width - 120, asymptoteY - 5);
+            }
+        }
+
+        function calculateOptimalDiet() {
+            const largeDensity = parseFloat(document.getElementById('largePrey').value);
+            const smallDensity = parseFloat(document.getElementById('smallPrey').value);
+            
+            // Prey parameters (large prey more profitable)
+            const largeEnergy = 10;
+            const largeHandling = 2;
+            const smallEnergy = 2;
+            const smallHandling = 0.5;
+            const attackRate = 0.1;
+            
+            const largeProfitability = largeEnergy / largeHandling; // 5
+            const smallProfitability = smallEnergy / smallHandling; // 4
+            
+            // Calculate return rates for different scenarios
+            const scenarios = [];
+            
+            // Scenario 1: Large prey only
+            if (largeDensity > 0) {
+                const rate1 = (attackRate * largeDensity * largeEnergy) / 
+                             (1 + attackRate * largeDensity * largeHandling);
+                scenarios.push({
+                    name: 'Large Only',
+                    rate: rate1,
+                    largePrey: true,
+                    smallPrey: false
+                });
+            }
+            
+            // Scenario 2: Small prey only
+            if (smallDensity > 0) {
+                const rate2 = (attackRate * smallDensity * smallEnergy) / 
+                             (1 + attackRate * smallDensity * smallHandling);
+                scenarios.push({
+                    name: 'Small Only',
+                    rate: rate2,
+                    largePrey: false,
+                    smallPrey: true
+                });
+            }
+            
+            // Scenario 3: Both prey types
+            if (largeDensity > 0 && smallDensity > 0) {
+                const rate3 = (attackRate * largeDensity * largeEnergy + attackRate * smallDensity * smallEnergy) / 
+                             (1 + attackRate * largeDensity * largeHandling + attackRate * smallDensity * smallHandling);
+                scenarios.push({
+                    name: 'Both Types',
+                    rate: rate3,
+                    largePrey: true,
+                    smallPrey: true
+                });
+            }
+            
+            // Scenario 4: Neither (just for completeness)
+            scenarios.push({
+                name: 'Neither',
+                rate: 0,
+                largePrey: false,
+                smallPrey: false
+            });
+            
+            // Plot the diet selection graph
+            if (preyCtx) {
+                preyCtx.clearRect(0, 0, preySelectionCanvas.width, preySelectionCanvas.height);
+                
+                // Draw axes
+                preyCtx.strokeStyle = '#2c5530';
+                preyCtx.lineWidth = 2;
+                preyCtx.beginPath();
+                preyCtx.moveTo(50, preySelectionCanvas.height - 50);
+                preyCtx.lineTo(preySelectionCanvas.width - 50, preySelectionCanvas.height - 50);
+                preyCtx.moveTo(50, 50);
+                preyCtx.lineTo(50, preySelectionCanvas.height - 50);
+                preyCtx.stroke();
+                
+                // Labels
+                preyCtx.fillStyle = '#2c5530';
+                preyCtx.font = '14px Arial';
+                preyCtx.fillText('Diet Strategy', preySelectionCanvas.width/2 - 50, preySelectionCanvas.height - 10);
+                preyCtx.save();
+                preyCtx.translate(15, preySelectionCanvas.height/2);
+                preyCtx.rotate(-Math.PI/2);
+                preyCtx.fillText('Energy Return Rate', -70, 0);
+                preyCtx.restore();
+                
+                // Draw bars for each scenario
+                const barWidth = (preySelectionCanvas.width - 100) / scenarios.length;
+                const maxRate = Math.max(...scenarios.map(s => s.rate));
+                
+                scenarios.forEach((scenario, i) => {
+                    const x = 50 + i * barWidth + barWidth * 0.1;
+                    const width = barWidth * 0.8;
+                    const height = (scenario.rate / (maxRate || 1)) * (preySelectionCanvas.height - 100);
+                    const y = preySelectionCanvas.height - 50 - height;
+                    
+                    // Color code: optimal strategy in green, others in gray
+                    const isOptimal = scenario.rate === Math.max(...scenarios.map(s => s.rate));
+                    preyCtx.fillStyle = isOptimal ? '#4a7c59' : '#bdc3c7';
+                    preyCtx.fillRect(x, y, width, height);
+                    
+                    // Add border
+                    preyCtx.strokeStyle = '#2c5530';
+                    preyCtx.lineWidth = 1;
+                    preyCtx.strokeRect(x, y, width, height);
+                    
+                    // Add labels
+                    preyCtx.fillStyle = '#2c5530';
+                    preyCtx.font = '10px Arial';
+                    preyCtx.save();
+                    preyCtx.translate(x + width/2, preySelectionCanvas.height - 30);
+                    preyCtx.rotate(-Math.PI/4);
+                    preyCtx.fillText(scenario.name, -20, 0);
+                    preyCtx.restore();
+                    
+                    // Add rate values
+                    preyCtx.fillStyle = '#2c5530';
+                    preyCtx.font = '10px Arial';
+                    preyCtx.fillText(scenario.rate.toFixed(2), x + width/2 - 10, y - 5);
+                });
+            }
+            
+            // Find optimal strategy
+            const optimal = scenarios.reduce((best, current) => 
+                current.rate > best.rate ? current : best
+            );
+            
+            const resultDiv = document.getElementById('dietResult');
+            const compositionDiv = document.getElementById('dietComposition');
+            
+            let dietText = `<strong>Optimal Diet:</strong> ${optimal.name}<br>`;
+            dietText += `<strong>Predicted return rate:</strong> ${optimal.rate.toFixed(2)} energy/time<br>`;
+            
+            if (optimal.name === 'Large Only') {
+                dietText += '<strong>Reasoning:</strong> Large prey so profitable that including small prey reduces overall return rate';
+            } else if (optimal.name === 'Both Types') {
+                dietText += '<strong>Reasoning:</strong> Large prey not common enough to ignore small prey';
+            } else if (optimal.name === 'Small Only') {
+                dietText += '<strong>Reasoning:</strong> Only small prey available, or large prey too rare';
+            }
+            
+            compositionDiv.innerHTML = dietText;
+            resultDiv.style.display = 'block';
+        }
+
+        function simulateHabitatChoice() {
+            const animationContainer = document.getElementById('riskAnimation');
+            const forager = document.getElementById('forager');
+            const resultsDiv = document.getElementById('riskResults');
+            
+            // Clear existing patches
+            const existingPatches = animationContainer.querySelectorAll('.patch');
+            existingPatches.forEach(patch => patch.remove());
+            
+            // Create habitat patches
+            const openWater = document.createElement('div');
+            openWater.className = 'patch';
+            openWater.style.left = '200px';
+            openWater.style.top = '50px';
+            openWater.style.width = '80px';
+            openWater.style.height = '80px';
+            openWater.style.backgroundColor = '#e8f5e8';
+            openWater.textContent = 'Open Water';
+            openWater.style.fontSize = '10px';
+            
+            const vegetation = document.createElement('div');
+            vegetation.className = 'patch';
+            vegetation.style.left = '200px';
+            vegetation.style.top = '150px';
+            vegetation.style.width = '80px';
+            vegetation.style.height = '80px';
+            vegetation.style.backgroundColor = '#f0f8f0';
+            vegetation.textContent = 'Vegetation';
+            vegetation.style.fontSize = '10px';
+            
+            animationContainer.appendChild(openWater);
+            animationContainer.appendChild(vegetation);
+            
+            // Simulate forager movement based on size
+            const size = Math.random() * 10 + 1; // Random size 1-10
+            let chosenHabitat, reasoning;
+            
+            if (size < 5) {
+                // Small forager - choose vegetation (safety)
+                forager.style.left = '240px';
+                forager.style.top = '190px';
+                chosenHabitat = 'Vegetation';
+                reasoning = 'Small size = high predation risk. Chose safe vegetation despite lower food quality.';
+            } else {
+                // Large forager - choose open water (profit)
+                forager.style.left = '240px';
+                forager.style.top = '90px';
+                chosenHabitat = 'Open Water';
+                reasoning = 'Large size = low predation risk. Chose profitable open water habitat.';
+            }
+            
+            resultsDiv.innerHTML = `
+                <strong>Forager Size:</strong> ${size.toFixed(1)}<br>
+                <strong>Habitat Chosen:</strong> ${chosenHabitat}<br>
+                <strong>Reasoning:</strong> ${reasoning}
+            `;
+            resultsDiv.style.display = 'block';
+        }
+
+        function resetRiskSimulation() {
+            const forager = document.getElementById('forager');
+            const animationContainer = document.getElementById('riskAnimation');
+            const resultsDiv = document.getElementById('riskResults');
+            
+            forager.style.left = '50px';
+            forager.style.top = '50px';
+            
+            const patches = animationContainer.querySelectorAll('.patch');
+            patches.forEach(patch => patch.remove());
+            
+            resultsDiv.style.display = 'none';
+        }
+
+        function predictHabitatUse() {
+            const size = parseFloat(document.getElementById('individualSize').value);
+            const predatorDensity = parseFloat(document.getElementById('predatorDensity').value);
+            
+            // Calculate μ/g for each habitat
+            const openWaterGrowth = 8 - size * 0.2; // High growth, decreases with size
+            const openWaterRisk = 5 + predatorDensity - size * 0.3; // High risk, decreases with size
+            
+            const vegetationGrowth = 3 - size * 0.1; // Low growth
+            const vegetationRisk = 1 + predatorDensity * 0.2; // Low risk
+            
+            const openWaterRatio = Math.max(0.1, openWaterRisk / Math.max(0.1, openWaterGrowth));
+            const vegetationRatio = vegetationRisk / Math.max(0.1, vegetationGrowth);
+            
+            const resultDiv = document.getElementById('habitatResult');
+            let prediction;
+            
+            if (openWaterRatio < vegetationRatio) {
+                prediction = `<strong>Predicted Choice:</strong> Open Water<br>
+                             <strong>μ/g ratio:</strong> ${openWaterRatio.toFixed(2)} vs ${vegetationRatio.toFixed(2)}<br>
+                             <strong>Reasoning:</strong> Lower risk-to-growth ratio in open water`;
+            } else {
+                prediction = `<strong>Predicted Choice:</strong> Vegetation<br>
+                             <strong>μ/g ratio:</strong> ${vegetationRatio.toFixed(2)} vs ${openWaterRatio.toFixed(2)}<br>
+                             <strong>Reasoning:</strong> Lower risk-to-growth ratio in vegetation`;
+            }
+            
+            resultDiv.innerHTML = prediction;
+            resultDiv.style.display = 'block';
+        }
+
+        function runPopulationModel() {
+            if (!popCtx) return;
+            
+            const initialJuveniles = parseFloat(document.getElementById('initialJuveniles').value);
+            const initialAdults = parseFloat(document.getElementById('initialAdults').value);
+            const reproductionRate = parseFloat(document.getElementById('reproductionRate').value);
+            const competitionStrength = parseFloat(document.getElementById('competitionStrength').value);
+            
+            popCtx.clearRect(0, 0, populationCanvas.width, populationCanvas.height);
+            
+            // Draw axes
+            popCtx.strokeStyle = '#2c5530';
+            popCtx.lineWidth = 2;
+            popCtx.beginPath();
+            popCtx.moveTo(50, populationCanvas.height - 50);
+            popCtx.lineTo(populationCanvas.width - 50, populationCanvas.height - 50);
+            popCtx.moveTo(50, 50);
+            popCtx.lineTo(50, populationCanvas.height - 50);
+            popCtx.stroke();
+            
+            // Labels
+            popCtx.fillStyle = '#2c5530';
+            popCtx.font = '14px Arial';
+            popCtx.fillText('Time', populationCanvas.width/2 - 20, populationCanvas.height - 10);
+            popCtx.save();
+            popCtx.translate(15, populationCanvas.height/2);
+            popCtx.rotate(-Math.PI/2);
+            popCtx.fillText('Population Density', -60, 0);
+            popCtx.restore();
+            
+            // Simulate population dynamics
+            const timeSteps = 100;
+            let juveniles = initialJuveniles;
+            let adults = initialAdults;
+            
+            const juvenileData = [];
+            const adultData = [];
+            
+            // Collect data first
+            for (let t = 0; t < timeSteps; t++) {
+                juvenileData.push(juveniles);
+                adultData.push(adults);
+                
+                // Update population (parameterized dynamics)
+                const recruitment = adults * reproductionRate;
+                const carryingCapacity = 100;
+                const totalDensity = juveniles + adults;
+                const densityEffect = 1 - (totalDensity / carryingCapacity);
+                
+                const juvenileGrowth = juveniles * 0.1 * Math.max(0, densityEffect) * (1 - competitionStrength * adults / carryingCapacity);
+                const juvenileMortality = juveniles * 0.15;
+                const maturation = juveniles * 0.08;
+                const adultMortality = adults * 0.05;
+                
+                juveniles = Math.max(0, juveniles + recruitment - juvenileGrowth - juvenileMortality - maturation);
+                adults = Math.max(0, adults + maturation - adultMortality);
+            }
+            
+            // Draw juvenile line
+            popCtx.strokeStyle = '#4a7c59';
+            popCtx.lineWidth = 3;
+            popCtx.beginPath();
+            
+            const maxPop = Math.max(...juvenileData, ...adultData);
+            
+            for (let t = 0; t < timeSteps; t++) {
+                const x = 50 + (t / timeSteps) * (populationCanvas.width - 100);
+                const y = populationCanvas.height - 50 - (juvenileData[t] / (maxPop || 1)) * (populationCanvas.height - 100);
+                
+                if (t === 0) {
+                    popCtx.moveTo(x, y);
+                } else {
+                    popCtx.lineTo(x, y);
+                }
+            }
+            popCtx.stroke();
+            
+            // Draw adult line
+            popCtx.strokeStyle = '#1a3d20';
+            popCtx.lineWidth = 3;
+            popCtx.beginPath();
+            
+            for (let t = 0; t < timeSteps; t++) {
+                const x = 50 + (t / timeSteps) * (populationCanvas.width - 100);
+                const y = populationCanvas.height - 50 - (adultData[t] / (maxPop || 1)) * (populationCanvas.height - 100);
+                
+                if (t === 0) {
+                    popCtx.moveTo(x, y);
+                } else {
+                    popCtx.lineTo(x, y);
+                }
+            }
+            popCtx.stroke();
+            
+            // Legend
+            popCtx.fillStyle = '#4a7c59';
+            popCtx.fillRect(populationCanvas.width - 150, 70, 20, 3);
+            popCtx.fillStyle = '#2c5530';
+            popCtx.font = '12px Arial';
+            popCtx.fillText('Juveniles', populationCanvas.width - 120, 75);
+            
+            popCtx.fillStyle = '#1a3d20';
+            popCtx.fillRect(populationCanvas.width - 150, 90, 20, 3);
+            popCtx.fillText('Adults', populationCanvas.width - 120, 95);
+            
+            // Add final population values
+            popCtx.fillStyle = '#2c5530';
+            popCtx.font = '10px Arial';
+            popCtx.fillText(`Final Juveniles: ${juvenileData[timeSteps-1].toFixed(1)}`, populationCanvas.width - 150, 110);
+            popCtx.fillText(`Final Adults: ${adultData[timeSteps-1].toFixed(1)}`, populationCanvas.width - 150, 125);
+        }
+
+        function resetPopulation() {
+            if (popCtx) {
+                popCtx.clearRect(0, 0, populationCanvas.width, populationCanvas.height);
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            [mvtCanvas, functionalResponseCanvas, populationCanvas, preySelectionCanvas].forEach(canvas => {
+                if (canvas) {
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                }
+            });
+            
+            // Redraw graphs
+            runMVTSimulation();
+            plotFunctionalResponse();
+            calculateOptimalDiet();
+        });
+    </script>
+</body>
+</html>
