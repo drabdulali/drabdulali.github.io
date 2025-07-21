@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population and Community Ecology</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            margin: 3rem 0;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--medium-green);
+        }
+
+        .section h2 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 0.5rem;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid var(--medium-green);
+        }
+
+        .concept-card h3 {
+            color: var(--dark-green);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .equation {
+            background: var(--very-dark-green);
+            color: var(--white);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .matrix {
+            display: inline-block;
+            border-left: 2px solid var(--white);
+            border-right: 2px solid var(--white);
+            padding: 0.5rem;
+            margin: 0.5rem;
+        }
+
+        .simulation-container {
+            background: var(--white);
+            border: 2px solid var(--medium-green);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: var(--dark-green);
+            font-size: 0.9rem;
+        }
+
+        input[type="range"], input[type="number"] {
+            padding: 0.5rem;
+            border: 1px solid var(--medium-green);
+            border-radius: 4px;
+            background: var(--light-green-2);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--medium-green), var(--dark-green));
+            color: var(--white);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 1rem 0;
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .matrix-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.5rem;
+            background: var(--light-green-1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 2px solid var(--medium-green);
+        }
+
+        .matrix-cell {
+            background: var(--white);
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: 4px;
+            font-weight: bold;
+            color: var(--dark-green);
+            border: 1px solid var(--medium-green);
+        }
+
+        .lifecycle-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .life-stage {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--medium-green), var(--dark-green));
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--medium-green);
+            font-weight: bold;
+        }
+
+        .results-display {
+            background: linear-gradient(135deg, var(--light-green-2), var(--light-green-1));
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid var(--medium-green);
+        }
+
+        .results-display h4 {
+            color: var(--dark-green);
+            margin-bottom: 1rem;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin: 0.25rem;
+            border: 1px solid var(--medium-green);
+            font-weight: bold;
+        }
+
+        .turtle-context {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            border: 2px solid var(--medium-green);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .navigation {
+            position: sticky;
+            top: 0;
+            background: var(--very-dark-green);
+            padding: 1rem 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links button {
+            color: var(--white);
+            background: transparent;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .nav-links button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .lifecycle-diagram {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Population and Community Ecology</h1>
+            <p>Interactive Guide to Age-Structured and Stage-Structured Population Models</p>
+        </div>
+    </div>
+
+    <nav class="navigation">
+        <div class="container">
+            <div class="nav-links">
+                <button onclick="scrollToSection('fundamentals')">Fundamentals</button>
+                <button onclick="scrollToSection('matrix-models')">Matrix Models</button>
+                <button onclick="scrollToSection('dynamics')">Population Dynamics</button>
+                <button onclick="scrollToSection('properties')">Population Properties</button>
+                <button onclick="scrollToSection('simulations')">Simulations</button>
+                <button onclick="scrollToSection('applications')">Applications</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section id="fundamentals" class="section">
+            <h2>Fundamental Concepts</h2>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Age-Structured Populations</h3>
+                    <p>Populations divided by chronological age classes where individuals automatically advance to the next age class each time step.</p>
+                    <div class="lifecycle-diagram">
+                        <div class="life-stage">Age 0</div>
+                        <div class="arrow">→</div>
+                        <div class="life-stage">Age 1</div>
+                        <div class="arrow">→</div>
+                        <div class="life-stage">Age 2</div>
+                        <div class="arrow">→</div>
+                        <div class="life-stage">Age 3</div>
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>Stage-Structured Populations</h3>
+                    <p>Populations divided by developmental stages, size classes, or other biological characteristics where individuals may remain in stages or skip stages.</p>
+                    <div class="lifecycle-diagram">
+                        <div class="life-stage">Stage 1</div>
+                        <div class="arrow">→</div>
+                        <div class="life-stage">Stage 2</div>
+                        <div class="arrow">→</div>
+                        <div class="life-stage">Stage 3</div>
+                        <div class="arrow">→</div>
+                        <div class="life-stage">Stage 4</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="matrix-models" class="section">
+            <h2>Matrix Population Models</h2>
+            
+            <div class="concept-card">
+                <h3>The Core Equation</h3>
+                <p>All matrix population models follow the fundamental equation:</p>
+                <div class="equation">
+                    n<sub>t+1</sub> = A × n<sub>t</sub>
+                </div>
+                <p>Where:</p>
+                <ul style="margin-top: 1rem;">
+                    <li><strong>n<sub>t</sub></strong> = vector of abundances at time t</li>
+                    <li><strong>A</strong> = projection matrix (transitions and reproduction)</li>
+                    <li><strong>n<sub>t+1</sub></strong> = vector of abundances at time t+1</li>
+                </ul>
+            </div>
+
+            <div class="concept-card">
+                <h3>Example Projection Matrix</h3>
+                <p>For a 3-stage population with survival probabilities (P) and fecundities (F):</p>
+                <div class="equation">
+                    A = <span class="matrix">
+                        <table style="color: white; border-collapse: separate; border-spacing: 10px;">
+                            <tr><td>0</td><td>F₂</td><td>F₃</td></tr>
+                            <tr><td>P₁</td><td>0</td><td>0</td></tr>
+                            <tr><td>0</td><td>P₂</td><td>0</td></tr>
+                        </table>
+                    </span>
+                </div>
+                <p>The first row contains fecundities (reproduction), sub-diagonal contains survival probabilities.</p>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Interactive Matrix Builder</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Matrix Size:</label>
+                        <select id="matrixSize">
+                            <option value="3">3×3</option>
+                            <option value="4">4×4</option>
+                        </select>
+                    </div>
+                    <button onclick="generateRandomMatrix()">Random Matrix</button>
+                    <button onclick="calculateEigenvalues()">Calculate λ</button>
+                </div>
+                
+                <div id="matrixDisplay" class="matrix-display"></div>
+                
+                <div class="results-display">
+                    <h4>Matrix Properties:</h4>
+                    <div id="eigenResults"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="dynamics" class="section">
+            <h2>Population Dynamics</h2>
+            
+            <div class="concept-card">
+                <h3>Growth Rate (λ)</h3>
+                <p>The dominant eigenvalue of matrix A determines population growth:</p>
+                <div class="equation">
+                    λ = N<sub>t+1</sub> / N<sub>t</sub>
+                </div>
+                <ul style="margin-top: 1rem;">
+                    <li><strong>λ > 1:</strong> Population growing</li>
+                    <li><strong>λ = 1:</strong> Population stable</li>
+                    <li><strong>λ < 1:</strong> Population declining</li>
+                </ul>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Population Growth Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Initial Population Size:</label>
+                        <input type="number" id="initialPop" value="100" min="1">
+                    </div>
+                    <div class="control-group">
+                        <label>Growth Rate (λ):</label>
+                        <input type="range" id="growthRate" min="0.5" max="2" step="0.1" value="1.17">
+                        <span id="growthRateValue">1.17</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Time Steps:</label>
+                        <input type="number" id="timeSteps" value="25" min="5" max="50">
+                    </div>
+                    <button onclick="runGrowthSimulation()">Run Simulation</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="properties" class="section">
+            <h2>Population Properties</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Stable Age Distribution (SAD)</h3>
+                    <p>The right eigenvector of A gives the stable proportions of each age class when the population reaches equilibrium growth.</p>
+                    <div class="equation">
+                        A × w = λ × w
+                    </div>
+                    <p>Where w is the stable age distribution vector.</p>
+                </div>
+                
+                <div class="concept-card">
+                    <h3>Reproductive Value</h3>
+                    <p>The left eigenvector of A gives the reproductive value - the expected future reproductive contribution of an individual in each stage.</p>
+                    <div class="equation">
+                        v × A = λ × v
+                    </div>
+                    <p>Reproductive value typically increases from birth to reproductive maturity.</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Survivorship Schedules</h3>
+                <p>Two key measures of survival:</p>
+                <ul style="margin-top: 1rem;">
+                    <li><strong>p(x):</strong> Probability of surviving from age x to x+1</li>
+                    <li><strong>l(x):</strong> Probability of surviving from birth to age x</li>
+                </ul>
+                <div class="equation">
+                    l(x) = p(0) × p(1) × ... × p(x-1)
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Survivorship Curve Types</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Curve Type:</label>
+                        <select id="survivalType" onchange="updateSurvivalCurve()">
+                            <option value="type1">Type I (Low early mortality)</option>
+                            <option value="type2">Type II (Constant mortality)</option>
+                            <option value="type3">Type III (High early mortality)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="survivalChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="simulations" class="section">
+            <h2>Interactive Simulations</h2>
+            
+            <div class="simulation-container">
+                <h3>Complete Population Model</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Juvenile Survival:</label>
+                        <input type="range" id="juvenileSurvival" min="0.1" max="1" step="0.1" value="0.6">
+                        <span id="juvenileSurvivalValue">0.6</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Adult Survival:</label>
+                        <input type="range" id="adultSurvival" min="0.1" max="1" step="0.1" value="0.5">
+                        <span id="adultSurvivalValue">0.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Adult Fecundity:</label>
+                        <input type="range" id="adultFecundity" min="0" max="5" step="0.5" value="1">
+                        <span id="adultFecundityValue">1</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Old Adult Fecundity:</label>
+                        <input type="range" id="oldFecundity" min="0" max="5" step="0.5" value="3">
+                        <span id="oldFecundityValue">3</span>
+                    </div>
+                    <button onclick="runCompleteSimulation()">Run Complete Model</button>
+                </div>
+                
+                <div id="currentMatrix" class="results-display"></div>
+                
+                <div class="chart-container">
+                    <canvas id="populationChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="proportionChart"></canvas>
+                </div>
+                
+                <div class="results-display">
+                    <h4>Population Properties:</h4>
+                    <div id="populationProperties"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="applications" class="section">
+            <h2>Real-World Applications</h2>
+            
+            <div class="turtle-context">
+                <h3>Sea Turtle Conservation Example</h3>
+                <p>Sea turtles represent an excellent example of stage-structured populations with distinct life phases:</p>
+                <div class="lifecycle-diagram">
+                    <div class="life-stage">Eggs</div>
+                    <div class="arrow">→</div>
+                    <div class="life-stage">Juveniles</div>
+                    <div class="arrow">→</div>
+                    <div class="life-stage">Sub-adults</div>
+                    <div class="arrow">→</div>
+                    <div class="life-stage">Adults</div>
+                </div>
+                
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>Conservation Challenges</h3>
+                        <ul>
+                            <li>High egg and hatchling mortality</li>
+                            <li>Long juvenile period in open ocean</li>
+                            <li>Late sexual maturity (15-30 years)</li>
+                            <li>Adult breeding site fidelity</li>
+                        </ul>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Management Applications</h3>
+                        <ul>
+                            <li>Beach protection for nesting</li>
+                            <li>Fishing gear modifications</li>
+                            <li>Critical habitat identification</li>
+                            <li>Population viability assessment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Data Collection Methods</h3>
+                <div class="concept-grid">
+                    <div style="background: var(--white); padding: 1rem; border-radius: 8px; border: 1px solid var(--medium-green);">
+                        <h4>Static Method</h4>
+                        <p>Count individuals in each age class at one time point. Assumes all cohorts started with same size.</p>
+                        <div class="equation">
+                            l(x) = n(x,t) / n(0,t)
+                        </div>
+                    </div>
+                    <div style="background: var(--white); padding: 1rem; border-radius: 8px; border: 1px solid var(--medium-green);">
+                        <h4>Cohort Method</h4>
+                        <p>Follow specific cohorts through time to measure actual survival rates.</p>
+                        <div class="equation">
+                            l(x) = n(x,t+x) / n(0,t)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Advanced Topics</h2>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Sensitivity Analysis</h3>
+                    <p>How changes in matrix elements affect λ</p>
+                    <div class="equation">
+                        S<sub>ij</sub> = ∂λ/∂a<sub>ij</sub> = v<sub>i</sub>w<sub>j</sub> / ⟨v,w⟩
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>Elasticity Analysis</h3>
+                    <p>Proportional sensitivity - which parameters have the greatest relative impact</p>
+                    <div class="equation">
+                        E<sub>ij</sub> = (a<sub>ij</sub>/λ) × S<sub>ij</sub>
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>Density Dependence</h3>
+                    <p>When matrix elements depend on population size</p>
+                    <div class="equation">
+                        a<sub>ij</sub>(N) = a<sub>ij</sub>⁰ × f(N)
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>Stochastic Models</h3>
+                    <p>When matrix elements vary randomly over time</p>
+                    <div class="equation">
+                        log λ<sub>s</sub> ≈ E[log λ(t)] - ½Var[log λ(t)]
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Initialize charts and simulations
+        let growthChart, survivalChart, populationChart, proportionChart;
+        
+        // Update slider values
+        document.getElementById('growthRate').addEventListener('input', function() {
+            document.getElementById('growthRateValue').textContent = this.value;
+        });
+        
+        document.getElementById('juvenileSurvival').addEventListener('input', function() {
+            document.getElementById('juvenileSurvivalValue').textContent = this.value;
+        });
+        
+        document.getElementById('adultSurvival').addEventListener('input', function() {
+            document.getElementById('adultSurvivalValue').textContent = this.value;
+        });
+        
+        document.getElementById('adultFecundity').addEventListener('input', function() {
+            document.getElementById('adultFecundityValue').textContent = this.value;
+        });
+        
+        document.getElementById('oldFecundity').addEventListener('input', function() {
+            document.getElementById('oldFecundityValue').textContent = this.value;
+        });
+        
+        function generateRandomMatrix() {
+            const size = parseInt(document.getElementById('matrixSize').value);
+            const container = document.getElementById('matrixDisplay');
+            container.innerHTML = '';
+            container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            
+            const matrix = [];
+            
+            for (let i = 0; i < size; i++) {
+                matrix[i] = [];
+                for (let j = 0; j < size; j++) {
+                    let value = 0;
+                    if (i === 0) {
+                        // Fecundity row
+                        if (j >= 1) value = Math.random() * 3;
+                    } else if (j === i - 1) {
+                        // Survival probability
+                        value = 0.3 + Math.random() * 0.6;
+                    }
+                    matrix[i][j] = value;
+                    
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell';
+                    cell.innerHTML = `<input type="number" step="0.1" value="${value.toFixed(2)}" 
+                                     onchange="updateMatrixValue(${i}, ${j}, this.value)" 
+                                     style="width: 100%; border: none; background: transparent; text-align: center;">`;
+                    container.appendChild(cell);
+                }
+            }
+            
+            window.currentMatrix = matrix;
+        }
+        
+        function updateMatrixValue(i, j, value) {
+            if (window.currentMatrix) {
+                window.currentMatrix[i][j] = parseFloat(value);
+            }
+        }
+        
+        function calculateEigenvalues() {
+            if (!window.currentMatrix) {
+                alert('Please generate a matrix first');
+                return;
+            }
+            
+            try {
+                const eigenResult = math.eigs(window.currentMatrix);
+                const lambda = Math.max(...eigenResult.values.map(v => typeof v === 'object' ? v.re : v));
+                
+                document.getElementById('eigenResults').innerHTML = `
+                    <div class="value-display">λ (Growth Rate): ${lambda.toFixed(4)}</div>
+                    <div class="value-display">Population ${lambda > 1 ? 'Growing' : lambda < 1 ? 'Declining' : 'Stable'}</div>
+                `;
+            } catch (error) {
+                document.getElementById('eigenResults').innerHTML = `
+                    <div class="value-display">Error calculating eigenvalues: ${error.message}</div>
+                `;
+            }
+        }
+        
+        function runGrowthSimulation() {
+            const initialPop = parseInt(document.getElementById('initialPop').value);
+            const lambda = parseFloat(document.getElementById('growthRate').value);
+            const timeSteps = parseInt(document.getElementById('timeSteps').value);
+            
+            const data = [];
+            const labels = [];
+            let currentPop = initialPop;
+            
+            for (let t = 0; t <= timeSteps; t++) {
+                labels.push(t);
+                data.push(currentPop);
+                currentPop *= lambda;
+            }
+            
+            if (growthChart) {
+                growthChart.destroy();
+            }
+            
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Population Size',
+                        data: data,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Population Growth (λ = ${lambda})`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            type: lambda > 1.5 ? 'logarithmic' : 'linear'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateSurvivalCurve() {
+            const type = document.getElementById('survivalType').value;
+            const ages = Array.from({length: 11}, (_, i) => i);
+            let survival = [];
+            
+            switch(type) {
+                case 'type1':
+                    // Low early mortality, high late mortality
+                    survival = ages.map(age => age < 8 ? 1000 * Math.exp(-0.05 * age) : 1000 * Math.exp(-0.5 * age));
+                    break;
+                case 'type2':
+                    // Constant mortality rate
+                    survival = ages.map(age => 1000 * Math.exp(-0.2 * age));
+                    break;
+                case 'type3':
+                    // High early mortality, low late mortality
+                    survival = ages.map(age => 1000 * Math.exp(-0.8 * Math.pow(age, 0.3)));
+                    break;
+            }
+            
+            if (survivalChart) {
+                survivalChart.destroy();
+            }
+            
+            const ctx = document.getElementById('survivalChart').getContext('2d');
+            survivalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ages,
+                    datasets: [{
+                        label: 'Survivors',
+                        data: survival,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Survivorship Curve - ${type.charAt(0).toUpperCase() + type.slice(1)}`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            title: {
+                                display: true,
+                                text: 'Number of Survivors'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Age'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function runCompleteSimulation() {
+            const p1 = parseFloat(document.getElementById('juvenileSurvival').value);
+            const p2 = parseFloat(document.getElementById('adultSurvival').value);
+            const f2 = parseFloat(document.getElementById('adultFecundity').value);
+            const f3 = parseFloat(document.getElementById('oldFecundity').value);
+            
+            // Create the projection matrix
+            const A = [
+                [0, f2, f3],
+                [p1, 0, 0],
+                [0, p2, 0]
+            ];
+            
+            // Display current matrix
+            document.getElementById('currentMatrix').innerHTML = `
+                <h4>Current Projection Matrix:</h4>
+                <div class="equation">
+                    A = <span class="matrix">
+                        <table style="color: white; border-collapse: separate; border-spacing: 15px;">
+                            <tr><td>0</td><td>${f2}</td><td>${f3}</td></tr>
+                            <tr><td>${p1}</td><td>0</td><td>0</td></tr>
+                            <tr><td>0</td><td>${p2}</td><td>0</td></tr>
+                        </table>
+                    </span>
+                </div>
+            `;
+            
+            // Calculate eigenvalues and eigenvectors
+            let lambda, stableAgeDistribution, reproductiveValue;
+            try {
+                const eigenResult = math.eigs(A);
+                lambda = Math.max(...eigenResult.values.map(v => typeof v === 'object' ? v.re : v));
+                
+                // Find the eigenvector corresponding to the largest eigenvalue
+                const maxIndex = eigenResult.values.findIndex(v => (typeof v === 'object' ? v.re : v) === lambda);
+                stableAgeDistribution = eigenResult.vectors.map(row => typeof row[maxIndex] === 'object' ? row[maxIndex].re : row[maxIndex]);
+                
+                // Normalize to sum to 1
+                const sum = stableAgeDistribution.reduce((a, b) => a + Math.abs(b), 0);
+                stableAgeDistribution = stableAgeDistribution.map(x => Math.abs(x) / sum);
+                
+                // Calculate reproductive value (left eigenvector)
+                const AT = math.transpose(A);
+                const leftEigenResult = math.eigs(AT);
+                const leftMaxIndex = leftEigenResult.values.findIndex(v => Math.abs((typeof v === 'object' ? v.re : v) - lambda) < 0.0001);
+                reproductiveValue = leftEigenResult.vectors.map(row => typeof row[leftMaxIndex] === 'object' ? row[leftMaxIndex].re : row[leftMaxIndex]);
+                
+                // Normalize reproductive value to 1 for newborns
+                reproductiveValue = reproductiveValue.map(x => Math.abs(x) / Math.abs(reproductiveValue[0]));
+                
+            } catch (error) {
+                console.error('Error calculating eigenvalues:', error);
+                lambda = 1.0;
+                stableAgeDistribution = [0.33, 0.33, 0.34];
+                reproductiveValue = [1, 1, 1];
+            }
+            
+            // Run population simulation
+            const timeSteps = 25;
+            let n = [100, 60, 30]; // Initial population
+            const populationData = {
+                total: [],
+                stage1: [],
+                stage2: [],
+                stage3: [],
+                labels: []
+            };
+            
+            const proportionData = {
+                prop1: [],
+                prop2: [],
+                prop3: [],
+                labels: []
+            };
+            
+            for (let t = 0; t <= timeSteps; t++) {
+                const total = n.reduce((a, b) => a + b, 0);
+                
+                populationData.total.push(total);
+                populationData.stage1.push(n[0]);
+                populationData.stage2.push(n[1]);
+                populationData.stage3.push(n[2]);
+                populationData.labels.push(t);
+                
+                proportionData.prop1.push(n[0] / total);
+                proportionData.prop2.push(n[1] / total);
+                proportionData.prop3.push(n[2] / total);
+                proportionData.labels.push(t);
+                
+                // Project to next time step
+                if (t < timeSteps) {
+                    const newN = [
+                        A[0][0] * n[0] + A[0][1] * n[1] + A[0][2] * n[2],
+                        A[1][0] * n[0] + A[1][1] * n[1] + A[1][2] * n[2],
+                        A[2][0] * n[0] + A[2][1] * n[1] + A[2][2] * n[2]
+                    ];
+                    n = newN;
+                }
+            }
+            
+            // Create population chart
+            if (populationChart) {
+                populationChart.destroy();
+            }
+            
+            const ctx1 = document.getElementById('populationChart').getContext('2d');
+            populationChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: populationData.labels,
+                    datasets: [
+                        {
+                            label: 'Total Population',
+                            data: populationData.total,
+                            borderColor: '#2c5530',
+                            backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Stage 1 (Juveniles)',
+                            data: populationData.stage1,
+                            borderColor: '#4a7c59',
+                            backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Stage 2 (Adults)',
+                            data: populationData.stage2,
+                            borderColor: '#1a3d20',
+                            backgroundColor: 'rgba(26, 61, 32, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Stage 3 (Old Adults)',
+                            data: populationData.stage3,
+                            borderColor: '#666666',
+                            backgroundColor: 'rgba(102, 102, 102, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Population Dynamics Over Time'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Abundance'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (years)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Create proportion chart
+            if (proportionChart) {
+                proportionChart.destroy();
+            }
+            
+            const ctx2 = document.getElementById('proportionChart').getContext('2d');
+            proportionChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: proportionData.labels,
+                    datasets: [
+                        {
+                            label: 'Proportion Stage 1',
+                            data: proportionData.prop1,
+                            borderColor: '#4a7c59',
+                            backgroundColor: 'rgba(74, 124, 89, 0.2)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Proportion Stage 2',
+                            data: proportionData.prop2,
+                            borderColor: '#2c5530',
+                            backgroundColor: 'rgba(44, 85, 48, 0.2)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Proportion Stage 3',
+                            data: proportionData.prop3,
+                            borderColor: '#1a3d20',
+                            backgroundColor: 'rgba(26, 61, 32, 0.2)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Stage Proportions (Approach to Stable Age Distribution)'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: {
+                                display: true,
+                                text: 'Proportion'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (years)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Display population properties
+            document.getElementById('populationProperties').innerHTML = `
+                <div class="value-display">Growth Rate (λ): ${lambda.toFixed(4)}</div>
+                <div class="value-display">Population Status: ${lambda > 1 ? 'Growing' : lambda < 1 ? 'Declining' : 'Stable'}</div>
+                <div class="value-display">Annual Growth: ${((lambda - 1) * 100).toFixed(1)}%</div>
+                <div class="value-display">SAD Stage 1: ${(stableAgeDistribution[0] * 100).toFixed(1)}%</div>
+                <div class="value-display">SAD Stage 2: ${(stableAgeDistribution[1] * 100).toFixed(1)}%</div>
+                <div class="value-display">SAD Stage 3: ${(stableAgeDistribution[2] * 100).toFixed(1)}%</div>
+                <div class="value-display">Reproductive Value 1: ${reproductiveValue[0].toFixed(2)}</div>
+                <div class="value-display">Reproductive Value 2: ${reproductiveValue[1].toFixed(2)}</div>
+                <div class="value-display">Reproductive Value 3: ${reproductiveValue[2].toFixed(2)}</div>
+            `;
+        }
+        
+        // Navigation function
+        function scrollToSection(sectionId) {
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            generateRandomMatrix();
+            updateSurvivalCurve();
+            runGrowthSimulation();
+            runCompleteSimulation();
+        });
+    </script>
+</body>
+</html>
