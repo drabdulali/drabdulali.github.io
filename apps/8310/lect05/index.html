@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Ecology Concepts - Complete Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background: var(--light-gray);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 40px 0;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--white);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .concept-section {
+            background: var(--white);
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--medium-green);
+        }
+
+        .concept-section h2 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 10px;
+        }
+
+        .concept-section h3 {
+            color: var(--medium-green);
+            font-size: 1.4rem;
+            margin: 25px 0 15px 0;
+        }
+
+        .math-equation {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--medium-green);
+            text-align: center;
+        }
+
+        .equation-title {
+            color: var(--dark-green);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .simulation-container {
+            background: var(--light-gray);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 2px solid var(--light-green-1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            color: var(--dark-green);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            accent-color: var(--medium-green);
+        }
+
+        button {
+            background: var(--medium-green);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background: var(--dark-green);
+        }
+
+        .matrix-display {
+            font-family: 'Courier New', monospace;
+            background: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid var(--light-green-1);
+            overflow-x: auto;
+        }
+
+        .key-points {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .key-points h4 {
+            color: var(--dark-green);
+            margin-bottom: 10px;
+        }
+
+        .key-points ul {
+            color: var(--dark-gray);
+            margin-left: 20px;
+        }
+
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .parameter-table th {
+            background: var(--medium-green);
+            color: var(--white);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .parameter-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--light-green-1);
+        }
+
+        .parameter-table tr:hover {
+            background: var(--light-green-2);
+        }
+
+        .lifecycle-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stage {
+            background: var(--medium-green);
+            color: var(--white);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--dark-green);
+            margin: 0 10px;
+        }
+
+        .output-display {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--light-green-1);
+            font-family: monospace;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Population Ecology Concepts</h1>
+            <p class="subtitle">A Comprehensive Guide to Matrix Population Models and Conservation Applications</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Matrix Population Models -->
+        <section class="concept-section">
+            <h2>Matrix Population Models</h2>
+            <p>Matrix population models are mathematical frameworks used to project population dynamics across different life stages or age classes. These models are fundamental tools in population ecology and conservation biology.</p>
+            
+            <h3>Basic Matrix Structure</h3>
+            <div class="math-equation">
+                <div class="equation-title">Population Projection Equation</div>
+                $$\mathbf{n}_{t+1} = \mathbf{A} \mathbf{n}_t$$
+                <p style="margin-top: 10px; color: var(--medium-gray);">Where <strong>n<sub>t</sub></strong> is the population vector at time t, and <strong>A</strong> is the projection matrix</p>
+            </div>
+
+            <h3>Amphibian Life Cycle Example</h3>
+            <div class="lifecycle-diagram">
+                <div class="stage">Eggs</div>
+                <div class="arrow">→</div>
+                <div class="stage">Tadpoles</div>
+                <div class="arrow">→</div>
+                <div class="stage">Juveniles</div>
+                <div class="arrow">→</div>
+                <div class="stage">Adults</div>
+            </div>
+
+            <div class="math-equation">
+                <div class="equation-title">Two-Stage Model Matrix</div>
+                $$\mathbf{A} = \begin{pmatrix} 
+                \sigma_j(1-P) & F(A) \\
+                \sigma_j P & \sigma_a
+                \end{pmatrix}$$
+                <p style="margin-top: 10px; color: var(--medium-gray);">Where σ<sub>j</sub> = juvenile survival, P = maturation probability, F(A) = fecundity function, σ<sub>a</sub> = adult survival</p>
+            </div>
+
+            <div class="simulation-container">
+                <h4 style="color: var(--dark-green); margin-bottom: 15px;">Matrix Population Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="juvenile-survival">Juvenile Survival: <span id="juv-surv-val">0.7</span></label>
+                        <input type="range" id="juvenile-survival" min="0.1" max="0.9" step="0.1" value="0.7">
+                    </div>
+                    <div class="control-group">
+                        <label for="adult-survival">Adult Survival: <span id="adult-surv-val">0.8</span></label>
+                        <input type="range" id="adult-survival" min="0.1" max="0.9" step="0.1" value="0.8">
+                    </div>
+                    <div class="control-group">
+                        <label for="fecundity">Fecundity: <span id="fecund-val">50</span></label>
+                        <input type="range" id="fecundity" min="10" max="100" step="10" value="50">
+                    </div>
+                    <div class="control-group">
+                        <label for="maturation">Maturation Rate: <span id="mat-val">0.3</span></label>
+                        <input type="range" id="maturation" min="0.1" max="0.5" step="0.1" value="0.3">
+                    </div>
+                </div>
+                <button onclick="updateMatrixSimulation()">Update Simulation</button>
+                <div class="chart-container">
+                    <canvas id="matrixChart"></canvas>
+                </div>
+                <div class="output-display" id="matrix-output"></div>
+            </div>
+        </section>
+
+        <!-- Population Growth Rate -->
+        <section class="concept-section">
+            <h2>Population Growth Rate (λ)</h2>
+            <p>The dominant eigenvalue of the projection matrix represents the finite rate of population increase (λ). This is a key measure of population viability.</p>
+            
+            <div class="math-equation">
+                <div class="equation-title">Population Growth Interpretation</div>
+                $$\begin{align}
+                \lambda > 1 &: \text{ Population is growing} \\
+                \lambda = 1 &: \text{ Population is stable} \\
+                \lambda < 1 &: \text{ Population is declining}
+                \end{align}$$
+            </div>
+
+            <div class="math-equation">
+                <div class="equation-title">Intrinsic Growth Rate</div>
+                $$r = \ln(\lambda)$$
+                <p style="margin-top: 10px; color: var(--medium-gray);">Where r > 0 indicates growth, r = 0 indicates stability, and r < 0 indicates decline</p>
+            </div>
+
+            <div class="simulation-container">
+                <h4 style="color: var(--dark-green); margin-bottom: 15px;">Growth Rate Visualization</h4>
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Sea Turtle Example (Crouse et al.)</h4>
+                <ul>
+                    <li>Calculated λ = 0.945, indicating a declining population</li>
+                    <li>Intrinsic growth rate r = -0.0565 (5.65% annual decline)</li>
+                    <li>This matched empirical observations of loggerhead turtle declines</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Sensitivity and Elasticity -->
+        <section class="concept-section">
+            <h2>Sensitivity and Elasticity Analysis</h2>
+            <p>These analyses determine which life stages have the greatest impact on population growth rate, informing conservation priorities.</p>
+
+            <h3>Sensitivity</h3>
+            <div class="math-equation">
+                <div class="equation-title">Sensitivity Definition</div>
+                $$S_{ij} = \frac{\partial \lambda}{\partial a_{ij}}$$
+                <p style="margin-top: 10px; color: var(--medium-gray);">Absolute change in λ per unit change in matrix element a<sub>ij</sub></p>
+            </div>
+
+            <h3>Elasticity</h3>
+            <div class="math-equation">
+                <div class="equation-title">Elasticity Definition</div>
+                $$E_{ij} = \frac{a_{ij}}{\lambda} \cdot S_{ij} = \frac{\partial \ln \lambda}{\partial \ln a_{ij}}$$
+                <p style="margin-top: 10px; color: var(--medium-gray);">Proportional change in λ per proportional change in matrix element a<sub>ij</sub></p>
+            </div>
+
+            <div class="simulation-container">
+                <h4 style="color: var(--dark-green); margin-bottom: 15px;">Elasticity Patterns</h4>
+                <div class="chart-container">
+                    <canvas id="elasticityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Key Insights from Sea Turtle Study</h4>
+                <ul>
+                    <li>Largest elasticities were for juvenile and adult survival rates</li>
+                    <li>Egg survival had very low elasticity due to density dependence</li>
+                    <li>Conservation efforts should focus on reducing mortality of older life stages</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Density Dependence -->
+        <section class="concept-section">
+            <h2>Density Dependence</h2>
+            <p>Density dependence occurs when demographic rates change with population size. This is crucial for understanding population regulation and responses to environmental stressors.</p>
+
+            <h3>Tadpole Survival Function</h3>
+            <div class="math-equation">
+                <div class="equation-title">Density-Dependent Survival</div>
+                $$\sigma_t = \frac{\sigma_{t,max}}{(1 + dT)^\gamma}$$
+                <p style="margin-top: 10px; color: var(--medium-gray);">Where T = tadpole density, d = density coefficient, γ = shape parameter</p>
+            </div>
+
+            <div class="simulation-container">
+                <h4 style="color: var(--dark-green); margin-bottom: 15px;">Density Dependence Patterns</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="gamma">Shape Parameter (γ): <span id="gamma-val">1.0</span></label>
+                        <input type="range" id="gamma" min="0.5" max="2.0" step="0.1" value="1.0">
+                    </div>
+                    <div class="control-group">
+                        <label for="d-coeff">Density Coefficient (d): <span id="d-val">0.01</span></label>
+                        <input type="range" id="d-coeff" min="0.001" max="0.1" step="0.001" value="0.01">
+                    </div>
+                </div>
+                <button onclick="updateDensityChart()">Update Chart</button>
+                <div class="chart-container">
+                    <canvas id="densityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                <div class="equation-title">Compensation Types</div>
+                $$\begin{align}
+                \gamma < 1 &: \text{ Under-compensation (weak density dependence)} \\
+                \gamma = 1 &: \text{ Exact compensation} \\
+                \gamma > 1 &: \text{ Over-compensation (strong density dependence)}
+                \end{align}$$
+            </div>
+        </section>
+
+        <!-- Reproductive Value -->
+        <section class="concept-section">
+            <h2>Reproductive Value</h2>
+            <p>Reproductive value measures the expected future reproductive contribution of an individual in a particular life stage.</p>
+
+            <div class="math-equation">
+                <div class="equation-title">Reproductive Value</div>
+                $$RV_i = \frac{v_i}{v_1}$$
+                <p style="margin-top: 10px; color: var(--medium-gray);">Where v<sub>i</sub> is the i-th element of the left eigenvector corresponding to λ</p>
+            </div>
+
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Life Stage</th>
+                        <th>Reproductive Value</th>
+                        <th>Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Eggs/Hatchlings</td>
+                        <td>1</td>
+                        <td>Reference value</td>
+                    </tr>
+                    <tr>
+                        <td>Small Juveniles</td>
+                        <td>1.4</td>
+                        <td>1.4x more valuable than eggs</td>
+                    </tr>
+                    <tr>
+                        <td>Large Juveniles</td>
+                        <td>6</td>
+                        <td>6x more valuable than eggs</td>
+                    </tr>
+                    <tr>
+                        <td>Subadults</td>
+                        <td>116</td>
+                        <td>116x more valuable than eggs</td>
+                    </tr>
+                    <tr>
+                        <td>Adults</td>
+                        <td>588</td>
+                        <td>588x more valuable than eggs</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="key-points">
+                <h4>Conservation Implications</h4>
+                <ul>
+                    <li>Protecting adults is much more valuable than protecting eggs</li>
+                    <li>Each adult saved is equivalent to saving 588 eggs</li>
+                    <li>Conservation resources should be allocated accordingly</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Limitation Analysis -->
+        <section class="concept-section">
+            <h2>Limitation Analysis</h2>
+            <p>Limitation analysis examines large changes in demographic parameters to determine which interventions could shift a declining population to growth.</p>
+
+            <div class="simulation-container">
+                <h4 style="color: var(--dark-green); margin-bottom: 15px;">Conservation Scenario Analysis</h4>
+                <div class="chart-container">
+                    <canvas id="limitationChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Key Findings</h4>
+                <ul>
+                    <li>Protecting eggs alone could never achieve population recovery</li>
+                    <li>Large juvenile protection had the highest potential impact</li>
+                    <li>Adult protection was also highly effective</li>
+                    <li>Combined strategies targeting multiple life stages were most effective</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Stable Stage Distribution -->
+        <section class="concept-section">
+            <h2>Stable Stage Distribution</h2>
+            <p>The stable stage distribution represents the eventual proportional composition of the population across life stages.</p>
+
+            <div class="math-equation">
+                <div class="equation-title">Stable Stage Distribution</div>
+                $$\mathbf{w} = \frac{\text{right eigenvector of } \mathbf{A}}{\sum \text{right eigenvector}}$$
+                <p style="margin-top: 10px; color: var(--medium-gray);">Shows the long-term proportional distribution across stages</p>
+            </div>
+
+            <div class="simulation-container">
+                <h4 style="color: var(--dark-green); margin-bottom: 15px;">Stage Distribution Over Time</h4>
+                <div class="chart-container">
+                    <canvas id="stageChart"></canvas>
+                </div>
+            </div>
+
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Stage</th>
+                        <th>Stable Distribution (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Eggs/Hatchlings</td>
+                        <td>20.65</td>
+                    </tr>
+                    <tr>
+                        <td>Small Juveniles</td>
+                        <td>66.98</td>
+                    </tr>
+                    <tr>
+                        <td>Large Juveniles</td>
+                        <td>11.46</td>
+                    </tr>
+                    <tr>
+                        <td>Subadults</td>
+                        <td>0.66</td>
+                    </tr>
+                    <tr>
+                        <td>Adults</td>
+                        <td>0.25</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Conservation Applications -->
+        <section class="concept-section">
+            <h2>Conservation Applications</h2>
+            <p>Matrix population models have been successfully applied to numerous conservation problems, providing quantitative frameworks for management decisions.</p>
+
+            <h3>Sea Turtle Conservation Success</h3>
+            <div class="key-points">
+                <h4>Policy Recommendations</h4>
+                <ul>
+                    <li>Implement Turtle Excluder Devices (TEDs) on shrimp trawls</li>
+                    <li>Focus protection efforts on juvenile and adult turtles</li>
+                    <li>Reduce incidental capture in fisheries</li>
+                    <li>Protect critical foraging and nesting habitats</li>
+                </ul>
+            </div>
+
+            <h3>Amphibian Decline Analysis</h3>
+            <div class="key-points">
+                <h4>Key Insights</h4>
+                <ul>
+                    <li>UV-B effects on eggs are buffered by density dependence</li>
+                    <li>Focus should shift to threats affecting later life stages</li>
+                    <li>Habitat protection for juveniles and adults is critical</li>
+                    <li>Disease and climate impacts may be more important than UV-B</li>
+                </ul>
+            </div>
+
+            <div class="simulation-container">
+                <h4 style="color: var(--dark-green); margin-bottom: 15px;">Management Scenario Comparison</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="egg-protection">Egg Protection (%): <span id="egg-prot-val">0</span></label>
+                        <input type="range" id="egg-protection" min="0" max="50" step="5" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label for="juvenile-protection">Juvenile Protection (%): <span id="juv-prot-val">0</span></label>
+                        <input type="range" id="juvenile-protection" min="0" max="30" step="5" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label for="adult-protection">Adult Protection (%): <span id="adult-prot-val">0</span></label>
+                        <input type="range" id="adult-protection" min="0" max="20" step="2" value="0">
+                    </div>
+                </div>
+                <button onclick="updateManagementScenario()">Update Scenario</button>
+                <div class="chart-container">
+                    <canvas id="managementChart"></canvas>
+                </div>
+                <div class="output-display" id="management-output"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let matrixChart, growthChart, elasticityChart, densityChart, limitationChart, stageChart, managementChart;
+
+        // Initialize all charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMatrixChart();
+            initializeGrowthChart();
+            initializeElasticityChart();
+            initializeDensityChart();
+            initializeLimitationChart();
+            initializeStageChart();
+            initializeManagementChart();
+            updateAllDisplays();
+        });
+
+        // Matrix Population Model Chart
+        function initializeMatrixChart() {
+            const ctx = document.getElementById('matrixChart').getContext('2d');
+            matrixChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => i),
+                    datasets: [{
+                        label: 'Total Population',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Population Size'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (years)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Growth Rate Chart
+        function initializeGrowthChart() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            const lambdaValues = [0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2];
+            const colors = lambdaValues.map(l => l < 1 ? '#d32f2f' : l === 1 ? '#ff9800' : '#2e7d32');
+            
+            growthChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: lambdaValues.map(l => l.toString()),
+                    datasets: [{
+                        label: 'Population Growth Rate (λ)',
+                        data: lambdaValues,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'λ (lambda)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Elasticity Chart
+        function initializeElasticityChart() {
+            const ctx = document.getElementById('elasticityChart').getContext('2d');
+            elasticityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Egg Survival', 'Juvenile Survival', 'Adult Survival', 'Fecundity'],
+                    datasets: [{
+                        label: 'Elasticity',
+                        data: [0.05, 0.45, 0.35, 0.15],
+                        backgroundColor: ['#81c784', '#4a7c59', '#2c5530', '#66bb6a'],
+                        borderColor: ['#4caf50', '#2e7d32', '#1b5e20', '#43a047'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Elasticity Value'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Density Dependence Chart
+        function initializeDensityChart() {
+            const ctx = document.getElementById('densityChart').getContext('2d');
+            densityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Survival Probability'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Initial Tadpole Density'
+                            }
+                        }
+                    }
+                }
+            });
+            updateDensityChart();
+        }
+
+        // Limitation Analysis Chart
+        function initializeLimitationChart() {
+            const ctx = document.getElementById('limitationChart').getContext('2d');
+            limitationChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Egg Protection\n(100% survival)', 'Juvenile Protection\n(+20% survival)', 'Adult Protection\n(+15% survival)', 'Combined\nStrategy'],
+                    datasets: [{
+                        label: 'Change in λ',
+                        data: [-0.02, 0.08, 0.06, 0.12],
+                        backgroundColor: ['#ffcdd2', '#c8e6c9', '#a5d6a7', '#4a7c59'],
+                        borderColor: ['#f44336', '#4caf50', '#66bb6a', '#2c5530'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Change in λ from baseline'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const baselineLambda = 0.945;
+                                    const newLambda = baselineLambda + context.parsed.y;
+                                    return `New λ: ${newLambda.toFixed(3)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Stage Distribution Chart
+        function initializeStageChart() {
+            const ctx = document.getElementById('stageChart').getContext('2d');
+            stageChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Eggs/Hatchlings', 'Small Juveniles', 'Large Juveniles', 'Subadults', 'Adults'],
+                    datasets: [{
+                        data: [20.65, 66.98, 11.46, 0.66, 0.25],
+                        backgroundColor: ['#81c784', '#4a7c59', '#2c5530', '#1a3d20', '#66bb6a'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Management Scenario Chart
+        function initializeManagementChart() {
+            const ctx = document.getElementById('managementChart').getContext('2d');
+            managementChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 30}, (_, i) => i),
+                    datasets: [{
+                        label: 'Baseline (no protection)',
+                        data: [],
+                        borderColor: '#d32f2f',
+                        backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'With protection measures',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Relative Population Size'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years'
+                            }
+                        }
+                    }
+                }
+            });
+            updateManagementScenario();
+        }
+
+        // Update functions
+        function updateMatrixSimulation() {
+            const juvenileSurvival = parseFloat(document.getElementById('juvenile-survival').value);
+            const adultSurvival = parseFloat(document.getElementById('adult-survival').value);
+            const fecundity = parseFloat(document.getElementById('fecundity').value);
+            const maturation = parseFloat(document.getElementById('maturation').value);
+
+            // Calculate lambda (simplified)
+            const lambda = juvenileSurvival * maturation + adultSurvival;
+            
+            // Generate population trajectory
+            let population = [100]; // Initial population
+            for (let i = 1; i < 20; i++) {
+                population.push(population[i-1] * lambda);
+            }
+
+            matrixChart.data.datasets[0].data = population;
+            matrixChart.update();
+
+            // Update matrix output
+            document.getElementById('matrix-output').innerHTML = `
+                <strong>Projection Matrix A:</strong><br>
+                [${(juvenileSurvival * (1 - maturation)).toFixed(3)}, ${(fecundity * 0.01).toFixed(1)}]<br>
+                [${(juvenileSurvival * maturation).toFixed(3)}, ${adultSurvival.toFixed(3)}]<br><br>
+                <strong>λ (growth rate): ${lambda.toFixed(3)}</strong><br>
+                <strong>Population trend:</strong> ${lambda > 1 ? 'Growing' : lambda === 1 ? 'Stable' : 'Declining'}
+            `;
+        }
+
+        function updateDensityChart() {
+            const gamma = parseFloat(document.getElementById('gamma').value);
+            const d = parseFloat(document.getElementById('d-coeff').value);
+            
+            const densities = Array.from({length: 100}, (_, i) => i * 10);
+            const survival = densities.map(T => 0.8 / Math.pow(1 + d * T, gamma));
+            const totalSurvivors = densities.map((T, i) => T * survival[i]);
+
+            densityChart.data.labels = densities;
+            densityChart.data.datasets = [
+                {
+                    label: 'Proportion Surviving',
+                    data: survival,
+                    borderColor: '#4a7c59',
+                    backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Total Survivors',
+                    data: totalSurvivors,
+                    borderColor: '#2c5530',
+                    backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                    yAxisID: 'y1'
+                }
+            ];
+
+            densityChart.options.scales.y1 = {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                    display: true,
+                    text: 'Total Survivors'
+                },
+                grid: {
+                    drawOnChartArea: false,
+                }
+            };
+
+            densityChart.update();
+        }
+
+        function updateManagementScenario() {
+            const eggProtection = parseFloat(document.getElementById('egg-protection').value) / 100;
+            const juvenileProtection = parseFloat(document.getElementById('juvenile-protection').value) / 100;
+            const adultProtection = parseFloat(document.getElementById('adult-protection').value) / 100;
+
+            // Baseline declining population (λ = 0.945)
+            const baselineLambda = 0.945;
+            let baselinePopulation = [100];
+            for (let i = 1; i < 30; i++) {
+                baselinePopulation.push(baselinePopulation[i-1] * baselineLambda);
+            }
+
+            // Protected population with improved survival
+            const protectedLambda = baselineLambda + 
+                (eggProtection * 0.01) + 
+                (juvenileProtection * 0.3) + 
+                (adultProtection * 0.4);
+            
+            let protectedPopulation = [100];
+            for (let i = 1; i < 30; i++) {
+                protectedPopulation.push(protectedPopulation[i-1] * protectedLambda);
+            }
+
+            managementChart.data.datasets[0].data = baselinePopulation;
+            managementChart.data.datasets[1].data = protectedPopulation;
+            managementChart.update();
+
+            // Update output
+            document.getElementById('management-output').innerHTML = `
+                <strong>Baseline λ:</strong> ${baselineLambda.toFixed(3)} (declining)<br>
+                <strong>Protected λ:</strong> ${protectedLambda.toFixed(3)} (${protectedLambda > 1 ? 'growing' : 'declining'})<br>
+                <strong>Improvement:</strong> ${((protectedLambda - baselineLambda) * 100).toFixed(1)}%<br>
+                <strong>30-year projection:</strong> 
+                ${protectedPopulation[29] > baselinePopulation[29] ? 
+                  `${((protectedPopulation[29] / baselinePopulation[29] - 1) * 100).toFixed(0)}% better` : 
+                  'Still declining'}
+            `;
+        }
+
+        function updateAllDisplays() {
+            // Update all slider value displays
+            document.getElementById('juv-surv-val').textContent = document.getElementById('juvenile-survival').value;
+            document.getElementById('adult-surv-val').textContent = document.getElementById('adult-survival').value;
+            document.getElementById('fecund-val').textContent = document.getElementById('fecundity').value;
+            document.getElementById('mat-val').textContent = document.getElementById('maturation').value;
+            document.getElementById('gamma-val').textContent = document.getElementById('gamma').value;
+            document.getElementById('d-val').textContent = document.getElementById('d-coeff').value;
+            document.getElementById('egg-prot-val').textContent = document.getElementById('egg-protection').value;
+            document.getElementById('juv-prot-val').textContent = document.getElementById('juvenile-protection').value;
+            document.getElementById('adult-prot-val').textContent = document.getElementById('adult-protection').value;
+
+            updateMatrixSimulation();
+        }
+
+        // Event listeners for sliders
+        document.addEventListener('DOMContentLoaded', function() {
+            const sliders = ['juvenile-survival', 'adult-survival', 'fecundity', 'maturation', 'gamma', 'd-coeff', 'egg-protection', 'juvenile-protection', 'adult-protection'];
+            
+            sliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                slider.addEventListener('input', function() {
+                    updateAllDisplays();
+                    if (sliderId === 'gamma' || sliderId === 'd-coeff') {
+                        updateDensityChart();
+                    }
+                    if (sliderId.includes('protection')) {
+                        updateManagementScenario();
+                    }
+                });
+            });
+        });
+
+        // MathJax configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [[', '], ['\\(', '\\)']],
+                displayMath: [['$', '$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+</body>
+</html>
