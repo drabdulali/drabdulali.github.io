@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population and Community Ecology: Evolution Concepts</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js"></script>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .concept-card {
+            background: var(--white);
+            border-radius: 12px;
+            margin: 2rem 0;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--medium-green);
+        }
+
+        .concept-title {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 0.5rem;
+        }
+
+        .subsection {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: linear-gradient(45deg, var(--light-green-1), var(--light-green-2));
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+        }
+
+        .subsection h3 {
+            color: var(--dark-green);
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .math-equation {
+            background: var(--very-dark-green);
+            color: var(--white);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .simulation-container {
+            background: var(--light-green-2);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 2px solid var(--medium-green);
+        }
+
+        .controls {
+            margin: 1rem 0;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: var(--dark-green);
+            font-size: 0.9rem;
+        }
+
+        input[type="range"], input[type="number"] {
+            padding: 0.3rem;
+            border: 2px solid var(--medium-green);
+            border-radius: 4px;
+            background: var(--white);
+        }
+
+        button {
+            background: var(--medium-green);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--dark-green);
+        }
+
+        .chart-container {
+            margin: 1rem 0;
+            height: 400px;
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--medium-green);
+        }
+
+        .example-title {
+            color: var(--very-dark-green);
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .requirement-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .requirement-list li {
+            background: var(--white);
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            border-left: 4px solid var(--medium-green);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dominance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .dominance-table th {
+            background: var(--dark-green);
+            color: var(--white);
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .dominance-table td {
+            padding: 0.8rem;
+            text-align: center;
+            border-bottom: 1px solid var(--light-green-1);
+        }
+
+        .dominance-table tr:nth-child(even) {
+            background: var(--light-green-2);
+        }
+
+        .fitness-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .fitness-component {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--medium-green);
+            text-align: center;
+        }
+
+        .fitness-component h4 {
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .selection-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .selection-type {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--medium-green);
+            text-align: center;
+        }
+
+        .selection-type h4 {
+            color: var(--very-dark-green);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .moth-example {
+            background: linear-gradient(135deg, var(--light-green-1), var(--white));
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            border: 3px solid var(--medium-green);
+        }
+
+        .moth-morphs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .morph {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--medium-green);
+        }
+
+        .morph.dark {
+            background: var(--very-dark-green);
+            color: var(--white);
+        }
+
+        .morph.light {
+            background: var(--white);
+            color: var(--dark-gray);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Population and Community Ecology</h1>
+        <p>Evolution by Natural Selection: Concepts, Models, and Simulations</p>
+    </div>
+
+    <div class="container">
+        <!-- Evolution by Natural Selection -->
+        <div class="concept-card">
+            <h2 class="concept-title">Evolution by Natural Selection</h2>
+            
+            <div class="subsection">
+                <h3>Requirements for Natural Selection</h3>
+                <ul class="requirement-list">
+                    <li><strong>Phenotypic (trait) variation:</strong> Individuals must differ in observable characteristics</li>
+                    <li><strong>Differential survival or reproduction:</strong> Some individuals must be more successful than others</li>
+                    <li><strong>Heritability:</strong> Traits must have an additive genetic component that can be passed to offspring</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h3>Variance Components</h3>
+                <div class="math-equation">
+                    V<sub>Phenotypic</sub> = V<sub>Genetic</sub> + V<sub>Environment</sub> + 2Cov(G,E)
+                </div>
+                <div class="math-equation">
+                    V<sub>Genetic</sub> = V<sub>Additive</sub> + V<sub>Dominance</sub> + V<sub>Epistasis</sub>
+                </div>
+                <div class="math-equation">
+                    Heritability (h²) = V<sub>Additive</sub> / V<sub>Phenotypic</sub>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <div class="example-title">Classic Example: Biston betularia (Peppered Moth)</div>
+                <div class="moth-example">
+                    <p>Industrial melanism demonstrates rapid evolutionary change in response to environmental pressure.</p>
+                    <div class="moth-morphs">
+                        <div class="morph light">
+                            <h4>Typica (Light)</h4>
+                            <p>Original form, well-camouflaged on light-colored tree bark</p>
+                        </div>
+                        <div class="morph dark">
+                            <h4>Carbonaria (Dark)</h4>
+                            <p>Melanic form, dominant allele, advantageous in polluted environments</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Population Genetics -->
+        <div class="concept-card">
+            <h2 class="concept-title">Population Genetics</h2>
+            
+            <div class="subsection">
+                <h3>Single Gene Model</h3>
+                <p>For a single gene with two alleles (A and a), the genotype frequencies are:</p>
+                
+                <table class="dominance-table">
+                    <thead>
+                        <tr>
+                            <th>Genotype</th>
+                            <th>Phenotype</th>
+                            <th>Frequency</th>
+                            <th>Fitness</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>AA</td>
+                            <td>Dark</td>
+                            <td>p²</td>
+                            <td>w₁</td>
+                        </tr>
+                        <tr>
+                            <td>Aa</td>
+                            <td>Dark</td>
+                            <td>2pq</td>
+                            <td>w₂</td>
+                        </tr>
+                        <tr>
+                            <td>aa</td>
+                            <td>Light</td>
+                            <td>q²</td>
+                            <td>w₃</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Population Genetics Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Initial A frequency (p):</label>
+                        <input type="range" id="initialP" min="0.01" max="0.99" step="0.01" value="0.1">
+                        <span id="pValue">0.1</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Fitness AA (w₁):</label>
+                        <input type="range" id="fitnessAA" min="0.1" max="1.0" step="0.1" value="1.0">
+                        <span id="w1Value">1.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Fitness Aa (w₂):</label>
+                        <input type="range" id="fitnessAa" min="0.1" max="1.0" step="0.1" value="1.0">
+                        <span id="w2Value">1.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Fitness aa (w₃):</label>
+                        <input type="range" id="fitnessaa" min="0.1" max="1.0" step="0.1" value="0.1">
+                        <span id="w3Value">0.1</span>
+                    </div>
+                    <button onclick="runPopGenSimulation()">Run Simulation</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="popGenChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dominance Patterns -->
+        <div class="concept-card">
+            <h2 class="concept-title">Patterns of Dominance</h2>
+            
+            <div class="subsection">
+                <h3>Types of Gene Action</h3>
+                
+                <table class="dominance-table">
+                    <thead>
+                        <tr>
+                            <th>Gene Action</th>
+                            <th>aa</th>
+                            <th>Aa</th>
+                            <th>AA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Complete dominance (A dominant)</td>
+                            <td>0.1</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Complete dominance (a dominant)</td>
+                            <td>1.0</td>
+                            <td>0.1</td>
+                            <td>0.1</td>
+                        </tr>
+                        <tr>
+                            <td>Partial dominance</td>
+                            <td>0.1</td>
+                            <td>0.75</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Additive</td>
+                            <td>0.1</td>
+                            <td>0.55</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Overdominance</td>
+                            <td>0.1</td>
+                            <td>1.0</td>
+                            <td>0.1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Overdominance Simulation</h3>
+                <p>When heterozygotes have the highest fitness, genetic diversity is maintained in the population.</p>
+                <div class="controls">
+                    <button onclick="runOverdominanceSimulation()">Show Overdominance Example</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="overdominanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quantitative Genetics -->
+        <div class="concept-card">
+            <h2 class="concept-title">Quantitative Genetics</h2>
+            
+            <div class="subsection">
+                <h3>Breeder's Equation</h3>
+                <p>Predicts the response to selection for continuously varying traits:</p>
+                <div class="math-equation">
+                    R = h² × S
+                </div>
+                <p>Where:</p>
+                <ul style="margin-top: 0.5rem;">
+                    <li><strong>R</strong> = Response to selection (change in mean trait value)</li>
+                    <li><strong>h²</strong> = Heritability (proportion of variance due to additive genetic effects)</li>
+                    <li><strong>S</strong> = Selection differential (difference in mean trait before vs. after selection)</li>
+                </ul>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Breeder's Equation Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Heritability (h²):</label>
+                        <input type="range" id="heritability" min="0" max="1" step="0.1" value="0.5">
+                        <span id="h2Value">0.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Selection Differential (S):</label>
+                        <input type="range" id="selectionDiff" min="0" max="3" step="0.1" value="1.0">
+                        <span id="sValue">1.0</span>
+                    </div>
+                    <button onclick="runBreedersEquation()">Calculate Response</button>
+                </div>
+                <div id="responseResult" class="math-equation" style="margin-top: 1rem;"></div>
+                <div class="chart-container">
+                    <canvas id="breedersChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selection Types -->
+        <div class="concept-card">
+            <h2 class="concept-title">Forms of Selection</h2>
+            
+            <div class="selection-types">
+                <div class="selection-type">
+                    <h4>Directional Selection</h4>
+                    <p>Selection favors one extreme of the trait distribution. Shifts the population mean in one direction.</p>
+                    <div class="chart-container" style="height: 200px;">
+                        <canvas id="directionalChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="selection-type">
+                    <h4>Stabilizing Selection</h4>
+                    <p>Selection favors intermediate trait values. Reduces population variance around the mean.</p>
+                    <div class="chart-container" style="height: 200px;">
+                        <canvas id="stabilizingChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="selection-type">
+                    <h4>Disruptive Selection</h4>
+                    <p>Selection favors both extremes of the trait distribution. Increases population variance.</p>
+                    <div class="chart-container" style="height: 200px;">
+                        <canvas id="disruptiveChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3>Selection Gradients vs Selection Differentials</h3>
+                <div class="example-box">
+                    <div class="example-title">Key Distinction</div>
+                    <p><strong>Selection Differential:</strong> The change in mean trait value following selection (observable outcome)</p>
+                    <p><strong>Selection Gradient:</strong> The relationship between fitness and the trait (underlying mechanism)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fitness Components -->
+        <div class="concept-card">
+            <h2 class="concept-title">Fitness Components</h2>
+            
+            <div class="subsection">
+                <h3>Total Fitness Equation</h3>
+                <div class="math-equation">
+                    W = Mating Success × Fertility per Mate × Offspring Survival
+                </div>
+            </div>
+
+            <div class="fitness-components">
+                <div class="fitness-component">
+                    <h4>Mating Success</h4>
+                    <p>Probability of obtaining a mate and reproducing</p>
+                </div>
+                <div class="fitness-component">
+                    <h4>Fertility per Mate</h4>
+                    <p>Number of offspring produced per mating event</p>
+                </div>
+                <div class="fitness-component">
+                    <h4>Offspring Survival</h4>
+                    <p>Probability that offspring survive to reproductive age</p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <div class="example-title">Sexual vs Natural Selection</div>
+                <p><strong>Sexual Selection:</strong> Differential mating success due to competition for mates or mate choice</p>
+                <p><strong>Natural Selection:</strong> Differential survival and reproduction due to environmental factors</p>
+            </div>
+        </div>
+
+        <!-- Alternative Evolutionary Forces -->
+        <div class="concept-card">
+            <h2 class="concept-title">Alternative Evolutionary Forces</h2>
+            
+            <div class="subsection">
+                <h3>Four Forces of Evolution</h3>
+                <ul class="requirement-list">
+                    <li><strong>Natural Selection:</strong> Requires variation, acts to change allele frequencies based on fitness differences</li>
+                    <li><strong>Genetic Drift:</strong> Requires variation, random changes in allele frequencies due to sampling effects</li>
+                    <li><strong>Mutation:</strong> Introduces new variation into populations</li>
+                    <li><strong>Migration (Gene Flow):</strong> Introduces variation from other populations</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-title">Key Insight</div>
+                <p>Genetic drift and natural selection both <strong>require</strong> existing variation to operate.</p>
+                <p>Mutation and migration <strong>introduce</strong> variation into populations.</p>
+            </div>
+        </div>
+
+        <!-- Ecological Context -->
+        <div class="concept-card">
+            <h2 class="concept-title">Ecological Context of Evolution</h2>
+            
+            <div class="subsection">
+                <h3>The Complete Picture</h3>
+                <div class="example-box">
+                    <div class="example-title">Selection is an Ecological Process</div>
+                    <p>Environmental factors determine which traits are favored</p>
+                </div>
+                
+                <div class="example-box">
+                    <div class="example-title">Response to Selection is a Genetic Process</div>
+                    <p>Heritability determines how much traits change across generations</p>
+                </div>
+                
+                <div class="example-box">
+                    <div class="example-title">Evolution by Natural Selection</div>
+                    <p>The combination of ecological selection pressures and genetic inheritance produces evolutionary change</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts and simulations
+        let popGenChart, overdominanceChart, breedersChart;
+        let directionalChart, stabilizingChart, disruptiveChart;
+
+        // Update slider values
+        document.getElementById('initialP').addEventListener('input', function() {
+            document.getElementById('pValue').textContent = this.value;
+        });
+        
+        document.getElementById('fitnessAA').addEventListener('input', function() {
+            document.getElementById('w1Value').textContent = this.value;
+        });
+        
+        document.getElementById('fitnessAa').addEventListener('input', function() {
+            document.getElementById('w2Value').textContent = this.value;
+        });
+        
+        document.getElementById('fitnessaa').addEventListener('input', function() {
+            document.getElementById('w3Value').textContent = this.value;
+        });
+        
+        document.getElementById('heritability').addEventListener('input', function() {
+            document.getElementById('h2Value').textContent = this.value;
+        });
+        
+        document.getElementById('selectionDiff').addEventListener('input', function() {
+            document.getElementById('sValue').textContent = this.value;
+        });
+
+        // Population genetics simulation
+        function runPopGenSimulation() {
+            const p0 = parseFloat(document.getElementById('initialP').value);
+            const w1 = parseFloat(document.getElementById('fitnessAA').value);
+            const w2 = parseFloat(document.getElementById('fitnessAa').value);
+            const w3 = parseFloat(document.getElementById('fitnessaa').value);
+            
+            let p = p0;
+            let q = 1 - p;
+            const generations = [];
+            const frequencies = [];
+            
+            for (let gen = 0; gen <= 20; gen++) {
+                generations.push(gen);
+                frequencies.push(p);
+                
+                // Calculate mean fitness
+                const wBar = p * p * w1 + 2 * p * q * w2 + q * q * w3;
+                
+                // Update allele frequency
+                const pNew = (p * p * w1 + p * q * w2) / wBar;
+                p = pNew;
+                q = 1 - p;
+            }
+            
+            const ctx = document.getElementById('popGenChart').getContext('2d');
+            
+            if (popGenChart) {
+                popGenChart.destroy();
+            }
+            
+            popGenChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: generations,
+                    datasets: [{
+                        label: 'A allele frequency',
+                        data: frequencies,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.1,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: {
+                                display: true,
+                                text: 'Allele Frequency'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Generation'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Allele Frequency Change Over Time'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Overdominance simulation
+        function runOverdominanceSimulation() {
+            const generations = [];
+            const frequencies = [];
+            
+            let p = 0.99; // Start with high frequency of A
+            let q = 1 - p;
+            
+            for (let gen = 0; gen <= 20; gen++) {
+                generations.push(gen);
+                frequencies.push(p);
+                
+                // Overdominance fitness values: AA=0.3, Aa=1.0, aa=0.3
+                const w1 = 0.3, w2 = 1.0, w3 = 0.3;
+                const wBar = p * p * w1 + 2 * p * q * w2 + q * q * w3;
+                
+                const pNew = (p * p * w1 + p * q * w2) / wBar;
+                p = pNew;
+                q = 1 - p;
+            }
+            
+            const ctx = document.getElementById('overdominanceChart').getContext('2d');
+            
+            if (overdominanceChart) {
+                overdominanceChart.destroy();
+            }
+            
+            overdominanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: generations,
+                    datasets: [{
+                        label: 'A allele frequency',
+                        data: frequencies,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.1,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: {
+                                display: true,
+                                text: 'Allele Frequency'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Generation'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Overdominance: Frequency Converges to Equilibrium'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Breeder's equation simulation
+        function runBreedersEquation() {
+            const h2 = parseFloat(document.getElementById('heritability').value);
+            const S = parseFloat(document.getElementById('selectionDiff').value);
+            const R = h2 * S;
+            
+            document.getElementById('responseResult').innerHTML = 
+                `R = h² × S = ${h2} × ${S} = <strong>${R.toFixed(2)}</strong>`;
+            
+            // Simulate multiple generations of selection
+            const generations = [];
+            const meanTrait = [];
+            let currentMean = 10; // Starting trait value
+            
+            for (let gen = 0; gen <= 10; gen++) {
+                generations.push(gen);
+                meanTrait.push(currentMean);
+                currentMean += R; // Add response each generation
+            }
+            
+            const ctx = document.getElementById('breedersChart').getContext('2d');
+            
+            if (breedersChart) {
+                breedersChart.destroy();
+            }
+            
+            breedersChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: generations,
+                    datasets: [{
+                        label: 'Mean Trait Value',
+                        data: meanTrait,
+                        borderColor: '#1a3d20',
+                        backgroundColor: 'rgba(26, 61, 32, 0.1)',
+                        tension: 0.1,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Mean Trait Value'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Generation'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Response to Selection Over Generations'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Selection type charts
+        function initializeSelectionCharts() {
+            // Directional selection
+            const directionalCtx = document.getElementById('directionalChart').getContext('2d');
+            const xValues = [];
+            const fitnessValues = [];
+            
+            for (let x = 0; x <= 20; x++) {
+                xValues.push(x);
+                fitnessValues.push(x * 0.05 + 0.1); // Linear increase
+            }
+            
+            directionalChart = new Chart(directionalCtx, {
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        label: 'Fitness',
+                        data: fitnessValues,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.2)',
+                        fill: true,
+                        tension: 0.1,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Fitness' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Trait Value' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Stabilizing selection
+            const stabilizingCtx = document.getElementById('stabilizingChart').getContext('2d');
+            const stabilizingFitness = [];
+            
+            for (let x = 0; x <= 20; x++) {
+                const deviation = Math.abs(x - 10);
+                stabilizingFitness.push(Math.exp(-deviation * deviation / 20));
+            }
+            
+            stabilizingChart = new Chart(stabilizingCtx, {
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        label: 'Fitness',
+                        data: stabilizingFitness,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.2)',
+                        fill: true,
+                        tension: 0.1,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Fitness' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Trait Value' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Disruptive selection
+            const disruptiveCtx = document.getElementById('disruptiveChart').getContext('2d');
+            const disruptiveFitness = [];
+            
+            for (let x = 0; x <= 20; x++) {
+                const deviation = Math.abs(x - 10);
+                disruptiveFitness.push(deviation * 0.05 + 0.1);
+            }
+            
+            disruptiveChart = new Chart(disruptiveCtx, {
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        label: 'Fitness',
+                        data: disruptiveFitness,
+                        borderColor: '#1a3d20',
+                        backgroundColor: 'rgba(26, 61, 32, 0.2)',
+                        fill: true,
+                        tension: 0.1,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Fitness' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Trait Value' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', function() {
+            initializeSelectionCharts();
+            runPopGenSimulation();
+        });
+    </script>
+</body>
+</html>
