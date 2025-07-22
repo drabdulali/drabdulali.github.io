@@ -138,7 +138,7 @@
             font-size: 0.9em;
         }
 
-        input[type="range"], input[type="number"] {
+        input[type="range"], input[type="number"], select {
             padding: 8px;
             border: 2px solid var(--medium-green);
             border-radius: 5px;
@@ -270,31 +270,6 @@
             background: #2a2a2a;
             color: var(--white);
             border: 2px solid var(--dark-gray);
-        }
-
-        .population-grid {
-            display: grid;
-            grid-template-columns: repeat(20, 1fr);
-            gap: 2px;
-            margin: 20px 0;
-            padding: 20px;
-            background: var(--light-gray);
-            border-radius: 8px;
-        }
-
-        .individual {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            transition: background 0.3s ease;
-        }
-
-        .fitness-landscape {
-            margin: 20px 0;
-            padding: 20px;
-            background: var(--white);
-            border-radius: 10px;
-            border: 2px solid var(--medium-green);
         }
 
         .table {
@@ -721,3 +696,677 @@
                     <div class="control-group">
                         <label>Natural Selection Optimum:</label>
                         <input type="range" id="naturalOptimum" min="100" max="150" step="5" value="120" onchange="updateFitnessComponents()">
+                        <span id="naturalOptimumValue">120</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="fitnessChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for simulations
+        let mothData = {
+            generations: [0],
+            lightFreq: [0.9],
+            darkFreq: [0.1]
+        };
+
+        let popGeneticsData = {
+            generations: [0],
+            pFreq: [0.1],
+            qFreq: [0.9],
+            AAFreq: [0.01],
+            AaFreq: [0.18],
+            aaFreq: [0.81]
+        };
+
+        let breedersData = {
+            generations: [0],
+            means: [10]
+        };
+
+        let evolutionForcesData = {
+            generations: [],
+            selectionOnly: [],
+            selectionDrift: [],
+            selectionDriftMigration: []
+        };
+
+        // Chart instances
+        let mothChart, popGeneticsChart, breedersChart, selectionChart, evolutionForcesChart, fitnessChart;
+
+        // Initialize all simulations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMothSimulation();
+            initializePopGenetics();
+            initializeBreedersEq();
+            initializeSelectionTypes();
+            initializeEvolutionForces();
+            initializeFitnessComponents();
+        });
+
+        // Moth simulation functions
+        function toggleMothInfo(element) {
+            const type = element.classList.contains('light') ? 'Light' : 'Dark';
+            alert(`${type} Moth: In nature, this phenotype has different survival rates depending on environmental conditions. Light moths are camouflaged on light-colored surfaces, while dark moths blend in with darker surfaces.`);
+        }
+
+        function initializeMothSimulation() {
+            const ctx = document.getElementById('mothChart').getContext('2d');
+            mothChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: mothData.generations,
+                    datasets: [{
+                        label: 'Light Morph Frequency',
+                        data: mothData.lightFreq,
+                        borderColor: '#f0f0f0',
+                        backgroundColor: 'rgba(240, 240, 240, 0.3)',
+                        borderWidth: 3
+                    }, {
+                        label: 'Dark Morph Frequency',
+                        data: mothData.darkFreq,
+                        borderColor: '#333',
+                        backgroundColor: 'rgba(51, 51, 51, 0.3)',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: { display: true, text: 'Frequency' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Generation' }
+                        }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Peppered Moth Evolution' },
+                        legend: { display: true }
+                    }
+                }
+            });
+            updateMothSimulation();
+        }
+
+        function updateMothSimulation() {
+            document.getElementById('selectionValue').textContent = document.getElementById('selectionStrength').value;
+            updateMothStats();
+        }
+
+        function updateMothStats() {
+            const env = document.getElementById('environment').value;
+            const strength = parseFloat(document.getElementById('selectionStrength').value);
+            const currentLight = mothData.lightFreq[mothData.lightFreq.length - 1];
+            const currentDark = mothData.darkFreq[mothData.darkFreq.length - 1];
+            
+            let lightFitness, darkFitness;
+            if (env === 'light') {
+                lightFitness = 1.0;
+                darkFitness = 1.0 - strength;
+            } else if (env === 'dark') {
+                lightFitness = 1.0 - strength;
+                darkFitness = 1.0;
+            } else { // mixed
+                lightFitness = 0.7;
+                darkFitness = 0.7;
+            }
+            
+            document.getElementById('mothStats').innerHTML = 
+                `Current frequencies: Light = ${currentLight.toFixed(3)}, Dark = ${currentDark.toFixed(3)}<br>
+                Relative fitness: Light = ${lightFitness.toFixed(2)}, Dark = ${darkFitness.toFixed(2)}`;
+        }
+
+        function runMothGeneration() {
+            const env = document.getElementById('environment').value;
+            const strength = parseFloat(document.getElementById('selectionStrength').value);
+            const currentLight = mothData.lightFreq[mothData.lightFreq.length - 1];
+            const currentDark = mothData.darkFreq[mothData.darkFreq.length - 1];
+            
+            let lightFitness, darkFitness;
+            if (env === 'light') {
+                lightFitness = 1.0;
+                darkFitness = 1.0 - strength;
+            } else if (env === 'dark') {
+                lightFitness = 1.0 - strength;
+                darkFitness = 1.0;
+            } else {
+                lightFitness = 0.7;
+                darkFitness = 0.7;
+            }
+            
+            const meanFitness = currentLight * lightFitness + currentDark * darkFitness;
+            const newLight = (currentLight * lightFitness) / meanFitness;
+            const newDark = (currentDark * darkFitness) / meanFitness;
+            
+            mothData.generations.push(mothData.generations.length);
+            mothData.lightFreq.push(newLight);
+            mothData.darkFreq.push(newDark);
+            
+            mothChart.data.labels = mothData.generations;
+            mothChart.data.datasets[0].data = mothData.lightFreq;
+            mothChart.data.datasets[1].data = mothData.darkFreq;
+            mothChart.update();
+            
+            updateMothStats();
+        }
+
+        function resetMothSimulation() {
+            mothData = {
+                generations: [0],
+                lightFreq: [0.9],
+                darkFreq: [0.1]
+            };
+            mothChart.data.labels = mothData.generations;
+            mothChart.data.datasets[0].data = mothData.lightFreq;
+            mothChart.data.datasets[1].data = mothData.darkFreq;
+            mothChart.update();
+            updateMothStats();
+        }
+
+        // Population genetics functions
+        function initializePopGenetics() {
+            const ctx = document.getElementById('popGeneticsChart').getContext('2d');
+            popGeneticsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: popGeneticsData.generations,
+                    datasets: [{
+                        label: 'p (A allele)',
+                        data: popGeneticsData.pFreq,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.3)',
+                        borderWidth: 3
+                    }, {
+                        label: 'q (a allele)',
+                        data: popGeneticsData.qFreq,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.3)',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: { display: true, text: 'Allele Frequency' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Generation' }
+                        }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Allele Frequency Changes' },
+                        legend: { display: true }
+                    }
+                }
+            });
+            updatePopGenetics();
+        }
+
+        function updatePopGenetics() {
+            document.getElementById('pValue').textContent = document.getElementById('initialP').value;
+        }
+
+        function runPopGeneration() {
+            const pattern = document.getElementById('dominancePattern').value;
+            let p = parseFloat(document.getElementById('initialP').value);
+            let q = 1 - p;
+            
+            // Reset data
+            popGeneticsData = {
+                generations: [0],
+                pFreq: [p],
+                qFreq: [q],
+                AAFreq: [p * p],
+                AaFreq: [2 * p * q],
+                aaFreq: [q * q]
+            };
+            
+            // Run 10 generations
+            for (let gen = 1; gen <= 10; gen++) {
+                let w1, w2, w3; // Fitness values for AA, Aa, aa
+                
+                switch (pattern) {
+                    case 'complete':
+                        w1 = 1.0; w2 = 1.0; w3 = 0.5;
+                        break;
+                    case 'partial':
+                        w1 = 1.0; w2 = 0.75; w3 = 0.5;
+                        break;
+                    case 'additive':
+                        w1 = 1.0; w2 = 0.75; w3 = 0.5;
+                        break;
+                    case 'overdominance':
+                        w1 = 0.5; w2 = 1.0; w3 = 0.5;
+                        break;
+                }
+                
+                const AA = p * p;
+                const Aa = 2 * p * q;
+                const aa = q * q;
+                
+                const meanFitness = AA * w1 + Aa * w2 + aa * w3;
+                
+                // New allele frequencies after selection
+                p = (AA * w1 + 0.5 * Aa * w2) / meanFitness;
+                q = 1 - p;
+                
+                popGeneticsData.generations.push(gen);
+                popGeneticsData.pFreq.push(p);
+                popGeneticsData.qFreq.push(q);
+                popGeneticsData.AAFreq.push(p * p);
+                popGeneticsData.AaFreq.push(2 * p * q);
+                popGeneticsData.aaFreq.push(q * q);
+            }
+            
+            popGeneticsChart.data.labels = popGeneticsData.generations;
+            popGeneticsChart.data.datasets[0].data = popGeneticsData.pFreq;
+            popGeneticsChart.data.datasets[1].data = popGeneticsData.qFreq;
+            popGeneticsChart.update();
+        }
+
+        function resetPopGenetics() {
+            const p = 0.1;
+            popGeneticsData = {
+                generations: [0],
+                pFreq: [p],
+                qFreq: [1 - p],
+                AAFreq: [p * p],
+                AaFreq: [2 * p * (1 - p)],
+                aaFreq: [(1 - p) * (1 - p)]
+            };
+            document.getElementById('initialP').value = p;
+            document.getElementById('pValue').textContent = p;
+            popGeneticsChart.data.labels = popGeneticsData.generations;
+            popGeneticsChart.data.datasets[0].data = popGeneticsData.pFreq;
+            popGeneticsChart.data.datasets[1].data = popGeneticsData.qFreq;
+            popGeneticsChart.update();
+        }
+
+        // Breeder's equation functions
+        function initializeBreedersEq() {
+            const ctx = document.getElementById('breedersChart').getContext('2d');
+            breedersChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: breedersData.generations,
+                    datasets: [{
+                        label: 'Population Mean',
+                        data: breedersData.means,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.3)',
+                        borderWidth: 3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Trait Value' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Generation' }
+                        }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Response to Selection' },
+                        legend: { display: true }
+                    }
+                }
+            });
+            updateBreedersEq();
+        }
+
+        function updateBreedersEq() {
+            const h2 = parseFloat(document.getElementById('heritability').value);
+            const S = parseFloat(document.getElementById('selectionDiff').value);
+            const currentMean = parseFloat(document.getElementById('popMean').value);
+            
+            document.getElementById('heritabilityValue').textContent = h2;
+            document.getElementById('selectionDiffValue').textContent = S;
+            
+            const R = h2 * S;
+            const newMean = currentMean + R;
+            
+            document.getElementById('breedersStats').innerHTML = 
+                `Current mean: ${currentMean.toFixed(2)}<br>
+                Selection differential (S): ${S.toFixed(2)}<br>
+                Heritability (h²): ${h2.toFixed(2)}<br>
+                Response (R = h²S): ${R.toFixed(2)}<br>
+                Next generation mean: ${newMean.toFixed(2)}`;
+        }
+
+        function applySelection() {
+            const h2 = parseFloat(document.getElementById('heritability').value);
+            const S = parseFloat(document.getElementById('selectionDiff').value);
+            const currentMean = breedersData.means[breedersData.means.length - 1];
+            
+            const R = h2 * S;
+            const newMean = currentMean + R;
+            
+            breedersData.generations.push(breedersData.generations.length);
+            breedersData.means.push(newMean);
+            
+            document.getElementById('popMean').value = newMean;
+            
+            breedersChart.data.labels = breedersData.generations;
+            breedersChart.data.datasets[0].data = breedersData.means;
+            breedersChart.update();
+            
+            updateBreedersEq();
+        }
+
+        function resetBreedersEq() {
+            breedersData = {
+                generations: [0],
+                means: [10]
+            };
+            document.getElementById('popMean').value = 10;
+            breedersChart.data.labels = breedersData.generations;
+            breedersChart.data.datasets[0].data = breedersData.means;
+            breedersChart.update();
+            updateBreedersEq();
+        }
+
+        // Selection types functions
+        function initializeSelectionTypes() {
+            const ctx = document.getElementById('selectionChart').getContext('2d');
+            updateSelectionType();
+        }
+
+        function updateSelectionType() {
+            const type = document.getElementById('selectionType').value;
+            const intensity = parseFloat(document.getElementById('selectionIntensity').value);
+            
+            document.getElementById('intensityValue').textContent = intensity;
+            
+            // Generate trait values
+            const traitValues = [];
+            const fitnessValues = [];
+            
+            for (let i = 0; i <= 100; i++) {
+                const trait = i / 10; // 0 to 10
+                traitValues.push(trait);
+                
+                let fitness;
+                switch (type) {
+                    case 'directional':
+                        fitness = Math.max(0, trait * intensity / 10);
+                        break;
+                    case 'stabilizing':
+                        const optimum = 5;
+                        fitness = Math.exp(-intensity * Math.pow(trait - optimum, 2) / 10);
+                        break;
+                    case 'disruptive':
+                        const mean = 5;
+                        fitness = intensity * Math.pow(trait - mean, 2) / 25;
+                        break;
+                }
+                fitnessValues.push(fitness);
+            }
+            
+            if (selectionChart) {
+                selectionChart.destroy();
+            }
+            
+            const ctx = document.getElementById('selectionChart').getContext('2d');
+            selectionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: traitValues,
+                    datasets: [{
+                        label: 'Relative Fitness',
+                        data: fitnessValues,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.3)',
+                        borderWidth: 3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Relative Fitness' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Trait Value' }
+                        }
+                    },
+                    plugins: {
+                        title: { display: true, text: `${type.charAt(0).toUpperCase() + type.slice(1)} Selection` },
+                        legend: { display: true }
+                    }
+                }
+            });
+        }
+
+        // Evolution forces functions
+        function initializeEvolutionForces() {
+            const ctx = document.getElementById('evolutionForcesChart').getContext('2d');
+            evolutionForcesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Selection Only',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.3)',
+                        borderWidth: 3
+                    }, {
+                        label: 'Selection + Drift',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.3)',
+                        borderWidth: 3
+                    }, {
+                        label: 'Selection + Drift + Migration',
+                        data: [],
+                        borderColor: '#1a3d20',
+                        backgroundColor: 'rgba(26, 61, 32, 0.3)',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: { display: true, text: 'Allele Frequency' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Generation' }
+                        }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Evolution Forces Comparison' },
+                        legend: { display: true }
+                    }
+                }
+            });
+            updateEvolutionForces();
+        }
+
+        function updateEvolutionForces() {
+            document.getElementById('popSizeValue').textContent = document.getElementById('popSize').value;
+            document.getElementById('selectionCoeffValue').textContent = document.getElementById('selectionCoeff').value;
+            document.getElementById('migrationRateValue').textContent = document.getElementById('migrationRate').value;
+        }
+
+        function runEvolutionSimulation() {
+            const N = parseInt(document.getElementById('popSize').value);
+            const s = parseFloat(document.getElementById('selectionCoeff').value);
+            const m = parseFloat(document.getElementById('migrationRate').value);
+            
+            const generations = 50;
+            const p0 = 0.1; // Initial frequency
+            const pm = 0.5; // Migrant frequency
+            
+            evolutionForcesData = {
+                generations: [],
+                selectionOnly: [],
+                selectionDrift: [],
+                selectionDriftMigration: []
+            };
+            
+            let p1 = p0, p2 = p0, p3 = p0; // Three scenarios
+            
+            for (let gen = 0; gen <= generations; gen++) {
+                evolutionForcesData.generations.push(gen);
+                evolutionForcesData.selectionOnly.push(p1);
+                evolutionForcesData.selectionDrift.push(p2);
+                evolutionForcesData.selectionDriftMigration.push(p3);
+                
+                if (gen < generations) {
+                    // Scenario 1: Selection only
+                    const meanFitness1 = p1 * (1 + s) + (1 - p1);
+                    p1 = p1 * (1 + s) / meanFitness1;
+                    
+                    // Scenario 2: Selection + Drift
+                    const meanFitness2 = p2 * (1 + s) + (1 - p2);
+                    p2 = p2 * (1 + s) / meanFitness2;
+                    // Add binomial sampling (drift)
+                    const variance = p2 * (1 - p2) / (2 * N);
+                    p2 += (Math.random() - 0.5) * 2 * Math.sqrt(variance);
+                    p2 = Math.max(0, Math.min(1, p2));
+                    
+                    // Scenario 3: Selection + Drift + Migration
+                    const meanFitness3 = p3 * (1 + s) + (1 - p3);
+                    p3 = p3 * (1 + s) / meanFitness3;
+                    // Add drift
+                    const variance3 = p3 * (1 - p3) / (2 * N);
+                    p3 += (Math.random() - 0.5) * 2 * Math.sqrt(variance3);
+                    // Add migration
+                    p3 = (1 - m) * p3 + m * pm;
+                    p3 = Math.max(0, Math.min(1, p3));
+                }
+            }
+            
+            evolutionForcesChart.data.labels = evolutionForcesData.generations;
+            evolutionForcesChart.data.datasets[0].data = evolutionForcesData.selectionOnly;
+            evolutionForcesChart.data.datasets[1].data = evolutionForcesData.selectionDrift;
+            evolutionForcesChart.data.datasets[2].data = evolutionForcesData.selectionDriftMigration;
+            evolutionForcesChart.update();
+        }
+
+        function resetEvolutionForces() {
+            evolutionForcesData = {
+                generations: [],
+                selectionOnly: [],
+                selectionDrift: [],
+                selectionDriftMigration: []
+            };
+            evolutionForcesChart.data.labels = [];
+            evolutionForcesChart.data.datasets[0].data = [];
+            evolutionForcesChart.data.datasets[1].data = [];
+            evolutionForcesChart.data.datasets[2].data = [];
+            evolutionForcesChart.update();
+        }
+
+        // Fitness components functions
+        function initializeFitnessComponents() {
+            const ctx = document.getElementById('fitnessChart').getContext('2d');
+            updateFitnessComponents();
+        }
+
+        function updateFitnessComponents() {
+            const trait = parseFloat(document.getElementById('traitValue').value);
+            const sexualStrength = parseFloat(document.getElementById('sexualSelectionStrength').value);
+            const naturalOpt = parseFloat(document.getElementById('naturalOptimum').value);
+            
+            document.getElementById('traitValueDisplay').textContent = trait;
+            document.getElementById('sexualStrengthValue').textContent = sexualStrength;
+            document.getElementById('naturalOptimumValue').textContent = naturalOpt;
+            
+            // Generate fitness landscape
+            const traitValues = [];
+            const sexualFitness = [];
+            const naturalFitness = [];
+            const totalFitness = [];
+            
+            for (let i = 50; i <= 200; i += 5) {
+                traitValues.push(i);
+                
+                // Sexual selection: larger is better
+                const sexual = Math.pow(i / 200, sexualStrength);
+                sexualFitness.push(sexual);
+                
+                // Natural selection: stabilizing around optimum
+                const natural = Math.exp(-Math.pow(i - naturalOpt, 2) / (2 * 400));
+                naturalFitness.push(natural);
+                
+                // Total fitness is multiplicative
+                const total = sexual * natural;
+                totalFitness.push(total);
+            }
+            
+            if (fitnessChart) {
+                fitnessChart.destroy();
+            }
+            
+            const ctx = document.getElementById('fitnessChart').getContext('2d');
+            fitnessChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: traitValues,
+                    datasets: [{
+                        label: 'Sexual Selection',
+                        data: sexualFitness,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.3)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Natural Selection',
+                        data: naturalFitness,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.3)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Total Fitness',
+                        data: totalFitness,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.3)',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Relative Fitness' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Body Size' }
+                        }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Fitness Components Analysis' },
+                        legend: { display: true }
+                    }
+                }
+            });
+            
+            // Add vertical line for current trait value
+            const currentFitness = {
+                sexual: Math.pow(trait / 200, sexualStrength),
+                natural: Math.exp(-Math.pow(trait - naturalOpt, 2) / (2 * 400)),
+                total: Math.pow(trait / 200, sexualStrength) * Math.exp(-Math.pow(trait - naturalOpt, 2) / (2 * 400))
+            };
+        }
+    </script>
+</body>
+</html>
