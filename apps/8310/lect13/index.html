@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experimental Approaches to Studying Competition in Ecology</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --primary-green: #2c5530;
+            --medium-green: #4a7c59;
+            --dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+            --transparent-white: rgba(255,255,255,0.1);
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-dark: rgba(0,0,0,0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background-color: var(--light-gray);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px var(--shadow-medium);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px var(--shadow-dark);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--white);
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            border-left: 4px solid var(--medium-green);
+        }
+
+        .section h2 {
+            color: var(--primary-green);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: var(--medium-green);
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .concept-card h4 {
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .math-equation {
+            background: var(--white);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 2px solid var(--light-green-1);
+            text-align: center;
+            box-shadow: 0 2px 4px var(--shadow-light);
+        }
+
+        .chart-container {
+            background: var(--white);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            border: 1px solid var(--light-green-1);
+        }
+
+        .simulation-container {
+            background: linear-gradient(135deg, var(--light-green-2), var(--light-green-1));
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 12px;
+            border: 2px solid var(--medium-green);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .control-group label {
+            color: var(--primary-green);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            accent-color: var(--medium-green);
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 0.25rem;
+            border: 1px solid var(--medium-green);
+            border-radius: 4px;
+            background: var(--white);
+        }
+
+        button {
+            background: var(--medium-green);
+            color: var(--white);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--primary-green);
+        }
+
+        .key-points {
+            background: linear-gradient(135deg, var(--light-green-1), var(--white));
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-green);
+        }
+
+        .key-points h4 {
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .key-points ul {
+            padding-left: 1.5rem;
+            color: var(--dark-gray);
+        }
+
+        .key-points li {
+            margin-bottom: 0.5rem;
+        }
+
+        .phase-plane {
+            background: var(--white);
+            border: 2px solid var(--medium-green);
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .footer {
+            background: var(--dark-green);
+            color: var(--white);
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Experimental Approaches to Studying Competition in Ecology</h1>
+            <p>Understanding How Species Interact and Compete for Resources</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Introduction -->
+        <div class="section">
+            <h2>Introduction to Competition Studies</h2>
+            <p>Competition is a fundamental ecological process that shapes community structure and species coexistence. To understand how species compete, ecologists employ various experimental and observational approaches, each with unique advantages and limitations.</p>
+            
+            <div class="key-points">
+                <h4>Three Main Approaches to Study Competition:</h4>
+                <ul>
+                    <li><strong>Pattern:</strong> Observing spatial and temporal distributions</li>
+                    <li><strong>Experimentation:</strong> Controlled manipulations of species densities</li>
+                    <li><strong>Mechanism:</strong> Understanding resource-based competitive interactions</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- De Wit Replacement Series -->
+        <div class="section">
+            <h2>De Wit Replacement Series (Substitutive Design)</h2>
+            <p>The De Wit replacement series is a classic experimental design where the total number of individuals is kept constant while varying the proportions of two competing species.</p>
+            
+            <div class="math-equation">
+                $$N_1 + N_2 = N_{total} = \text{constant}$$
+                $$\text{where } N_1 \text{ and } N_2 \text{ are densities of species 1 and 2}$$
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Design Principles</h4>
+                    <ul>
+                        <li>Keep total seed number constant</li>
+                        <li>Vary proportions: 100:0, 75:25, 50:50, 25:75, 0:100</li>
+                        <li>Measure performance of each species</li>
+                        <li>Compare to expected performance</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Key Outcomes</h4>
+                    <ul>
+                        <li><strong>Overyielding:</strong> Mixed cultures outperform monocultures</li>
+                        <li><strong>Underyielding:</strong> Mixed cultures underperform</li>
+                        <li><strong>Neutral:</strong> Performance matches expectation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>De Wit Replacement Series Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Species 1 Competitive Ability:</label>
+                        <input type="range" id="comp1" min="0.5" max="2" step="0.1" value="1">
+                        <span id="comp1-val">1.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Species 2 Competitive Ability:</label>
+                        <input type="range" id="comp2" min="0.5" max="2" step="0.1" value="1">
+                        <span id="comp2-val">1.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Interspecific Competition:</label>
+                        <input type="range" id="intercomp" min="0.1" max="2" step="0.1" value="1">
+                        <span id="intercomp-val">1.0</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dewitChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Interpretation:</h4>
+                <ul>
+                    <li><strong>Overyielding occurs when:</strong> Interspecific competition < Intraspecific competition</li>
+                    <li><strong>Underyielding occurs when:</strong> Interspecific competition > Intraspecific competition</li>
+                    <li><strong>Linear response when:</strong> Interspecific competition = Intraspecific competition</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Additive Designs -->
+        <div class="section">
+            <h2>Additive Designs</h2>
+            <p>Additive designs maintain a constant density of the target species while varying the density of the competitor species. This approach allows researchers to distinguish between generic density effects and species-specific competitive effects.</p>
+
+            <div class="math-equation">
+                $$Y = f(N_{target}, N_{competitor})$$
+                $$\text{where } N_{target} = \text{constant and } N_{competitor} \text{ varies}$$
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Design Structure</h4>
+                    <ul>
+                        <li>Target species density remains constant</li>
+                        <li>Competitor density increases along gradient</li>
+                        <li>Can separate intra- vs. interspecific effects</li>
+                        <li>Reveals species-specific competitive abilities</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Advantages</h4>
+                    <ul>
+                        <li>Quantifies competitive effects directly</li>
+                        <li>Distinguishes density vs. identity effects</li>
+                        <li>Can test multiple competitor species</li>
+                        <li>More realistic density gradients</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Additive Design Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Intraspecific Effect (α):</label>
+                        <input type="range" id="alpha" min="0.01" max="0.1" step="0.005" value="0.05">
+                        <span id="alpha-val">0.05</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Interspecific Effect (β):</label>
+                        <input type="range" id="beta" min="0.01" max="0.1" step="0.005" value="0.03">
+                        <span id="beta-val">0.03</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Max Performance:</label>
+                        <input type="range" id="maxperf" min="50" max="200" step="10" value="100">
+                        <span id="maxperf-val">100</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="additiveChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                $$\text{Target Performance} = \frac{P_{max}}{1 + \alpha N_{intra} + \beta N_{inter}}$$
+                $$\text{where } P_{max} = \text{maximum performance}$$
+                $$\alpha = \text{intraspecific competition coefficient}$$
+                $$\beta = \text{interspecific competition coefficient}$$
+            </div>
+        </div>
+
+        <!-- Response Surface Designs -->
+        <div class="section">
+            <h2>Response Surface Designs</h2>
+            <p>Response surface designs vary the densities of both species across a full factorial design, providing the most comprehensive view of competitive interactions but requiring significantly more resources.</p>
+
+            <div class="math-equation">
+                $$Y = f(N_1, N_2)$$
+                $$\text{Both } N_1 \text{ and } N_2 \text{ vary independently}$$
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Advantages</h4>
+                    <ul>
+                        <li>Complete characterization of competitive landscape</li>
+                        <li>Can detect non-linear interactions</li>
+                        <li>Reveals entire response surface</li>
+                        <li>Most comprehensive approach</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Disadvantages</h4>
+                    <ul>
+                        <li>Requires many experimental units</li>
+                        <li>Resource intensive</li>
+                        <li>Complex statistical analysis</li>
+                        <li>May be impractical for field studies</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Response Surface Visualization</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Species 1 Self-limitation:</label>
+                        <input type="range" id="alpha11" min="0.01" max="0.1" step="0.005" value="0.05">
+                        <span id="alpha11-val">0.05</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Species 2 Effect on Species 1:</label>
+                        <input type="range" id="alpha12" min="0.01" max="0.1" step="0.005" value="0.03">
+                        <span id="alpha12-val">0.03</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="responseChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                $$Y_1 = \frac{r_1 K_1}{1 + \alpha_{11}(N_1-1) + \alpha_{12}N_2}$$
+                $$\text{where } r_1 = \text{intrinsic growth rate}$$
+                $$K_1 = \text{carrying capacity}$$
+                $$\alpha_{11} = \text{intraspecific competition}$$
+                $$\alpha_{12} = \text{interspecific competition}$$
+            </div>
+        </div>
+
+        <!-- Target-Neighbor Experiments -->
+        <div class="section">
+            <h2>Target-Neighbor Experiments</h2>
+            <p>Target-neighbor experiments focus on individual-level responses by examining how the performance of a focal target individual varies with the identity and number of neighboring competitors.</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Experimental Design</h4>
+                    <ul>
+                        <li>Single target individual in center</li>
+                        <li>Varying numbers of neighbors around target</li>
+                        <li>Different neighbor species tested</li>
+                        <li>Individual-level response measured</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Equivalence Hypothesis</h4>
+                    <ul>
+                        <li>Null hypothesis: neighbor biomass drives effects</li>
+                        <li>Predicts equal effects per unit neighbor mass</li>
+                        <li>Often rejected - species differ in competitive ability</li>
+                        <li>Reveals mechanistic insights</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Target-Neighbor Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Neighbor Species A Effect:</label>
+                        <input type="range" id="effectA" min="0.1" max="1" step="0.1" value="0.5">
+                        <span id="effectA-val">0.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Neighbor Species B Effect:</label>
+                        <input type="range" id="effectB" min="0.1" max="1" step="0.1" value="0.3">
+                        <span id="effectB-val">0.3</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Neighbor Species C Effect:</label>
+                        <input type="range" id="effectC" min="0.1" max="1" step="0.1" value="0.7">
+                        <span id="effectC-val">0.7</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="targetChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                $$\text{Target Performance} = P_0 \exp(-\sum_{i} \beta_i N_i)$$
+                $$\text{where } P_0 = \text{performance without neighbors}$$
+                $$\beta_i = \text{competitive effect of species } i$$
+                $$N_i = \text{number of neighbors of species } i$$
+            </div>
+        </div>
+
+        <!-- Resource Competition Theory -->
+        <div class="section">
+            <h2>Resource Competition Theory (R* Theory)</h2>
+            <p>R* theory provides a mechanistic framework for understanding competition by focusing on resource requirements and consumption. The species that can survive at the lowest resource level (R*) should competitively exclude others.</p>
+
+            <div class="math-equation">
+                $$R^* = \frac{m}{a - m/K}$$
+                $$\text{where } m = \text{mortality rate}$$
+                $$a = \text{resource acquisition rate}$$
+                $$K = \text{conversion efficiency}$$
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Key Concepts</h4>
+                    <ul>
+                        <li><strong>R*:</strong> Minimum resource level for persistence</li>
+                        <li><strong>Resource supply:</strong> Rate of resource input</li>
+                        <li><strong>Resource consumption:</strong> Depletion by organisms</li>
+                        <li><strong>Competitive exclusion:</strong> Lower R* wins</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Applications</h4>
+                    <ul>
+                        <li>Predicting competitive outcomes</li>
+                        <li>Understanding coexistence mechanisms</li>
+                        <li>Nutrient competition in plants</li>
+                        <li>Light competition in forests</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>R* Competition Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Species 1 R* (Nitrogen):</label>
+                        <input type="range" id="r1" min="1" max="10" step="0.5" value="3">
+                        <span id="r1-val">3</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Species 2 R* (Nitrogen):</label>
+                        <input type="range" id="r2" min="1" max="10" step="0.5" value="5">
+                        <span id="r2-val">5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Nitrogen Supply Rate:</label>
+                        <input type="range" id="nsupply" min="2" max="15" step="0.5" value="7">
+                        <span id="nsupply-val">7</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="rstarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>R* Theory Predictions:</h4>
+                <ul>
+                    <li>Species with lower R* competitively excludes species with higher R*</li>
+                    <li>Coexistence possible if species limit different resources</li>
+                    <li>Resource supply point determines competitive outcome</li>
+                    <li>Trade-offs between competitive ability and other traits enable coexistence</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Spatial Competition -->
+        <div class="section">
+            <h2>Spatial Aspects of Competition</h2>
+            <p>Competition intensity varies with spatial scale and distance between individuals. Understanding the spatial dimension is crucial for predicting competitive outcomes in natural communities.</p>
+
+            <div class="simulation-container">
+                <h3>Neighborhood Competition Model</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Competition Radius:</label>
+                        <input type="range" id="radius" min="1" max="5" step="0.5" value="2.5">
+                        <span id="radius-val">2.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Distance Decay Rate:</label>
+                        <input type="range" id="decay" min="0.5" max="3" step="0.1" value="1.5">
+                        <span id="decay-val">1.5</span>
+                    </div>
+                    <button onclick="generateSpatialPattern()">Generate New Pattern</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="spatialChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                $$CI_i = \sum_{j \neq i} \frac{S_j}{d_{ij}^{\gamma}} \exp(-\alpha d_{ij})$$
+                $$\text{where } CI_i = \text{competition intensity on individual } i$$
+                $$S_j = \text{size of neighbor } j$$
+                $$d_{ij} = \text{distance between individuals } i \text{ and } j$$
+                $$\gamma = \text{distance decay parameter}$$
+                $$\alpha = \text{exponential decay rate}$$
+            </div>
+        </div>
+
+        <!-- Population Dynamics -->
+        <div class="section">
+            <h2>Population-Level Competition</h2>
+            <p>Competition ultimately affects population growth rates and can lead to competitive exclusion or stable coexistence depending on the strength of intra- versus interspecific competition.</p>
+
+            <div class="math-equation">
+                $$\frac{dN_1}{dt} = r_1 N_1 \left(1 - \frac{N_1 + \alpha_{12} N_2}{K_1}\right)$$
+                $$\frac{dN_2}{dt} = r_2 N_2 \left(1 - \frac{N_2 + \alpha_{21} N_1}{K_2}\right)$$
+                $$\text{Lotka-Volterra Competition Equations}$$
+            </div>
+
+            <div class="simulation-container">
+                <h3>Population Dynamics Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Species 1 Growth Rate:</label>
+                        <input type="range" id="r1pop" min="0.1" max="1" step="0.05" value="0.5">
+                        <span id="r1pop-val">0.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Species 2 Growth Rate:</label>
+                        <input type="range" id="r2pop" min="0.1" max="1" step="0.05" value="0.4">
+                        <span id="r2pop-val">0.4</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Competition Coefficient α₁₂:</label>
+                        <input type="range" id="alpha12pop" min="0.1" max="2" step="0.1" value="0.8">
+                        <span id="alpha12pop-val">0.8</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Competition Coefficient α₂₁:</label>
+                        <input type="range" id="alpha21pop" min="0.1" max="2" step="0.1" value="1.2">
+                        <span id="alpha21pop-val">1.2</span>
+                    </div>
+                    <button onclick="resetPopulation()">Reset Simulation</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="populationChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Coexistence Conditions:</h4>
+                <ul>
+                    <li><strong>Stable coexistence when:</strong> α₁₂ < K₁/K₂ and α₂₁ < K₂/K₁</li>
+                    <li><strong>Species 1 wins when:</strong> α₁₂ > K₁/K₂ and α₂₁ < K₂/K₁</li>
+                    <li><strong>Species 2 wins when:</strong> α₁₂ < K₁/K₂ and α₂₁ > K₂/K₁</li>
+                    <li><strong>Competitive exclusion when:</strong> Both conditions favor the same species</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Conclusions -->
+        <div class="section">
+            <h2>Synthesis and Future Directions</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Experimental Approaches</h4>
+                    <ul>
+                        <li>Good for establishing causation</li>
+                        <li>Limited by time scale constraints</li>
+                        <li>May miss long-term dynamics</li>
+                        <li>Simplified conditions vs. natural complexity</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Observational Approaches</h4>
+                    <ul>
+                        <li>Appropriate temporal scales</li>
+                        <li>Natural complexity preserved</li>
+                        <li>Difficult to establish causation</li>
+                        <li>Confounding factors present</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Key Insights from Competition Studies:</h4>
+                <ul>
+                    <li><strong>Scale matters:</strong> Individual vs. population responses may differ</li>
+                    <li><strong>Context dependency:</strong> Competitive outcomes vary with environmental conditions</li>
+                    <li><strong>Multiple mechanisms:</strong> Resource depletion, interference, and apparent competition</li>
+                    <li><strong>Temporal dynamics:</strong> Competition effects may change over time and life stages</li>
+                    <li><strong>Spatial heterogeneity:</strong> Local interactions can drive landscape patterns</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2024 Interactive Ecology Simulations. Educational content for understanding competition in ecological systems.</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let charts = {};
+        let spatialData = [];
+        let populationData = { species1: [50], species2: [30], time: [0] };
+        let populationInterval;
+
+        // Wait for Chart.js to load before initializing
+        function waitForChart() {
+            if (typeof Chart !== 'undefined') {
+                initializeAllSimulations();
+            } else {
+                setTimeout(waitForChart, 100);
+            }
+        }
+
+        // Initialize all simulations
+        function initializeAllSimulations() {
+            try {
+                initializeDeWitSimulation();
+                initializeAdditiveSimulation();
+                initializeResponseSurfaceSimulation();
+                initializeTargetNeighborSimulation();
+                initializeRStarSimulation();
+                initializeSpatialSimulation();
+                initializePopulationSimulation();
+                setupEventListeners();
+                console.log('All simulations initialized successfully');
+            } catch (error) {
+                console.error('Error initializing simulations:', error);
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            waitForChart();
+        });
+
+        function setupEventListeners() {
+            // De Wit controls
+            document.getElementById('comp1').addEventListener('input', updateDeWitSimulation);
+            document.getElementById('comp2').addEventListener('input', updateDeWitSimulation);
+            document.getElementById('intercomp').addEventListener('input', updateDeWitSimulation);
+
+            // Additive controls
+            document.getElementById('alpha').addEventListener('input', updateAdditiveSimulation);
+            document.getElementById('beta').addEventListener('input', updateAdditiveSimulation);
+            document.getElementById('maxperf').addEventListener('input', updateAdditiveSimulation);
+
+            // Response surface controls
+            document.getElementById('alpha11').addEventListener('input', updateResponseSurfaceSimulation);
+            document.getElementById('alpha12').addEventListener('input', updateResponseSurfaceSimulation);
+
+            // Target-neighbor controls
+            document.getElementById('effectA').addEventListener('input', updateTargetNeighborSimulation);
+            document.getElementById('effectB').addEventListener('input', updateTargetNeighborSimulation);
+            document.getElementById('effectC').addEventListener('input', updateTargetNeighborSimulation);
+
+            // R* controls
+            document.getElementById('r1').addEventListener('input', updateRStarSimulation);
+            document.getElementById('r2').addEventListener('input', updateRStarSimulation);
+            document.getElementById('nsupply').addEventListener('input', updateRStarSimulation);
+
+            // Spatial controls
+            document.getElementById('radius').addEventListener('input', updateSpatialSimulation);
+            document.getElementById('decay').addEventListener('input', updateSpatialSimulation);
+
+            // Population controls
+            document.getElementById('r1pop').addEventListener('input', updatePopulationSimulation);
+            document.getElementById('r2pop').addEventListener('input', updatePopulationSimulation);
+            document.getElementById('alpha12pop').addEventListener('input', updatePopulationSimulation);
+            document.getElementById('alpha21pop').addEventListener('input', updatePopulationSimulation);
+        }
+
+        // De Wit Replacement Series Simulation
+        function initializeDeWitSimulation() {
+            const ctx = document.getElementById('dewitChart').getContext('2d');
+            charts.dewit = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['100:0', '75:25', '50:50', '25:75', '0:100'],
+                    datasets: [{
+                        label: 'Species 1 Performance',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Species 2 Performance',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Expected (Linear)',
+                        data: [],
+                        borderColor: '#999',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'De Wit Replacement Series Results'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Performance per Individual'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Species Ratio (Species 1:Species 2)'
+                            }
+                        }
+                    }
+                }
+            });
+            updateDeWitSimulation();
+        }
+
+        function updateDeWitSimulation() {
+            if (!charts.dewit) return;
+            
+            const comp1 = parseFloat(document.getElementById('comp1').value);
+            const comp2 = parseFloat(document.getElementById('comp2').value);
+            const intercomp = parseFloat(document.getElementById('intercomp').value);
+
+            document.getElementById('comp1-val').textContent = comp1.toFixed(1);
+            document.getElementById('comp2-val').textContent = comp2.toFixed(1);
+            document.getElementById('intercomp-val').textContent = intercomp.toFixed(1);
+
+            const proportions = [1, 0.75, 0.5, 0.25, 0];
+            const species1Performance = [];
+            const species2Performance = [];
+            const expectedLinear = [];
+
+            proportions.forEach(p1 => {
+                const p2 = 1 - p1;
+                const totalDensity = 50; // constant total density
+                const n1 = p1 * totalDensity;
+                const n2 = p2 * totalDensity;
+
+                // Performance accounting for intra- and interspecific competition
+                const perf1 = n1 > 0 ? comp1 / (1 + 0.05 * (n1-1) + 0.05 * intercomp * n2) : 0;
+                const perf2 = n2 > 0 ? comp2 / (1 + 0.05 * (n2-1) + 0.05 * intercomp * n1) : 0;
+
+                species1Performance.push(perf1);
+                species2Performance.push(perf2);
+                expectedLinear.push(p1 * comp1 + p2 * comp2);
+            });
+
+            charts.dewit.data.datasets[0].data = species1Performance;
+            charts.dewit.data.datasets[1].data = species2Performance;
+            charts.dewit.data.datasets[2].data = expectedLinear;
+            charts.dewit.update();
+        }
+
+        // Additive Design Simulation
+        function initializeAdditiveSimulation() {
+            const ctx = document.getElementById('additiveChart').getContext('2d');
+            charts.additive = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Target Species Performance',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Intraspecific Only',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Additive Design: Target Performance vs Competitor Density'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Target Performance'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Competitor Density'
+                            }
+                        }
+                    }
+                }
+            });
+            updateAdditiveSimulation();
+        }
+
+        function updateAdditiveSimulation() {
+            if (!charts.additive) return;
+            
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+            const maxPerf = parseFloat(document.getElementById('maxperf').value);
+
+            document.getElementById('alpha-val').textContent = alpha.toFixed(3);
+            document.getElementById('beta-val').textContent = beta.toFixed(3);
+            document.getElementById('maxperf-val').textContent = maxPerf.toString();
+
+            const targetDensity = 10; // constant target density
+            const competitorDensities = [];
+            const targetPerformance = [];
+            const intraOnly = [];
+            const labels = [];
+
+            for (let i = 0; i <= 20; i++) {
+                const compDensity = i * 2;
+                competitorDensities.push(compDensity);
+                labels.push(compDensity.toString());
+
+                const performance = maxPerf / (1 + alpha * targetDensity + beta * compDensity);
+                const intraPerformance = maxPerf / (1 + alpha * targetDensity);
+
+                targetPerformance.push(performance);
+                intraOnly.push(intraPerformance);
+            }
+
+            charts.additive.data.labels = labels;
+            charts.additive.data.datasets[0].data = targetPerformance;
+            charts.additive.data.datasets[1].data = intraOnly;
+            charts.additive.update();
+        }
+
+        // Response Surface Simulation
+        function initializeResponseSurfaceSimulation() {
+            const ctx = document.getElementById('responseChart').getContext('2d');
+            charts.response = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'High Performance (>80)',
+                        data: [],
+                        backgroundColor: 'rgba(44, 85, 48, 0.8)',
+                        pointRadius: 4
+                    }, {
+                        label: 'Medium Performance (40-80)',
+                        data: [],
+                        backgroundColor: 'rgba(74, 124, 89, 0.6)',
+                        pointRadius: 4
+                    }, {
+                        label: 'Low Performance (<40)',
+                        data: [],
+                        backgroundColor: 'rgba(150, 180, 150, 0.4)',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Response Surface: Species 1 Performance'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Species 2 Density'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Species 1 Density'
+                            }
+                        }
+                    }
+                }
+            });
+            updateResponseSurfaceSimulation();
+        }
+
+        function updateResponseSurfaceSimulation() {
+            if (!charts.response) return;
+            
+            const alpha11 = parseFloat(document.getElementById('alpha11').value);
+            const alpha12 = parseFloat(document.getElementById('alpha12').value);
+
+            document.getElementById('alpha11-val').textContent = alpha11.toFixed(3);
+            document.getElementById('alpha12-val').textContent = alpha12.toFixed(3);
+
+            const highPerf = [];
+            const medPerf = [];
+            const lowPerf = [];
+
+            for (let n1 = 0; n1 <= 20; n1 += 2) {
+                for (let n2 = 0; n2 <= 20; n2 += 2) {
+                    const performance = 100 / (1 + alpha11 * n1 + alpha12 * n2);
+                    
+                    const point = { x: n1, y: n2 };
+                    if (performance > 80) {
+                        highPerf.push(point);
+                    } else if (performance > 40) {
+                        medPerf.push(point);
+                    } else {
+                        lowPerf.push(point);
+                    }
+                }
+            }
+
+            charts.response.data.datasets[0].data = highPerf;
+            charts.response.data.datasets[1].data = medPerf;
+            charts.response.data.datasets[2].data = lowPerf;
+            charts.response.update();
+        }
+
+        // Target-Neighbor Simulation
+        function initializeTargetNeighborSimulation() {
+            const ctx = document.getElementById('targetChart').getContext('2d');
+            charts.target = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8'],
+                    datasets: [{
+                        label: 'Neighbor Species A',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Neighbor Species B',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Neighbor Species C',
+                        data: [],
+                        borderColor: '#6b8e70',
+                        backgroundColor: 'rgba(107, 142, 112, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Target Performance vs Number of Neighbors'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Target Performance'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Number of Neighbors'
+                            }
+                        }
+                    }
+                }
+            });
+            updateTargetNeighborSimulation();
+        }
+
+        function updateTargetNeighborSimulation() {
+            if (!charts.target) return;
+            
+            const effectA = parseFloat(document.getElementById('effectA').value);
+            const effectB = parseFloat(document.getElementById('effectB').value);
+            const effectC = parseFloat(document.getElementById('effectC').value);
+
+            document.getElementById('effectA-val').textContent = effectA.toFixed(1);
+            document.getElementById('effectB-val').textContent = effectB.toFixed(1);
+            document.getElementById('effectC-val').textContent = effectC.toFixed(1);
+
+            const neighborCounts = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            const basePerformance = 100;
+
+            const performanceA = neighborCounts.map(n => basePerformance * Math.exp(-effectA * n));
+            const performanceB = neighborCounts.map(n => basePerformance * Math.exp(-effectB * n));
+            const performanceC = neighborCounts.map(n => basePerformance * Math.exp(-effectC * n));
+
+            charts.target.data.datasets[0].data = performanceA;
+            charts.target.data.datasets[1].data = performanceB;
+            charts.target.data.datasets[2].data = performanceC;
+            charts.target.update();
+        }
+
+        // R* Theory Simulation
+        function initializeRStarSimulation() {
+            const ctx = document.getElementById('rstarChart').getContext('2d');
+            charts.rstar = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Species 1 Growth Rate',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Species 2 Growth Rate',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Zero Growth Line',
+                        data: [],
+                        borderColor: '#999',
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'R* Theory: Growth Rates vs Resource Level'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Growth Rate'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Resource Level (Nitrogen)'
+                            }
+                        }
+                    }
+                }
+            });
+            updateRStarSimulation();
+        }
+
+        function updateRStarSimulation() {
+            if (!charts.rstar) return;
+            
+            const r1 = parseFloat(document.getElementById('r1').value);
+            const r2 = parseFloat(document.getElementById('r2').value);
+            const supply = parseFloat(document.getElementById('nsupply').value);
+
+            document.getElementById('r1-val').textContent = r1.toString();
+            document.getElementById('r2-val').textContent = r2.toString();
+            document.getElementById('nsupply-val').textContent = supply.toString();
+
+            const resourceLevels = [];
+            const growth1 = [];
+            const growth2 = [];
+            const zeroLine = [];
+            const labels = [];
+
+            for (let resource = 0; resource <= 15; resource += 0.5) {
+                resourceLevels.push(resource);
+                labels.push(resource.toFixed(1));
+
+                // Growth rate based on resource level and R*
+                const g1 = Math.max(-0.1, 0.5 * (resource - r1) / (resource + 2));
+                const g2 = Math.max(-0.1, 0.4 * (resource - r2) / (resource + 2));
+
+                growth1.push(g1);
+                growth2.push(g2);
+                zeroLine.push(0);
+            }
+
+            charts.rstar.data.labels = labels;
+            charts.rstar.data.datasets[0].data = growth1;
+            charts.rstar.data.datasets[1].data = growth2;
+            charts.rstar.data.datasets[2].data = zeroLine;
+            charts.rstar.update();
+        }
+
+        // Spatial Competition Simulation
+        function initializeSpatialSimulation() {
+            generateSpatialPattern();
+            const ctx = document.getElementById('spatialChart').getContext('2d');
+            charts.spatial = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'High Competition',
+                        data: [],
+                        backgroundColor: 'rgba(220, 50, 50, 0.8)',
+                        pointRadius: 6
+                    }, {
+                        label: 'Medium Competition',
+                        data: [],
+                        backgroundColor: 'rgba(255, 150, 50, 0.6)',
+                        pointRadius: 5
+                    }, {
+                        label: 'Low Competition',
+                        data: [],
+                        backgroundColor: 'rgba(44, 85, 48, 0.4)',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Spatial Competition Intensity'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Y Position'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'X Position'
+                            }
+                        }
+                    }
+                }
+            });
+            updateSpatialSimulation();
+        }
+
+        function generateSpatialPattern() {
+            spatialData = [];
+            for (let i = 0; i < 30; i++) {
+                spatialData.push({
+                    x: Math.random() * 10,
+                    y: Math.random() * 10,
+                    size: Math.random() * 5 + 1
+                });
+            }
+            if (charts.spatial) {
+                updateSpatialSimulation();
+            }
+        }
+
+        function updateSpatialSimulation() {
+            if (!charts.spatial) return;
+            
+            const radius = parseFloat(document.getElementById('radius').value);
+            const decay = parseFloat(document.getElementById('decay').value);
+
+            document.getElementById('radius-val').textContent = radius.toString();
+            document.getElementById('decay-val').textContent = decay.toString();
+
+            const highComp = [];
+            const medComp = [];
+            const lowComp = [];
+
+            spatialData.forEach((individual, i) => {
+                let competitionIntensity = 0;
+                
+                spatialData.forEach((neighbor, j) => {
+                    if (i !== j) {
+                        const distance = Math.sqrt(
+                            Math.pow(individual.x - neighbor.x, 2) + 
+                            Math.pow(individual.y - neighbor.y, 2)
+                        );
+                        
+                        if (distance <= radius) {
+                            competitionIntensity += neighbor.size * Math.exp(-decay * distance) / Math.pow(distance + 0.1, 0.5);
+                        }
+                    }
+                });
+
+                const point = { x: individual.x, y: individual.y };
+                if (competitionIntensity > 5) {
+                    highComp.push(point);
+                } else if (competitionIntensity > 2) {
+                    medComp.push(point);
+                } else {
+                    lowComp.push(point);
+                }
+            });
+
+            charts.spatial.data.datasets[0].data = highComp;
+            charts.spatial.data.datasets[1].data = medComp;
+            charts.spatial.data.datasets[2].data = lowComp;
+            charts.spatial.update();
+        }
+
+        // Population Dynamics Simulation
+        function initializePopulationSimulation() {
+            const ctx = document.getElementById('populationChart').getContext('2d');
+            charts.population = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [0],
+                    datasets: [{
+                        label: 'Species 1',
+                        data: [50],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Species 2',
+                        data: [30],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Population Dynamics Over Time'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Population Size'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            });
+            startPopulationSimulation();
+        }
+
+        function startPopulationSimulation() {
+            if (populationInterval) clearInterval(populationInterval);
+            
+            populationInterval = setInterval(() => {
+                const r1 = parseFloat(document.getElementById('r1pop').value);
+                const r2 = parseFloat(document.getElementById('r2pop').value);
+                const alpha12 = parseFloat(document.getElementById('alpha12pop').value);
+                const alpha21 = parseFloat(document.getElementById('alpha21pop').value);
+                
+                const K1 = 100, K2 = 80; // carrying capacities
+                const currentN1 = populationData.species1[populationData.species1.length - 1];
+                const currentN2 = populationData.species2[populationData.species2.length - 1];
+                const currentTime = populationData.time[populationData.time.length - 1];
+
+                // Lotka-Volterra competition equations
+                const dN1dt = r1 * currentN1 * (1 - (currentN1 + alpha12 * currentN2) / K1);
+                const dN2dt = r2 * currentN2 * (1 - (currentN2 + alpha21 * currentN1) / K2);
+
+                const dt = 0.1;
+                const newN1 = Math.max(0, currentN1 + dN1dt * dt);
+                const newN2 = Math.max(0, currentN2 + dN2dt * dt);
+                const newTime = currentTime + dt;
+
+                populationData.species1.push(newN1);
+                populationData.species2.push(newN2);
+                populationData.time.push(newTime);
+
+                // Keep only last 200 points for performance
+                if (populationData.time.length > 200) {
+                    populationData.species1.shift();
+                    populationData.species2.shift();
+                    populationData.time.shift();
+                }
+
+                charts.population.data.labels = populationData.time;
+                charts.population.data.datasets[0].data = populationData.species1;
+                charts.population.data.datasets[1].data = populationData.species2;
+                charts.population.update('none');
+            }, 100);
+        }
+
+        function updatePopulationSimulation() {
+            const r1 = parseFloat(document.getElementById('r1pop').value);
+            const r2 = parseFloat(document.getElementById('r2pop').value);
+            const alpha12 = parseFloat(document.getElementById('alpha12pop').value);
+            const alpha21 = parseFloat(document.getElementById('alpha21pop').value);
+
+            document.getElementById('r1pop-val').textContent = r1.toFixed(2);
+            document.getElementById('r2pop-val').textContent = r2.toFixed(2);
+            document.getElementById('alpha12pop-val').textContent = alpha12.toFixed(1);
+            document.getElementById('alpha21pop-val').textContent = alpha21.toFixed(1);
+        }
+
+        function resetPopulation() {
+            populationData = { species1: [50], species2: [30], time: [0] };
+            if (populationInterval) clearInterval(populationInterval);
+            if (charts.population) {
+                startPopulationSimulation();
+            }
+        }
+    </script>
+</body>
+</html>
