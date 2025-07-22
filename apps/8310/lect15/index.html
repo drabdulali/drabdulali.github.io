@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predator-Prey Ecology: From Theory to Reality</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-dark: rgba(0,0,0,0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px var(--shadow-medium);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: var(--white);
+            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px var(--shadow-light);
+            border-left: 5px solid var(--medium-green);
+        }
+
+        .section h2 {
+            color: var(--dark-green);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 10px;
+        }
+
+        .section h3 {
+            color: var(--medium-green);
+            font-size: 1.4em;
+            margin: 20px 0 15px 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+            box-shadow: 0 2px 10px var(--shadow-light);
+        }
+
+        .equation-box {
+            background: var(--white);
+            border: 2px solid var(--medium-green);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px var(--shadow-light);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px var(--shadow-light);
+        }
+
+        .simulation-controls {
+            background: var(--light-green-2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid var(--medium-green);
+        }
+
+        .control-group {
+            margin: 10px 0;
+        }
+
+        .control-group label {
+            display: inline-block;
+            width: 150px;
+            color: var(--dark-green);
+            font-weight: bold;
+        }
+
+        .control-group input, .control-group button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            border: 1px solid var(--medium-green);
+            border-radius: 4px;
+        }
+
+        .control-group button {
+            background: var(--medium-green);
+            color: var(--white);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .control-group button:hover {
+            background: var(--dark-green);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .experiment-box {
+            background: var(--white);
+            border: 2px solid var(--medium-green);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px var(--shadow-light);
+        }
+
+        .experiment-box h4 {
+            color: var(--dark-green);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .phase-space {
+            width: 100%;
+            height: 300px;
+            border: 1px solid var(--medium-green);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .result-highlight {
+            background: linear-gradient(45deg, var(--light-green-1), var(--white));
+            border-left: 4px solid var(--dark-green);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .math-inline {
+            background: var(--light-green-1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Predator-Prey Ecology</h1>
+            <p>From Simple Models to Complex Reality</p>
+        </div>
+
+        <div class="section">
+            <h2>The Lotka-Volterra Foundation</h2>
+            <p>The classical predator-prey model forms the foundation of our understanding. The Lotka-Volterra equations describe the dynamics of two interacting populations:</p>
+            
+            <div class="equation-box">
+                <h3>Lotka-Volterra Equations</h3>
+                $$\frac{dN}{dt} = rN - aNP$$
+                $$\frac{dP}{dt} = eaNP - dP$$
+                <p style="margin-top: 15px; color: var(--medium-gray);">
+                    Where: N = prey density, P = predator density, r = prey growth rate, a = attack rate, e = conversion efficiency, d = predator death rate
+                </p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Key Prediction: Unstable Equilibrium</h3>
+                <p>The model predicts neutral stability - populations oscillate in perfect cycles, but any disturbance can lead to extinction. The equilibrium point is:</p>
+                <div class="equation-box">
+                    $$N^* = \frac{d}{ea}, \quad P^* = \frac{r}{a}$$
+                </div>
+            </div>
+
+            <div class="simulation-controls">
+                <h3>Interactive Simulation: Basic Lotka-Volterra</h3>
+                <div class="control-group">
+                    <label>Prey Growth Rate (r):</label>
+                    <input type="range" id="preyGrowth" min="0.1" max="2" step="0.1" value="1">
+                    <span id="preyGrowthValue">1.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Attack Rate (a):</label>
+                    <input type="range" id="attackRate" min="0.1" max="1" step="0.05" value="0.5">
+                    <span id="attackRateValue">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Conversion Efficiency (e):</label>
+                    <input type="range" id="efficiency" min="0.1" max="1" step="0.05" value="0.3">
+                    <span id="efficiencyValue">0.3</span>
+                </div>
+                <div class="control-group">
+                    <label>Predator Death Rate (d):</label>
+                    <input type="range" id="deathRate" min="0.1" max="1" step="0.05" value="0.2">
+                    <span id="deathRateValue">0.2</span>
+                </div>
+                <div class="control-group">
+                    <button onclick="runLVSimulation()">Run Simulation</button>
+                    <button onclick="resetLVSimulation()">Reset</button>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="chart-container">
+                    <canvas id="lvTimeChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="lvPhaseChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Luckinbill's Experiments: Testing the Theory</h2>
+            <p>Leo Luckinbill tested predator-prey theory using protozoans <em>Paramecium aurelia</em> (prey) and <em>Didinium nasutum</em> (predator) in controlled laboratory conditions.</p>
+
+            <div class="experiment-box">
+                <h4>Baseline Experiment Results</h4>
+                <div class="result-highlight">
+                    <strong>Key Finding:</strong> The system went extinct after only 1-3 predator-prey cycles, confirming the instability predicted by the Lotka-Volterra model.
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Stabilization Strategies</h3>
+                <p>Luckinbill discovered two methods to stabilize the system:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Reduce predator attack rate:</strong> Adding cellulose to the medium</li>
+                    <li><strong>Reduce prey carrying capacity:</strong> Limiting food in the medium</li>
+                </ul>
+            </div>
+
+            <div class="simulation-controls">
+                <h3>Luckinbill Simulation</h3>
+                <div class="control-group">
+                    <label>Experiment Type:</label>
+                    <select id="experimentType" onchange="updateLuckinbillSim()">
+                        <option value="baseline">Baseline (Unstable)</option>
+                        <option value="reduced_attack">Reduced Attack Rate</option>
+                        <option value="reduced_K">Reduced Carrying Capacity</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <button onclick="runLuckinbillSim()">Run Experiment</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="luckinbillChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Huffaker's Mite Experiments: The Power of Space</h2>
+            <p>C.B. Huffaker's experiments with predatory and prey mites on oranges revealed the crucial role of spatial structure in predator-prey persistence.</p>
+
+            <div class="concept-card">
+                <h3>Experimental Design</h3>
+                <p>Huffaker created patch networks by:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Dispersing oranges among rubber balls (non-resource patches)</li>
+                    <li>Adding barriers to slow predator movement</li>
+                    <li>Creating spatial heterogeneity</li>
+                </ul>
+            </div>
+
+            <div class="result-highlight">
+                <strong>Key Discovery:</strong> Spatial structure enabled persistence through a patch cycle: 
+                <span class="math-inline">none → prey → predator + prey → predator → none</span>
+            </div>
+
+            <div class="simulation-controls">
+                <h3>Spatial Patch Simulation</h3>
+                <div class="control-group">
+                    <label>Number of Patches:</label>
+                    <input type="range" id="numPatches" min="4" max="16" step="1" value="8">
+                    <span id="numPatchesValue">8</span>
+                </div>
+                <div class="control-group">
+                    <label>Migration Rate:</label>
+                    <input type="range" id="migrationRate" min="0.01" max="0.2" step="0.01" value="0.05">
+                    <span id="migrationRateValue">0.05</span>
+                </div>
+                <div class="control-group">
+                    <button onclick="runSpatialSim()">Run Spatial Simulation</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="spatialChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Lake Studies: Phytoplankton-Zooplankton Dynamics</h2>
+            <p>Field studies in lakes revealed complex interactions between nutrients, fish predation, and plankton communities.</p>
+
+            <div class="equation-box">
+                <h3>Expected Relationship (Simple Theory)</h3>
+                $$\text{Phytoplankton} \propto \text{Nutrients}$$
+                $$\text{Zooplankton} \propto \text{Nutrients}$$
+            </div>
+
+            <div class="concept-card">
+                <h3>Experimental Design</h3>
+                <p>Researchers compared phytoplankton in enclosures with and without fish across lakes with varying nutrient levels (Total Phosphorus).</p>
+            </div>
+
+            <div class="result-highlight">
+                <strong>Surprising Results:</strong>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Algal food for zooplankton was <em>greater</em> with fish present</li>
+                    <li>Algal resources didn't simply increase with nutrients</li>
+                    <li>Fish effects were stronger than nutrient effects</li>
+                </ul>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="lakeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Beyond Simple Models: Five Key Complications</h2>
+            
+            <div class="grid">
+                <div class="concept-card">
+                    <h3>1. Spatial Heterogeneity</h3>
+                    <p>Patch networks allow local extinctions while maintaining regional persistence through migration and recolonization.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h3>2. Predator Interference</h3>
+                    <p>When predators interfere with each other's hunting, it creates density-dependent attack rates and stabilizes dynamics.</p>
+                    <div class="equation-box">
+                        $$a_{eff} = \frac{a}{1 + bP}$$
+                        <p style="font-size: 0.9em; margin-top: 10px;">Effective attack rate decreases with predator density</p>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>3. Consumer Stage-Structure</h3>
+                    <p>Different life stages exploit different resources. Example: small vs. large bluegill fish have different diets and growth patterns.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h3>4. Resource Heterogeneity</h3>
+                    <p>Resources vary in quality and vulnerability. The edible vs. inedible algae model shows how resource diversity affects dynamics.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h3>5. Within-Trophic Heterogeneity</h3>
+                    <p>Different species within the same trophic level perceive and utilize resources differently based on their traits.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Resource Heterogeneity Model</h2>
+            <p>This model incorporates edible and inedible algae to explain the complex patterns observed in lake studies.</p>
+
+            <div class="equation-box">
+                <h3>Three-Component Model</h3>
+                $$\frac{dC}{dt} = C(b_e R_e + b_i R_i - P)$$
+                $$\frac{dR_e}{dt} = R_e[r_e(1 - R_e/K_e - a_{ei}R_i/K_e) - f_e C]$$
+                $$\frac{dR_i}{dt} = R_i[r_i(1 - R_i/K_i - a_{ie}R_e/K_i) - f_i C]$$
+                <p style="margin-top: 15px; color: var(--medium-gray);">
+                    C = Consumer (zooplankton), R_e = Edible algae, R_i = Inedible algae
+                </p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Key Model Features</h3>
+                <ul style="margin-left: 20px;">
+                    <li>Zooplankton can only consume edible algae</li>
+                    <li>Both algae types compete for nutrients</li>
+                    <li>Asymmetric competition between algae types</li>
+                    <li>Different algae have different growth rates and carrying capacities</li>
+                </ul>
+            </div>
+
+            <div class="simulation-controls">
+                <h3>Resource Heterogeneity Simulation</h3>
+                <div class="control-group">
+                    <label>Nutrient Level:</label>
+                    <input type="range" id="nutrients" min="0.5" max="3" step="0.1" value="1">
+                    <span id="nutrientsValue">1.0</span>
+                </div>
+                <div class="control-group">
+                    <label>Fish Predation:</label>
+                    <input type="checkbox" id="fishPredation"> Present
+                </div>
+                <div class="control-group">
+                    <button onclick="runResourceHeterogeneityModel()">Run Model</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="resourceChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Interference Model: Stabilizing Through Competition</h2>
+            <p>When predators interfere with each other, it creates a stabilizing effect on predator-prey dynamics.</p>
+
+            <div class="equation-box">
+                <h3>Modified Lotka-Volterra with Interference</h3>
+                $$\frac{dN}{dt} = rN - \frac{aNP}{1 + bP}$$
+                $$\frac{dP}{dt} = \frac{eaNP}{1 + bP} - dP$$
+                <p style="margin-top: 15px; color: var(--medium-gray);">
+                    The term (1 + bP) in the denominator represents interference among predators
+                </p>
+            </div>
+
+            <div class="simulation-controls">
+                <h3>Interference Simulation</h3>
+                <div class="control-group">
+                    <label>Interference Strength (b):</label>
+                    <input type="range" id="interferenceStrength" min="0" max="0.5" step="0.01" value="0.1">
+                    <span id="interferenceStrengthValue">0.1</span>
+                </div>
+                <div class="control-group">
+                    <button onclick="runInterferenceModel()">Run Model</button>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="chart-container">
+                    <canvas id="interferenceTimeChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="interferencePhaseChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Synthesis: From Simple to Complex</h2>
+            
+            <div class="result-highlight">
+                <h3>Key Insights</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Simple models provide essential baselines</strong> for understanding basic dynamics</li>
+                    <li><strong>Biological complexity is crucial</strong> for explaining real ecological patterns</li>
+                    <li><strong>Spatial structure enables persistence</strong> through local extinctions and recolonization</li>
+                    <li><strong>Resource quality matters</strong> as much as quantity in determining outcomes</li>
+                    <li><strong>Multiple mechanisms</strong> can stabilize otherwise unstable systems</li>
+                </ul>
+            </div>
+
+            <div class="concept-card">
+                <h3>The Role of Heterogeneity</h3>
+                <p>Whether spatial, temporal, or resource-based, heterogeneity consistently emerges as a key factor enabling coexistence and system persistence in predator-prey relationships.</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Implications for Conservation</h3>
+                <p>Understanding these mechanisms is crucial for:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Designing protected area networks</li>
+                    <li>Managing fisheries and wildlife populations</li>
+                    <li>Predicting ecosystem responses to environmental change</li>
+                    <li>Restoring degraded ecosystems</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let lvTimeChart, lvPhaseChart, luckinbillChart, spatialChart, lakeChart, resourceChart, interferenceTimeChart, interferencePhaseChart;
+
+        // Initialize all charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            setupEventListeners();
+        });
+
+        function initializeCharts() {
+            // Color scheme
+            const colors = {
+                prey: '#4a7c59',
+                predator: '#2c5530',
+                edible: '#4a7c59',
+                inedible: '#1a3d20',
+                fish: '#2c5530',
+                nutrients: '#4a7c59'
+            };
+
+            // Lotka-Volterra Time Series Chart
+            const lvTimeCtx = document.getElementById('lvTimeChart').getContext('2d');
+            lvTimeChart = new Chart(lvTimeCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Prey',
+                        data: [],
+                        borderColor: colors.prey,
+                        backgroundColor: colors.prey + '20',
+                        tension: 0.4
+                    }, {
+                        label: 'Predator',
+                        data: [],
+                        borderColor: colors.predator,
+                        backgroundColor: colors.predator + '20',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Population Dynamics Over Time'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Population Density'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Lotka-Volterra Phase Space Chart
+            const lvPhaseCtx = document.getElementById('lvPhaseChart').getContext('2d');
+            lvPhaseChart = new Chart(lvPhaseCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Phase Portrait',
+                        data: [],
+                        borderColor: colors.prey,
+                        backgroundColor: colors.prey + '40',
+                        showLine: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Phase Space (Prey vs Predator)'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Predator Density'
+                            }
+                        },
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Prey Density'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Initialize other charts similarly...
+            initializeLuckinbillChart();
+            initializeSpatialChart();
+            initializeLakeChart();
+            initializeResourceChart();
+            initializeInterferenceCharts();
+        }
+
+        function initializeLuckinbillChart() {
+            const ctx = document.getElementById('luckinbillChart').getContext('2d');
+            luckinbillChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Paramecium',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: '#4a7c5920',
+                        tension: 0.4
+                    }, {
+                        label: 'Didinium',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: '#2c553020',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Luckinbill Experiment Results'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Population Density'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Days'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeSpatialChart() {
+            const ctx = document.getElementById('spatialChart').getContext('2d');
+            spatialChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Total Prey',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: '#4a7c5920',
+                        tension: 0.4
+                    }, {
+                        label: 'Total Predator',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: '#2c553020',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Spatial Metapopulation Dynamics'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Total Population'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeLakeChart() {
+            const ctx = document.getElementById('lakeChart').getContext('2d');
+            lakeChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Without Fish',
+                        data: [],
+                        backgroundColor: '#4a7c59',
+                        borderColor: '#4a7c59'
+                    }, {
+                        label: 'With Fish',
+                        data: [],
+                        backgroundColor: '#2c5530',
+                        borderColor: '#2c5530'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Chlorophyll vs Total Phosphorus in Lakes'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            title: {
+                                display: true,
+                                text: 'Chlorophyll a (μg/L)'
+                            }
+                        },
+                        x: {
+                            type: 'logarithmic',
+                            title: {
+                                display: true,
+                                text: 'Total Phosphorus (μg/L)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Add sample lake data
+            const lakeData = [
+                // Without fish data
+                {x: 10, y: 2}, {x: 15, y: 3}, {x: 20, y: 4}, {x: 25, y: 5},
+                {x: 30, y: 6}, {x: 40, y: 8}, {x: 50, y: 10}, {x: 75, y: 15},
+                {x: 100, y: 20}, {x: 150, y: 30}, {x: 200, y: 40}
+            ];
+            
+            const fishData = [
+                // With fish data (showing paradox)
+                {x: 10, y: 5}, {x: 15, y: 8}, {x: 20, y: 12}, {x: 25, y: 15},
+                {x: 30, y: 18}, {x: 40, y: 25}, {x: 50, y: 35}, {x: 75, y: 50},
+                {x: 100, y: 70}, {x: 150, y: 95}, {x: 200, y: 120}
+            ];
+
+            lakeChart.data.datasets[0].data = lakeData;
+            lakeChart.data.datasets[1].data = fishData;
+            lakeChart.update();
+        }
+
+        function initializeResourceChart() {
+            const ctx = document.getElementById('resourceChart').getContext('2d');
+            resourceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Zooplankton',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: '#2c553020',
+                        tension: 0.4
+                    }, {
+                        label: 'Edible Algae',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: '#4a7c5920',
+                        tension: 0.4
+                    }, {
+                        label: 'Inedible Algae',
+                        data: [],
+                        borderColor: '#1a3d20',
+                        backgroundColor: '#1a3d2020',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Resource Heterogeneity Model'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Density'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeInterferenceCharts() {
+            // Time series chart
+            const timeCtx = document.getElementById('interferenceTimeChart').getContext('2d');
+            interferenceTimeChart = new Chart(timeCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Prey',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: '#4a7c5920',
+                        tension: 0.4
+                    }, {
+                        label: 'Predator',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: '#2c553020',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Interference Model - Time Series'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Population Density'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Phase space chart
+            const phaseCtx = document.getElementById('interferencePhaseChart').getContext('2d');
+            interferencePhaseChart = new Chart(phaseCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Phase Portrait',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: '#4a7c5940',
+                        showLine: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Interference Model - Phase Space'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Predator Density'
+                            }
+                        },
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Prey Density'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Update display values when sliders change
+            document.getElementById('preyGrowth').addEventListener('input', function() {
+                document.getElementById('preyGrowthValue').textContent = this.value;
+            });
+            
+            document.getElementById('attackRate').addEventListener('input', function() {
+                document.getElementById('attackRateValue').textContent = this.value;
+            });
+            
+            document.getElementById('efficiency').addEventListener('input', function() {
+                document.getElementById('efficiencyValue').textContent = this.value;
+            });
+            
+            document.getElementById('deathRate').addEventListener('input', function() {
+                document.getElementById('deathRateValue').textContent = this.value;
+            });
+
+            document.getElementById('numPatches').addEventListener('input', function() {
+                document.getElementById('numPatchesValue').textContent = this.value;
+            });
+
+            document.getElementById('migrationRate').addEventListener('input', function() {
+                document.getElementById('migrationRateValue').textContent = this.value;
+            });
+
+            document.getElementById('nutrients').addEventListener('input', function() {
+                document.getElementById('nutrientsValue').textContent = this.value;
+            });
+
+            document.getElementById('interferenceStrength').addEventListener('input', function() {
+                document.getElementById('interferenceStrengthValue').textContent = this.value;
+            });
+        }
+
+        // Simulation functions
+        function runLVSimulation() {
+            const r = parseFloat(document.getElementById('preyGrowth').value);
+            const a = parseFloat(document.getElementById('attackRate').value);
+            const e = parseFloat(document.getElementById('efficiency').value);
+            const d = parseFloat(document.getElementById('deathRate').value);
+
+            const dt = 0.01;
+            const maxTime = 50;
+            const steps = maxTime / dt;
+            
+            let N = 10; // Initial prey
+            let P = 5;  // Initial predator
+            
+            const timeData = [];
+            const preyData = [];
+            const predatorData = [];
+            const phaseData = [];
+
+            for (let i = 0; i < steps; i++) {
+                const t = i * dt;
+                
+                if (i % 50 === 0) { // Sample every 50 steps
+                    timeData.push(t.toFixed(1));
+                    preyData.push(N);
+                    predatorData.push(P);
+                    phaseData.push({x: N, y: P});
+                }
+
+                const dN = r * N - a * N * P;
+                const dP = e * a * N * P - d * P;
+                
+                N += dN * dt;
+                P += dP * dt;
+                
+                // Prevent negative populations
+                N = Math.max(0, N);
+                P = Math.max(0, P);
+                
+                // Check for extinction
+                if (N < 0.01 || P < 0.01) break;
+            }
+
+            // Update charts
+            lvTimeChart.data.labels = timeData;
+            lvTimeChart.data.datasets[0].data = preyData;
+            lvTimeChart.data.datasets[1].data = predatorData;
+            lvTimeChart.update();
+
+            lvPhaseChart.data.datasets[0].data = phaseData;
+            lvPhaseChart.update();
+        }
+
+        function resetLVSimulation() {
+            lvTimeChart.data.labels = [];
+            lvTimeChart.data.datasets[0].data = [];
+            lvTimeChart.data.datasets[1].data = [];
+            lvTimeChart.update();
+
+            lvPhaseChart.data.datasets[0].data = [];
+            lvPhaseChart.update();
+        }
+
+        function runLuckinbillSim() {
+            const expType = document.getElementById('experimentType').value;
+            
+            let r = 1.0, a = 0.5, e = 0.3, d = 0.2;
+            
+            // Modify parameters based on experiment type
+            if (expType === 'reduced_attack') {
+                a = 0.2; // Reduced attack rate (cellulose effect)
+            } else if (expType === 'reduced_K') {
+                r = 0.6; // Reduced growth rate (limited food)
+            }
+
+            const dt = 0.01;
+            const maxTime = 30;
+            const steps = maxTime / dt;
+            
+            let N = 50; // Higher initial prey (lab conditions)
+            let P = 5;  // Initial predator
+            
+            const timeData = [];
+            const preyData = [];
+            const predatorData = [];
+
+            for (let i = 0; i < steps; i++) {
+                const t = i * dt;
+                
+                if (i % 100 === 0) { // Sample every 100 steps
+                    timeData.push(t.toFixed(1));
+                    preyData.push(N);
+                    predatorData.push(P);
+                }
+
+                const dN = r * N - a * N * P;
+                const dP = e * a * N * P - d * P;
+                
+                N += dN * dt;
+                P += dP * dt;
+                
+                N = Math.max(0, N);
+                P = Math.max(0, P);
+                
+                if (N < 0.1 && P < 0.1) break;
+            }
+
+            luckinbillChart.data.labels = timeData;
+            luckinbillChart.data.datasets[0].data = preyData;
+            luckinbillChart.data.datasets[1].data = predatorData;
+            luckinbillChart.update();
+        }
+
+        function runSpatialSim() {
+            const numPatches = parseInt(document.getElementById('numPatches').value);
+            const migRate = parseFloat(document.getElementById('migrationRate').value);
+            
+            const dt = 0.01;
+            const maxTime = 100;
+            const steps = maxTime / dt;
+            
+            // Initialize patch populations
+            let patches = [];
+            for (let i = 0; i < numPatches; i++) {
+                patches.push({
+                    N: Math.random() * 10,
+                    P: Math.random() * 2
+                });
+            }
+            
+            const timeData = [];
+            const totalPreyData = [];
+            const totalPredData = [];
+
+            for (let i = 0; i < steps; i++) {
+                const t = i * dt;
+                
+                if (i % 500 === 0) {
+                    let totalN = 0, totalP = 0;
+                    patches.forEach(patch => {
+                        totalN += patch.N;
+                        totalP += patch.P;
+                    });
+                    
+                    timeData.push(t.toFixed(1));
+                    totalPreyData.push(totalN);
+                    totalPredData.push(totalP);
+                }
+
+                // Local dynamics in each patch
+                patches.forEach(patch => {
+                    const r = 1.0, a = 0.5, e = 0.3, d = 0.2;
+                    const dN = r * patch.N - a * patch.N * patch.P;
+                    const dP = e * a * patch.N * patch.P - d * patch.P;
+                    
+                    patch.N += dN * dt;
+                    patch.P += dP * dt;
+                    
+                    patch.N = Math.max(0, patch.N);
+                    patch.P = Math.max(0, patch.P);
+                });
+
+                // Migration between patches
+                if (i % 10 === 0) { // Migration every 10 steps
+                    for (let j = 0; j < numPatches; j++) {
+                        const source = patches[j];
+                        const target = patches[(j + 1) % numPatches];
+                        
+                        const migN = source.N * migRate;
+                        const migP = source.P * migRate;
+                        
+                        source.N -= migN;
+                        source.P -= migP;
+                        target.N += migN;
+                        target.P += migP;
+                    }
+                }
+            }
+
+            spatialChart.data.labels = timeData;
+            spatialChart.data.datasets[0].data = totalPreyData;
+            spatialChart.data.datasets[1].data = totalPredData;
+            spatialChart.update();
+        }
+
+        function runResourceHeterogeneityModel() {
+            const nutrients = parseFloat(document.getElementById('nutrients').value);
+            const hasFish = document.getElementById('fishPredation').checked;
+            
+            const dt = 0.01;
+            const maxTime = 50;
+            const steps = maxTime / dt;
+            
+            // Initial conditions
+            let C = 2;    // Zooplankton
+            let Re = 5;   // Edible algae
+            let Ri = 3;   // Inedible algae
+            
+            // Parameters (scaled by nutrients)
+            const be = 0.5, bi = 0.1;  // Birth rates from different algae
+            const re = 1.0 * nutrients, ri = 0.8 * nutrients;  // Algae growth rates
+            const Ke = 10 * nutrients, Ki = 8 * nutrients;     // Carrying capacities
+            const fe = 0.3, fi = 0.05;  // Feeding rates
+            const aei = 0.5, aie = 0.7; // Competition coefficients
+            const P = hasFish ? 0.2 : 0; // Fish predation on zooplankton
+            
+            const timeData = [];
+            const zooData = [];
+            const edibleData = [];
+            const inedibleData = [];
+
+            for (let i = 0; i < steps; i++) {
+                const t = i * dt;
+                
+                if (i % 200 === 0) {
+                    timeData.push(t.toFixed(1));
+                    zooData.push(C);
+                    edibleData.push(Re);
+                    inedibleData.push(Ri);
+                }
+
+                // Model equations
+                const dC = C * (be * Re + bi * Ri - P);
+                const dRe = Re * (re * (1 - Re/Ke - aei*Ri/Ke) - fe * C);
+                const dRi = Ri * (ri * (1 - Ri/Ki - aie*Re/Ki) - fi * C);
+                
+                C += dC * dt;
+                Re += dRe * dt;
+                Ri += dRi * dt;
+                
+                C = Math.max(0, C);
+                Re = Math.max(0, Re);
+                Ri = Math.max(0, Ri);
+            }
+
+            resourceChart.data.labels = timeData;
+            resourceChart.data.datasets[0].data = zooData;
+            resourceChart.data.datasets[1].data = edibleData;
+            resourceChart.data.datasets[2].data = inedibleData;
+            resourceChart.update();
+        }
+
+        function runInterferenceModel() {
+            const b = parseFloat(document.getElementById('interferenceStrength').value);
+            const r = 1.0, a = 0.5, e = 0.3, d = 0.2;
+
+            const dt = 0.01;
+            const maxTime = 50;
+            const steps = maxTime / dt;
+            
+            let N = 10, P = 5;
+            
+            const timeData = [];
+            const preyData = [];
+            const predatorData = [];
+            const phaseData = [];
+
+            for (let i = 0; i < steps; i++) {
+                const t = i * dt;
+                
+                if (i % 50 === 0) {
+                    timeData.push(t.toFixed(1));
+                    preyData.push(N);
+                    predatorData.push(P);
+                    phaseData.push({x: N, y: P});
+                }
+
+                // Modified equations with interference
+                const interference = 1 + b * P;
+                const dN = r * N - (a * N * P) / interference;
+                const dP = (e * a * N * P) / interference - d * P;
+                
+                N += dN * dt;
+                P += dP * dt;
+                
+                N = Math.max(0, N);
+                P = Math.max(0, P);
+                
+                if (N < 0.01 || P < 0.01) break;
+            }
+
+            interferenceTimeChart.data.labels = timeData;
+            interferenceTimeChart.data.datasets[0].data = preyData;
+            interferenceTimeChart.data.datasets[1].data = predatorData;
+            interferenceTimeChart.update();
+
+            interferencePhaseChart.data.datasets[0].data = phaseData;
+            interferencePhaseChart.update();
+        }
+
+        function updateLuckinbillSim() {
+            // This function can be used to update display when experiment type changes
+            const expType = document.getElementById('experimentType').value;
+            // Could add visual indicators of the selected experiment type
+        }
+
+        // Run initial simulations
+        setTimeout(() => {
+            runLVSimulation();
+            runLuckinbillSim();
+            runSpatialSim();
+            runResourceHeterogeneityModel();
+            runInterferenceModel();
+        }, 1000);
+    </script>
+</body>
+</html>
