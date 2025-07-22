@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The R* Approach to Competition in Ecology</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+            --semi-transparent-white: rgba(255,255,255,0.1);
+            --semi-transparent-black-1: rgba(0,0,0,0.1);
+            --semi-transparent-black-2: rgba(0,0,0,0.15);
+            --semi-transparent-black-3: rgba(0,0,0,0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 8px var(--semi-transparent-black-2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px var(--semi-transparent-black-3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .content {
+            padding: 2rem 0;
+        }
+
+        .section {
+            background: var(--white);
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px var(--semi-transparent-black-1);
+            border-left: 4px solid var(--medium-green);
+        }
+
+        .section h2 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: var(--medium-green);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .math-container {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+            text-align: center;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+            box-shadow: 0 2px 4px var(--semi-transparent-black-1);
+        }
+
+        .concept-card h4 {
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .concept-card p {
+            color: var(--medium-gray);
+            font-size: 0.95rem;
+        }
+
+        .simulation-container {
+            background: var(--white);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border: 2px solid var(--medium-green);
+            box-shadow: 0 4px 8px var(--semi-transparent-black-1);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            color: var(--dark-green);
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            height: 6px;
+            background: var(--light-green-1);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--medium-green);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--medium-green), var(--dark-green));
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px var(--semi-transparent-black-2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--semi-transparent-black-3);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 1rem 0;
+        }
+
+        .navigation {
+            background: var(--very-dark-green);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px var(--semi-transparent-black-2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: var(--semi-transparent-white);
+        }
+
+        .equation {
+            font-size: 1.1rem;
+            color: var(--dark-green);
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: var(--dark-green);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            input[type="range"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>The R* Approach to Competition in Ecology</h1>
+            <p>A Comprehensive Guide to Resource Competition Theory</p>
+        </div>
+    </div>
+
+    <nav class="navigation">
+        <div class="container">
+            <div class="nav-links">
+                <a href="#introduction">Introduction</a>
+                <a href="#basic-concepts">Basic Concepts</a>
+                <a href="#chemostat">Chemostat System</a>
+                <a href="#zngi">ZNGIs</a>
+                <a href="#competition">Competition Theory</a>
+                <a href="#experimental">Experimental Evidence</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="content">
+            
+            <section id="introduction" class="section">
+                <h2>Introduction to R* Theory</h2>
+                <p>The R* approach, developed by David Tilman, provides a mechanistic framework for understanding resource competition between species. This theory explains how multiple species can coexist when competing for multiple resources, fundamentally extending our understanding beyond simple competitive exclusion.</p>
+                
+                <div class="math-container">
+                    <div class="equation">
+                        $$R^* = \text{Minimum resource concentration for } \frac{dN}{dt} = 0$$
+                    </div>
+                </div>
+
+                <p>The core principle is that <span class="highlight">R*</span> represents the minimum resource concentration at which a consumer population can maintain itself at equilibrium. Species with lower R* values are superior competitors for that specific resource.</p>
+            </section>
+
+            <section id="basic-concepts" class="section">
+                <h2>Fundamental Concepts</h2>
+                
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>R* (R-star)</h4>
+                        <p>The minimum resource concentration needed for zero net population growth. Lower R* indicates better competitive ability for that resource.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Consumer Dynamics</h4>
+                        <p>Population growth depends on resource availability following Monod kinetics, balanced against mortality rates.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Resource Supply</h4>
+                        <p>Resources can be supplied externally (equable) or renewed through biological processes (biotic/logistic).</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Consumption Vectors</h4>
+                        <p>Direction and magnitude of resource use by consumers, determining how populations affect resource availability.</p>
+                    </div>
+                </div>
+
+                <h3>Basic Population Growth Model</h3>
+                <div class="math-container">
+                    <div class="equation">
+                        $$\frac{dN}{dt} = \left(\frac{r_{max} \cdot R}{K + R} - D\right) \cdot N$$
+                    </div>
+                    <p style="margin-top: 1rem; color: var(--medium-gray);">
+                        Where: N = population density, R = resource concentration, 
+                        r<sub>max</sub> = maximum growth rate, K = half-saturation constant, D = mortality rate
+                    </p>
+                </div>
+
+                <div class="simulation-container">
+                    <h4>Interactive Growth Rate vs Resource Concentration</h4>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="rmax">Maximum Growth Rate (r<sub>max</sub>)</label>
+                            <input type="range" id="rmax" min="0.1" max="2" step="0.1" value="1">
+                            <span id="rmaxValue">1.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="kval">Half-saturation (K)</label>
+                            <input type="range" id="kval" min="0.5" max="5" step="0.1" value="2">
+                            <span id="kvalValue">2.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="mortality">Mortality Rate (D)</label>
+                            <input type="range" id="mortality" min="0" max="1" step="0.05" value="0.25">
+                            <span id="mortalityValue">0.25</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                    <div id="rstarValue" style="text-align: center; font-weight: bold; color: var(--dark-green); margin-top: 1rem;"></div>
+                </div>
+            </section>
+
+            <section id="chemostat" class="section">
+                <h2>Chemostat System</h2>
+                <p>A chemostat is a continuous culture system that maintains constant environmental conditions, making it ideal for studying competition dynamics. It consists of a growth vessel with continuous inflow of fresh medium and outflow of culture.</p>
+
+                <h3>Chemostat Dynamics</h3>
+                <div class="math-container">
+                    <div class="equation">
+                        $$\frac{dN}{dt} = \left(\frac{r_{max} \cdot R}{K + R} - D\right) \cdot N$$
+                        $$\frac{dR}{dt} = D(R_0 - R) - \frac{r_{max} \cdot R \cdot N}{K + R} \cdot \frac{1}{Y}$$
+                    </div>
+                    <p style="margin-top: 1rem; color: var(--medium-gray);">
+                        Where: D = F/V (dilution rate), R₀ = inflow resource concentration, Y = yield coefficient
+                    </p>
+                </div>
+
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>Flow Rate (F)</h4>
+                        <p>Volume of medium flowing into and out of the chemostat per unit time. Controls the rate of resource supply and organism washout.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Dilution Rate (D = F/V)</h4>
+                        <p>Per capita "washout" rate that acts as density-independent mortality. Critical parameter determining competitive outcomes.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Resource Supply (R₀)</h4>
+                        <p>Concentration of limiting resource in the inflow medium. Determines the maximum possible resource concentration in the chemostat.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Cell Quota (Q)</h4>
+                        <p>Amount of resource contained within each consumer cell. Important for understanding resource dynamics and stoichiometry.</p>
+                    </div>
+                </div>
+
+                <div class="simulation-container">
+                    <h4>Chemostat Population Dynamics</h4>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="r0">Inflow Resource (R₀)</label>
+                            <input type="range" id="r0" min="1" max="10" step="0.5" value="5">
+                            <span id="r0Value">5.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="dilution">Dilution Rate (D)</label>
+                            <input type="range" id="dilution" min="0.1" max="1" step="0.05" value="0.3">
+                            <span id="dilutionValue">0.3</span>
+                        </div>
+                        <button onclick="runChemostatSimulation()">Run Simulation</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chemostatChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="zngi" class="section">
+                <h2>Zero Net Growth Isoclines (ZNGIs)</h2>
+                <p>ZNGIs represent all combinations of resource concentrations where a consumer population maintains zero net growth (dN/dt = 0). These isoclines are fundamental to predicting competitive outcomes in multi-resource environments.</p>
+
+                <h3>Types of Resource Relationships</h3>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>Essential Resources</h4>
+                        <p>Both resources are required for growth. ZNGI forms an L-shaped curve. Growth is limited by the most scarce resource (Liebig's Law).</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Substitutable Resources</h4>
+                        <p>Resources can replace each other in metabolism. ZNGI forms a straight line with negative slope.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Complementary Resources</h4>
+                        <p>Resources work synergistically. ZNGI forms a curved line (hyperbola) between the axes.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Switching Resources</h4>
+                        <p>Consumer can switch between resources based on availability. ZNGI forms rectangular patterns.</p>
+                    </div>
+                </div>
+
+                <div class="simulation-container">
+                    <h4>Interactive ZNGI Explorer</h4>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="resourceType">Resource Type</label>
+                            <select id="resourceType" onchange="updateZNGI()">
+                                <option value="essential">Essential</option>
+                                <option value="substitutable">Substitutable</option>
+                                <option value="complementary">Complementary</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="r1star">R₁* Value</label>
+                            <input type="range" id="r1star" min="0.5" max="5" step="0.1" value="2" onchange="updateZNGI()">
+                            <span id="r1starValue">2.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="r2star">R₂* Value</label>
+                            <input type="range" id="r2star" min="0.5" max="5" step="0.1" value="3" onchange="updateZNGI()">
+                            <span id="r2starValue">3.0</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="zngiChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="competition" class="section">
+                <h2>Competition Theory and Coexistence</h2>
+                <p>The R* framework predicts competitive outcomes based on the relative positions of species' ZNGIs and resource supply patterns. Coexistence requires that each species be limited by a different resource.</p>
+
+                <h3>Conditions for Coexistence</h3>
+                <div class="math-container">
+                    <div class="equation">
+                        $$\text{Species 1 wins if: } R_1^*(\text{species 1}) < R_1^*(\text{species 2})$$
+                        $$\text{Coexistence if: mutual invasibility}$$
+                    </div>
+                </div>
+
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>Competitive Exclusion</h4>
+                        <p>The species with the lowest R* for the limiting resource will exclude all others. Occurs when species compete for the same resource.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Resource Partitioning</h4>
+                        <p>Different species are limited by different resources, allowing coexistence. Each species has the lowest R* for its limiting resource.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Invasibility Analysis</h4>
+                        <p>A species can invade if it can grow when rare in the resident's equilibrium environment. Mutual invasibility leads to coexistence.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Consumption Vectors</h4>
+                        <p>Direction of resource depletion by each species. Essential for determining the path from resource supply to equilibrium.</p>
+                    </div>
+                </div>
+
+                <div class="simulation-container">
+                    <h4>Two-Species Competition Simulation</h4>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="supply1">Resource 1 Supply</label>
+                            <input type="range" id="supply1" min="1" max="8" step="0.2" value="4" onchange="updateCompetition()">
+                            <span id="supply1Value">4.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="supply2">Resource 2 Supply</label>
+                            <input type="range" id="supply2" min="1" max="8" step="0.2" value="4" onchange="updateCompetition()">
+                            <span id="supply2Value">4.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="cons1r1">Species 1 consumption ratio</label>
+                            <input type="range" id="cons1r1" min="0.2" max="2" step="0.1" value="1" onchange="updateCompetition()">
+                            <span id="cons1r1Value">1.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="cons2r2">Species 2 consumption ratio</label>
+                            <input type="range" id="cons2r2" min="0.2" max="2" step="0.1" value="1" onchange="updateCompetition()">
+                            <span id="cons2r2Value">1.0</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="competitionChart"></canvas>
+                    </div>
+                    <div id="competitionOutcome" style="text-align: center; font-weight: bold; color: var(--dark-green); margin-top: 1rem;"></div>
+                </div>
+            </section>
+
+            <section id="experimental" class="section">
+                <h2>Experimental Evidence: Tilman's Diatom Studies</h2>
+                <p>David Tilman's pioneering experiments with freshwater diatoms provided the first comprehensive test of R* theory. His work with <em>Asterionella formosa</em> and <em>Synedra ulna</em> (now <em>Cyclotella meneghiniana</em>) demonstrated how competition outcomes change with environmental conditions.</p>
+
+                <h3>Key Experimental Findings</h3>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>Temperature Effects</h4>
+                        <p>At 24°C, Synedra won competition for silicate. At 8°C, Asterionella became the superior competitor, showing how R* values change with temperature.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Resource Ratio Effects</h4>
+                        <p>By varying Si:P ratios in chemostats, Tilman showed predictable shifts between competitive exclusion and coexistence zones.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Flow Rate Effects</h4>
+                        <p>Changes in chemostat dilution rate (mortality) shifted competitive advantages by altering the effective R* requirements.</p>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h4>Resource Dynamics</h4>
+                        <p>Measurements of both population and resource concentrations confirmed theoretical predictions about consumption and equilibrium states.</p>
+                    </div>
+                </div>
+
+                <div class="math-container">
+                    <div class="equation">
+                        $$R_{Si}^* \text{ and } R_{PO_4}^* \text{ determine competitive outcomes}$$
+                        $$\text{Coexistence when: } \frac{Si}{PO_4} \text{ supply ratios fall in intermediate zone}$$
+                    </div>
+                </div>
+
+                <div class="simulation-container">
+                    <h4>Diatom Competition Experiment</h4>
+                    <p>This simulation recreates Tilman's experimental setup, showing how Si:P ratios determine competition outcomes between Asterionella (red) and Cyclotella (blue).</p>
+                    
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="siRatio">Si:P Ratio</label>
+                            <input type="range" id="siRatio" min="10" max="1000" step="10" value="100" onchange="updateDiatomExperiment()">
+                            <span id="siRatioValue">100</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="temperature">Temperature (°C)</label>
+                            <input type="range" id="temperature" min="8" max="24" step="2" value="24" onchange="updateDiatomExperiment()">
+                            <span id="temperatureValue">24</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="flowRate">Flow Rate</label>
+                            <input type="range" id="flowRate" min="0.1" max="0.5" step="0.05" value="0.25" onchange="updateDiatomExperiment()">
+                            <span id="flowRateValue">0.25</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="diatomChart"></canvas>
+                    </div>
+                    <div id="diatomOutcome" style="text-align: center; font-weight: bold; color: var(--dark-green); margin-top: 1rem;"></div>
+                </div>
+
+                <h3>Experimental Results Summary</h3>
+                <p>The experiments confirmed that:</p>
+                <ul style="margin-left: 2rem; color: var(--medium-gray);">
+                    <li>Species with lower R* values consistently won in single-resource competition</li>
+                    <li>Coexistence occurred when species were limited by different resources</li>
+                    <li>Environmental changes (temperature, flow rate) predictably shifted competitive balances</li>
+                    <li>Resource ratios in the supply determined which species would be favored</li>
+                    <li>The graphical approach accurately predicted experimental outcomes</li>
+                </ul>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        // Chart configurations with green color scheme
+        const chartColors = {
+            primary: '#4a7c59',
+            secondary: '#2c5530',
+            tertiary: '#1a3d20',
+            background: '#e8f5e8',
+            grid: '#a0c7a8'
+        };
+
+        // Growth rate chart
+        let growthChart;
+        
+        function initializeGrowthChart() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Net Growth Rate',
+                        data: [],
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        fill: false
+                    }, {
+                        label: 'Zero Growth Line',
+                        data: [],
+                        borderColor: chartColors.secondary,
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Resource Concentration (R)',
+                                color: chartColors.secondary
+                            },
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Net Growth Rate (dN/Ndt)',
+                                color: chartColors.secondary
+                            },
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: chartColors.secondary
+                            }
+                        }
+                    }
+                }
+            });
+            updateGrowthChart();
+        }
+
+        function updateGrowthChart() {
+            const rmax = parseFloat(document.getElementById('rmax').value);
+            const K = parseFloat(document.getElementById('kval').value);
+            const D = parseFloat(document.getElementById('mortality').value);
+            
+            document.getElementById('rmaxValue').textContent = rmax.toFixed(1);
+            document.getElementById('kvalValue').textContent = K.toFixed(1);
+            document.getElementById('mortalityValue').textContent = D.toFixed(2);
+            
+            const resources = [];
+            const growthRates = [];
+            const zeroLine = [];
+            
+            for (let R = 0; R <= 10; R += 0.1) {
+                resources.push(R);
+                const growthRate = (rmax * R) / (K + R) - D;
+                growthRates.push(growthRate);
+                zeroLine.push(0);
+            }
+            
+            // Calculate R*
+            const rstar = (D * K) / (rmax - D);
+            
+            growthChart.data.labels = resources;
+            growthChart.data.datasets[0].data = growthRates;
+            growthChart.data.datasets[1].data = zeroLine;
+            growthChart.update();
+            
+            if (rstar > 0 && rstar < 10) {
+                document.getElementById('rstarValue').textContent = `R* = ${rstar.toFixed(2)}`;
+            } else {
+                document.getElementById('rstarValue').textContent = 'R* = Cannot persist (washout)';
+            }
+        }
+
+        // Chemostat simulation
+        let chemostatChart;
+        
+        function initializeChemostatChart() {
+            const ctx = document.getElementById('chemostatChart').getContext('2d');
+            chemostatChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Population (N)',
+                        data: [],
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Resource (R)',
+                        data: [],
+                        borderColor: chartColors.secondary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: chartColors.secondary
+                            },
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Population Density',
+                                color: chartColors.primary
+                            },
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Resource Concentration',
+                                color: chartColors.secondary
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: chartColors.secondary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function runChemostatSimulation() {
+            const R0 = parseFloat(document.getElementById('r0').value);
+            const D = parseFloat(document.getElementById('dilution').value);
+            
+            document.getElementById('r0Value').textContent = R0.toFixed(1);
+            document.getElementById('dilutionValue').textContent = D.toFixed(2);
+            
+            // Simulation parameters
+            const rmax = 1.5;
+            const K = 2.0;
+            const Y = 1.0; // yield coefficient
+            const dt = 0.1;
+            const tmax = 50;
+            
+            let N = 0.1; // initial population
+            let R = R0; // initial resource
+            
+            const time = [];
+            const population = [];
+            const resource = [];
+            
+            for (let t = 0; t <= tmax; t += dt) {
+                time.push(t);
+                population.push(N);
+                resource.push(R);
+                
+                // Update equations
+                const growth = (rmax * R) / (K + R);
+                const dNdt = (growth - D) * N;
+                const dRdt = D * (R0 - R) - (growth * N) / Y;
+                
+                N += dNdt * dt;
+                R += dRdt * dt;
+                
+                // Prevent negative values
+                N = Math.max(0, N);
+                R = Math.max(0, R);
+            }
+            
+            chemostatChart.data.labels = time;
+            chemostatChart.data.datasets[0].data = population;
+            chemostatChart.data.datasets[1].data = resource;
+            chemostatChart.update();
+        }
+
+        // ZNGI Chart
+        let zngiChart;
+        
+        function initializeZNGIChart() {
+            const ctx = document.getElementById('zngiChart').getContext('2d');
+            zngiChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'ZNGI',
+                        data: [],
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        showLine: true,
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Resource 1 Concentration',
+                                color: chartColors.secondary
+                            },
+                            min: 0,
+                            max: 8,
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Resource 2 Concentration',
+                                color: chartColors.secondary
+                            },
+                            min: 0,
+                            max: 8,
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: chartColors.secondary
+                            }
+                        }
+                    }
+                }
+            });
+            updateZNGI();
+        }
+
+        function updateZNGI() {
+            const resourceType = document.getElementById('resourceType').value;
+            const R1star = parseFloat(document.getElementById('r1star').value);
+            const R2star = parseFloat(document.getElementById('r2star').value);
+            
+            document.getElementById('r1starValue').textContent = R1star.toFixed(1);
+            document.getElementById('r2starValue').textContent = R2star.toFixed(1);
+            
+            const zngiPoints = [];
+            
+            if (resourceType === 'essential') {
+                // L-shaped ZNGI
+                for (let r1 = R1star; r1 <= 8; r1 += 0.1) {
+                    zngiPoints.push({x: r1, y: R2star});
+                }
+                for (let r2 = R2star; r2 <= 8; r2 += 0.1) {
+                    zngiPoints.push({x: R1star, y: r2});
+                }
+            } else if (resourceType === 'substitutable') {
+                // Linear ZNGI
+                const slope = -R2star / R1star;
+                for (let r1 = 0; r1 <= 8; r1 += 0.1) {
+                    const r2 = R2star + slope * (r1 - R1star);
+                    if (r2 >= 0 && r2 <= 8) {
+                        zngiPoints.push({x: r1, y: r2});
+                    }
+                }
+            } else if (resourceType === 'complementary') {
+                // Hyperbolic ZNGI (rectangular hyperbola)
+                const product = R1star * R2star * 2; // Scaling factor for better visualization
+                
+                // Generate points along the hyperbola
+                for (let r1 = R1star; r1 <= 8; r1 += 0.05) {
+                    const r2 = product / r1;
+                    if (r2 >= 0 && r2 <= 8) {
+                        zngiPoints.push({x: r1, y: r2});
+                    }
+                }
+                
+                // Also generate points for the other branch if needed
+                for (let r2 = R2star; r2 <= 8; r2 += 0.05) {
+                    const r1 = product / r2;
+                    if (r1 >= R1star && r1 <= 8 && r1 >= R1star) {
+                        zngiPoints.push({x: r1, y: r2});
+                    }
+                }
+                
+                // Sort points by x-coordinate for proper line drawing
+                zngiPoints.sort((a, b) => a.x - b.x);
+            }
+            
+            zngiChart.data.datasets[0].data = zngiPoints;
+            zngiChart.update();
+        }
+
+        // Competition Chart
+        let competitionChart;
+        
+        function initializeCompetitionChart() {
+            const ctx = document.getElementById('competitionChart').getContext('2d');
+            competitionChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Species 1 ZNGI',
+                        data: [],
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        showLine: true,
+                        fill: false,
+                        pointRadius: 0
+                    }, {
+                        label: 'Species 2 ZNGI',
+                        data: [],
+                        borderColor: chartColors.secondary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        showLine: true,
+                        fill: false,
+                        pointRadius: 0
+                    }, {
+                        label: 'Resource Supply',
+                        data: [],
+                        backgroundColor: chartColors.tertiary,
+                        borderColor: chartColors.tertiary,
+                        pointRadius: 8
+                    }, {
+                        label: 'Equilibrium',
+                        data: [],
+                        backgroundColor: '#ff6b6b',
+                        borderColor: '#ff6b6b',
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Resource 1 Concentration',
+                                color: chartColors.secondary
+                            },
+                            min: 0,
+                            max: 10,
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Resource 2 Concentration',
+                                color: chartColors.secondary
+                            },
+                            min: 0,
+                            max: 10,
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: chartColors.secondary
+                            }
+                        }
+                    }
+                }
+            });
+            updateCompetition();
+        }
+
+        function updateCompetition() {
+            const S1 = parseFloat(document.getElementById('supply1').value);
+            const S2 = parseFloat(document.getElementById('supply2').value);
+            const cons1r1 = parseFloat(document.getElementById('cons1r1').value);
+            const cons2r2 = parseFloat(document.getElementById('cons2r2').value);
+            
+            document.getElementById('supply1Value').textContent = S1.toFixed(1);
+            document.getElementById('supply2Value').textContent = S2.toFixed(1);
+            document.getElementById('cons1r1Value').textContent = cons1r1.toFixed(1);
+            document.getElementById('cons2r2Value').textContent = cons2r2.toFixed(1);
+            
+            // Species parameters (essential resources)
+            const R1star_sp1 = 1.5;
+            const R2star_sp1 = 3.0;
+            const R1star_sp2 = 2.5;
+            const R2star_sp2 = 1.0;
+            
+            // Generate ZNGIs
+            const zngi1 = [];
+            const zngi2 = [];
+            
+            // Species 1 ZNGI (essential)
+            for (let r1 = R1star_sp1; r1 <= 10; r1 += 0.1) {
+                zngi1.push({x: r1, y: R2star_sp1});
+            }
+            for (let r2 = R2star_sp1; r2 <= 10; r2 += 0.1) {
+                zngi1.push({x: R1star_sp1, y: r2});
+            }
+            
+            // Species 2 ZNGI (essential)
+            for (let r1 = R1star_sp2; r1 <= 10; r1 += 0.1) {
+                zngi2.push({x: r1, y: R2star_sp2});
+            }
+            for (let r2 = R2star_sp2; r2 <= 10; r2 += 0.1) {
+                zngi2.push({x: R1star_sp2, y: r2});
+            }
+            
+            // Calculate equilibrium based on consumption vectors
+            let equilibrium = [];
+            let outcome = '';
+            
+            // Simplified calculation - intersection of ZNGIs
+            const eq_r1 = Math.max(R1star_sp1, R1star_sp2);
+            const eq_r2 = Math.max(R2star_sp1, R2star_sp2);
+            
+            if (S1 > eq_r1 && S2 > eq_r2) {
+                equilibrium = [{x: eq_r1, y: eq_r2}];
+                
+                // Determine which species wins or if coexistence
+                if (R1star_sp1 < R1star_sp2 && R2star_sp1 > R2star_sp2) {
+                    outcome = 'Coexistence possible - Species 1 limited by R1, Species 2 limited by R2';
+                } else if (R1star_sp1 < R1star_sp2) {
+                    outcome = 'Species 1 wins - Lower R1*';
+                } else {
+                    outcome = 'Species 2 wins - Lower R1*';
+                }
+            } else {
+                outcome = 'Insufficient resources for both species';
+            }
+            
+            competitionChart.data.datasets[0].data = zngi1;
+            competitionChart.data.datasets[1].data = zngi2;
+            competitionChart.data.datasets[2].data = [{x: S1, y: S2}];
+            competitionChart.data.datasets[3].data = equilibrium;
+            competitionChart.update();
+            
+            document.getElementById('competitionOutcome').textContent = outcome;
+        }
+
+        // Diatom experiment chart
+        let diatomChart;
+        
+        function initializeDiatomChart() {
+            const ctx = document.getElementById('diatomChart').getContext('2d');
+            diatomChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Asterionella Dominant',
+                        data: [],
+                        backgroundColor: 'rgba(220, 53, 69, 0.6)',
+                        borderColor: 'rgb(220, 53, 69)',
+                        pointRadius: 8
+                    }, {
+                        label: 'Cyclotella Dominant',
+                        data: [],
+                        backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                        borderColor: 'rgb(13, 110, 253)',
+                        pointRadius: 8
+                    }, {
+                        label: 'Coexistence',
+                        data: [],
+                        backgroundColor: 'rgba(111, 66, 193, 0.6)',
+                        borderColor: 'rgb(111, 66, 193)',
+                        pointRadius: 8
+                    }, {
+                        label: 'Current Conditions',
+                        data: [],
+                        backgroundColor: chartColors.tertiary,
+                        borderColor: chartColors.tertiary,
+                        pointRadius: 12,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Si:P Ratio',
+                                color: chartColors.secondary
+                            },
+                            type: 'logarithmic',
+                            min: 10,
+                            max: 1000,
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Flow Rate',
+                                color: chartColors.secondary
+                            },
+                            min: 0.05,
+                            max: 0.5,
+                            grid: {
+                                color: chartColors.grid
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: chartColors.secondary
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add experimental data points
+            const asterionellaData = [];
+            const cyclotella = [];
+            const coexistence = [];
+            
+            // Simulate experimental results based on Tilman's data
+            for (let ratio = 20; ratio <= 1000; ratio += 20) {
+                for (let flow = 0.05; flow <= 0.5; flow += 0.05) {
+                    if (ratio < 50) {
+                        asterionellaData.push({x: ratio, y: flow});
+                    } else if (ratio > 200) {
+                        cyclotella.push({x: ratio, y: flow});
+                    } else {
+                        coexistence.push({x: ratio, y: flow});
+                    }
+                }
+            }
+            
+            diatomChart.data.datasets[0].data = asterionellaData;
+            diatomChart.data.datasets[1].data = cyclotella;
+            diatomChart.data.datasets[2].data = coexistence;
+            
+            updateDiatomExperiment();
+        }
+
+        function updateDiatomExperiment() {
+            const siRatio = parseFloat(document.getElementById('siRatio').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const flowRate = parseFloat(document.getElementById('flowRate').value);
+            
+            document.getElementById('siRatioValue').textContent = siRatio.toString();
+            document.getElementById('temperatureValue').textContent = temperature.toString();
+            document.getElementById('flowRateValue').textContent = flowRate.toFixed(2);
+            
+            // Update current conditions point
+            diatomChart.data.datasets[3].data = [{x: siRatio, y: flowRate}];
+            diatomChart.update();
+            
+            // Determine outcome based on conditions
+            let outcome = '';
+            if (siRatio < 50) {
+                outcome = 'Asterionella formosa dominates (P-limited)';
+            } else if (siRatio > 200) {
+                outcome = 'Cyclotella meneghiniana dominates (Si-limited)';
+            } else {
+                outcome = 'Coexistence zone - both species can persist';
+            }
+            
+            // Temperature effects
+            if (temperature <= 12) {
+                outcome += ' (Low temperature favors Asterionella)';
+            }
+            
+            document.getElementById('diatomOutcome').textContent = outcome;
+        }
+
+        // Event listeners
+        document.getElementById('rmax').addEventListener('input', updateGrowthChart);
+        document.getElementById('kval').addEventListener('input', updateGrowthChart);
+        document.getElementById('mortality').addEventListener('input', updateGrowthChart);
+        
+        document.getElementById('r0').addEventListener('input', () => {
+            document.getElementById('r0Value').textContent = document.getElementById('r0').value;
+        });
+        document.getElementById('dilution').addEventListener('input', () => {
+            document.getElementById('dilutionValue').textContent = parseFloat(document.getElementById('dilution').value).toFixed(2);
+        });
+
+        // Initialize all charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGrowthChart();
+            initializeChemostatChart();
+            initializeZNGIChart();
+            initializeCompetitionChart();
+            initializeDiatomChart();
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-links a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
