@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predator-Prey Theory: Interactive Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.0/plotly.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+            --semi-transparent-white: rgba(255,255,255,0.1);
+            --semi-transparent-black-1: rgba(0,0,0,0.1);
+            --semi-transparent-black-2: rgba(0,0,0,0.15);
+            --semi-transparent-black-3: rgba(0,0,0,0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px var(--semi-transparent-black-2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px var(--semi-transparent-black-3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background: var(--white);
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px var(--semi-transparent-black-1);
+            border-left: 4px solid var(--medium-green);
+        }
+
+        .section h2 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: var(--medium-green);
+            font-size: 1.3rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+            box-shadow: 0 2px 4px var(--semi-transparent-black-1);
+        }
+
+        .equation-box {
+            background: var(--very-dark-green);
+            color: var(--white);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px var(--semi-transparent-black-2);
+        }
+
+        .controls {
+            background: var(--light-green-2);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+        }
+
+        .controls label {
+            display: inline-block;
+            width: 150px;
+            margin: 0.5rem 0;
+            color: var(--dark-green);
+            font-weight: bold;
+        }
+
+        .controls input[type="range"] {
+            width: 200px;
+            margin: 0 1rem;
+        }
+
+        .controls span {
+            color: var(--medium-gray);
+            font-weight: normal;
+        }
+
+        .plot-container {
+            background: var(--white);
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--semi-transparent-black-1);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .parameter-list {
+            background: var(--light-green-1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .parameter-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .parameter-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--medium-green);
+        }
+
+        .parameter-list li:last-child {
+            border-bottom: none;
+        }
+
+        .highlight {
+            background: linear-gradient(90deg, transparent, var(--light-green-1), transparent);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: var(--dark-green);
+            font-weight: bold;
+        }
+
+        button {
+            background: var(--medium-green);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px var(--semi-transparent-black-1);
+        }
+
+        button:hover {
+            background: var(--dark-green);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Predator-Prey Theory</h1>
+        <p>Interactive Guide to Population Dynamics and Functional Responses</p>
+    </div>
+
+    <div class="container">
+        <!-- Introduction -->
+        <div class="section">
+            <h2>Introduction to Predator-Prey Theory</h2>
+            <p>Predator-prey interactions are fundamental to understanding ecosystem dynamics. This guide explores how predators respond to changes in prey density and the mathematical models that describe these relationships.</p>
+            
+            <div class="concept-card">
+                <h3>Three Types of Predator Responses</h3>
+                <ul>
+                    <li><strong>Numerical Response:</strong> Changes in predator population size (demographic and aggregative)</li>
+                    <li><strong>Functional Response:</strong> Changes in individual predator feeding rate</li>
+                    <li><strong>Developmental Response:</strong> Changes in individual predator growth</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Functional Response Types -->
+        <div class="section">
+            <h2>Functional Response Types</h2>
+            <p>The functional response describes how a predator's feeding rate changes with prey density. There are three main types:</p>
+
+            <div class="controls">
+                <label for="preyDensity">Prey Density (N):</label>
+                <input type="range" id="preyDensity" min="0" max="100" value="50" step="1">
+                <span id="preyDensityValue">50</span>
+                <br>
+                <label for="attackRate">Attack Rate (a):</label>
+                <input type="range" id="attackRate" min="0.01" max="0.2" value="0.1" step="0.01">
+                <span id="attackRateValue">0.1</span>
+                <br>
+                <label for="handlingTime">Handling Time (h):</label>
+                <input type="range" id="handlingTime" min="0.01" max="0.5" value="0.1" step="0.01">
+                <span id="handlingTimeValue">0.1</span>
+            </div>
+
+            <div class="plot-container">
+                <div id="functionalResponsePlot"></div>
+            </div>
+
+            <div class="grid-container">
+                <div class="concept-card">
+                    <h3>Type I - Linear Response</h3>
+                    <div class="equation-box">
+                        $$f(N) = aN$$
+                    </div>
+                    <p>Feeding rate increases linearly with prey density. No saturation occurs. Rarely observed in nature due to time constraints.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Type II - Saturating Response</h3>
+                    <div class="equation-box">
+                        $$f(N) = \frac{aN}{1 + ahN}$$
+                    </div>
+                    <p>Most common type. Feeding rate saturates due to handling time limitations. Maximum feeding rate is 1/h.</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Type III - Sigmoid Response</h3>
+                <div class="equation-box">
+                    $$f(N) = \frac{aN^2}{1 + aN^2h}$$
+                </div>
+                <p>S-shaped curve. Low efficiency at low prey density, then accelerates. Often associated with prey switching behavior.</p>
+            </div>
+        </div>
+
+        <!-- Per Capita Mortality -->
+        <div class="section">
+            <h2>Per Capita Mortality Risk</h2>
+            <p>The functional response directly affects the risk each prey individual faces:</p>
+            
+            <div class="plot-container">
+                <div id="mortalityPlot"></div>
+            </div>
+
+            <div class="parameter-list">
+                <h3>Key Patterns:</h3>
+                <ul>
+                    <li><strong>Type I:</strong> Constant mortality risk regardless of prey density</li>
+                    <li><strong>Type II:</strong> Decreasing mortality risk as prey density increases (safety in numbers)</li>
+                    <li><strong>Type III:</strong> Low mortality at low density, peaks, then decreases (refuge effect)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Lotka-Volterra Model -->
+        <div class="section">
+            <h2>Basic Lotka-Volterra Model</h2>
+            <p>The foundational model for predator-prey dynamics assumes a Type I functional response:</p>
+
+            <div class="grid-container">
+                <div class="equation-box">
+                    <h3>Prey Equation</h3>
+                    $$\frac{dN}{dt} = rN - aPN$$
+                </div>
+                <div class="equation-box">
+                    <h3>Predator Equation</h3>
+                    $$\frac{dP}{dt} = -\mu P + caN P$$
+                </div>
+            </div>
+
+            <div class="parameter-list">
+                <h3>Parameters:</h3>
+                <ul>
+                    <li><strong>r:</strong> Prey intrinsic growth rate</li>
+                    <li><strong>a:</strong> Attack rate (predation efficiency)</li>
+                    <li><strong>μ:</strong> Predator death rate</li>
+                    <li><strong>c:</strong> Conversion efficiency (prey to predator biomass)</li>
+                </ul>
+            </div>
+
+            <div class="controls">
+                <label for="growthRate">Growth Rate (r):</label>
+                <input type="range" id="growthRate" min="0.1" max="2" value="1" step="0.1">
+                <span id="growthRateValue">1.0</span>
+                <br>
+                <label for="attackRateLV">Attack Rate (a):</label>
+                <input type="range" id="attackRateLV" min="0.01" max="0.1" value="0.05" step="0.01">
+                <span id="attackRateLVValue">0.05</span>
+                <br>
+                <label for="deathRate">Death Rate (μ):</label>
+                <input type="range" id="deathRate" min="0.1" max="1" value="0.5" step="0.1">
+                <span id="deathRateValue">0.5</span>
+                <br>
+                <label for="conversion">Conversion (c):</label>
+                <input type="range" id="conversion" min="0.1" max="1" value="0.5" step="0.1">
+                <span id="conversionValue">0.5</span>
+                <br>
+                <button onclick="runLVSimulation()">Run Simulation</button>
+                <button onclick="resetLVSimulation()">Reset</button>
+            </div>
+
+            <div class="grid-container">
+                <div class="plot-container">
+                    <div id="timeSeriesPlot"></div>
+                </div>
+                <div class="plot-container">
+                    <div id="phasePlot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase Plane Analysis -->
+        <div class="section">
+            <h2>Phase Plane Analysis</h2>
+            <p>Phase planes help visualize the dynamics of predator-prey systems by showing population trajectories:</p>
+
+            <div class="concept-card">
+                <h3>Isoclines (Zero Growth Lines)</h3>
+                <div class="grid-container">
+                    <div class="equation-box">
+                        <h4>Prey Isocline (dN/dt = 0)</h4>
+                        $$P = \frac{r}{a}$$
+                    </div>
+                    <div class="equation-box">
+                        <h4>Predator Isocline (dP/dt = 0)</h4>
+                        $$N = \frac{\mu}{ca}$$
+                    </div>
+                </div>
+                <p>The intersection of these lines gives the equilibrium point where both populations remain constant.</p>
+            </div>
+
+            <div class="plot-container">
+                <div id="isoclinePlot"></div>
+            </div>
+        </div>
+
+        <!-- Stabilizing Mechanisms -->
+        <div class="section">
+            <h2>Stabilizing Mechanisms</h2>
+            <p>Several mechanisms can stabilize predator-prey oscillations:</p>
+
+            <div class="grid-container">
+                <div class="concept-card">
+                    <h3>Predator Interference</h3>
+                    <p>When predators interfere with each other's hunting, the predator isocline slopes upward, creating a stable equilibrium.</p>
+                    <div class="equation-box">
+                        $$f(N,P) = \frac{aN}{P^m}$$
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Prey Competition</h3>
+                    <p>Logistic growth in prey creates a negatively sloped prey isocline, stabilizing the system.</p>
+                    <div class="equation-box">
+                        $$\frac{dN}{dt} = rN\left(1-\frac{N}{K}\right) - aPN$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <label for="carryingCapacity">Carrying Capacity (K):</label>
+                <input type="range" id="carryingCapacity" min="50" max="200" value="100" step="10">
+                <span id="carryingCapacityValue">100</span>
+                <br>
+                <label for="interference">Interference (m):</label>
+                <input type="range" id="interference" min="0" max="1" value="0" step="0.1">
+                <span id="interferenceValue">0.0</span>
+                <br>
+                <button onclick="updateStabilityPlot()">Update Stability Plot</button>
+            </div>
+
+            <div class="plot-container">
+                <div id="stabilityPlot"></div>
+            </div>
+        </div>
+
+        <!-- Paradox of Enrichment -->
+        <div class="section">
+            <h2>Paradox of Enrichment</h2>
+            <p>A counterintuitive result: increasing prey productivity can destabilize predator-prey systems!</p>
+
+            <div class="concept-card">
+                <h3>The Mechanism</h3>
+                <ol>
+                    <li>Start with a stable system with prey competition</li>
+                    <li>Increase prey growth rate or carrying capacity</li>
+                    <li>Prey isocline shifts, changing the equilibrium</li>
+                    <li>System becomes unstable, creating larger oscillations</li>
+                    <li>Increased risk of extinction during low-density periods</li>
+                </ol>
+            </div>
+
+            <div class="controls">
+                <label for="enrichment">Enrichment Level:</label>
+                <input type="range" id="enrichment" min="0.5" max="3" value="1" step="0.1">
+                <span id="enrichmentValue">1.0</span>
+                <br>
+                <button onclick="demonstrateEnrichment()">Demonstrate Paradox</button>
+            </div>
+
+            <div class="plot-container">
+                <div id="enrichmentPlot"></div>
+            </div>
+
+            <div class="highlight">
+                <p><strong>Conservation Implication:</strong> Adding nutrients to ecosystems (eutrophication) can paradoxically harm predator-prey stability!</p>
+            </div>
+        </div>
+
+        <!-- Ratio Dependence -->
+        <div class="section">
+            <h2>Ratio Dependence vs Prey Dependence</h2>
+            <p>Modern research questions whether predator feeding depends only on prey density or on the prey-to-predator ratio:</p>
+
+            <div class="equation-box">
+                <h3>Hassell-Varley Model</h3>
+                $$f(N,P) = \frac{aNP^{-m}}{1 + ahNP^{-m}}$$
+            </div>
+
+            <div class="parameter-list">
+                <h3>Parameter m determines dependence type:</h3>
+                <ul>
+                    <li><strong>m = 0:</strong> Prey-dependent (traditional Type II)</li>
+                    <li><strong>m = 1:</strong> Ratio-dependent</li>
+                    <li><strong>0 < m < 1:</strong> Intermediate</li>
+                </ul>
+            </div>
+
+            <div class="controls">
+                <label for="mParameter">m Parameter:</label>
+                <input type="range" id="mParameter" min="0" max="1" value="0" step="0.1">
+                <span id="mParameterValue">0.0</span>
+                <br>
+                <label for="predatorDensity">Predator Density:</label>
+                <input type="range" id="predatorDensity" min="1" max="10" value="5" step="1">
+                <span id="predatorDensityValue">5</span>
+                <br>
+                <button onclick="updateRatioPlot()">Update Ratio Plot</button>
+            </div>
+
+            <div class="plot-container">
+                <div id="ratioPlot"></div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Evidence and Controversy</h3>
+                <p>Meta-analyses suggest m ≈ 0.7, but there are important caveats:</p>
+                <ul>
+                    <li><strong>Study bias:</strong> Not a random sample of systems</li>
+                    <li><strong>Depletion effects:</strong> Experiments may confound interference with prey depletion</li>
+                    <li><strong>Ongoing debate:</strong> Some consider ratio dependence a "zombie idea"</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Real-World Examples -->
+        <div class="section">
+            <h2>Real-World Applications</h2>
+            <div class="grid-container">
+                <div class="concept-card">
+                    <h3>Lynx-Hare Cycles</h3>
+                    <p>Classic example of predator-prey oscillations observed in Canadian fur-trapping records. Shows ~10-year cycles with predator peaks lagging prey peaks.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Biological Control</h3>
+                    <p>Understanding functional responses is crucial for designing effective biological pest control programs.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Fisheries Management</h3>
+                    <p>Predator-prey models help manage fish stocks and understand ecosystem effects of fishing pressure.</p>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Conservation Biology</h3>
+                    <p>Models inform decisions about habitat management, species reintroduction, and ecosystem restoration.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="section">
+            <h2>Key Takeaways</h2>
+            <div class="concept-card">
+                <ul>
+                    <li><strong>Functional responses</strong> determine predator-prey dynamics and system stability</li>
+                    <li><strong>Type II responses</strong> are most common but can be destabilizing</li>
+                    <li><strong>Stabilizing mechanisms</strong> include predator interference and prey competition</li>
+                    <li><strong>Paradox of enrichment</strong> shows that more productivity can mean less stability</li>
+                    <li><strong>Ratio dependence</strong> may be more realistic than pure prey dependence</li>
+                    <li><strong>Real applications</strong> span from pest control to conservation biology</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for simulations
+        let timeSeriesData = { prey: [], predator: [], time: [] };
+        let phaseData = { prey: [], predator: [] };
+
+        // Update slider values display
+        function updateSliderValues() {
+            document.getElementById('preyDensityValue').textContent = document.getElementById('preyDensity').value;
+            document.getElementById('attackRateValue').textContent = document.getElementById('attackRate').value;
+            document.getElementById('handlingTimeValue').textContent = document.getElementById('handlingTime').value;
+            document.getElementById('growthRateValue').textContent = document.getElementById('growthRate').value;
+            document.getElementById('attackRateLVValue').textContent = document.getElementById('attackRateLV').value;
+            document.getElementById('deathRateValue').textContent = document.getElementById('deathRate').value;
+            document.getElementById('conversionValue').textContent = document.getElementById('conversion').value;
+            document.getElementById('carryingCapacityValue').textContent = document.getElementById('carryingCapacity').value;
+            document.getElementById('interferenceValue').textContent = document.getElementById('interference').value;
+            document.getElementById('enrichmentValue').textContent = document.getElementById('enrichment').value;
+            document.getElementById('mParameterValue').textContent = document.getElementById('mParameter').value;
+            document.getElementById('predatorDensityValue').textContent = document.getElementById('predatorDensity').value;
+        }
+
+        // Functional response functions
+        function typeI(N, a) {
+            return a * N;
+        }
+
+        function typeII(N, a, h) {
+            return (a * N) / (1 + a * h * N);
+        }
+
+        function typeIII(N, a, h) {
+            return (a * N * N) / (1 + a * h * N * N);
+        }
+
+        // Plot functional responses
+        function plotFunctionalResponses() {
+            const a = parseFloat(document.getElementById('attackRate').value);
+            const h = parseFloat(document.getElementById('handlingTime').value);
+            
+            const N = [];
+            const type1 = [];
+            const type2 = [];
+            const type3 = [];
+            
+            for (let i = 0; i <= 100; i++) {
+                N.push(i);
+                type1.push(typeI(i, a));
+                type2.push(typeII(i, a, h));
+                type3.push(typeIII(i, a * 0.01, h)); // Scale down for Type III
+            }
+
+            const traces = [
+                {
+                    x: N,
+                    y: type1,
+                    name: 'Type I (Linear)',
+                    line: { color: '#2c5530', width: 3 },
+                    type: 'scatter'
+                },
+                {
+                    x: N,
+                    y: type2,
+                    name: 'Type II (Saturating)',
+                    line: { color: '#4a7c59', width: 3 },
+                    type: 'scatter'
+                },
+                {
+                    x: N,
+                    y: type3,
+                    name: 'Type III (Sigmoid)',
+                    line: { color: '#1a3d20', width: 3 },
+                    type: 'scatter'
+                }
+            ];
+
+            const layout = {
+                title: 'Functional Response Types',
+                xaxis: { title: 'Prey Density (N)' },
+                yaxis: { title: 'Feeding Rate' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('functionalResponsePlot', traces, layout);
+        }
+
+        // Plot per capita mortality
+        function plotMortality() {
+            const a = 0.1;
+            const h = 0.1;
+            
+            const N = [];
+            const mortality1 = [];
+            const mortality2 = [];
+            const mortality3 = [];
+            
+            for (let i = 1; i <= 100; i++) {
+                N.push(i);
+                mortality1.push(a); // Constant for Type I
+                mortality2.push(typeII(i, a, h) / i); // Per capita for Type II
+                mortality3.push(typeIII(i, a * 0.01, h) / i); // Per capita for Type III
+            }
+
+            const traces = [
+                {
+                    x: N,
+                    y: mortality1,
+                    name: 'Type I',
+                    line: { color: '#2c5530', width: 3 },
+                    type: 'scatter'
+                },
+                {
+                    x: N,
+                    y: mortality2,
+                    name: 'Type II',
+                    line: { color: '#4a7c59', width: 3 },
+                    type: 'scatter'
+                },
+                {
+                    x: N,
+                    y: mortality3,
+                    name: 'Type III',
+                    line: { color: '#1a3d20', width: 3 },
+                    type: 'scatter'
+                }
+            ];
+
+            const layout = {
+                title: 'Per Capita Mortality Risk',
+                xaxis: { title: 'Prey Density (N)' },
+                yaxis: { title: 'Per Capita Mortality Rate' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('mortalityPlot', traces, layout);
+        }
+
+        // Lotka-Volterra simulation
+        function lotkaVolterra(r, a, mu, c, N0, P0, tmax, dt) {
+            const time = [0];
+            const N = [N0];
+            const P = [P0];
+            
+            let t = 0;
+            let n = N0;
+            let p = P0;
+            
+            while (t < tmax) {
+                const dNdt = r * n - a * p * n;
+                const dPdt = -mu * p + c * a * n * p;
+                
+                n += dNdt * dt;
+                p += dPdt * dt;
+                t += dt;
+                
+                if (n < 0) n = 0;
+                if (p < 0) p = 0;
+                
+                time.push(t);
+                N.push(n);
+                P.push(p);
+            }
+            
+            return { time, N, P };
+        }
+
+        function runLVSimulation() {
+            const r = parseFloat(document.getElementById('growthRate').value);
+            const a = parseFloat(document.getElementById('attackRateLV').value);
+            const mu = parseFloat(document.getElementById('deathRate').value);
+            const c = parseFloat(document.getElementById('conversion').value);
+            
+            const result = lotkaVolterra(r, a, mu, c, 40, 10, 50, 0.01);
+            
+            timeSeriesData = {
+                prey: result.N,
+                predator: result.P,
+                time: result.time
+            };
+            
+            phaseData = {
+                prey: result.N,
+                predator: result.P
+            };
+            
+            plotTimeSeries();
+            plotPhase();
+        }
+
+        function plotTimeSeries() {
+            const traces = [
+                {
+                    x: timeSeriesData.time,
+                    y: timeSeriesData.prey,
+                    name: 'Prey',
+                    line: { color: '#4a7c59', width: 3 },
+                    type: 'scatter'
+                },
+                {
+                    x: timeSeriesData.time,
+                    y: timeSeriesData.predator,
+                    name: 'Predator',
+                    line: { color: '#2c5530', width: 3 },
+                    type: 'scatter'
+                }
+            ];
+
+            const layout = {
+                title: 'Population Dynamics Over Time',
+                xaxis: { title: 'Time' },
+                yaxis: { title: 'Population Size' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('timeSeriesPlot', traces, layout);
+        }
+
+        function plotPhase() {
+            const trace = {
+                x: phaseData.prey,
+                y: phaseData.predator,
+                mode: 'lines+markers',
+                line: { color: '#2c5530', width: 2 },
+                marker: { color: '#4a7c59', size: 4 },
+                name: 'Phase Trajectory',
+                type: 'scatter'
+            };
+
+            const layout = {
+                title: 'Phase Plane (Predator vs Prey)',
+                xaxis: { title: 'Prey Population (N)' },
+                yaxis: { title: 'Predator Population (P)' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('phasePlot', [trace], layout);
+        }
+
+        function resetLVSimulation() {
+            timeSeriesData = { prey: [], predator: [], time: [] };
+            phaseData = { prey: [], predator: [] };
+            
+            Plotly.newPlot('timeSeriesPlot', [], {
+                title: 'Population Dynamics Over Time',
+                xaxis: { title: 'Time' },
+                yaxis: { title: 'Population Size' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            });
+            
+            Plotly.newPlot('phasePlot', [], {
+                title: 'Phase Plane (Predator vs Prey)',
+                xaxis: { title: 'Prey Population (N)' },
+                yaxis: { title: 'Predator Population (P)' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            });
+        }
+
+        function plotIsoclines() {
+            const r = 1.0;
+            const a = 0.05;
+            const mu = 0.5;
+            const c = 0.5;
+            
+            // Prey isocline (vertical line at N = mu/(c*a))
+            const N_eq = mu / (c * a);
+            const P_eq = r / a;
+            
+            const N = [];
+            const P = [];
+            for (let i = 0; i <= 100; i++) {
+                N.push(i);
+                P.push(P_eq); // Horizontal line for predator isocline
+            }
+            
+            const P_vertical = [];
+            for (let i = 0; i <= 50; i++) {
+                P_vertical.push(i);
+            }
+            
+            const traces = [
+                {
+                    x: N,
+                    y: P,
+                    name: 'Predator Isocline (dP/dt = 0)',
+                    line: { color: '#2c5530', width: 3 },
+                    type: 'scatter'
+                },
+                {
+                    x: Array(P_vertical.length).fill(N_eq),
+                    y: P_vertical,
+                    name: 'Prey Isocline (dN/dt = 0)',
+                    line: { color: '#4a7c59', width: 3 },
+                    type: 'scatter'
+                },
+                {
+                    x: [N_eq],
+                    y: [P_eq],
+                    mode: 'markers',
+                    marker: { color: '#1a3d20', size: 12, symbol: 'circle' },
+                    name: 'Equilibrium Point',
+                    type: 'scatter'
+                }
+            ];
+
+            const layout = {
+                title: 'Isoclines and Equilibrium',
+                xaxis: { title: 'Prey Population (N)', range: [0, 50] },
+                yaxis: { title: 'Predator Population (P)', range: [0, 30] },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('isoclinePlot', traces, layout);
+        }
+
+        function updateStabilityPlot() {
+            const K = parseFloat(document.getElementById('carryingCapacity').value);
+            const m = parseFloat(document.getElementById('interference').value);
+            
+            // Simulate system with competition and interference
+            const N = [];
+            const P_stable = [];
+            const P_unstable = [];
+            
+            for (let i = 1; i <= K; i++) {
+                N.push(i);
+                // Simplified stability analysis
+                if (m > 0) {
+                    // With interference - more stable
+                    P_stable.push(Math.max(0, 20 * (1 - i/K) + m * 5));
+                } else {
+                    // Without interference - less stable  
+                    P_unstable.push(Math.max(0, 25 * (1 - i/K)));
+                }
+            }
+            
+            const traces = [];
+            
+            if (m > 0) {
+                traces.push({
+                    x: N,
+                    y: P_stable,
+                    name: 'With Interference (Stable)',
+                    line: { color: '#2c5530', width: 3 },
+                    type: 'scatter'
+                });
+            } else {
+                traces.push({
+                    x: N,
+                    y: P_unstable,
+                    name: 'Without Interference (Less Stable)',
+                    line: { color: '#4a7c59', width: 3, dash: 'dash' },
+                    type: 'scatter'
+                });
+            }
+
+            const layout = {
+                title: 'Effect of Stabilizing Mechanisms',
+                xaxis: { title: 'Prey Population (N)' },
+                yaxis: { title: 'Predator Population (P)' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('stabilityPlot', traces, layout);
+        }
+
+        function demonstrateEnrichment() {
+            const enrichment = parseFloat(document.getElementById('enrichment').value);
+            
+            // Simulate different enrichment levels
+            const time = [];
+            const normal_prey = [];
+            const normal_pred = [];
+            const enriched_prey = [];
+            const enriched_pred = [];
+            
+            for (let t = 0; t <= 50; t += 0.1) {
+                time.push(t);
+                
+                // Normal system - smaller, stable oscillations
+                normal_prey.push(40 + 10 * Math.sin(t * 0.5));
+                normal_pred.push(10 + 3 * Math.cos(t * 0.5));
+                
+                // Enriched system - larger, potentially unstable oscillations
+                const amplitude_factor = enrichment;
+                enriched_prey.push(40 + 15 * amplitude_factor * Math.sin(t * 0.7));
+                enriched_pred.push(10 + 5 * amplitude_factor * Math.cos(t * 0.7));
+            }
+
+            const traces = [
+                {
+                    x: time,
+                    y: normal_prey,
+                    name: 'Normal Prey',
+                    line: { color: '#4a7c59', width: 2 },
+                    type: 'scatter'
+                },
+                {
+                    x: time,
+                    y: normal_pred,
+                    name: 'Normal Predator',
+                    line: { color: '#2c5530', width: 2 },
+                    type: 'scatter'
+                },
+                {
+                    x: time,
+                    y: enriched_prey,
+                    name: 'Enriched Prey',
+                    line: { color: '#4a7c59', width: 3, dash: 'dash' },
+                    type: 'scatter'
+                },
+                {
+                    x: time,
+                    y: enriched_pred,
+                    name: 'Enriched Predator',
+                    line: { color: '#2c5530', width: 3, dash: 'dash' },
+                    type: 'scatter'
+                }
+            ];
+
+            const layout = {
+                title: 'Paradox of Enrichment',
+                xaxis: { title: 'Time' },
+                yaxis: { title: 'Population Size' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff',
+                annotations: [
+                    {
+                        x: 25,
+                        y: Math.max(...enriched_prey) * 0.8,
+                        text: 'Enriched systems show<br>larger, potentially<br>destabilizing oscillations',
+                        showarrow: true,
+                        arrowhead: 2,
+                        arrowcolor: '#1a3d20',
+                        font: { color: '#1a3d20' }
+                    }
+                ]
+            };
+
+            Plotly.newPlot('enrichmentPlot', traces, layout);
+        }
+
+        function updateRatioPlot() {
+            const m = parseFloat(document.getElementById('mParameter').value);
+            const P_values = [2, 5, 10]; // Different predator densities
+            
+            const N = [];
+            for (let i = 1; i <= 50; i++) {
+                N.push(i);
+            }
+            
+            const traces = [];
+            const colors = ['#2c5530', '#4a7c59', '#1a3d20'];
+            
+            P_values.forEach((P, index) => {
+                const feeding_rates = [];
+                
+                N.forEach(n => {
+                    const a = 0.1;
+                    const h = 0.1;
+                    // Hassell-Varley model
+                    const rate = (a * n * Math.pow(P, -m)) / (1 + a * h * n * Math.pow(P, -m));
+                    feeding_rates.push(rate);
+                });
+                
+                traces.push({
+                    x: N,
+                    y: feeding_rates,
+                    name: `P = ${P} (m = ${m})`,
+                    line: { color: colors[index], width: 3 },
+                    type: 'scatter'
+                });
+            });
+
+            const layout = {
+                title: 'Ratio Dependence vs Prey Dependence',
+                xaxis: { title: 'Prey Density (N)' },
+                yaxis: { title: 'Per Predator Feeding Rate' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff',
+                annotations: [
+                    {
+                        x: 35,
+                        y: 2,
+                        text: m === 0 ? 'Prey-dependent:<br>curves overlap' : 
+                              m === 1 ? 'Ratio-dependent:<br>curves separated' : 
+                              'Intermediate dependence',
+                        showarrow: false,
+                        font: { color: '#1a3d20', size: 12 }
+                    }
+                ]
+            };
+
+            Plotly.newPlot('ratioPlot', traces, layout);
+        }
+
+        // Event listeners for sliders
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to all sliders
+            const sliders = document.querySelectorAll('input[type="range"]');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', updateSliderValues);
+            });
+            
+            // Add specific event listeners for plots that update automatically
+            document.getElementById('preyDensity').addEventListener('input', plotFunctionalResponses);
+            document.getElementById('attackRate').addEventListener('input', plotFunctionalResponses);
+            document.getElementById('handlingTime').addEventListener('input', plotFunctionalResponses);
+            
+            // Initialize all plots
+            updateSliderValues();
+            plotFunctionalResponses();
+            plotMortality();
+            plotIsoclines();
+            updateStabilityPlot();
+            updateRatioPlot();
+            demonstrateEnrichment();
+            
+            // Initialize empty LV plots
+            resetLVSimulation();
+        });
+
+        // MathJax configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [[', '], ['\\(', '\\)']],
+                displayMath: [['$', '$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+</body>
+</html>
