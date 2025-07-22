@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Ecology and Marine Recruitment Concepts</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                tags: 'ams'
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-start: #e8f5e8;
+            --light-green-end: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-heavy: rgba(0,0,0,0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background: var(--light-gray);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px var(--shadow-medium);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--white);
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow-light);
+            border-left: 4px solid var(--medium-green);
+        }
+
+        .section h2 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--light-green-start);
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: var(--medium-green);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--light-green-start), var(--light-green-end));
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--medium-green);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-medium);
+        }
+
+        .concept-card h4 {
+            color: var(--dark-green);
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .concept-card p {
+            color: var(--medium-gray);
+            font-size: 0.95rem;
+        }
+
+        .math-equation {
+            background: linear-gradient(135deg, var(--light-green-end), var(--light-green-start));
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border: 2px solid var(--medium-green);
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .simulation-container {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border: 2px solid var(--medium-green);
+            box-shadow: 0 2px 4px var(--shadow-light);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            color: var(--medium-gray);
+            font-weight: 500;
+        }
+
+        .control-group input {
+            padding: 0.5rem;
+            border: 2px solid var(--medium-green);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            width: 120px;
+        }
+
+        .control-group button {
+            background: var(--medium-green);
+            color: var(--white);
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .control-group button:hover {
+            background: var(--dark-green);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .tab-container {
+            margin: 1.5rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 0.7rem 1.2rem;
+            background: var(--light-gray);
+            border: 2px solid var(--medium-green);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--dark-green);
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: var(--medium-green);
+            color: var(--white);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px solid var(--medium-green);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, var(--light-green-start), var(--light-green-end));
+            padding: 1.2rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--dark-green);
+            margin: 1rem 0;
+        }
+
+        .highlight-box h4 {
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .species-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .species-card {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--medium-green);
+            text-align: center;
+        }
+
+        .species-card h4 {
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .key-findings {
+            background: linear-gradient(135deg, var(--light-green-end), var(--light-green-start));
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border: 2px solid var(--dark-green);
+        }
+
+        .key-findings h3 {
+            color: var(--dark-green);
+            margin-bottom: 1rem;
+        }
+
+        .key-findings ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .key-findings li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--medium-green);
+            color: var(--dark-gray);
+        }
+
+        .key-findings li:before {
+            content: "▶ ";
+            color: var(--medium-green);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Spatial Ecology and Marine Recruitment</h1>
+            <p>A Comprehensive Guide to Population Dynamics, Habitat Quality, and Distribution Patterns</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Introduction Section -->
+        <div class="section">
+            <h2>Overview of Spatial Ecology Concepts</h2>
+            <p>Spatial ecology examines how the spatial arrangement of habitats influences population dynamics, species distributions, and ecological processes. This guide explores key concepts from marine recruitment studies, focusing on reef fish settlement patterns and the mathematical models that describe them.</p>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Habitat Quality</h4>
+                    <p>The capacity of an environment to provide conditions suitable for organism survival, growth, and reproduction.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Density Dependence</h4>
+                    <p>Population growth rates that change in response to population density, typically through competition for resources.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Settlement Patterns</h4>
+                    <p>The spatial distribution of larvae or juveniles as they transition from planktonic to benthic life stages.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Recruitment Function</h4>
+                    <p>Mathematical relationship describing how initial settlement density relates to final adult density after mortality.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mathematical Models Section -->
+        <div class="section">
+            <h2>Mathematical Models in Population Ecology</h2>
+            
+            <h3>Beverton-Holt Recruitment Function</h3>
+            <p>The Beverton-Holt model describes post-settlement mortality with both density-independent and density-dependent components:</p>
+            
+            <div class="math-equation">
+                $$\frac{dN}{N \cdot dt} = -\alpha - \beta N$$
+            </div>
+            
+            <p>Where:</p>
+            <ul style="margin: 1rem 0; padding-left: 2rem;">
+                <li><strong>α</strong> = density-independent mortality rate</li>
+                <li><strong>β</strong> = per capita effect of conspecifics (density-dependence)</li>
+                <li><strong>N</strong> = population density</li>
+            </ul>
+
+            <h3>Integrated Form</h3>
+            <p>The integrated solution provides the relationship between initial density (N₀) and final density (Nₜ):</p>
+            
+            <div class="math-equation">
+                $$N_t = \frac{e^{-\alpha t} N_0}{1 + \frac{\beta(1-e^{-\alpha t})N_0}{\alpha}}$$
+            </div>
+
+            <div class="simulation-container">
+                <h4>Interactive Beverton-Holt Model</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Alpha (α)</label>
+                        <input type="number" id="alpha" value="0.1" step="0.01" min="0.01" max="1">
+                    </div>
+                    <div class="control-group">
+                        <label>Beta (β)</label>
+                        <input type="number" id="beta" value="0.05" step="0.01" min="0.01" max="0.2">
+                    </div>
+                    <div class="control-group">
+                        <label>Time (t)</label>
+                        <input type="number" id="time" value="10" step="1" min="1" max="50">
+                    </div>
+                    <div class="control-group">
+                        <button onclick="updateBevertonHolt()">Update Model</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bevertonHoltChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cryptic Density Dependence Section -->
+        <div class="section">
+            <h2>Cryptic Density Dependence (CDD)</h2>
+            <p>Cryptic Density Dependence occurs when spatial variation in habitat quality masks density-dependent effects. High-quality sites receive more settlers but maintain similar per-capita survival rates as low-quality sites.</p>
+
+            <div class="highlight-box">
+                <h4>Key Principle</h4>
+                <p>Settlement is positively correlated with habitat quality, creating a situation where higher density sites (with more settlers) can have equal or higher survival rates than lower density sites due to superior habitat conditions.</p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>CDD Visualization: Settlement vs. Recruitment</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>High Quality β</label>
+                        <input type="number" id="betaHigh" value="0.02" step="0.01" min="0.01" max="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label>Low Quality β</label>
+                        <input type="number" id="betaLow" value="0.08" step="0.01" min="0.05" max="0.2">
+                    </div>
+                    <div class="control-group">
+                        <button onclick="updateCDD()">Update CDD Model</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="cddChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-findings">
+                <h3>Empirical Evidence from Thalassoma hardwicke</h3>
+                <ul>
+                    <li>480 recruitment events analyzed across varying habitat qualities</li>
+                    <li>Recruitment function varies significantly among sites (β parameter)</li>
+                    <li>Site quality correlates with Pocillopora coral cover</li>
+                    <li>High-quality sites attract more settlers but maintain equal survival rates</li>
+                    <li>Experimental coral addition increased both settlement and site quality</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Ideal Free Distribution Section -->
+        <div class="section">
+            <h2>Ideal Free Distribution (IFD)</h2>
+            <p>The Ideal Free Distribution theory, developed by Fretwell and Lucas (1970), predicts how organisms should distribute themselves among habitats of varying quality to maximize individual fitness.</p>
+
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <div class="tab-button active" onclick="showTab('assumptions')">Assumptions</div>
+                    <div class="tab-button" onclick="showTab('predictions')">Predictions</div>
+                    <div class="tab-button" onclick="showTab('examples')">Examples</div>
+                </div>
+
+                <div class="tab-content active" id="assumptions">
+                    <h3>Primary Assumptions of IFD</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <h4>Perfect Information</h4>
+                            <p>Consumers have complete knowledge about the quality of all available patches</p>
+                        </div>
+                        <div class="concept-card">
+                            <h4>Optimal Behavior</h4>
+                            <p>All individuals behave optimally to maximize their fitness or resource intake</p>
+                        </div>
+                        <div class="concept-card">
+                            <h4>Free Movement</h4>
+                            <p>Consumers can move freely among patches without movement costs or constraints</p>
+                        </div>
+                        <div class="concept-card">
+                            <h4>Equal Competitors</h4>
+                            <p>All individuals have equal competitive abilities and resource requirements</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="predictions">
+                    <h3>IFD Predictions</h3>
+                    <div class="math-equation">
+                        $$\frac{N_1}{N_2} = \frac{P_1}{P_2}$$
+                    </div>
+                    <p>Where N₁ and N₂ are densities in patches 1 and 2, and P₁ and P₂ are their respective productivities.</p>
+                    
+                    <div class="simulation-container">
+                        <h4>IFD Matching Rule Demonstration</h4>
+                        <div class="controls">
+                            <div class="control-group">
+                                <label>Patch 1 Productivity</label>
+                                <input type="number" id="prod1" value="100" step="10" min="10" max="200">
+                            </div>
+                            <div class="control-group">
+                                <label>Patch 2 Productivity</label>
+                                <input type="number" id="prod2" value="50" step="10" min="10" max="200">
+                            </div>
+                            <div class="control-group">
+                                <label>Total Population</label>
+                                <input type="number" id="totalPop" value="150" step="10" min="50" max="300">
+                            </div>
+                            <div class="control-group">
+                                <button onclick="updateIFD()">Update IFD</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="ifdChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="examples">
+                    <h3>Empirical Examples</h3>
+                    <div class="species-info">
+                        <div class="species-card">
+                            <h4>Anas platyrhynchos</h4>
+                            <p><strong>Mallard Ducks</strong></p>
+                            <p>Harper (1982) demonstrated IFD in feeding mallards across patches with different food provisioning rates (1:1 and 1:2 ratios).</p>
+                        </div>
+                        <div class="species-card">
+                            <h4>Stream Catfish</h4>
+                            <p><strong>Algae-grazing catfish</strong></p>
+                            <p>Power (1984) showed density distributions matching algal productivity in sunny vs. shaded stream sections.</p>
+                        </div>
+                        <div class="species-card">
+                            <h4>Thalassoma hardwicke</h4>
+                            <p><strong>Sixbar Wrasse</strong></p>
+                            <p>Settlement patterns in coral reefs follow IFD predictions with higher densities in higher quality coral habitats.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marine Ecology Case Study Section -->
+        <div class="section">
+            <h2>Marine Ecology Case Study: Moorea Coral Reefs</h2>
+            <p>Research conducted in Moorea, French Polynesia, provides detailed insights into reef fish recruitment dynamics and habitat quality effects.</p>
+
+            <h3>Study System: Thalassoma hardwicke (Sixbar Wrasse)</h3>
+            <div class="highlight-box">
+                <h4>Life Cycle Overview</h4>
+                <p>Reef fish follow a complex life cycle: adult reproduction → planktonic larval stage → settlement on coral reefs → juvenile survival → adult recruitment. Each stage faces different mortality pressures and habitat requirements.</p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Coral Cover vs. Habitat Quality Relationship</h4>
+                <p>The study found a strong relationship between Pocillopora coral cover and habitat quality (measured as 1/β):</p>
+                <div class="chart-container">
+                    <canvas id="coralQualityChart"></canvas>
+                </div>
+            </div>
+
+            <h3>Experimental Results</h3>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Settlement Enhancement</h4>
+                    <p>Sites with added Pocillopora coral showed 2× higher settler density (0.23 vs 0.11 fish/m²)</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Quality Improvement</h4>
+                    <p>Coral addition increased habitat quality, with mean survival time increasing from 2 to 12 days</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Recruitment Success</h4>
+                    <p>Despite higher settlement, equal per-capita survival rates maintained, supporting CDD theory</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Predator Effects</h4>
+                    <p>Hawkfish density was higher in coral-added sites (0.025 vs 0.010 fish/m²), affecting mortality patterns</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Density Dependence Dynamics -->
+        <div class="section">
+            <h2>Population Dynamics Within Coral Patches</h2>
+            <p>Understanding how fish populations change over time within individual coral patches reveals the interplay between settlement pulses and mortality processes.</p>
+
+            <div class="simulation-container">
+                <h4>Dynamic Population Model</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Settlement Rate</label>
+                        <input type="number" id="settlementRate" value="5" step="1" min="1" max="20">
+                    </div>
+                    <div class="control-group">
+                        <label>Settlement Interval</label>
+                        <input type="number" id="settlementInterval" value="10" step="1" min="5" max="30">
+                    </div>
+                    <div class="control-group">
+                        <label>Mortality α</label>
+                        <input type="number" id="mortalityAlpha" value="0.15" step="0.01" min="0.05" max="0.5">
+                    </div>
+                    <div class="control-group">
+                        <label>Mortality β</label>
+                        <input type="number" id="mortalityBeta" value="0.03" step="0.01" min="0.01" max="0.1">
+                    </div>
+                    <div class="control-group">
+                        <button onclick="runDynamicsSimulation()">Run Simulation</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dynamicsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Key Patterns in Population Dynamics</h4>
+                <p>The simulation shows how settlement pulses create temporary population spikes, followed by exponential decline due to mortality. The interplay between density-independent (α) and density-dependent (β) mortality shapes the population trajectory.</p>
+            </div>
+        </div>
+
+        <!-- Comparative Analysis Section -->
+        <div class="section">
+            <h2>Observational vs. Experimental Evidence</h2>
+            <p>Comparing observational and experimental studies reveals different patterns in density dependence, highlighting the importance of habitat quality variation.</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Observational Studies</h4>
+                    <p>Show weak density dependence (slope ≈ 0.01) due to confounding effects of habitat quality variation across natural sites.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Experimental Studies</h4>
+                    <p>Reveal strong density dependence (slope ≈ 0.12) when habitat quality is controlled through experimental manipulation.</p>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Comparison of Study Types</h4>
+                <div class="chart-container">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-findings">
+                <h3>Summary of Key Findings</h3>
+                <ul>
+                    <li>Recruitment functions vary significantly across spatial scales due to habitat heterogeneity</li>
+                    <li>Cryptic density dependence masks true competitive effects in observational studies</li>
+                    <li>Ideal Free Distribution principles explain settlement patterns in marine systems</li>
+                    <li>Coral cover serves as a reliable predictor of habitat quality in reef fish recruitment</li>
+                    <li>Experimental habitat enhancement can simultaneously increase settlement and survival</li>
+                    <li>Post-settlement mortality involves both density-independent and density-dependent components</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="section">
+            <h2>Applications and Future Directions</h2>
+            <p>These concepts have broad applications in conservation biology, marine protected area design, habitat restoration, and fisheries management. Understanding spatial variation in recruitment functions is crucial for predicting population responses to environmental change and human impacts.</p>
+            
+            <div class="highlight-box">
+                <h4>Conservation Implications</h4>
+                <p>Recognition of cryptic density dependence and habitat quality effects suggests that conservation efforts should focus on maintaining and enhancing habitat quality rather than simply protecting large areas. Small, high-quality habitats may be more valuable than large, degraded areas for sustaining viable populations.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart instances
+        let bevertonHoltChart = null;
+        let cddChart = null;
+        let ifdChart = null;
+        let coralQualityChart = null;
+        let dynamicsChart = null;
+        let comparisonChart = null;
+
+        // Initialize all charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeBevertonHolt();
+            initializeCDD();
+            initializeIFD();
+            initializeCoralQuality();
+            initializeDynamics();
+            initializeComparison();
+        });
+
+        function initializeBevertonHolt() {
+            const ctx = document.getElementById('bevertonHoltChart').getContext('2d');
+            
+            const data = generateBevertonHoltData(0.1, 0.05, 10);
+            
+            bevertonHoltChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Recruitment Function',
+                        data: data,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Initial Density (N₀)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Final Density (Nₜ)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Beverton-Holt Recruitment Function'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateBevertonHoltData(alpha, beta, time) {
+            const data = [];
+            for (let n0 = 0; n0 <= 10; n0 += 0.1) {
+                const nt = (Math.exp(-alpha * time) * n0) / (1 + (beta * (1 - Math.exp(-alpha * time)) * n0) / alpha);
+                data.push({x: n0, y: nt});
+            }
+            return data;
+        }
+
+        function updateBevertonHolt() {
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+            const time = parseFloat(document.getElementById('time').value);
+            
+            const newData = generateBevertonHoltData(alpha, beta, time);
+            bevertonHoltChart.data.datasets[0].data = newData;
+            bevertonHoltChart.update();
+        }
+
+        function initializeCDD() {
+            const ctx = document.getElementById('cddChart').getContext('2d');
+            
+            const highQualityData = generateBevertonHoltData(0.1, 0.02, 10);
+            const lowQualityData = generateBevertonHoltData(0.1, 0.08, 10);
+            
+            cddChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'High Quality Habitat',
+                        data: highQualityData,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        fill: false
+                    }, {
+                        label: 'Low Quality Habitat',
+                        data: lowQualityData,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Settlement Density (Input)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Recruitment Density (Output)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Cryptic Density Dependence: Quality vs Settlement'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCDD() {
+            const betaHigh = parseFloat(document.getElementById('betaHigh').value);
+            const betaLow = parseFloat(document.getElementById('betaLow').value);
+            
+            const highQualityData = generateBevertonHoltData(0.1, betaHigh, 10);
+            const lowQualityData = generateBevertonHoltData(0.1, betaLow, 10);
+            
+            cddChart.data.datasets[0].data = highQualityData;
+            cddChart.data.datasets[1].data = lowQualityData;
+            cddChart.update();
+        }
+
+        function initializeIFD() {
+            const ctx = document.getElementById('ifdChart').getContext('2d');
+            
+            const ifdData = calculateIFD(100, 50, 150);
+            
+            ifdChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Patch 1', 'Patch 2'],
+                    datasets: [{
+                        label: 'Population Density',
+                        data: [ifdData.n1, ifdData.n2],
+                        backgroundColor: ['rgba(44, 85, 48, 0.8)', 'rgba(74, 124, 89, 0.8)'],
+                        borderColor: ['#2c5530', '#4a7c59'],
+                        borderWidth: 2
+                    }, {
+                        label: 'Productivity',
+                        data: [ifdData.p1, ifdData.p2],
+                        backgroundColor: ['rgba(232, 245, 232, 0.8)', 'rgba(240, 248, 240, 0.8)'],
+                        borderColor: ['#e8f5e8', '#f0f8f0'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Density / Productivity'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Ideal Free Distribution: Matching Rule'
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateIFD(prod1, prod2, totalPop) {
+            const ratio = prod1 / prod2;
+            const n1 = (totalPop * ratio) / (ratio + 1);
+            const n2 = totalPop - n1;
+            return {n1: n1, n2: n2, p1: prod1, p2: prod2};
+        }
+
+        function updateIFD() {
+            const prod1 = parseFloat(document.getElementById('prod1').value);
+            const prod2 = parseFloat(document.getElementById('prod2').value);
+            const totalPop = parseFloat(document.getElementById('totalPop').value);
+            
+            const ifdData = calculateIFD(prod1, prod2, totalPop);
+            
+            ifdChart.data.datasets[0].data = [ifdData.n1, ifdData.n2];
+            ifdChart.data.datasets[1].data = [ifdData.p1, ifdData.p2];
+            ifdChart.update();
+        }
+
+        function initializeCoralQuality() {
+            const ctx = document.getElementById('coralQualityChart').getContext('2d');
+            
+            // Simulated data based on the document
+            const coralData = [];
+            for (let coral = 0; coral <= 8; coral += 0.5) {
+                const quality = Math.max(5, 65 - coral * 8 + Math.random() * 10);
+                coralData.push({x: coral, y: quality});
+            }
+            
+            coralQualityChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Habitat Quality vs Coral Cover',
+                        data: coralData,
+                        backgroundColor: 'rgba(44, 85, 48, 0.6)',
+                        borderColor: '#2c5530',
+                        borderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Pocillopora Cover (%)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Quality (1/β)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Coral Cover vs Habitat Quality Relationship'
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeDynamics() {
+            const ctx = document.getElementById('dynamicsChart').getContext('2d');
+            
+            dynamicsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Fish Density',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Fish Density'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Population Dynamics Within Coral Patches'
+                        }
+                    }
+                }
+            });
+        }
+
+        function runDynamicsSimulation() {
+            const settlementRate = parseFloat(document.getElementById('settlementRate').value);
+            const settlementInterval = parseFloat(document.getElementById('settlementInterval').value);
+            const alpha = parseFloat(document.getElementById('mortalityAlpha').value);
+            const beta = parseFloat(document.getElementById('mortalityBeta').value);
+            
+            const timePoints = [];
+            let currentDensity = 0;
+            let lastSettlement = 0;
+            const dt = 0.1; // smaller time step for accuracy
+            
+            for (let t = 0; t <= 100; t += dt) {
+                // Add settlement pulse
+                if (t - lastSettlement >= settlementInterval) {
+                    currentDensity += settlementRate;
+                    lastSettlement = t;
+                }
+                
+                // Apply mortality using proper differential equation: dN/dt = -(α + βN)N
+                // This gives exponential decline between settlement events
+                if (currentDensity > 0) {
+                    const instantaneousRate = alpha + beta * currentDensity;
+                    currentDensity = currentDensity * Math.exp(-instantaneousRate * dt);
+                }
+                
+                // Record data points every 0.5 time units for cleaner visualization
+                if (t % 0.5 < dt) {
+                    timePoints.push({x: t, y: currentDensity});
+                }
+            }
+            
+            dynamicsChart.data.datasets[0].data = timePoints;
+            dynamicsChart.update();
+        }
+
+        function initializeComparison() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            const observationalData = [];
+            const experimentalData = [];
+            
+            for (let n0 = 0; n0 <= 5; n0 += 0.1) {
+                // Observational: weak density dependence
+                const obsNt = n0 * (1 - 0.01 * n0);
+                observationalData.push({x: n0, y: Math.max(0, obsNt)});
+                
+                // Experimental: strong density dependence
+                const expNt = n0 * (1 - 0.12 * n0);
+                experimentalData.push({x: n0, y: Math.max(0, expNt)});
+            }
+            
+            comparisonChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Observational (slope ≈ 0.01)',
+                        data: observationalData,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 3,
+                        fill: false
+                    }, {
+                        label: 'Experimental (slope ≈ 0.12)',
+                        data: experimentalData,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Initial Density (N₀)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Final Density (Nₜ)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Observational vs Experimental Density Dependence'
+                        }
+                    }
+                }
+            });
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Initialize dynamics simulation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                runDynamicsSimulation();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
