@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metacommunity Ecology: Complete Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a3d20 0%, #2c5530 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-bottom: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .section {
+            background: #ffffff;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #4a7c59;
+        }
+
+        .section h2 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e8f5e8;
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: #4a7c59;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #4a7c59;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(76, 124, 89, 0.2);
+        }
+
+        .concept-card h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .math-container {
+            background: #f8f9fa;
+            border: 2px solid #e8f5e8;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            overflow-x: auto;
+            color: #4a7c59;
+        }
+
+        .math-container .MathJax {
+            color: #4a7c59 !important;
+        }
+
+        .math-container mjx-container {
+            color: #4a7c59 !important;
+        }
+
+        .chart-container {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: 100% !important;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid #4a7c59;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            color: #2c5530;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            height: 6px;
+            background: #e8f5e8;
+            outline: none;
+            border-radius: 3px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4a7c59;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #4a7c59;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .paradigm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .paradigm-card {
+            background: #ffffff;
+            border: 2px solid #4a7c59;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .paradigm-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(76, 124, 89, 0.25);
+        }
+
+        .paradigm-title {
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: #ffffff;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .simulation-canvas {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .equation-highlight {
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .equation-highlight.trophic-cascade {
+            background: #f8f9fa;
+            color: #4a7c59;
+            border: 2px solid #4a7c59;
+        }
+
+        .value-display {
+            background: #ffffff;
+            color: #2c5530;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid #4a7c59;
+            margin-left: 0.5rem;
+            min-width: 40px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .key-points {
+            background: #f0f8f0;
+            border-left: 4px solid #4a7c59;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .key-points ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 0.3rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .key-points li::before {
+            content: "▶";
+            color: #4a7c59;
+            position: absolute;
+            left: 0;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e8f5e8;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-right: 0.5rem;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #4a7c59;
+            color: #ffffff;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1rem 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Metacommunity Ecology</h1>
+            <p class="subtitle">Communities in Space: From Island Biogeography to Cross-Ecosystem Linkages</p>
+        </header>
+
+        <!-- Section 1: Island Biogeography -->
+        <div class="section">
+            <h2>1. Island Biogeography Theory</h2>
+            <p>The foundation of metacommunity ecology, developed by MacArthur and Wilson (1967), explains how area and isolation affect species diversity on islands.</p>
+            
+            <h3>Species-Area Relationship</h3>
+            <div class="equation-highlight">
+                <div class="math-container" style="color: #4a7c59;">
+                    $S = cA^z$
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #4a7c59;">Where: S = species richness, A = area, c = region-specific constant, z ≈ 0.25-0.45</p>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Interactive Species-Area Relationship</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="areaSlider">Area (km²):</label>
+                        <input type="range" id="areaSlider" min="1" max="1000" value="100">
+                        <span id="areaValue" class="value-display">100</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="zSlider">Z value:</label>
+                        <input type="range" id="zSlider" min="0.1" max="0.8" step="0.1" value="0.3">
+                        <span id="zValue" class="value-display">0.3</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="cSlider">C constant:</label>
+                        <input type="range" id="cSlider" min="1" max="10" value="3">
+                        <span id="cValue" class="value-display">3</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="speciesAreaChart"></canvas>
+                </div>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Area Effect</h4>
+                    <p>Larger islands support more species due to:</p>
+                    <ul>
+                        <li>More habitats and niches</li>
+                        <li>Larger population sizes</li>
+                        <li>Lower extinction rates</li>
+                        <li>Target effect (easier to find)</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Isolation Effect</h4>
+                    <p>More isolated islands have fewer species because:</p>
+                    <ul>
+                        <li>Lower colonization rates</li>
+                        <li>Harder for dispersers to reach</li>
+                        <li>Reduced gene flow</li>
+                        <li>Slower recovery from extinctions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Dynamic Equilibrium -->
+        <div class="section">
+            <h2>2. Dynamic Equilibrium Model</h2>
+            <p>Species number represents a balance between colonization and extinction rates.</p>
+
+            <div class="interactive-demo">
+                <h4>Equilibrium Dynamics Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="isolationSlider">Isolation:</label>
+                        <input type="range" id="isolationSlider" min="1" max="10" value="5">
+                        <span id="isolationValue" class="value-display">5</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="sizeSlider">Island Size:</label>
+                        <input type="range" id="sizeSlider" min="1" max="10" value="5">
+                        <span id="sizeValue" class="value-display">5</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="equilibriumChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Key Principles:</h4>
+                <ul>
+                    <li>Equilibrium occurs where colonization = extinction</li>
+                    <li>Near islands have higher colonization rates</li>
+                    <li>Large islands have lower extinction rates</li>
+                    <li>Species turnover continues even at equilibrium</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 3: Metacommunity Paradigms -->
+        <div class="section">
+            <h2>3. Modern Metacommunity Paradigms</h2>
+            <p>Four main theoretical frameworks explaining how communities are linked across space (Leibold et al. 2004).</p>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('patchDynamics')">Patch Dynamics</button>
+                <button class="tab" onclick="showTab('speciesSorting')">Species Sorting</button>
+                <button class="tab" onclick="showTab('massEffects')">Mass Effects</button>
+                <button class="tab" onclick="showTab('neutral')">Neutral</button>
+            </div>
+
+            <div id="patchDynamics" class="tab-content active">
+                <div class="paradigm-card">
+                    <div class="paradigm-title">Patch Dynamics</div>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Low dispersal between patches</li>
+                        <li>Competition-colonization trade-offs</li>
+                        <li>Local extinctions common</li>
+                        <li>Regional coexistence via spatial separation</li>
+                    </ul>
+                    <div class="math-container">
+                        <strong>Trade-off:</strong> Good competitors ↔ Poor dispersers
+                    </div>
+                </div>
+            </div>
+
+            <div id="speciesSorting" class="tab-content">
+                <div class="paradigm-card">
+                    <div class="paradigm-title">Species Sorting</div>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Environmental heterogeneity drives patterns</li>
+                        <li>Species sort into optimal habitats</li>
+                        <li>Moderate dispersal levels</li>
+                        <li>Local adaptation important</li>
+                    </ul>
+                    <div class="math-container">
+                        <strong>Principle:</strong> Environment filters species composition
+                    </div>
+                </div>
+            </div>
+
+            <div id="massEffects" class="tab-content">
+                <div class="paradigm-card">
+                    <div class="paradigm-title">Mass Effects</div>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>High dispersal rates</li>
+                        <li>Source-sink dynamics</li>
+                        <li>Poor competitors persist via immigration</li>
+                        <li>Homogenizes communities</li>
+                    </ul>
+                    <div class="math-container">
+                        <strong>Effect:</strong> ↑ Local diversity, ↓ Beta diversity
+                    </div>
+                </div>
+            </div>
+
+            <div id="neutral" class="tab-content">
+                <div class="paradigm-card">
+                    <div class="paradigm-title">Neutral Model</div>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>All species ecologically equivalent</li>
+                        <li>Random drift dominates</li>
+                        <li>Immigration prevents local extinctions</li>
+                        <li>Stochastic processes drive patterns</li>
+                    </ul>
+                    <div class="math-container">
+                        <strong>Assumption:</strong> No competitive differences
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Scale-Dependent Effects -->
+        <div class="section">
+            <h2>4. Scale-Dependent Effects of Dispersal</h2>
+            <p>The effects of connectivity depend on spatial scale and community size.</p>
+
+            <div class="interactive-demo">
+                <h4>Dispersal Effects on Diversity</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="dispersalSlider">Dispersal Rate:</label>
+                        <input type="range" id="dispersalSlider" min="0" max="100" value="20">
+                        <span id="dispersalValue" class="value-display">20%</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="communitySizeSlider">Community Size:</label>
+                        <input type="range" id="communitySizeSlider" min="50" max="500" value="200">
+                        <span id="communitySizeValue" class="value-display">200</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="scaleEffectsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Alpha Diversity (Local)</h4>
+                    <p>Species richness within a single patch</p>
+                    <div class="math-container">$\alpha = \text{Local species richness}$</div>
+                </div>
+                <div class="concept-card">
+                    <h4>Beta Diversity (Turnover)</h4>
+                    <p>Difference in composition between patches</p>
+                    <div class="math-container">$\beta = \text{Compositional turnover}$</div>
+                </div>
+                <div class="concept-card">
+                    <h4>Gamma Diversity (Regional)</h4>
+                    <p>Total species richness across all patches</p>
+                    <div class="math-container">$\gamma = \alpha + \beta$</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Cross-Ecosystem Linkages -->
+        <div class="section">
+            <h2>5. Cross-Ecosystem Linkages</h2>
+            <p>Communities in different ecosystems can be connected through spatial subsidies and complex life histories.</p>
+
+            <h3>Spatial Subsidies</h3>
+            <div class="key-points">
+                <h4>Types of Subsidies:</h4>
+                <ul>
+                    <li>Marine → Terrestrial (salmon runs, seabird guano)</li>
+                    <li>Terrestrial → Aquatic (leaf litter, insects)</li>
+                    <li>Aquatic → Terrestrial (emergent insects)</li>
+                    <li>Forest → Streams (organic matter, shade)</li>
+                </ul>
+            </div>
+
+            <h3>Complex Life Histories</h3>
+            <div class="interactive-demo">
+                <h4>Dragonfly Life Cycle Effects</h4>
+                <p>Example: How fish in aquatic systems affect terrestrial plant reproduction via dragonfly life cycles.</p>
+                <div class="simulation-canvas" id="lifecycleCanvas">
+                    <svg width="100%" height="300" id="lifecycleSVG">
+                        <!-- SVG content will be generated by JavaScript -->
+                    </svg>
+                </div>
+                <button id="toggleLifecycle" style="background: #4a7c59; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Start Animation</button>
+            </div>
+
+            <div class="equation-highlight trophic-cascade">
+                <h4>Trophic Cascade Equation</h4>
+                <div class="math-container">
+                    $\text{Fish} \rightarrow \text{Dragonfly larvae} \downarrow \rightarrow \text{Adult dragonflies} \uparrow \rightarrow \text{Pollination} \uparrow$
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Mathematical Models -->
+        <div class="section">
+            <h2>6. Mathematical Models in Metacommunity Ecology</h2>
+
+            <h3>Metapopulation Model</h3>
+            <div class="math-container">
+                $$\frac{dp}{dt} = mp(1-p) - ep$$
+                <p style="margin-top: 1rem;">Where: p = proportion of occupied patches, m = colonization rate, e = extinction rate</p>
+            </div>
+
+            <h3>Levins Model Equilibrium</h3>
+            <div class="math-container">
+                $$p^* = 1 - \frac{e}{m}$$
+                <p style="margin-top: 1rem;">Equilibrium proportion of occupied patches</p>
+            </div>
+
+            <h3>Island Biogeography Equilibrium</h3>
+            <div class="math-container">
+                $$\frac{dS}{dt} = I(S) - E(S)$$
+                <p style="margin-top: 1rem;">Where: S = species number, I(S) = immigration rate, E(S) = extinction rate</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Mathematical Model Explorer</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="colonizationRate">Colonization Rate (m):</label>
+                        <input type="range" id="colonizationRate" min="0.1" max="2" step="0.1" value="1">
+                        <span id="colonizationRateValue" class="value-display">1.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="extinctionRate">Extinction Rate (e):</label>
+                        <input type="range" id="extinctionRate" min="0.1" max="1.5" step="0.1" value="0.5">
+                        <span id="extinctionRateValue" class="value-display">0.5</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="modelChart"></canvas>
+                </div>
+                <div class="math-container">
+                    <p>Equilibrium: p* = <span id="equilibriumValue" class="value-display">0.5</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7: Conservation Implications -->
+        <div class="section">
+            <h2>7. Conservation Implications</h2>
+            
+            <div class="paradigm-grid">
+                <div class="concept-card">
+                    <h4>Habitat Connectivity</h4>
+                    <p>Corridors and stepping stones maintain gene flow and reduce extinction risk.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Landscape Management</h4>
+                    <p>Consider both terrestrial and aquatic habitats for species with complex life cycles.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Scale-Dependent Planning</h4>
+                    <p>Local and regional conservation strategies may have different optimal approaches.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Cross-System Effects</h4>
+                    <p>Changes in one ecosystem can have cascading effects on adjacent systems.</p>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Key Conservation Principles:</h4>
+                <ul>
+                    <li>Preserve both source and sink habitats</li>
+                    <li>Maintain connectivity corridors</li>
+                    <li>Consider multi-scale processes</li>
+                    <li>Account for complex life histories</li>
+                    <li>Plan for cross-ecosystem linkages</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let speciesAreaChart, equilibriumChart, scaleEffectsChart, modelChart;
+        let lifecycleAnimation;
+
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Species-Area Chart
+        function createSpeciesAreaChart() {
+            const ctx = document.getElementById('speciesAreaChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (speciesAreaChart) {
+                speciesAreaChart.destroy();
+            }
+            
+            const areas = [];
+            const species = [];
+            
+            const c = parseFloat(document.getElementById('cSlider').value);
+            const z = parseFloat(document.getElementById('zSlider').value);
+            
+            for (let a = 1; a <= 1000; a += 20) {
+                areas.push(a);
+                species.push(c * Math.pow(a, z));
+            }
+            
+            speciesAreaChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: areas,
+                    datasets: [{
+                        label: 'Species Richness',
+                        data: species,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(76, 124, 89, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Species-Area Relationship: S = cA^z',
+                            color: '#2c5530',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#2c5530'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Area (km²)',
+                                color: '#2c5530',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                color: '#2c5530'
+                            },
+                            grid: {
+                                color: 'rgba(76, 124, 89, 0.2)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Species',
+                                color: '#2c5530',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                color: '#2c5530'
+                            },
+                            grid: {
+                                color: 'rgba(76, 124, 89, 0.2)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Equilibrium Chart
+        function createEquilibriumChart() {
+            const ctx = document.getElementById('equilibriumChart').getContext('2d');
+            const species = [];
+            const colonization = [];
+            const extinction = [];
+            
+            for (let s = 0; s <= 50; s++) {
+                species.push(s);
+                const isolation = parseFloat(document.getElementById('isolationSlider').value);
+                const size = parseFloat(document.getElementById('sizeSlider').value);
+                
+                // Colonization decreases with species number and isolation
+                const c = Math.max(0, (50 - s) * (11 - isolation) / 50);
+                colonization.push(c);
+                
+                // Extinction increases with species number, decreases with size
+                const e = s * (11 - size) / 50;
+                extinction.push(e);
+            }
+            
+            equilibriumChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: species,
+                    datasets: [{
+                        label: 'Immigration Rate',
+                        data: colonization,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(76, 124, 89, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Extinction Rate',
+                        data: extinction,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Immigration-Extinction Equilibrium',
+                            color: '#2c5530'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Number of Species',
+                                color: '#2c5530'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Rate',
+                                color: '#2c5530'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Scale Effects Chart
+        function createScaleEffectsChart() {
+            const ctx = document.getElementById('scaleEffectsChart').getContext('2d');
+            const dispersalRates = [];
+            const alphaDiversity = [];
+            const betaDiversity = [];
+            const gammaDiversity = [];
+            
+            for (let d = 0; d <= 100; d += 5) {
+                dispersalRates.push(d);
+                const commSize = parseFloat(document.getElementById('communitySizeSlider').value);
+                
+                // Alpha increases with dispersal (mass effects)
+                const alpha = 5 + (d / 100) * 10 + (commSize / 500) * 5;
+                alphaDiversity.push(alpha);
+                
+                // Beta decreases with dispersal (homogenization)
+                const beta = 20 - (d / 100) * 15;
+                betaDiversity.push(Math.max(0, beta));
+                
+                // Gamma is alpha + beta
+                const gamma = alpha + Math.max(0, beta);
+                gammaDiversity.push(gamma);
+            }
+            
+            scaleEffectsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dispersalRates,
+                    datasets: [{
+                        label: 'Alpha Diversity (Local)',
+                        data: alphaDiversity,
+                        borderColor: '#4a7c59',
+                        tension: 0.4
+                    }, {
+                        label: 'Beta Diversity (Turnover)',
+                        data: betaDiversity,
+                        borderColor: '#2c5530',
+                        tension: 0.4
+                    }, {
+                        label: 'Gamma Diversity (Regional)',
+                        data: gammaDiversity,
+                        borderColor: '#1a3d20',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Scale-Dependent Effects of Dispersal',
+                            color: '#2c5530'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Dispersal Rate (%)',
+                                color: '#2c5530'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Diversity Index',
+                                color: '#2c5530'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Mathematical Model Chart
+        function createModelChart() {
+            const ctx = document.getElementById('modelChart').getContext('2d');
+            const time = [];
+            const patchOccupancy = [];
+            
+            const m = parseFloat(document.getElementById('colonizationRate').value);
+            const e = parseFloat(document.getElementById('extinctionRate').value);
+            let p = 0.1; // Initial proportion
+            
+            for (let t = 0; t <= 20; t += 0.1) {
+                time.push(t);
+                patchOccupancy.push(p);
+                
+                // Levins model: dp/dt = mp(1-p) - ep
+                const dpdt = m * p * (1 - p) - e * p;
+                p += dpdt * 0.1;
+                p = Math.max(0, Math.min(1, p));
+            }
+            
+            // Calculate equilibrium
+            const equilibrium = Math.max(0, 1 - e/m);
+            document.getElementById('equilibriumValue').textContent = equilibrium.toFixed(3);
+            
+            modelChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: time,
+                    datasets: [{
+                        label: 'Patch Occupancy',
+                        data: patchOccupancy,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(76, 124, 89, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Equilibrium',
+                        data: new Array(time.length).fill(equilibrium),
+                        borderColor: '#2c5530',
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Levins Metapopulation Model',
+                            color: '#2c5530'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#2c5530'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Proportion of Occupied Patches',
+                                color: '#2c5530'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        // Lifecycle Animation
+        function createLifecycleAnimation() {
+            const svg = document.getElementById('lifecycleSVG');
+            svg.innerHTML = `
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                            refX="10" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#4a7c59" />
+                    </marker>
+                </defs>
+                
+                <!-- Aquatic ecosystem -->
+                <rect x="50" y="50" width="200" height="100" fill="#e8f5e8" stroke="#4a7c59" stroke-width="2" rx="10"/>
+                <text x="150" y="40" text-anchor="middle" fill="#2c5530" font-weight="bold">Aquatic</text>
+                
+                <!-- Fish -->
+                <ellipse id="fish" cx="100" cy="80" rx="15" ry="8" fill="#4a7c59"/>
+                <text x="100" y="110" text-anchor="middle" fill="#2c5530" font-size="12">Fish</text>
+                
+                <!-- Dragonfly larvae -->
+                <circle id="larvae" cx="180" cy="120" r="8" fill="#2c5530"/>
+                <text x="180" y="140" text-anchor="middle" fill="#2c5530" font-size="12">Larvae</text>
+                
+                <!-- Terrestrial ecosystem -->
+                <rect x="350" y="50" width="200" height="100" fill="#f0f8f0" stroke="#4a7c59" stroke-width="2" rx="10"/>
+                <text x="450" y="40" text-anchor="middle" fill="#2c5530" font-weight="bold">Terrestrial</text>
+                
+                <!-- Adult dragonfly -->
+                <ellipse id="adult" cx="400" cy="80" rx="12" ry="6" fill="#4a7c59"/>
+                <text x="400" y="110" text-anchor="middle" fill="#2c5530" font-size="12">Adult</text>
+                
+                <!-- Plant -->
+                <circle id="plant" cx="480" cy="120" r="10" fill="#2c5530"/>
+                <text x="480" y="140" text-anchor="middle" fill="#2c5530" font-size="12">Plant</text>
+                
+                <!-- Arrows -->
+                <line x1="120" y1="80" x2="160" y2="120" stroke="#4a7c59" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="135" y="95" fill="#2c5530" font-size="10">predation</text>
+                
+                <line x1="250" y1="100" x2="350" y2="100" stroke="#4a7c59" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="300" y="95" text-anchor="middle" fill="#2c5530" font-size="10">emergence</text>
+                
+                <line x1="420" y1="80" x2="460" y2="120" stroke="#4a7c59" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="445" y="95" fill="#2c5530" font-size="10">pollination</text>
+                
+                <!-- Effect indicators -->
+                <text x="100" y="200" text-anchor="middle" fill="#2c5530" font-size="14">More Fish →</text>
+                <text x="200" y="200" text-anchor="middle" fill="#2c5530" font-size="14">Fewer Larvae →</text>
+                <text x="350" y="200" text-anchor="middle" fill="#2c5530" font-size="14">More Adults →</text>
+                <text x="480" y="200" text-anchor="middle" fill="#2c5530" font-size="14">More Pollination</text>
+            `;
+        }
+
+        // Update functions for sliders
+        function updateSpeciesArea() {
+            const area = document.getElementById('areaSlider').value;
+            const z = parseFloat(document.getElementById('zSlider').value);
+            const c = parseFloat(document.getElementById('cSlider').value);
+            
+            document.getElementById('areaValue').textContent = area;
+            document.getElementById('zValue').textContent = z.toFixed(1);
+            document.getElementById('cValue').textContent = c;
+            
+            // Recalculate data
+            const areas = [];
+            const species = [];
+            
+            for (let a = 1; a <= 1000; a += 20) {
+                areas.push(a);
+                species.push(c * Math.pow(a, z));
+            }
+            
+            // Update chart if it exists
+            if (speciesAreaChart && speciesAreaChart.data) {
+                speciesAreaChart.data.labels = areas;
+                speciesAreaChart.data.datasets[0].data = species;
+                speciesAreaChart.update('none'); // No animation for smoother interaction
+            }
+        }
+
+        function updateEquilibrium() {
+            const isolation = document.getElementById('isolationSlider').value;
+            const size = document.getElementById('sizeSlider').value;
+            
+            document.getElementById('isolationValue').textContent = isolation;
+            document.getElementById('sizeValue').textContent = size;
+            
+            // Update chart data
+            const species = [];
+            const colonization = [];
+            const extinction = [];
+            
+            for (let s = 0; s <= 50; s++) {
+                species.push(s);
+                const c = Math.max(0, (50 - s) * (11 - isolation) / 50);
+                colonization.push(c);
+                const e = s * (11 - size) / 50;
+                extinction.push(e);
+            }
+            
+            equilibriumChart.data.datasets[0].data = colonization;
+            equilibriumChart.data.datasets[1].data = extinction;
+            equilibriumChart.update();
+        }
+
+        function updateScaleEffects() {
+            const dispersal = document.getElementById('dispersalSlider').value;
+            const commSize = document.getElementById('communitySizeSlider').value;
+            
+            document.getElementById('dispersalValue').textContent = dispersal + '%';
+            document.getElementById('communitySizeValue').textContent = commSize;
+            
+            // Update chart data
+            const dispersalRates = [];
+            const alphaDiversity = [];
+            const betaDiversity = [];
+            const gammaDiversity = [];
+            
+            for (let d = 0; d <= 100; d += 5) {
+                dispersalRates.push(d);
+                const alpha = 5 + (d / 100) * 10 + (commSize / 500) * 5;
+                alphaDiversity.push(alpha);
+                const beta = 20 - (d / 100) * 15;
+                betaDiversity.push(Math.max(0, beta));
+                const gamma = alpha + Math.max(0, beta);
+                gammaDiversity.push(gamma);
+            }
+            
+            scaleEffectsChart.data.datasets[0].data = alphaDiversity;
+            scaleEffectsChart.data.datasets[1].data = betaDiversity;
+            scaleEffectsChart.data.datasets[2].data = gammaDiversity;
+            scaleEffectsChart.update();
+        }
+
+        function updateModel() {
+            const m = document.getElementById('colonizationRate').value;
+            const e = document.getElementById('extinctionRate').value;
+            
+            document.getElementById('colonizationRateValue').textContent = m;
+            document.getElementById('extinctionRateValue').textContent = e;
+            
+            // Recalculate model
+            const time = [];
+            const patchOccupancy = [];
+            let p = 0.1;
+            
+            for (let t = 0; t <= 20; t += 0.1) {
+                time.push(t);
+                patchOccupancy.push(p);
+                const dpdt = m * p * (1 - p) - e * p;
+                p += dpdt * 0.1;
+                p = Math.max(0, Math.min(1, p));
+            }
+            
+            const equilibrium = Math.max(0, 1 - e/m);
+            document.getElementById('equilibriumValue').textContent = equilibrium.toFixed(3);
+            
+            modelChart.data.datasets[0].data = patchOccupancy;
+            modelChart.data.datasets[1].data = new Array(time.length).fill(equilibrium);
+            modelChart.update();
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure all elements are rendered
+            setTimeout(() => {
+                // Create all charts
+                createSpeciesAreaChart();
+                createEquilibriumChart();
+                createScaleEffectsChart();
+                createModelChart();
+                createLifecycleAnimation();
+                
+                // Add event listeners
+                document.getElementById('areaSlider').addEventListener('input', updateSpeciesArea);
+                document.getElementById('zSlider').addEventListener('input', updateSpeciesArea);
+                document.getElementById('cSlider').addEventListener('input', updateSpeciesArea);
+                
+                document.getElementById('isolationSlider').addEventListener('input', updateEquilibrium);
+                document.getElementById('sizeSlider').addEventListener('input', updateEquilibrium);
+                
+                document.getElementById('dispersalSlider').addEventListener('input', updateScaleEffects);
+                document.getElementById('communitySizeSlider').addEventListener('input', updateScaleEffects);
+                
+                document.getElementById('colonizationRate').addEventListener('input', updateModel);
+                document.getElementById('extinctionRate').addEventListener('input', updateModel);
+                
+                // Lifecycle animation toggle
+                let animationRunning = false;
+                document.getElementById('toggleLifecycle').addEventListener('click', function() {
+                    if (!animationRunning) {
+                        this.textContent = 'Stop Animation';
+                        animationRunning = true;
+                        // Simple animation by changing opacity
+                        setInterval(() => {
+                            if (animationRunning) {
+                                const elements = ['fish', 'larvae', 'adult', 'plant'];
+                                elements.forEach((id, index) => {
+                                    const element = document.getElementById(id);
+                                    if (element) {
+                                        element.style.opacity = Math.sin(Date.now() / 1000 + index) * 0.3 + 0.7;
+                                    }
+                                });
+                            }
+                        }, 100);
+                    } else {
+                        this.textContent = 'Start Animation';
+                        animationRunning = false;
+                    }
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
