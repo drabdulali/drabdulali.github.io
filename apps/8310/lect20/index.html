@@ -642,44 +642,90 @@
                         label: 'Plants',
                         data: [],
                         borderColor: '#4a7c59',
-                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
-                        fill: true
+                        backgroundColor: 'rgba(74, 124, 89, 0.2)',
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 3
                     }, {
                         label: 'Herbivores',
                         data: [],
                         borderColor: '#2c5530',
-                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
-                        fill: true
+                        backgroundColor: 'rgba(44, 85, 48, 0.2)',
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 3
                     }, {
                         label: 'Carnivores',
                         data: [],
                         borderColor: '#1a3d20',
-                        backgroundColor: 'rgba(26, 61, 32, 0.1)',
-                        fill: true
+                        backgroundColor: 'rgba(26, 61, 32, 0.2)',
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 3
+                    }, {
+                        label: 'Current Position',
+                        data: [],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: '#ff6b6b',
+                        pointRadius: 8,
+                        pointHoverRadius: 10,
+                        showLine: false,
+                        borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
                     scales: {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Primary Productivity'
+                                text: 'Primary Productivity →',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(74, 124, 89, 0.1)'
                             }
                         },
                         y: {
                             title: {
                                 display: true,
-                                text: 'Abundance/Biomass'
-                            }
+                                text: 'Abundance/Biomass →',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(74, 124, 89, 0.1)'
+                            },
+                            min: 0
                         }
                     },
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Oksanen Model: Trophic Structure vs. Productivity'
+                            text: 'Oksanen Model: Trophic Structure vs. Productivity',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
                         }
+                    },
+                    animation: {
+                        duration: 750,
+                        easing: 'easeInOutQuart'
                     }
                 }
             });
@@ -687,37 +733,58 @@
         }
 
         function updateOksanenModel() {
-            const productivity = document.getElementById('productivity').value;
+            const productivity = parseInt(document.getElementById('productivity').value);
             document.getElementById('productivityValue').textContent = productivity;
             
-            const data = calculateOksanenModel(productivity);
+            const data = calculateOksanenModel();
+            
+            // Update the main curves
             oksanenChart.data.datasets[0].data = data.plants;
             oksanenChart.data.datasets[1].data = data.herbivores;
             oksanenChart.data.datasets[2].data = data.carnivores;
-            oksanenChart.update();
+            
+            // Update current position marker
+            const currentData = [];
+            currentData.push({
+                x: productivity,
+                y: data.plants[productivity]
+            });
+            currentData.push({
+                x: productivity,
+                y: data.herbivores[productivity]
+            });
+            if (data.carnivores[productivity] > 0) {
+                currentData.push({
+                    x: productivity,
+                    y: data.carnivores[productivity]
+                });
+            }
+            
+            oksanenChart.data.datasets[3].data = currentData;
+            oksanenChart.update('none'); // No animation for smoother updates
         }
 
-        function calculateOksanenModel(currentProductivity) {
+        function calculateOksanenModel() {
             const plants = [];
             const herbivores = [];
             const carnivores = [];
             
             for (let p = 0; p <= 100; p++) {
-                if (p < 20) {
-                    // 1 trophic level
-                    plants.push(p * 0.8);
+                if (p < 25) {
+                    // 1 trophic level - only plants
+                    plants.push(p * 1.2);
                     herbivores.push(0);
                     carnivores.push(0);
-                } else if (p < 60) {
-                    // 2 trophic levels
-                    plants.push(15 + Math.sin((p-20) * 0.1) * 3);
-                    herbivores.push((p-20) * 0.6);
+                } else if (p < 65) {
+                    // 2 trophic levels - plants controlled by herbivores
+                    plants.push(20 + Math.random() * 5); // Plants stay relatively constant
+                    herbivores.push((p - 25) * 1.5);
                     carnivores.push(0);
                 } else {
-                    // 3 trophic levels
-                    plants.push(20 + (p-60) * 0.4);
-                    herbivores.push(25 + Math.sin((p-60) * 0.1) * 2);
-                    carnivores.push((p-60) * 0.3);
+                    // 3 trophic levels - herbivores controlled by carnivores, plants released
+                    plants.push(25 + (p - 65) * 0.8);
+                    herbivores.push(35 + Math.sin((p - 65) * 0.2) * 8); // Some oscillation
+                    carnivores.push((p - 65) * 1.2);
                 }
             }
             
