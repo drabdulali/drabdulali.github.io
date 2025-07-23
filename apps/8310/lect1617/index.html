@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coexistence in Competitive Communities</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --primary-dark-green: #2c5530;
+            --primary-medium-green: #4a7c59;
+            --primary-very-dark-green: #1a3d20;
+            --bg-light-gray: #f8f9fa;
+            --bg-white: #ffffff;
+            --bg-light-green-1: #e8f5e8;
+            --bg-light-green-2: #f0f8f0;
+            --text-dark: #333;
+            --text-medium: #666;
+            --text-white: #ffffff;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-dark: rgba(0,0,0,0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--bg-light-gray);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-very-dark-green), var(--primary-dark-green));
+            color: var(--text-white);
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px var(--shadow-medium);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: var(--bg-white);
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            border-left: 4px solid var(--primary-medium-green);
+        }
+
+        .section h2 {
+            color: var(--primary-dark-green);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-medium-green);
+            padding-bottom: 10px;
+        }
+
+        .section h3 {
+            color: var(--primary-dark-green);
+            font-size: 1.4em;
+            margin: 20px 0 15px 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--bg-light-green-1), var(--bg-light-green-2));
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 1px solid var(--primary-medium-green);
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .concept-card h4 {
+            color: var(--primary-very-dark-green);
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .math-equation {
+            background: var(--bg-white);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-medium-green);
+            font-family: 'Times New Roman', serif;
+            text-align: center;
+            box-shadow: 0 2px 6px var(--shadow-light);
+        }
+
+        .simulation-container {
+            background: var(--bg-white);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px var(--shadow-medium);
+            border: 2px solid var(--primary-medium-green);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: var(--primary-dark-green);
+            font-size: 0.9em;
+        }
+
+        input, select, button {
+            padding: 8px 12px;
+            border: 2px solid var(--primary-medium-green);
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        button {
+            background: var(--primary-medium-green);
+            color: var(--text-white);
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: var(--primary-dark-green);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .plot-container {
+            height: 400px;
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .key-points {
+            background: var(--bg-light-green-1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary-dark-green);
+        }
+
+        .key-points ul {
+            padding-left: 20px;
+        }
+
+        .key-points li {
+            margin: 8px 0;
+            color: var(--text-dark);
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, transparent 0%, var(--bg-light-green-1) 0%, var(--bg-light-green-1) 100%, transparent 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--primary-very-dark-green);
+        }
+
+        .toc {
+            background: var(--bg-white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            margin-bottom: 30px;
+            border: 2px solid var(--primary-medium-green);
+        }
+
+        .toc h3 {
+            color: var(--primary-dark-green);
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin: 8px 0;
+        }
+
+        .toc a {
+            color: var(--primary-medium-green);
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+            display: block;
+        }
+
+        .toc a:hover {
+            background: var(--bg-light-green-1);
+            color: var(--primary-dark-green);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .section {
+                padding: 20px;
+                margin: 20px 0;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Coexistence in Competitive Communities</h1>
+            <p class="subtitle">Understanding How Multiple Species Persist in Ecological Systems</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a data-target="introduction">Hutchinson's Paradox</a></li>
+                <li><a data-target="resource-partitioning">Resource Partitioning</a></li>
+                <li><a data-target="heterogeneity">Environmental Heterogeneity</a></li>
+                <li><a data-target="patch-dynamics">Patch Dynamics & IDH</a></li>
+                <li><a data-target="predation">Predation Effects</a></li>
+                <li><a data-target="fluctuations">Resource Fluctuations</a></li>
+                <li><a data-target="neutral-theory">Neutral Theory</a></li>
+                <li><a data-target="interference">Interference Competition</a></li>
+                <li><a data-target="storage-effect">Storage Effect</a></li>
+                <li><a data-target="chesson-framework">Chesson's Framework</a></li>
+            </ul>
+        </div>
+
+        <section id="introduction" class="section">
+            <h2>Hutchinson's Paradox: Why So Many Species?</h2>
+            <p>In 1959, G. Evelyn Hutchinson posed a fundamental question in ecology: <strong>"Why are there so many kinds of animals?"</strong> This question emerged from his observation of vast numbers of Corixidae (water bugs) living together in the same aquatic environment.</p>
+            
+            <div class="concept-card">
+                <h4>The Competitive Exclusion Principle</h4>
+                <p>According to classical theory, when multiple species compete for the same limited resource, the species with the highest competitive ability should exclude all others. This leads to the paradox: if competition drives exclusion, how do we observe such incredible biodiversity in nature?</p>
+            </div>
+
+            <div class="math-equation">
+                $$\text{Competitive Exclusion: } \frac{dN_i}{dt} = r_i N_i \left(1 - \frac{\sum_{j=1}^n \alpha_{ij} N_j}{K_i}\right)$$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Where the strongest competitor (highest $r_i/\alpha_{ii}$) should eliminate all others
+                </p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Simple Competition Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Species 1 Growth Rate (r₁):</label>
+                        <input type="number" id="r1" value="0.8" step="0.1" min="0.1" max="2">
+                    </div>
+                    <div class="control-group">
+                        <label>Species 2 Growth Rate (r₂):</label>
+                        <input type="number" id="r2" value="0.6" step="0.1" min="0.1" max="2">
+                    </div>
+                    <button onclick="runCompetitionSim()">Run Simulation</button>
+                </div>
+                <div id="competition-plot" class="plot-container"></div>
+            </div>
+
+            <div class="key-points">
+                <strong>Key Insight:</strong> The simulation above shows classic competitive exclusion - one species always wins. Yet in nature, we observe multiple species coexisting. This is Hutchinson's paradox.
+            </div>
+        </section>
+
+        <section id="resource-partitioning" class="section">
+            <h2>Resource Partitioning (Niche Divergence)</h2>
+            <p>The classical solution to coexistence involves <span class="highlight">resource partitioning</span> - species specialize on different resources or use the same resource in different ways.</p>
+
+            <div class="concept-card">
+                <h4>The R* Framework</h4>
+                <p>R* represents the minimum resource level a species needs to maintain a stable population. According to R* theory, species can coexist when they are each limited by different resources.</p>
+            </div>
+
+            <div class="math-equation">
+                $$R^*_i = \frac{f_i}{a_i b_i}$$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Where $f_i$ = mortality rate, $a_i$ = attack rate, $b_i$ = conversion efficiency
+                </p>
+            </div>
+
+            <div class="math-equation">
+                $$\text{Coexistence Condition: } R^*_1 < S_1 \text{ and } R^*_2 < S_2$$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Each species must be limited by a different resource
+                </p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Two Resource Competition</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Resource 1 Supply:</label>
+                        <input type="number" id="s1" value="10" step="1" min="1" max="20">
+                    </div>
+                    <div class="control-group">
+                        <label>Resource 2 Supply:</label>
+                        <input type="number" id="s2" value="8" step="1" min="1" max="20">
+                    </div>
+                    <button onclick="runResourcePartitioning()">Run Simulation</button>
+                </div>
+                <div id="resource-plot" class="plot-container"></div>
+            </div>
+
+            <div class="key-points">
+                <ul>
+                    <li><strong>Intraspecific > Interspecific:</strong> Each species competes more with itself than with others</li>
+                    <li><strong>Trade-offs:</strong> Being better at using one resource means being worse at using another</li>
+                    <li><strong>Limiting similarity:</strong> Species must be sufficiently different to coexist</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="heterogeneity" class="section">
+            <h2>Environmental Heterogeneity</h2>
+            <p>Spatial variation in environmental conditions can maintain diversity even when local competitive exclusion occurs.</p>
+
+            <div class="concept-card">
+                <h4>Spatial Heterogeneity Mechanism</h4>
+                <p>Different species may be competitively superior in different environmental patches. Regional diversity is maintained through a mosaic of local winners.</p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Heterogeneous Environment Simulation</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Environmental Gradient:</label>
+                        <select id="gradient-type">
+                            <option value="linear">Linear Gradient</option>
+                            <option value="patchy">Patchy Environment</option>
+                        </select>
+                    </div>
+                    <button onclick="runHeterogeneity()">Run Simulation</button>
+                </div>
+                <div id="heterogeneity-plot" class="plot-container"></div>
+            </div>
+
+            <div class="key-points">
+                <ul>
+                    <li><strong>Local exclusion, regional coexistence:</strong> One species wins locally, but different species win in different patches</li>
+                    <li><strong>Source-sink dynamics:</strong> Poor patches maintained by immigration from good patches</li>
+                    <li><strong>Metacommunity perspective:</strong> Landscape-scale processes become important</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="patch-dynamics" class="section">
+            <h2>Patch Dynamics and Intermediate Disturbance Hypothesis</h2>
+            <p>Disturbances create opportunities for colonization, leading to temporal changes in community composition within patches.</p>
+
+            <div class="concept-card">
+                <h4>Succession and Trade-offs</h4>
+                <p>After disturbance, there's typically a sequence: good colonizers arrive first, but are eventually outcompeted by superior competitors. This creates a <span class="highlight">colonization-competition trade-off</span>.</p>
+            </div>
+
+            <div class="math-equation">
+                $$\frac{dp_i}{dt} = c_i (1-\sum p_j) p_i - e_i p_i - m_i \sum_{j \neq i} p_j$$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Where $c_i$ = colonization rate, $e_i$ = extinction rate, $m_i$ = competitive displacement rate
+                </p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Intermediate Disturbance Hypothesis</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Disturbance Rate:</label>
+                        <input type="range" id="disturbance-rate" min="0" max="1" step="0.1" value="0.3">
+                        <span id="disturbance-value">0.3</span>
+                    </div>
+                    <button onclick="runIDH()">Run Simulation</button>
+                </div>
+                <div id="idh-plot" class="plot-container"></div>
+            </div>
+
+            <div class="key-points">
+                <ul>
+                    <li><strong>Low disturbance:</strong> Competitive dominants take over, low diversity</li>
+                    <li><strong>High disturbance:</strong> Only fast colonizers survive, low diversity</li>
+                    <li><strong>Intermediate disturbance:</strong> Mix of colonizers and competitors, maximum diversity</li>
+                    <li><strong>Patch age structure:</strong> Landscape contains patches of different ages and compositions</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="predation" class="section">
+            <h2>Predation Effects</h2>
+            <p>Predators can facilitate coexistence among their prey through various mechanisms, particularly frequency-dependent predation.</p>
+
+            <div class="concept-card">
+                <h4>The Diamond Food Web</h4>
+                <p>In this configuration, two prey species compete for a resource while being consumed by a shared predator. Coexistence is possible if the predator preferentially consumes the competitively superior prey species.</p>
+            </div>
+
+            <div class="math-equation">
+                $$\text{Prey 1: } \frac{dN_1}{dt} = N_1 \left(\frac{b_1 a_1 R}{1 + a_1 h_1 R} - f_1 - g_1 N_1 - \frac{a_{p1} P}{1 + a_{p1} h_{p1} N_1 + a_{p2} h_{p2} N_2}\right)$$
+            </div>
+
+            <div class="math-equation">
+                $$\text{Predator: } \frac{dP}{dt} = P \left(\frac{b_{p1} a_{p1} N_1 + b_{p2} a_{p2} N_2}{1 + a_{p1} h_{p1} N_1 + a_{p2} h_{p2} N_2} - f_p\right)$$
+            </div>
+
+            <div class="simulation-container">
+                <h4>Predator-Mediated Coexistence</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Predator Preference (α):</label>
+                        <input type="range" id="predator-pref" min="0.5" max="2" step="0.1" value="1.5">
+                        <span id="pref-value">1.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label>With/Without Predator:</label>
+                        <select id="predator-toggle">
+                            <option value="with">With Predator</option>
+                            <option value="without">Without Predator</option>
+                        </select>
+                    </div>
+                    <button onclick="runPredation()">Run Simulation</button>
+                </div>
+                <div id="predation-plot" class="plot-container"></div>
+            </div>
+
+            <div class="key-points">
+                <ul>
+                    <li><strong>Frequency-dependent predation:</strong> Predators focus on common prey, reducing their advantage</li>
+                    <li><strong>Apparent competition:</strong> Species compete indirectly through shared predators</li>
+                    <li><strong>Keystone predator effect:</strong> Removing predators can lead to competitive exclusion</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="fluctuations" class="section">
+            <h2>Resource Fluctuations</h2>
+            <p>Temporal variation in resource availability can promote coexistence through various mechanisms.</p>
+
+            <div class="concept-card">
+                <h4>Mean vs. Variance Specialists</h4>
+                <p>Some species perform better in stable environments (mean specialists), while others thrive in variable conditions (variance specialists).</p>
+            </div>
+
+            <div class="math-equation">
+                $$\text{Environmental variation: } E(t) = \bar{E} + \sigma \sin(\omega t + \phi)$$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Where species may respond differently to the same environmental fluctuations
+                </p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Fluctuating Resources</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Fluctuation Amplitude:</label>
+                        <input type="range" id="fluctuation-amp" min="0" max="5" step="0.5" value="2">
+                        <span id="fluct-value">2</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Fluctuation Period:</label>
+                        <input type="number" id="fluctuation-period" value="10" min="5" max="50">
+                    </div>
+                    <button onclick="runFluctuations()">Run Simulation</button>
+                </div>
+                <div id="fluctuation-plot" class="plot-container"></div>
+            </div>
+        </section>
+
+        <section id="neutral-theory" class="section">
+            <h2>Neutral Theory</h2>
+            <p>Hubbell's Neutral Theory provides an alternative explanation for diversity maintenance based on ecological equivalence and random drift.</p>
+
+            <div class="concept-card">
+                <h4>Core Assumptions</h4>
+                <p>All species are ecologically identical in their vital rates. Diversity is maintained through a balance between random extinction and speciation/immigration.</p>
+            </div>
+
+            <div class="math-equation">
+                $$\phi_n = \frac{\theta}{\theta + n - 1} \prod_{i=1}^{n-1} \frac{J-i}{\theta + i}$$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Probability distribution for species abundance in neutral model
+                </p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Neutral Community Dynamics</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Community Size (J):</label>
+                        <input type="number" id="community-size" value="100" min="50" max="500">
+                    </div>
+                    <div class="control-group">
+                        <label>Immigration Rate (m):</label>
+                        <input type="range" id="immigration-rate" min="0.01" max="0.2" step="0.01" value="0.05">
+                        <span id="immigration-value">0.05</span>
+                    </div>
+                    <button onclick="runNeutral()">Run Simulation</button>
+                </div>
+                <div id="neutral-plot" class="plot-container"></div>
+            </div>
+        </section>
+
+        <section id="interference" class="section">
+            <h2>Interference Competition</h2>
+            <p>Direct negative interactions between individuals (territoriality, aggression) can allow multiple species to coexist on a single resource.</p>
+
+            <div class="concept-card">
+                <h4>Intraspecific Density Dependence</h4>
+                <p>When species interfere more with conspecifics than with heterospecifics, this creates stabilizing density dependence that can prevent competitive exclusion.</p>
+            </div>
+
+            <div class="math-equation">
+                $$\frac{dN_i}{dt} = N_i \left(\frac{b_i a_i R}{1 + a_i h_i R} - f_i - g_i N_i\right)$$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Where $g_i N_i$ represents intraspecific interference
+                </p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Interference Competition Model</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Interference Strength:</label>
+                        <input type="range" id="interference" min="0" max="0.1" step="0.01" value="0.05">
+                        <span id="interference-value">0.05</span>
+                    </div>
+                    <button onclick="runInterference()">Run Simulation</button>
+                </div>
+                <div id="interference-plot" class="plot-container"></div>
+            </div>
+
+            <div class="key-points">
+                <ul>
+                    <li><strong>Self-limitation:</strong> Species limit their own growth more than others</li>
+                    <li><strong>Negative frequency dependence:</strong> Rare species have growth advantage</li>
+                    <li><strong>Multiple species on one resource:</strong> Violates classic competitive exclusion</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="storage-effect" class="section">
+            <h2>The Storage Effect</h2>
+            <p>Chesson's storage effect is a powerful mechanism for coexistence in fluctuating environments with long-lived life stages.</p>
+
+            <div class="concept-card">
+                <h4>Four Requirements</h4>
+                <p>1. <strong>Long-lived stage</strong> (buffered storage)<br>
+                2. <strong>Environmental fluctuations</strong><br>
+                3. <strong>Species-specific responses</strong> to environment<br>
+                4. <strong>Covariance between environment and competition</strong></p>
+            </div>
+
+            <div class="math-equation">
+                $$\Delta \bar{r}_i \approx -\frac{1}{2} \text{Var}(\varepsilon_i) \left[\frac{\partial^2 r_i}{\partial \varepsilon_i^2} + \frac{\partial^2 r_i}{\partial N \partial \varepsilon_i} \text{Cov}(\varepsilon_i, N)\right]$$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Storage effect contribution to species fitness
+                </p>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Storage Effect Demonstration</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Adult Survival:</label>
+                        <input type="range" id="adult-survival" min="0.1" max="0.9" step="0.1" value="0.7">
+                        <span id="survival-value">0.7</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Environmental Variance:</label>
+                        <input type="range" id="env-variance" min="0.1" max="2" step="0.1" value="1">
+                        <span id="variance-value">1</span>
+                    </div>
+                    <button onclick="runStorageEffect()">Run Simulation</button>
+                </div>
+                <div id="storage-plot" class="plot-container"></div>
+            </div>
+
+            <div class="key-points">
+                <ul>
+                    <li><strong>Rare species benefit more:</strong> Good years have bigger positive effect on rare species</li>
+                    <li><strong>Bad years hurt less:</strong> Losses mainly from dominant species</li>
+                    <li><strong>Storage buffers variation:</strong> Long-lived adults survive bad recruitment years</li>
+                    <li><strong>Environmental correlation:</strong> Good recruitment years also increase competition</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="chesson-framework" class="section">
+            <h2>Chesson's Unifying Framework</h2>
+            <p>Peter Chesson developed a comprehensive framework to understand and classify coexistence mechanisms.</p>
+
+            <div class="concept-card">
+                <h4>Stabilizing vs. Equalizing Mechanisms</h4>
+                <p><strong>Stabilizing mechanisms</strong> create negative frequency dependence - rare species have a growth advantage. <strong>Equalizing mechanisms</strong> reduce fitness differences between species, slowing competitive exclusion.</p>
+            </div>
+
+            <div class="math-equation">
+                $\text{Invasion growth rate: } \bar{r}_i = \eta_i - \sum_{j \neq i} \alpha_{ij} \bar{N}_j$
+                <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-medium);">
+                    Where $\eta_i$ includes stabilizing effects and $\alpha_{ij}$ represents competitive differences
+                </p>
+            </div>
+
+            <div class="grid">
+                <div class="concept-card">
+                    <h4>Fluctuation-Independent Mechanisms</h4>
+                    <ul>
+                        <li><strong>Resource partitioning:</strong> Classic niche differentiation</li>
+                        <li><strong>Frequency-dependent predation:</strong> Predators prefer common prey</li>
+                        <li><strong>Interference competition:</strong> Intraspecific > interspecific</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Fluctuation-Dependent Mechanisms</h4>
+                    <ul>
+                        <li><strong>Storage effect:</strong> Long-lived stage + environmental variation</li>
+                        <li><strong>Relative nonlinearity:</strong> Species respond differently to fluctuations</li>
+                        <li><strong>Temporal partitioning:</strong> Species favor different times</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h4>Stabilizing vs. Equalizing Effects</h4>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Mechanism Type:</label>
+                        <select id="mechanism-type">
+                            <option value="stabilizing">Stabilizing</option>
+                            <option value="equalizing">Equalizing</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Effect Strength:</label>
+                        <input type="range" id="effect-strength" min="0" max="2" step="0.1" value="1">
+                        <span id="effect-value">1</span>
+                    </div>
+                    <button onclick="runChessonFramework()">Run Simulation</button>
+                </div>
+                <div id="chesson-plot" class="plot-container"></div>
+            </div>
+
+            <div class="key-points">
+                <h3>Summary of Coexistence Theory</h3>
+                <ul>
+                    <li><strong>Multiple solutions:</strong> Many different mechanisms can resolve Hutchinson's paradox</li>
+                    <li><strong>Partitioning paradigm:</strong> Most mechanisms involve some form of niche or temporal partitioning</li>
+                    <li><strong>Scale matters:</strong> Local vs. regional processes, temporal scales of observation</li>
+                    <li><strong>Trade-offs central:</strong> Species cannot be superior at everything</li>
+                    <li><strong>Environmental variation:</strong> Fluctuations can maintain diversity through various pathways</li>
+                    <li><strong>Life history important:</strong> Long-lived stages, dispersal, and storage effects</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer style="background: var(--primary-very-dark-green); color: var(--text-white); text-align: center; padding: 30px 0; margin-top: 50px;">
+            <div class="container">
+                <p>&copy; 2024 Ecological Coexistence Theory Guide</p>
+                <p style="margin-top: 10px; opacity: 0.8;">Based on foundational work by Hutchinson, Tilman, Chesson, and many others</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Global variables for simulations
+        let plotColors = {
+            species1: '#4a7c59',
+            species2: '#2c5530',
+            species3: '#1a3d20',
+            resource: '#666',
+            predator: '#8B4513',
+            environment: '#4169E1'
+        };
+
+        // Utility functions
+        function rk4(f, y0, t0, t1, h) {
+            let t = t0;
+            let y = [...y0];
+            let result = [[...y]];
+            let times = [t];
+
+            while (t < t1) {
+                let k1 = f(t, y).map(x => h * x);
+                let k2 = f(t + h/2, y.map((yi, i) => yi + k1[i]/2)).map(x => h * x);
+                let k3 = f(t + h/2, y.map((yi, i) => yi + k2[i]/2)).map(x => h * x);
+                let k4 = f(t + h, y.map((yi, i) => yi + k3[i])).map(x => h * x);
+
+                y = y.map((yi, i) => yi + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i])/6);
+                t += h;
+                result.push([...y]);
+                times.push(t);
+            }
+
+            return {times: times, values: result};
+        }
+
+        // Competition simulation
+        function runCompetitionSim() {
+            const r1 = parseFloat(document.getElementById('r1').value);
+            const r2 = parseFloat(document.getElementById('r2').value);
+            
+            const K = 100;
+            const alpha12 = 0.8;
+            const alpha21 = 1.2;
+
+            function lotkaVolterra(t, y) {
+                const [N1, N2] = y;
+                return [
+                    r1 * N1 * (1 - (N1 + alpha12 * N2) / K),
+                    r2 * N2 * (1 - (N2 + alpha21 * N1) / K)
+                ];
+            }
+
+            const solution = rk4(lotkaVolterra, [10, 10], 0, 50, 0.1);
+            
+            const trace1 = {
+                x: solution.times,
+                y: solution.values.map(v => v[0]),
+                name: 'Species 1',
+                type: 'scatter',
+                line: {color: plotColors.species1, width: 3}
+            };
+
+            const trace2 = {
+                x: solution.times,
+                y: solution.values.map(v => v[1]),
+                name: 'Species 2',
+                type: 'scatter',
+                line: {color: plotColors.species2, width: 3}
+            };
+
+            const layout = {
+                title: 'Competitive Exclusion',
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Population Size'},
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('competition-plot', [trace1, trace2], layout);
+        }
+
+        // Resource partitioning simulation
+        function runResourcePartitioning() {
+            const S1 = parseFloat(document.getElementById('s1').value);
+            const S2 = parseFloat(document.getElementById('s2').value);
+
+            // R* values
+            const R1_star = [3, 8];  // Species 1: R1*=3, R2*=8
+            const R2_star = [7, 2];  // Species 2: R1*=7, R2*=2
+
+            function resourceCompetition(t, y) {
+                const [R1, R2, N1, N2] = y;
+                const c = 0.5; // consumption rate
+                const d = 0.1; // dilution rate
+
+                return [
+                    d * (S1 - R1) - c * R1 * N1 / (1 + R1) - 0.3 * c * R1 * N2 / (1 + R1),
+                    d * (S2 - R2) - c * R2 * N2 / (1 + R2) - 0.3 * c * R2 * N1 / (1 + R2),
+                    N1 * (c * R1 / (1 + R1) + 0.3 * c * R2 / (1 + R2) - 0.1),
+                    N2 * (c * R2 / (1 + R2) + 0.3 * c * R1 / (1 + R1) - 0.1)
+                ];
+            }
+
+            const solution = rk4(resourceCompetition, [S1, S2, 1, 1], 0, 100, 0.1);
+
+            const traces = [
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[2]),
+                    name: 'Species 1',
+                    type: 'scatter',
+                    line: {color: plotColors.species1, width: 3}
+                },
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[3]),
+                    name: 'Species 2',
+                    type: 'scatter',
+                    line: {color: plotColors.species2, width: 3}
+                }
+            ];
+
+            const layout = {
+                title: 'Resource Partitioning Allows Coexistence',
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Population Size'},
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('resource-plot', traces, layout);
+        }
+
+        // Environmental heterogeneity simulation
+        function runHeterogeneity() {
+            const gradientType = document.getElementById('gradient-type').value;
+            
+            let patches = [];
+            let species1 = [];
+            let species2 = [];
+            
+            for (let i = 0; i < 50; i++) {
+                let envValue;
+                if (gradientType === 'linear') {
+                    envValue = i / 49; // 0 to 1
+                } else {
+                    envValue = Math.random() > 0.5 ? 0.8 : 0.2; // patchy
+                }
+                
+                patches.push(i);
+                // Species 1 prefers low values, Species 2 prefers high values
+                if (envValue < 0.5) {
+                    species1.push(100 * (1 - envValue));
+                    species2.push(50 * envValue);
+                } else {
+                    species1.push(50 * (1 - envValue));
+                    species2.push(100 * envValue);
+                }
+            }
+
+            const traces = [
+                {
+                    x: patches,
+                    y: species1,
+                    name: 'Species 1',
+                    type: 'scatter',
+                    mode: 'markers',
+                    marker: {color: plotColors.species1, size: 8}
+                },
+                {
+                    x: patches,
+                    y: species2,
+                    name: 'Species 2',
+                    type: 'scatter',
+                    mode: 'markers',
+                    marker: {color: plotColors.species2, size: 8}
+                }
+            ];
+
+            const layout = {
+                title: 'Spatial Heterogeneity Maintains Regional Diversity',
+                xaxis: {title: 'Spatial Location'},
+                yaxis: {title: 'Species Abundance'},
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('heterogeneity-plot', traces, layout);
+        }
+
+        // Intermediate Disturbance Hypothesis
+        function runIDH() {
+            const disturbanceRate = parseFloat(document.getElementById('disturbance-rate').value);
+            document.getElementById('disturbance-value').textContent = disturbanceRate;
+
+            let disturbanceRates = [];
+            let diversity = [];
+
+            for (let d = 0; d <= 1; d += 0.05) {
+                disturbanceRates.push(d);
+                // Simple IDH model: diversity peaks at intermediate disturbance
+                let div = 4 * d * (1 - d); // Parabolic relationship
+                diversity.push(div);
+            }
+
+            // Highlight current disturbance rate
+            let currentDiversity = 4 * disturbanceRate * (1 - disturbanceRate);
+
+            const traces = [
+                {
+                    x: disturbanceRates,
+                    y: diversity,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Species Diversity',
+                    line: {color: plotColors.species1, width: 3}
+                },
+                {
+                    x: [disturbanceRate],
+                    y: [currentDiversity],
+                    type: 'scatter',
+                    mode: 'markers',
+                    name: 'Current Setting',
+                    marker: {color: 'red', size: 12, symbol: 'diamond'}
+                }
+            ];
+
+            const layout = {
+                title: 'Intermediate Disturbance Hypothesis',
+                xaxis: {title: 'Disturbance Rate'},
+                yaxis: {title: 'Species Diversity'},
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('idh-plot', traces, layout);
+        }
+
+        // Predator-mediated coexistence
+        function runPredation() {
+            const preference = parseFloat(document.getElementById('predator-pref').value);
+            const withPredator = document.getElementById('predator-toggle').value === 'with';
+            document.getElementById('pref-value').textContent = preference;
+
+            function predatorPrey(t, y) {
+                const [R, N1, N2, P] = y;
+                const r = 10; // resource supply
+                const d = 0.1; // dilution
+                
+                if (withPredator && P > 0.001) {
+                    return [
+                        d * (r - R) - 0.5 * R * N1 - 0.4 * R * N2,
+                        N1 * (0.3 * R - 0.05 - preference * 0.1 * P),
+                        N2 * (0.25 * R - 0.05 - 0.1 * P),
+                        P * (0.15 * preference * N1 + 0.15 * N2 - 0.1)
+                    ];
+                } else {
+                    return [
+                        d * (r - R) - 0.5 * R * N1 - 0.4 * R * N2,
+                        N1 * (0.3 * R - 0.05),
+                        N2 * (0.25 * R - 0.05),
+                        Math.max(0, P - 0.1 * P) // Predator gradually dies out
+                    ];
+                }
+            }
+
+            const initialP = withPredator ? 1 : 0;
+            const solution = rk4(predatorPrey, [5, 2, 2, initialP], 0, 100, 0.1);
+
+            const traces = [
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[1]),
+                    name: 'Prey Species 1',
+                    type: 'scatter',
+                    line: {color: plotColors.species1, width: 3}
+                },
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[2]),
+                    name: 'Prey Species 2',
+                    type: 'scatter',
+                    line: {color: plotColors.species2, width: 3}
+                }
+            ];
+
+            if (withPredator) {
+                traces.push({
+                    x: solution.times,
+                    y: solution.values.map(v => v[3]),
+                    name: 'Predator',
+                    type: 'scatter',
+                    line: {color: plotColors.predator, width: 3},
+                    yaxis: 'y2'
+                });
+            }
+
+            const layout = {
+                title: withPredator ? 'With Predator - Coexistence Possible' : 'Without Predator - Competitive Exclusion',
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Prey Population Size'},
+                yaxis2: withPredator ? {
+                    title: 'Predator Population',
+                    overlaying: 'y',
+                    side: 'right'
+                } : undefined,
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('predation-plot', traces, layout);
+        }
+
+        // Resource fluctuations
+        function runFluctuations() {
+            const amplitude = parseFloat(document.getElementById('fluctuation-amp').value);
+            const period = parseFloat(document.getElementById('fluctuation-period').value);
+            document.getElementById('fluct-value').textContent = amplitude;
+
+            function fluctuatingCompetition(t, y) {
+                const [N1, N2] = y;
+                const env = 1 + amplitude * Math.sin(2 * Math.PI * t / period);
+                
+                // Species 1 is a "mean specialist", Species 2 is a "variance specialist"
+                const r1 = 0.8 * env;
+                const r2 = 0.6 + 0.4 * Math.abs(env - 1); // Benefits from variation
+                
+                return [
+                    N1 * (r1 * (1 - (N1 + 0.8 * N2) / 100)),
+                    N2 * (r2 * (1 - (N2 + 1.2 * N1) / 100))
+                ];
+            }
+
+            const solution = rk4(fluctuatingCompetition, [20, 20], 0, 100, 0.1);
+
+            const traces = [
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[0]),
+                    name: 'Mean Specialist',
+                    type: 'scatter',
+                    line: {color: plotColors.species1, width: 3}
+                },
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[1]),
+                    name: 'Variance Specialist',
+                    type: 'scatter',
+                    line: {color: plotColors.species2, width: 3}
+                }
+            ];
+
+            const layout = {
+                title: 'Fluctuating Resources Enable Coexistence',
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Population Size'},
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('fluctuation-plot', traces, layout);
+        }
+
+        // Neutral theory simulation
+        function runNeutral() {
+            const J = parseInt(document.getElementById('community-size').value);
+            const m = parseFloat(document.getElementById('immigration-rate').value);
+            document.getElementById('immigration-value').textContent = m;
+
+            // Simple neutral simulation
+            let community = [];
+            for (let i = 0; i < J; i++) {
+                community.push(Math.floor(Math.random() * 10) + 1); // 10 species initially
+            }
+
+            let timePoints = [];
+            let richness = [];
+            let evenness = [];
+
+            for (let t = 0; t < 1000; t++) {
+                // Random death and replacement
+                let deathIndex = Math.floor(Math.random() * J);
+                
+                if (Math.random() < m) {
+                    // Immigration
+                    community[deathIndex] = Math.floor(Math.random() * 10) + 1;
+                } else {
+                    // Local birth
+                    let parentIndex = Math.floor(Math.random() * J);
+                    community[deathIndex] = community[parentIndex];
+                }
+
+                if (t % 10 === 0) {
+                    let counts = {};
+                    community.forEach(sp => counts[sp] = (counts[sp] || 0) + 1);
+                    
+                    timePoints.push(t);
+                    richness.push(Object.keys(counts).length);
+                    
+                    // Shannon evenness
+                    let shannon = 0;
+                    Object.values(counts).forEach(count => {
+                        let p = count / J;
+                        shannon -= p * Math.log(p);
+                    });
+                    evenness.push(shannon / Math.log(Object.keys(counts).length || 1));
+                }
+            }
+
+            const traces = [
+                {
+                    x: timePoints,
+                    y: richness,
+                    name: 'Species Richness',
+                    type: 'scatter',
+                    line: {color: plotColors.species1, width: 3}
+                },
+                {
+                    x: timePoints,
+                    y: evenness,
+                    name: 'Evenness',
+                    type: 'scatter',
+                    line: {color: plotColors.species2, width: 3},
+                    yaxis: 'y2'
+                }
+            ];
+
+            const layout = {
+                title: 'Neutral Theory Dynamics',
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Species Richness'},
+                yaxis2: {
+                    title: 'Evenness',
+                    overlaying: 'y',
+                    side: 'right'
+                },
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('neutral-plot', traces, layout);
+        }
+
+        // Interference competition
+        function runInterference() {
+            const g = parseFloat(document.getElementById('interference').value);
+            document.getElementById('interference-value').textContent = g;
+
+            function interferenceCompetition(t, y) {
+                const [R, N1, N2] = y;
+                const S = 10; // resource supply
+                const d = 0.1; // dilution
+                const a1 = 0.5, a2 = 0.4; // attack rates
+                const b1 = 0.3, b2 = 0.25; // conversion efficiencies
+                const f1 = 0.05, f2 = 0.05; // mortality rates
+
+                return [
+                    d * (S - R) - (a1 * N1 + a2 * N2) * R,
+                    N1 * (b1 * a1 * R - f1 - g * N1),
+                    N2 * (b2 * a2 * R - f2 - g * N2)
+                ];
+            }
+
+            const solution = rk4(interferenceCompetition, [5, 2, 2], 0, 100, 0.1);
+
+            const traces = [
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[1]),
+                    name: 'Species 1',
+                    type: 'scatter',
+                    line: {color: plotColors.species1, width: 3}
+                },
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[2]),
+                    name: 'Species 2',
+                    type: 'scatter',
+                    line: {color: plotColors.species2, width: 3}
+                }
+            ];
+
+            const layout = {
+                title: g > 0 ? 'Interference Enables Coexistence on One Resource' : 'No Interference - Competitive Exclusion',
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Population Size'},
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('interference-plot', traces, layout);
+        }
+
+        // Storage effect simulation
+        function runStorageEffect() {
+            const survival = parseFloat(document.getElementById('adult-survival').value);
+            const variance = parseFloat(document.getElementById('env-variance').value);
+            document.getElementById('survival-value').textContent = survival;
+            document.getElementById('variance-value').textContent = variance;
+
+            function storageEffect(t, y) {
+                const [A1, A2, J1, J2] = y; // Adults and juveniles
+                const env = 1 + variance * Math.sin(2 * Math.PI * t / 10); // Environmental variation
+                
+                // Species-specific responses to environment
+                const r1 = Math.max(0, 0.5 * env - 0.1);
+                const r2 = Math.max(0, 0.5 * (2 - env) - 0.1);
+                
+                // Competition affects juveniles more
+                const comp = 0.001 * (A1 + A2);
+                
+                return [
+                    0.5 * J1 - 0.1 * A1 + survival * A1, // Adult 1: recruitment + survival
+                    0.5 * J2 - 0.1 * A2 + survival * A2, // Adult 2: recruitment + survival
+                    r1 * A1 - comp * J1 - 0.5 * J1,      // Juvenile 1: birth - competition - maturation
+                    r2 * A2 - comp * J2 - 0.5 * J2       // Juvenile 2: birth - competition - maturation
+                ];
+            }
+
+            const solution = rk4(storageEffect, [10, 10, 5, 5], 0, 100, 0.1);
+
+            const traces = [
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[0] + v[2]),
+                    name: 'Species 1 (Total)',
+                    type: 'scatter',
+                    line: {color: plotColors.species1, width: 3}
+                },
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[1] + v[3]),
+                    name: 'Species 2 (Total)',
+                    type: 'scatter',
+                    line: {color: plotColors.species2, width: 3}
+                }
+            ];
+
+            const layout = {
+                title: 'Storage Effect with Environmental Fluctuations',
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Total Population Size'},
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('storage-plot', traces, layout);
+        }
+
+        // Chesson framework simulation
+        function runChessonFramework() {
+            const mechanismType = document.getElementById('mechanism-type').value;
+            const strength = parseFloat(document.getElementById('effect-strength').value);
+            document.getElementById('effect-value').textContent = strength;
+
+            function chessonModel(t, y) {
+                const [N1, N2] = y;
+                const totalN = N1 + N2;
+                
+                let r1, r2;
+                
+                if (mechanismType === 'stabilizing') {
+                    // Negative frequency dependence
+                    r1 = 0.5 - strength * (N1 / totalN);
+                    r2 = 0.5 - strength * (N2 / totalN);
+                } else if (mechanismType === 'equalizing') {
+                    // Reduces fitness differences
+                    r1 = 0.6 - strength * 0.1;
+                    r2 = 0.4 + strength * 0.1;
+                } else { // both
+                    r1 = 0.6 - strength * 0.1 - strength * (N1 / totalN);
+                    r2 = 0.4 + strength * 0.1 - strength * (N2 / totalN);
+                }
+                
+                const K = 100;
+                return [
+                    N1 * r1 * (1 - totalN / K),
+                    N2 * r2 * (1 - totalN / K)
+                ];
+            }
+
+            const solution = rk4(chessonModel, [30, 20], 0, 50, 0.1);
+
+            const traces = [
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[0]),
+                    name: 'Species 1',
+                    type: 'scatter',
+                    line: {color: plotColors.species1, width: 3}
+                },
+                {
+                    x: solution.times,
+                    y: solution.values.map(v => v[1]),
+                    name: 'Species 2',
+                    type: 'scatter',
+                    line: {color: plotColors.species2, width: 3}
+                }
+            ];
+
+            const layout = {
+                title: `${mechanismType.charAt(0).toUpperCase() + mechanismType.slice(1)} Mechanism`,
+                xaxis: {title: 'Time'},
+                yaxis: {title: 'Population Size'},
+                showlegend: true,
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('chesson-plot', traces, layout);
+        }
+
+        // Initialize some plots on page load
+        window.addEventListener('load', function() {
+            runCompetitionSim();
+            runResourcePartitioning();
+            runHeterogeneity();
+            runIDH();
+            runPredation();
+            runFluctuations();
+            runNeutral();
+            runInterference();
+            runStorageEffect();
+            runChessonFramework();
+        });
+
+        // Update slider displays
+        document.getElementById('disturbance-rate').addEventListener('input', function() {
+            document.getElementById('disturbance-value').textContent = this.value;
+        });
+
+        document.getElementById('predator-pref').addEventListener('input', function() {
+            document.getElementById('pref-value').textContent = this.value;
+        });
+
+        document.getElementById('fluctuation-amp').addEventListener('input', function() {
+            document.getElementById('fluct-value').textContent = this.value;
+        });
+
+        document.getElementById('immigration-rate').addEventListener('input', function() {
+            document.getElementById('immigration-value').textContent = this.value;
+        });
+
+        document.getElementById('interference').addEventListener('input', function() {
+            document.getElementById('interference-value').textContent = this.value;
+        });
+
+        document.getElementById('adult-survival').addEventListener('input', function() {
+            document.getElementById('survival-value').textContent = this.value;
+        });
+
+        document.getElementById('env-variance').addEventListener('input', function() {
+            document.getElementById('variance-value').textContent = this.value;
+        });
+
+        document.getElementById('effect-strength').addEventListener('input', function() {
+            document.getElementById('effect-value').textContent = this.value;
+        });
+
+        // Smooth scrolling for table of contents
+        document.querySelectorAll('.toc a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
