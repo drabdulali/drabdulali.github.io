@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alternate Stable States and Phase Shifts in Ecology</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a3d20, #2c5530);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid #4a7c59;
+        }
+
+        .section h2 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e8f5e8;
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: #4a7c59;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #4a7c59;
+        }
+
+        .concept-card h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .simulation-container {
+            background: white;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        canvas {
+            border: 1px solid #2c5530;
+            border-radius: 4px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .control-group label {
+            color: #2c5530;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        input[type="range"] {
+            width: 150px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .math-equation {
+            background: #f0f8f0;
+            border: 1px solid #4a7c59;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Computer Modern', serif;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .definition-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #2c5530;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .definition-box strong {
+            color: #2c5530;
+        }
+
+        .phase-diagram {
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(44, 85, 48, 0.9);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f0f8f0;
+            border-radius: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #333;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #fef7e3);
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #ff8800;
+        }
+
+        .info-tabs {
+            display: flex;
+            border-bottom: 2px solid #e8f5e8;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom-color: #4a7c59;
+            color: #2c5530;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Alternate Stable States and Phase Shifts</h1>
+            <p>Understanding Non-linear Dynamics in Ecological Systems</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Introduction Section -->
+        <div class="section">
+            <h2>Introduction to Equilibrium Concepts</h2>
+            <p>Ecological systems can exist in multiple states under the same environmental conditions. This fundamental concept challenges linear thinking about ecosystem responses and has profound implications for conservation and management.</p>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Stable Equilibrium</h4>
+                    <p>A state that, when perturbed, returns to its original condition. Like a ball in a valley that rolls back to the bottom after being displaced.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Unstable Equilibrium</h4>
+                    <p>A state that, when slightly perturbed, moves away permanently. Like a ball balanced on a hilltop that rolls down after any disturbance.</p>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Interactive Equilibrium Demonstration</h3>
+                <div class="canvas-container">
+                    <canvas id="equilibriumCanvas" width="600" height="300"></canvas>
+                </div>
+                <div class="controls">
+                    <button onclick="perturbSystem()">Apply Perturbation</button>
+                    <button onclick="resetEquilibrium()">Reset System</button>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #2c5530;"></div>
+                        <span>Stable Equilibrium</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #dc3545;"></div>
+                        <span>Unstable Equilibrium</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bistability Section -->
+        <div class="section">
+            <h2>Bistability and Multiple Equilibria</h2>
+            
+            <div class="definition-box">
+                <strong>Bistability:</strong> The existence of two locally stable equilibria under identical environmental conditions, separated by an unstable intermediate state.
+            </div>
+
+            <div class="math-equation">
+                <strong>Mathematical Representation:</strong><br>
+                dx/dt = f(x, c)<br>
+                where x is the system state, c is environmental conditions<br>
+                Multiple solutions exist where f(x, c) = 0
+            </div>
+
+            <div class="simulation-container">
+                <h3>Bistable System Dynamics</h3>
+                <div class="canvas-container">
+                    <canvas id="bistabilityCanvas" width="600" height="400"></canvas>
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Environmental Parameter</label>
+                        <input type="range" id="envParam" min="-2" max="2" step="0.1" value="0" oninput="updateBistability()">
+                        <span id="envValue">0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Initial State</label>
+                        <input type="range" id="initState" min="-3" max="3" step="0.1" value="1" oninput="updateBistability()">
+                        <span id="stateValue">1</span>
+                    </div>
+                    <button onclick="runDynamics()">Run Dynamics</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase Shifts Section -->
+        <div class="section">
+            <h2>Types of Phase Shifts</h2>
+            
+            <div class="info-tabs">
+                <button class="tab active" onclick="showTab('continuous')">Continuous Shifts</button>
+                <button class="tab" onclick="showTab('catastrophic')">Catastrophic Bifurcations</button>
+                <button class="tab" onclick="showTab('basin')">Basin Boundary Crossings</button>
+            </div>
+
+            <div id="continuous" class="tab-content active">
+                <h3>Continuous Phase Shifts</h3>
+                <p>Gradual, smooth transitions that follow environmental changes predictably.</p>
+                <div class="math-equation">
+                    System State = g(Environmental Driver)<br>
+                    where g is a continuous, monotonic function
+                </div>
+                <div class="canvas-container">
+                    <canvas id="continuousCanvas" width="500" height="300"></canvas>
+                </div>
+            </div>
+
+            <div id="catastrophic" class="tab-content">
+                <h3>Catastrophic Bifurcations</h3>
+                <p>Sudden shifts occurring when environmental drivers cross critical thresholds.</p>
+                <div class="math-equation">
+                    dx/dt = r + x² - c<br>
+                    Critical point occurs when discriminant = 0
+                </div>
+                <div class="canvas-container">
+                    <canvas id="catastrophicCanvas" width="500" height="300"></canvas>
+                </div>
+            </div>
+
+            <div id="basin" class="tab-content">
+                <h3>Basin Boundary Crossings</h3>
+                <p>Transitions between stable states caused by perturbations that push the system across basin boundaries.</p>
+                <div class="canvas-container">
+                    <canvas id="basinCanvas" width="500" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hysteresis Section -->
+        <div class="section">
+            <h2>Hysteresis Effects</h2>
+            
+            <div class="definition-box">
+                <strong>Hysteresis:</strong> Path-dependent behavior where the current state depends not only on current conditions but also on the history of how those conditions were reached.
+            </div>
+
+            <div class="simulation-container">
+                <h3>Hysteresis Loop Demonstration</h3>
+                <div class="canvas-container">
+                    <canvas id="hysteresisCanvas" width="600" height="400"></canvas>
+                </div>
+                <div class="controls">
+                    <button onclick="runHysteresisForward()">Forward Path</button>
+                    <button onclick="runHysteresisBackward()">Backward Path</button>
+                    <button onclick="resetHysteresis()">Reset</button>
+                </div>
+                <div class="warning-box">
+                    <strong>Management Implication:</strong> Due to hysteresis, the effort required to restore a degraded system may be much greater than what was needed to prevent the degradation initially.
+                </div>
+            </div>
+        </div>
+
+        <!-- Resilience Section -->
+        <div class="section">
+            <h2>Resilience Framework</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Resistance</h4>
+                    <p>The magnitude of disturbance required to cause a change in system state. Measured by the width of the stability basin.</p>
+                    <div class="math-equation">
+                        Resistance = |Threshold - Current State|
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4>Resilience</h4>
+                    <p>The rate at which a system returns to equilibrium after disturbance. Related to the steepness of the stability landscape.</p>
+                    <div class="math-equation">
+                        Resilience ∝ |∂f/∂x| at equilibrium
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Resilience Landscape Visualization</h3>
+                <div class="canvas-container">
+                    <canvas id="resilienceCanvas" width="600" height="350"></canvas>
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Basin Depth</label>
+                        <input type="range" id="basinDepth" min="0.5" max="3" step="0.1" value="1.5" oninput="updateResilience()">
+                    </div>
+                    <div class="control-group">
+                        <label>Basin Width</label>
+                        <input type="range" id="basinWidth" min="0.5" max="3" step="0.1" value="1.5" oninput="updateResilience()">
+                    </div>
+                    <button onclick="disturbResilience()">Apply Disturbance</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Early Warning Section -->
+        <div class="section">
+            <h2>Early Warning Indicators</h2>
+            
+            <div class="definition-box">
+                <strong>Critical Slowing Down:</strong> As systems approach tipping points, they lose resilience and recover more slowly from perturbations, creating detectable warning signals.
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Increasing Variance</h4>
+                    <p>Fluctuations around the equilibrium increase as the system loses stability.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Rising Autocorrelation</h4>
+                    <p>The system develops "memory" as recovery from perturbations slows down.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Spatial Correlation</h4>
+                    <p>In spatially extended systems, correlation length increases near tipping points.</p>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Early Warning Signal Simulation</h3>
+                <div class="canvas-container">
+                    <canvas id="warningCanvas" width="600" height="400"></canvas>
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Distance to Tipping Point</label>
+                        <input type="range" id="tippingDistance" min="0.1" max="2" step="0.1" value="1" oninput="updateWarningSignals()">
+                    </div>
+                    <button onclick="generateWarningData()">Generate Time Series</button>
+                    <button onclick="calculateIndicators()">Calculate Indicators</button>
+                </div>
+                <div id="indicatorResults" style="margin-top: 1rem; padding: 1rem; background: #f0f8f0; border-radius: 6px;"></div>
+            </div>
+        </div>
+
+        <!-- Coral Reef Case Study -->
+        <div class="section">
+            <h2>Case Study: Coral Reef Dynamics</h2>
+            
+            <p>Coral reefs provide an excellent example of potential alternate stable states, with transitions between coral-dominated and algae-dominated systems.</p>
+
+            <div class="math-equation">
+                <strong>State Transition Model:</strong><br>
+                dC/dt = rC(1 - C - A) - γCA - mC<br>
+                dA/dt = γCA + iA(1 - C - A) - gA<br>
+                where C = coral cover, A = algae cover<br>
+                r = coral growth rate, γ = algae competitive advantage<br>
+                m = coral mortality, i = algae colonization, g = grazing rate
+            </div>
+
+            <div class="simulation-container">
+                <h3>Coral-Algae State Space</h3>
+                <div class="canvas-container">
+                    <canvas id="coralCanvas" width="600" height="500"></canvas>
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Grazing Pressure</label>
+                        <input type="range" id="grazingRate" min="0.1" max="2" step="0.1" value="1" oninput="updateCoralModel()">
+                        <span id="grazingValue">1</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Coral Mortality</label>
+                        <input type="range" id="coralMortality" min="0.1" max="1" step="0.05" value="0.3" oninput="updateCoralModel()">
+                        <span id="mortalityValue">0.3</span>
+                    </div>
+                    <button onclick="addTrajectory()">Add Trajectory</button>
+                    <button onclick="clearTrajectories()">Clear</button>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Research Finding:</strong> While alternate stable states are theoretically possible in coral reef systems, empirical evidence suggests that most observed phase shifts result from continuous responses to large environmental changes rather than true bistability.
+            </div>
+        </div>
+
+        <!-- Mathematical Models Section -->
+        <div class="section">
+            <h2>Mathematical Framework</h2>
+            
+            <h3>General Dynamical System</h3>
+            <div class="math-equation">
+                dx/dt = f(x, c, t)<br>
+                where:<br>
+                x = system state vector<br>
+                c = environmental parameter vector<br>
+                t = time<br>
+                f = system dynamics function
+            </div>
+
+            <h3>Stability Analysis</h3>
+            <div class="math-equation">
+                Equilibrium points: f(x*, c) = 0<br>
+                Stability determined by eigenvalues of Jacobian:<br>
+                J = ∂f/∂x|<sub>x*</sub><br>
+                Stable if Re(λ<sub>i</sub>) < 0 for all eigenvalues λ<sub>i</sub>
+            </div>
+
+            <h3>Bifurcation Conditions</h3>
+            <div class="math-equation">
+                Saddle-node bifurcation occurs when:<br>
+                f(x*, c*) = 0 and ∂f/∂x|<sub>x*,c*</sub> = 0<br>
+                Critical parameter: c* where stability changes
+            </div>
+
+            <h3>Potential Function Approach</h3>
+            <div class="math-equation">
+                For gradient systems: dx/dt = -dU/dx<br>
+                where U(x) is the potential function<br>
+                Stable equilibria at local minima of U<br>
+                Unstable equilibria at local maxima of U
+            </div>
+        </div>
+
+        <!-- Management Implications -->
+        <div class="section">
+            <h2>Management and Conservation Implications</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Prevention vs Restoration</h4>
+                    <p>Due to hysteresis effects, preventing degradation is often more feasible than restoration after a shift has occurred.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Early Warning Systems</h4>
+                    <p>Monitoring variance and correlation can provide advance warning of approaching tipping points.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Adaptive Management</h4>
+                    <p>Management strategies must account for non-linear responses and potential threshold effects.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Spatial Considerations</h4>
+                    <p>Local management actions may have non-local effects through spatial coupling and connectivity.</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Time Scale Considerations:</strong> What appears as alternate stable states on short time scales may be transient dynamics on longer time scales. Ecosystems may be "living dangerously on borrowed time" during slow, unrecognized regime shifts.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for simulations
+        let animationId;
+        let hysteresisData = { forward: [], backward: [], current: 'none' };
+        let coralTrajectories = [];
+        let warningTimeSeriesData = [];
+
+        // Initialize all canvases
+        window.onload = function() {
+            drawEquilibriumLandscape();
+            drawBistabilityDiagram();
+            drawPhaseDiagrams();
+            drawHysteresisLoop();
+            drawResilienceLandscape();
+            drawCoralStateSpace();
+        };
+
+        // Equilibrium demonstration
+        function drawEquilibriumLandscape() {
+            const canvas = document.getElementById('equilibriumCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw potential landscape
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const position = (x / canvas.width) * 8 - 4;
+                const potential = Math.pow(position, 4) - 2 * Math.pow(position, 2);
+                const y = canvas.height - (potential + 2) * 40 - 50;
+                
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Mark equilibrium points
+            const stablePoints = [-Math.sqrt(2), Math.sqrt(2)];
+            const unstablePoint = 0;
+            
+            // Stable equilibria
+            stablePoints.forEach(point => {
+                const x = (point + 4) / 8 * canvas.width;
+                const potential = Math.pow(point, 4) - 2 * Math.pow(point, 2);
+                const y = canvas.height - (potential + 2) * 40 - 50;
+                
+                ctx.fillStyle = '#2c5530';
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Unstable equilibrium
+            const x_unstable = (unstablePoint + 4) / 8 * canvas.width;
+            const potential_unstable = Math.pow(unstablePoint, 4) - 2 * Math.pow(unstablePoint, 2);
+            const y_unstable = canvas.height - (potential_unstable + 2) * 40 - 50;
+            
+            ctx.fillStyle = '#dc3545';
+            ctx.beginPath();
+            ctx.arc(x_unstable, y_unstable, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Stable', stablePoints[0] / 8 * canvas.width + canvas.width/2, canvas.height - 20);
+            ctx.fillText('Unstable', x_unstable, canvas.height - 20);
+            ctx.fillText('Stable', stablePoints[1] / 8 * canvas.width + canvas.width/2, canvas.height - 20);
+        }
+
+        function perturbSystem() {
+            // Add animation showing ball rolling back to stable point
+            const canvas = document.getElementById('equilibriumCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            let ballPosition = Math.random() * 6 - 3; // Random position
+            let velocity = 0;
+            let frame = 0;
+            
+            function animate() {
+                if (frame > 200) return; // Stop animation
+                
+                // Clear previous ball
+                drawEquilibriumLandscape();
+                
+                // Calculate force (derivative of potential)
+                const force = -4 * Math.pow(ballPosition, 3) + 4 * ballPosition;
+                velocity += force * 0.01;
+                velocity *= 0.95; // Damping
+                ballPosition += velocity * 0.1;
+                
+                // Draw ball
+                const x = (ballPosition + 4) / 8 * canvas.width;
+                const potential = Math.pow(ballPosition, 4) - 2 * Math.pow(ballPosition, 2);
+                const y = canvas.height - (potential + 2) * 40 - 50;
+                
+                ctx.fillStyle = '#ff6b35';
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                frame++;
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+
+        function resetEquilibrium() {
+            drawEquilibriumLandscape();
+        }
+
+        // Bistability simulation
+        function drawBistabilityDiagram() {
+            updateBistability();
+        }
+
+        function updateBistability() {
+            const canvas = document.getElementById('bistabilityCanvas');
+            const ctx = canvas.getContext('2d');
+            const envParam = parseFloat(document.getElementById('envParam').value);
+            const initState = parseFloat(document.getElementById('initState').value);
+            
+            document.getElementById('envValue').textContent = envParam.toFixed(1);
+            document.getElementById('stateValue').textContent = initState.toFixed(1);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw potential function: U(x) = x^4/4 - c*x^2/2 - a*x
+            const a = envParam;
+            
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const state = (x / canvas.width) * 6 - 3;
+                const potential = Math.pow(state, 4) / 4 - 0.5 * Math.pow(state, 2) - a * state;
+                const y = canvas.height - (potential + 3) * 30 - 50;
+                
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Find and mark equilibria
+            const equilibria = findEquilibria(a);
+            
+            equilibria.forEach((eq, index) => {
+                const x = (eq + 3) / 6 * canvas.width;
+                const potential = Math.pow(eq, 4) / 4 - 0.5 * Math.pow(eq, 2) - a * eq;
+                const y = canvas.height - (potential + 3) * 30 - 50;
+                
+                // Determine stability
+                const secondDerivative = 3 * Math.pow(eq, 2) - 1;
+                const isStable = secondDerivative > 0;
+                
+                ctx.fillStyle = isStable ? '#2c5530' : '#dc3545';
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Mark initial state
+            const x_init = (initState + 3) / 6 * canvas.width;
+            const potential_init = Math.pow(initState, 4) / 4 - 0.5 * Math.pow(initState, 2) - a * initState;
+            const y_init = canvas.height - (potential_init + 3) * 30 - 50;
+            
+            ctx.fillStyle = '#ff6b35';
+            ctx.beginPath();
+            ctx.arc(x_init, y_init, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add axes and labels
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(50, canvas.height - 50);
+            ctx.lineTo(canvas.width - 50, canvas.height - 50);
+            ctx.moveTo(50, 50);
+            ctx.lineTo(50, canvas.height - 50);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('System State', canvas.width / 2, canvas.height - 10);
+            
+            ctx.save();
+            ctx.translate(20, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Potential', 0, 0);
+            ctx.restore();
+        }
+
+        function findEquilibria(a) {
+            // Solve x^3 - x - a = 0 numerically
+            const equilibria = [];
+            for (let x = -3; x <= 3; x += 0.01) {
+                const f = Math.pow(x, 3) - x - a;
+                const f_next = Math.pow(x + 0.01, 3) - (x + 0.01) - a;
+                if (f * f_next <= 0) {
+                    equilibria.push(x);
+                }
+            }
+            return equilibria;
+        }
+
+        function runDynamics() {
+            const canvas = document.getElementById('bistabilityCanvas');
+            const ctx = canvas.getContext('2d');
+            const a = parseFloat(document.getElementById('envParam').value);
+            let state = parseFloat(document.getElementById('initState').value);
+            
+            let frame = 0;
+            function animate() {
+                if (frame > 300) return;
+                
+                // Update state: dx/dt = -dU/dx = -x^3 + x + a
+                const derivative = -Math.pow(state, 3) + state + a;
+                state += derivative * 0.01;
+                
+                // Redraw
+                updateBistability();
+                
+                // Draw current state
+                const x = (state + 3) / 6 * canvas.width;
+                const potential = Math.pow(state, 4) / 4 - 0.5 * Math.pow(state, 2) - a * state;
+                const y = canvas.height - (potential + 3) * 30 - 50;
+                
+                ctx.fillStyle = '#ff6b35';
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                frame++;
+                setTimeout(() => requestAnimationFrame(animate), 50);
+            }
+            
+            animate();
+        }
+
+        // Phase diagram functions
+        function drawPhaseDiagrams() {
+            drawContinuousShift();
+            drawCatastrophicShift();
+            drawBasinCrossing();
+        }
+
+        function drawContinuousShift() {
+            const canvas = document.getElementById('continuousCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw smooth transition
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const env = (x / canvas.width) * 10 - 5;
+                const state = 3 / (1 + Math.exp(-env)) - 1.5; // Sigmoid function
+                const y = canvas.height - (state + 2) * canvas.height / 4;
+                
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Add axes and labels
+            drawAxes(canvas, 'Environmental Driver', 'Ecosystem State');
+        }
+
+        function drawCatastrophicShift() {
+            const canvas = document.getElementById('catastrophicCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw catastrophic fold
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 3;
+            
+            // Upper branch
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width * 0.7; x++) {
+                const env = (x / canvas.width) * 10 - 5;
+                const state = Math.sqrt(Math.max(0, env + 2));
+                const y = canvas.height - (state + 0.5) * canvas.height / 3;
+                
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Lower branch
+            ctx.beginPath();
+            for (let x = canvas.width * 0.3; x < canvas.width; x++) {
+                const env = (x / canvas.width) * 10 - 5;
+                const state = -Math.sqrt(Math.max(0, env + 2));
+                const y = canvas.height - (state + 2) * canvas.height / 3;
+                
+                if (x === canvas.width * 0.3) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Mark discontinuity
+            ctx.strokeStyle = '#dc3545';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.7, canvas.height * 0.3);
+            ctx.lineTo(canvas.width * 0.3, canvas.height * 0.7);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            drawAxes(canvas, 'Environmental Driver', 'Ecosystem State');
+        }
+
+        function drawBasinCrossing() {
+            const canvas = document.getElementById('basinCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw basin structure
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const position = (x / canvas.width) * 6 - 3;
+                const potential = 0.25 * Math.pow(position, 4) - Math.pow(position, 2);
+                const y = canvas.height - (potential + 2) * 40;
+                
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Show trajectory crossing basin
+            ctx.strokeStyle = '#ff6b35';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.2, canvas.height * 0.4);
+            ctx.lineTo(canvas.width * 0.5, canvas.height * 0.8);
+            ctx.lineTo(canvas.width * 0.8, canvas.height * 0.3);
+            ctx.stroke();
+            
+            drawAxes(canvas, 'System State', 'Potential');
+        }
+
+        function drawAxes(canvas, xlabel, ylabel) {
+            const ctx = canvas.getContext('2d');
+            
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(50, canvas.height - 50);
+            ctx.lineTo(canvas.width - 50, canvas.height - 50);
+            ctx.moveTo(50, 50);
+            ctx.lineTo(50, canvas.height - 50);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(xlabel, canvas.width / 2, canvas.height - 10);
+            
+            ctx.save();
+            ctx.translate(20, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(ylabel, 0, 0);
+            ctx.restore();
+        }
+
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Hysteresis functions
+        function drawHysteresisLoop() {
+            const canvas = document.getElementById('hysteresisCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw equilibrium curves
+            drawHysteresisBackground(ctx, canvas);
+            
+            // Draw existing paths
+            if (hysteresisData.forward.length > 0) {
+                drawPath(ctx, hysteresisData.forward, '#2c5530', 'Forward');
+            }
+            if (hysteresisData.backward.length > 0) {
+                drawPath(ctx, hysteresisData.backward, '#dc3545', 'Backward');
+            }
+        }
+
+        function drawHysteresisBackground(ctx, canvas) {
+            // Upper branch (stable)
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width; x++) {
+                const c = (x / canvas.width) * 4 - 2;
+                if (c >= -1) {
+                    const state = Math.sqrt(c + 1) + 1;
+                    const y = canvas.height - (state + 1) * canvas.height / 4;
+                    if (x === 0 || c === -1) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            // Lower branch (stable)
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width; x++) {
+                const c = (x / canvas.width) * 4 - 2;
+                if (c >= -1) {
+                    const state = -Math.sqrt(c + 1) + 1;
+                    const y = canvas.height - (state + 1) * canvas.height / 4;
+                    if (x === 0 || c === -1) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            // Unstable branch (dashed)
+            ctx.strokeStyle = '#999';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width * 0.75; x++) {
+                const c = (x / canvas.width) * 4 - 2;
+                const state = 1;
+                const y = canvas.height - (state + 1) * canvas.height / 4;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            drawAxes(canvas, 'Environmental Conditions', 'Ecosystem State');
+        }
+
+        function drawPath(ctx, data, color, label) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            
+            data.forEach((point, index) => {
+                const x = (point.c + 2) / 4 * ctx.canvas.width;
+                const y = ctx.canvas.height - (point.state + 1) * ctx.canvas.height / 4;
+                
+                if (index === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Add arrow at end
+            if (data.length > 1) {
+                const lastPoint = data[data.length - 1];
+                const secondLastPoint = data[data.length - 2];
+                const x = (lastPoint.c + 2) / 4 * ctx.canvas.width;
+                const y = ctx.canvas.height - (lastPoint.state + 1) * ctx.canvas.height / 4;
+                
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        function runHysteresisForward() {
+            hysteresisData.forward = [];
+            hysteresisData.current = 'forward';
+            
+            // Start from upper branch, move right
+            let state = 2.5;
+            for (let c = -2; c <= 2; c += 0.1) {
+                if (c > 0 && state > 0.5) {
+                    // Jump to lower branch at critical point
+                    state = -Math.sqrt(c + 1) + 1;
+                }
+                hysteresisData.forward.push({c: c, state: state});
+            }
+            
+            animateHysteresisPath('forward');
+        }
+
+        function runHysteresisBackward() {
+            hysteresisData.backward = [];
+            hysteresisData.current = 'backward';
+            
+            // Start from lower branch, move left
+            let state = -1.5;
+            for (let c = 2; c >= -2; c -= 0.1) {
+                if (c < -0.5 && state < 0.5) {
+                    // Jump to upper branch at critical point
+                    state = Math.sqrt(c + 1) + 1;
+                }
+                hysteresisData.backward.push({c: c, state: state});
+            }
+            
+            animateHysteresisPath('backward');
+        }
+
+        function animateHysteresisPath(type) {
+            const data = hysteresisData[type];
+            let index = 0;
+            
+            function animate() {
+                if (index >= data.length) return;
+                
+                const currentData = data.slice(0, index + 1);
+                if (type === 'forward') {
+                    hysteresisData.forward = currentData;
+                } else {
+                    hysteresisData.backward = currentData;
+                }
+                
+                drawHysteresisLoop();
+                index++;
+                
+                setTimeout(() => requestAnimationFrame(animate), 50);
+            }
+            
+            animate();
+        }
+
+        function resetHysteresis() {
+            hysteresisData = { forward: [], backward: [], current: 'none' };
+            drawHysteresisLoop();
+        }
+
+        // Resilience landscape
+        function drawResilienceLandscape() {
+            updateResilience();
+        }
+
+        function updateResilience() {
+            const canvas = document.getElementById('resilienceCanvas');
+            const ctx = canvas.getContext('2d');
+            const depth = parseFloat(document.getElementById('basinDepth').value);
+            const width = parseFloat(document.getElementById('basinWidth').value);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw potential landscape with adjustable parameters
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const position = (x / canvas.width - 0.5) * 8;
+                const potential = depth * Math.pow(position / width, 4) - 2 * depth * Math.pow(position / width, 2);
+                const y = canvas.height - (potential + depth) * 40;
+                
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Mark equilibria and resistance/resilience measures
+            const stablePoints = [-width * Math.sqrt(2), width * Math.sqrt(2)];
+            
+            stablePoints.forEach(point => {
+                const x = (point / 8 + 0.5) * canvas.width;
+                const potential = depth * Math.pow(point / width, 4) - 2 * depth * Math.pow(point / width, 2);
+                const y = canvas.height - (potential + depth) * 40;
+                
+                ctx.fillStyle = '#2c5530';
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw resistance (basin width)
+                ctx.strokeStyle = '#4a7c59';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(canvas.width / 2, y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+            
+            drawAxes(canvas, 'System State', 'Potential Energy');
+            
+            // Add resistance/resilience annotations
+            ctx.fillStyle = '#4a7c59';
+            ctx.font = '12px Arial';
+            ctx.fillText('Resistance = Basin Width', 50, 30);
+            ctx.fillText('Resilience = Basin Steepness', 50, 50);
+        }
+
+        function disturbResilience() {
+            const canvas = document.getElementById('resilienceCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Add animated ball showing recovery
+            let ballPos = Math.random() * 2 - 1; // Random position
+            let velocity = 0;
+            const depth = parseFloat(document.getElementById('basinDepth').value);
+            const width = parseFloat(document.getElementById('basinWidth').value);
+            
+            function animate() {
+                updateResilience();
+                
+                // Calculate force and update position
+                const force = -4 * depth * Math.pow(ballPos / width, 3) / Math.pow(width, 3) + 4 * depth * ballPos / Math.pow(width, 2);
+                velocity += force * 0.01;
+                velocity *= 0.9; // Damping
+                ballPos += velocity * 0.1;
+                
+                // Draw ball
+                const x = (ballPos / 8 + 0.5) * canvas.width;
+                const potential = depth * Math.pow(ballPos / width, 4) - 2 * depth * Math.pow(ballPos / width, 2);
+                const y = canvas.height - (potential + depth) * 40;
+                
+                ctx.fillStyle = '#ff6b35';
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                if (Math.abs(velocity) > 0.01) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+
+        // Early warning signals
+        function updateWarningSignals() {
+            generateWarningData();
+        }
+
+        function generateWarningData() {
+            const canvas = document.getElementById('warningCanvas');
+            const ctx = canvas.getContext('2d');
+            const distance = parseFloat(document.getElementById('tippingDistance').value);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Generate time series with increasing variance as distance decreases
+            warningTimeSeriesData = [];
+            const timeSteps = 200;
+            const baseVariance = 0.1;
+            const variance = baseVariance / distance;
+            
+            let state = 0;
+            for (let t = 0; t < timeSteps; t++) {
+                const noise = (Math.random() - 0.5) * variance;
+                const restoring = -state * distance * 0.1;
+                state += restoring + noise;
+                
+                warningTimeSeriesData.push({
+                    time: t,
+                    state: state,
+                    variance: variance
+                });
+            }
+            
+            // Plot time series
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            warningTimeSeriesData.forEach((point, index) => {
+                const x = (point.time / timeSteps) * (canvas.width - 100) + 50;
+                const y = canvas.height / 2 - point.state * 50;
+                
+                if (index === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Draw mean line
+            ctx.strokeStyle = '#999';
+            ctx.setLineDash([2, 2]);
+            ctx.beginPath();
+            ctx.moveTo(50, canvas.height / 2);
+            ctx.lineTo(canvas.width - 50, canvas.height / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            drawAxes(canvas, 'Time', 'System State');
+            
+            // Add variance indicator
+            ctx.fillStyle = '#4a7c59';
+            ctx.font = '14px Arial';
+            ctx.fillText(`Variance: ${variance.toFixed(3)}`, canvas.width - 150, 30);
+            ctx.fillText(`Distance to Tipping: ${distance.toFixed(1)}`, canvas.width - 180, 50);
+        }
+
+        function calculateIndicators() {
+            if (warningTimeSeriesData.length === 0) {
+                generateWarningData();
+            }
+            
+            // Calculate variance
+            const states = warningTimeSeriesData.map(d => d.state);
+            const mean = states.reduce((a, b) => a + b) / states.length;
+            const variance = states.reduce((sum, state) => sum + Math.pow(state - mean, 2), 0) / states.length;
+            
+            // Calculate autocorrelation (lag-1)
+            let autocorr = 0;
+            for (let i = 1; i < states.length; i++) {
+                autocorr += (states[i] - mean) * (states[i-1] - mean);
+            }
+            autocorr = autocorr / ((states.length - 1) * variance);
+            
+            // Display results
+            const resultsDiv = document.getElementById('indicatorResults');
+            resultsDiv.innerHTML = `
+                <h4>Early Warning Indicators:</h4>
+                <p><strong>Variance:</strong> ${variance.toFixed(4)} (increases near tipping points)</p>
+                <p><strong>Lag-1 Autocorrelation:</strong> ${autocorr.toFixed(4)} (increases near tipping points)</p>
+                <p><strong>Interpretation:</strong> ${variance > 0.05 || autocorr > 0.3 ? 
+                    '<span style="color: #dc3545;">Warning: System may be approaching tipping point!</span>' : 
+                    '<span style="color: #2c5530;">System appears stable</span>'}</p>
+            `;
+        }
+
+        // Coral reef model
+        function drawCoralStateSpace() {
+            updateCoralModel();
+        }
+
+        function updateCoralModel() {
+            const canvas = document.getElementById('coralCanvas');
+            const ctx = canvas.getContext('2d');
+            const grazingRate = parseFloat(document.getElementById('grazingRate').value);
+            const mortalityRate = parseFloat(document.getElementById('coralMortality').value);
+            
+            document.getElementById('grazingValue').textContent = grazingRate.toFixed(1);
+            document.getElementById('mortalityValue').textContent = mortalityRate.toFixed(2);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw state space triangle
+            const triangleBase = canvas.width - 100;
+            const triangleHeight = canvas.height - 100;
+            
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, canvas.height - 50); // Bottom left (Others)
+            ctx.lineTo(canvas.width - 50, canvas.height - 50); // Bottom right (Coral)
+            ctx.lineTo(canvas.width / 2, 50); // Top (Algae)
+            ctx.closePath();
+            ctx.stroke();
+            
+            // Add labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Others', 25, canvas.height - 30);
+            ctx.fillText('Coral', canvas.width - 25, canvas.height - 30);
+            ctx.fillText('Algae', canvas.width / 2, 35);
+            
+            // Draw nullclines and flow field
+            drawCoralFlowField(ctx, canvas, grazingRate, mortalityRate);
+            
+            // Draw existing trajectories
+            coralTrajectories.forEach(trajectory => {
+                ctx.strokeStyle = '#ff6b35';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                trajectory.forEach((point, index) => {
+                    const coords = barycentricToCartesian(point.coral, point.algae, point.others, canvas);
+                    if (index === 0) ctx.moveTo(coords.x, coords.y);
+                    else ctx.lineTo(coords.x, coords.y);
+                });
+                ctx.stroke();
+                
+                // Mark start and end points
+                if (trajectory.length > 0) {
+                    const start = barycentricToCartesian(trajectory[0].coral, trajectory[0].algae, trajectory[0].others, canvas);
+                    const end = barycentricToCartesian(
+                        trajectory[trajectory.length-1].coral,
+                        trajectory[trajectory.length-1].algae,
+                        trajectory[trajectory.length-1].others,
+                        canvas
+                    );
+                    
+                    ctx.fillStyle = '#2c5530';
+                    ctx.beginPath();
+                    ctx.arc(start.x, start.y, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = '#dc3545';
+                    ctx.beginPath();
+                    ctx.arc(end.x, end.y, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawCoralFlowField(ctx, canvas, grazingRate, mortalityRate) {
+            const gridSize = 30;
+            
+            for (let i = 1; i < gridSize; i++) {
+                for (let j = 1; j < gridSize; j++) {
+                    // Convert grid position to barycentric coordinates
+                    const u = i / gridSize;
+                    const v = j / gridSize;
+                    
+                    if (u + v < 1) { // Inside triangle
+                        const coral = u;
+                        const algae = v;
+                        const others = 1 - u - v;
+                        
+                        // Calculate derivatives
+                        const r_coral = 0.8; // coral growth rate
+                        const r_algae = 1.2; // algae growth rate
+                        const gamma = 0.4; // competitive advantage
+                        const colonization = 0.5;
+                        
+                        const dC_dt = r_coral * coral * others - gamma * coral * algae - mortalityRate * coral;
+                        const dA_dt = gamma * coral * algae + colonization * algae * others - grazingRate * algae;
+                        const dO_dt = -(dC_dt + dA_dt); // Conservation
+                        
+                        // Convert to Cartesian coordinates
+                        const coords = barycentricToCartesian(coral, algae, others, canvas);
+                        
+                        // Draw vector
+                        const scale = 1000;
+                        const dx = dC_dt * scale;
+                        const dy = -dA_dt * scale; // Flip y for screen coordinates
+                        
+                        const magnitude = Math.sqrt(dx*dx + dy*dy);
+                        if (magnitude > 1) {
+                            ctx.strokeStyle = magnitude > 5 ? '#dc3545' : '#4a7c59';
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(coords.x, coords.y);
+                            ctx.lineTo(coords.x + dx, coords.y + dy);
+                            ctx.stroke();
+                            
+                            // Draw arrowhead
+                            const angle = Math.atan2(dy, dx);
+                            const arrowLength = 5;
+                            ctx.beginPath();
+                            ctx.moveTo(coords.x + dx, coords.y + dy);
+                            ctx.lineTo(
+                                coords.x + dx - arrowLength * Math.cos(angle - Math.PI/6),
+                                coords.y + dy - arrowLength * Math.sin(angle - Math.PI/6)
+                            );
+                            ctx.moveTo(coords.x + dx, coords.y + dy);
+                            ctx.lineTo(
+                                coords.x + dx - arrowLength * Math.cos(angle + Math.PI/6),
+                                coords.y + dy - arrowLength * Math.sin(angle + Math.PI/6)
+                            );
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+        }
+
+        function barycentricToCartesian(coral, algae, others, canvas) {
+            const x = 50 + coral * (canvas.width - 100);
+            const y = canvas.height - 50 - others * (canvas.height - 100);
+            return {x, y};
+        }
+
+        function addTrajectory() {
+            // Start from a random point and integrate
+            const coral = Math.random() * 0.8 + 0.1;
+            const algae = Math.random() * (0.9 - coral);
+            const others = 1 - coral - algae;
+            
+            const trajectory = [{coral, algae, others}];
+            
+            // Integrate trajectory
+            let c = coral, a = algae, o = others;
+            const dt = 0.01;
+            const steps = 500;
+            
+            const grazingRate = parseFloat(document.getElementById('grazingRate').value);
+            const mortalityRate = parseFloat(document.getElementById('coralMortality').value);
+            
+            for (let step = 0; step < steps; step++) {
+                const r_coral = 0.8;
+                const r_algae = 1.2;
+                const gamma = 0.4;
+                const colonization = 0.5;
+                
+                const dC_dt = r_coral * c * o - gamma * c * a - mortalityRate * c;
+                const dA_dt = gamma * c * a + colonization * a * o - grazingRate * a;
+                const dO_dt = -(dC_dt + dA_dt);
+                
+                c += dC_dt * dt;
+                a += dA_dt * dt;
+                o += dO_dt * dt;
+                
+                // Ensure non-negativity and normalization
+                c = Math.max(0, c);
+                a = Math.max(0, a);
+                o = Math.max(0, o);
+                
+                const total = c + a + o;
+                if (total > 0) {
+                    c /= total;
+                    a /= total;
+                    o /= total;
+                }
+                
+                if (step % 10 === 0) { // Sample every 10 steps
+                    trajectory.push({coral: c, algae: a, others: o});
+                }
+                
+                // Stop if trajectory has converged
+                if (Math.abs(dC_dt) + Math.abs(dA_dt) + Math.abs(dO_dt) < 0.001) {
+                    break;
+                }
+            }
+            
+            coralTrajectories.push(trajectory);
+            updateCoralModel();
+        }
+
+        function clearTrajectories() {
+            coralTrajectories = [];
+            updateCoralModel();
+        }
+    </script>
+</body>
+</html>
