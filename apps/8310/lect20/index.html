@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population and Community Ecology: Beyond Two Trophic Levels</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530, #1a3d20);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .concept-section {
+            background: white;
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #2c5530;
+        }
+
+        .concept-section h2 {
+            color: #2c5530;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #4a7c59;
+            padding-bottom: 10px;
+        }
+
+        .concept-section h3 {
+            color: #4a7c59;
+            font-size: 1.4em;
+            margin: 25px 0 15px 0;
+        }
+
+        .math-equation {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #4a7c59;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .simulation-container {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            border: 2px solid #4a7c59;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #2c5530;
+            font-size: 0.9em;
+        }
+
+        input[type="range"] {
+            appearance: none;
+            height: 8px;
+            background: #e8f5e8;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #2c5530;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        button {
+            background: #2c5530;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #4a7c59;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .key-points {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2c5530;
+            margin: 20px 0;
+        }
+
+        .key-points h4 {
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .key-points ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(76, 124, 89, 0.2);
+        }
+
+        .key-points li:before {
+            content: "→ ";
+            color: #2c5530;
+            font-weight: bold;
+        }
+
+        .trophic-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border-radius: 10px;
+        }
+
+        .trophic-level {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 120px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .trophic-level:hover {
+            transform: scale(1.05);
+        }
+
+        .trophic-level.plants {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .trophic-level.herbivores {
+            background: #2c5530;
+            color: white;
+        }
+
+        .trophic-level.carnivores {
+            background: #1a3d20;
+            color: white;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #2c5530;
+            margin: 0 10px;
+        }
+
+        .productivity-slider-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .experimental-design {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .experiment-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #4a7c59;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .experiment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .experiment-card h4 {
+            color: #2c5530;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .trophic-diagram {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Population and Community Ecology</h1>
+            <p>Beyond Two Trophic Levels: Understanding Multi-level Interactions</p>
+        </div>
+
+        <!-- Green World Hypothesis -->
+        <div class="concept-section">
+            <h2>1. The Green World Hypothesis (HSS 1960)</h2>
+            <p>The fundamental question: <strong>"Why is the world green?"</strong> This seemingly simple observation led to profound insights about ecosystem structure.</p>
+            
+            <div class="key-points">
+                <h4>HSS Logic Chain:</h4>
+                <ul>
+                    <li><strong>Observation:</strong> Plants are abundant in nature</li>
+                    <li><strong>Inference:</strong> Plants are NOT herbivore-limited → they are resource-limited</li>
+                    <li><strong>Conclusion:</strong> Herbivores are NOT food-limited → they are predator-limited</li>
+                    <li><strong>Result:</strong> Predators are resource-limited (limited by prey availability)</li>
+                </ul>
+            </div>
+
+            <div class="trophic-diagram">
+                <div class="trophic-level plants">
+                    <h4>Plants</h4>
+                    <p>Resource-Limited</p>
+                    <small>(nutrients, light, water)</small>
+                </div>
+                <div class="arrow">→</div>
+                <div class="trophic-level herbivores">
+                    <h4>Herbivores</h4>
+                    <p>Predator-Limited</p>
+                    <small>(top-down control)</small>
+                </div>
+                <div class="arrow">→</div>
+                <div class="trophic-level carnivores">
+                    <h4>Carnivores</h4>
+                    <p>Resource-Limited</p>
+                    <small>(prey availability)</small>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                <p><strong>Alternating Limitation Pattern:</strong></p>
+                $$\text{Odd trophic levels (1, 3, 5...)} \rightarrow \text{Resource-limited}$$
+                $$\text{Even trophic levels (2, 4, 6...)} \rightarrow \text{Predator-limited}$$
+            </div>
+        </div>
+
+        <!-- Oksanen Model -->
+        <div class="concept-section">
+            <h2>2. Oksanen Model (1981): Exploitation Ecosystems</h2>
+            <p>This model predicts how ecosystem structure changes with primary productivity.</p>
+
+            <div class="simulation-container">
+                <h3>Interactive Productivity Gradient Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="productivity">Primary Productivity:</label>
+                        <input type="range" id="productivity" min="0" max="100" value="25" step="1">
+                        <span id="productivityValue">25</span>
+                    </div>
+                    <button onclick="updateOksanenModel()">Update Model</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="oksanenChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                <p><strong>Oksanen Model Equations:</strong></p>
+                $$\frac{dP}{dt} = rP\left(1 - \frac{P}{K(R)}\right) - \alpha PH$$
+                $$\frac{dH}{dt} = \beta\alpha PH - \gamma HC - \delta H$$
+                $$\frac{dC}{dt} = \epsilon\gamma HC - \mu C$$
+                <p style="margin-top: 15px; font-size: 0.9em;">
+                    Where: P = Plants, H = Herbivores, C = Carnivores, R = Resource availability
+                </p>
+            </div>
+
+            <div class="key-points">
+                <h4>Model Predictions:</h4>
+                <ul>
+                    <li><strong>1 Trophic Level (Low Productivity):</strong> Only plants can persist</li>
+                    <li><strong>2 Trophic Levels (Medium Productivity):</strong> Plants controlled by herbivores</li>
+                    <li><strong>3 Trophic Levels (High Productivity):</strong> Herbivores controlled by carnivores, plants released</li>
+                    <li><strong>4+ Trophic Levels (Very High Productivity):</strong> Additional carnivore levels</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Control vs Limitation vs Regulation -->
+        <div class="concept-section">
+            <h2>3. Control vs. Limitation vs. Regulation</h2>
+            <p>These three concepts are often confused but represent fundamentally different ecological processes.</p>
+
+            <div class="experimental-design">
+                <div class="experiment-card">
+                    <h4>Limitation</h4>
+                    <p><strong>Question:</strong> What prevents higher densities?</p>
+                    <p><strong>Method:</strong> Resource manipulation</p>
+                    <p><strong>Example:</strong> Adding nutrients increases plant growth</p>
+                </div>
+                <div class="experiment-card">
+                    <h4>Control</h4>
+                    <p><strong>Question:</strong> What determines equilibrium density?</p>
+                    <p><strong>Method:</strong> Consumer removal</p>
+                    <p><strong>Example:</strong> Removing herbivores increases plant biomass</p>
+                </div>
+                <div class="experiment-card">
+                    <h4>Regulation</h4>
+                    <p><strong>Question:</strong> What provides negative feedback?</p>
+                    <p><strong>Method:</strong> Density manipulation</p>
+                    <p><strong>Example:</strong> Higher density reduces per capita growth</p>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Population Response Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="limitingFactor">Remove Limiting Factor:</label>
+                        <input type="checkbox" id="limitingFactor" onchange="updatePopulationResponse()">
+                    </div>
+                    <div class="control-group">
+                        <label for="controllingFactor">Remove Controlling Factor:</label>
+                        <input type="checkbox" id="controllingFactor" onchange="updatePopulationResponse()">
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="populationChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                <p><strong>Mathematical Relationships:</strong></p>
+                $$\text{Limitation: } \frac{dN}{dt} = f(\text{Resources}) \times N$$
+                $$\text{Control: } N_{\text{equilibrium}} = g(\text{Predation rate})$$
+                $$\text{Regulation: } \frac{dN}{dt} = rN\left(1 - \frac{N}{K}\right)$$
+            </div>
+        </div>
+
+        <!-- Bottom-up vs Top-down -->
+        <div class="concept-section">
+            <h2>4. Bottom-up vs. Top-down Forces</h2>
+            <p>Understanding the direction of limiting factors in ecological systems.</p>
+
+            <div class="simulation-container">
+                <h3>Interactive Force Demonstration</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="nutrients">Nutrient Level (Bottom-up):</label>
+                        <input type="range" id="nutrients" min="1" max="10" value="5" step="0.5" onchange="updateForces()">
+                        <span id="nutrientValue">5</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="predation">Predation Pressure (Top-down):</label>
+                        <input type="range" id="predation" min="1" max="10" value="5" step="0.5" onchange="updateForces()">
+                        <span id="predationValue">5</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="forcesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="key-points">
+                <h4>Key Differences:</h4>
+                <ul>
+                    <li><strong>Bottom-up:</strong> Resources → Primary producers → Herbivores → Carnivores</li>
+                    <li><strong>Top-down:</strong> Carnivores → Herbivores → Primary producers (Trophic Cascade)</li>
+                    <li><strong>Bottom-up effects:</strong> Same direction across all trophic levels</li>
+                    <li><strong>Top-down effects:</strong> Alternating effects across trophic levels</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Trophic Cascades -->
+        <div class="concept-section">
+            <h2>5. Trophic Cascades</h2>
+            <p>Indirect effects that "cascade" through multiple trophic levels with alternating signs.</p>
+
+            <div class="simulation-container">
+                <h3>Trophic Cascade Simulator</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="topPredator">Top Predator Abundance:</label>
+                        <input type="range" id="topPredator" min="0" max="100" value="50" step="5" onchange="updateCascade()">
+                        <span id="topPredatorValue">50</span>
+                    </div>
+                    <button onclick="demonstrateCascade()">Demonstrate Cascade Effect</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="cascadeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                <p><strong>Cascade Strength Calculation:</strong></p>
+                $$\text{Cascade Strength} = \frac{\ln(\text{Treatment}) - \ln(\text{Control})}{\text{Trophic Links}}$$
+                $$\text{Effect Size} = (-1)^{\text{Trophic Distance}} \times \text{Initial Effect}$$
+            </div>
+
+            <div class="key-points">
+                <h4>Classic Examples:</h4>
+                <ul>
+                    <li><strong>Wolves → Elk → Vegetation</strong> (Yellowstone)</li>
+                    <li><strong>Sea Otters → Sea Urchins → Kelp</strong> (Pacific Coast)</li>
+                    <li><strong>Fish → Zooplankton → Phytoplankton</strong> (Lakes)</li>
+                    <li><strong>Spiders → Herbivorous insects → Plants</strong> (Terrestrial)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Productivity-Dependent Effects -->
+        <div class="concept-section">
+            <h2>6. Productivity-Dependent Effects</h2>
+            <p>The strength of herbivore effects on plants changes with ecosystem productivity.</p>
+
+            <div class="simulation-container">
+                <h3>Herbivore Effect vs. Productivity</h3>
+                <div class="productivity-slider-container">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="ecosystemProductivity">Ecosystem Productivity (mm precipitation/year):</label>
+                            <input type="range" id="ecosystemProductivity" min="200" max="1200" value="600" step="50" onchange="updateProductivityEffect()">
+                            <span id="ecosystemProductivityValue">600</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="productivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                <p><strong>Productivity-Herbivory Relationship:</strong></p>
+                $$\text{Herbivore Effect} = \beta_0 + \beta_1 \times \log(\text{Productivity}) + \varepsilon$$
+                $$\text{Plant Diversity} = \alpha + \gamma \times \text{Productivity} - \delta \times \text{Herbivory}$$
+            </div>
+
+            <div class="key-points">
+                <h4>Why This Pattern Occurs:</h4>
+                <ul>
+                    <li><strong>Low Productivity:</strong> Few herbivores, limited plant diversity effects</li>
+                    <li><strong>High Productivity:</strong> More herbivores, greater impact on competitive plant interactions</li>
+                    <li><strong>Species Composition:</strong> Changes in plant community structure with productivity</li>
+                    <li><strong>Herbivore Diversity:</strong> More diverse herbivore communities at higher productivity</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Experimental Evidence -->
+        <div class="concept-section">
+            <h2>7. Herbivore × Fertilizer Experiments</h2>
+            <p>Modern experiments reveal that both bottom-up and top-down forces operate simultaneously.</p>
+
+            <div class="simulation-container">
+                <h3>Factorial Experiment Simulator</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="fertilizer">Fertilizer Added:</label>
+                        <input type="checkbox" id="fertilizer" onchange="updateFactorialExperiment()">
+                    </div>
+                    <div class="control-group">
+                        <label for="herbivoreExclusion">Herbivores Excluded:</label>
+                        <input type="checkbox" id="herbivoreExclusion" onchange="updateFactorialExperiment()">
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="factorialChart"></canvas>
+                </div>
+            </div>
+
+            <div class="math-equation">
+                <p><strong>Factorial Design Model:</strong></p>
+                $$\text{Plant Biomass} = \mu + \alpha_F \times F + \alpha_H \times H + \alpha_{FH} \times F \times H + \varepsilon$$
+                <p style="margin-top: 10px; font-size: 0.9em;">
+                    Where: F = Fertilizer effect, H = Herbivore effect, F×H = Interaction effect
+                </p>
+            </div>
+
+            <div class="key-points">
+                <h4>Key Findings:</h4>
+                <ul>
+                    <li><strong>Additive Effects:</strong> Both fertilizer and herbivore exclusion increase plant biomass</li>
+                    <li><strong>Interaction Effects:</strong> Fertilizer effect is stronger when herbivores are present</li>
+                    <li><strong>Context Dependency:</strong> Effects vary across ecosystem types</li>
+                    <li><strong>Non-linear Responses:</strong> Threshold effects and saturation curves</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Modern Understanding -->
+        <div class="concept-section">
+            <h2>8. Modern Synthesis: Context-Dependent Controls</h2>
+            <p>Current understanding emphasizes that ecological systems are controlled by multiple, interacting factors.</p>
+
+            <div class="key-points">
+                <h4>Key Insights from Meta-analyses:</h4>
+                <ul>
+                    <li><strong>Both Forces Matter:</strong> Resource limitation and consumer control co-occur</li>
+                    <li><strong>Context Dependency:</strong> Relative importance varies with environment</li>
+                    <li><strong>Ecosystem Differences:</strong> Aquatic vs. terrestrial systems show different patterns</li>
+                    <li><strong>Scale Effects:</strong> Temporal and spatial scales influence observed patterns</li>
+                    <li><strong>Species Composition:</strong> Community structure mediates top-down and bottom-up effects</li>
+                </ul>
+            </div>
+
+            <div class="math-equation">
+                <p><strong>Integrated Model:</strong></p>
+                $$\frac{dN_i}{dt} = r_i N_i \left(1 - \frac{\sum_j \alpha_{ij}N_j}{K_i(R)}\right) - \sum_k \beta_{ik} N_i N_k$$
+                <p style="margin-top: 10px; font-size: 0.9em;">
+                    Combines resource limitation (K(R)) and predation (β) in a multi-species context
+                </p>
+            </div>
+
+            <div class="experimental-design">
+                <div class="experiment-card">
+                    <h4>Future Directions</h4>
+                    <p>Climate change interactions with trophic dynamics</p>
+                </div>
+                <div class="experiment-card">
+                    <h4>Spatial Heterogeneity</h4>
+                    <p>Landscape-scale patterns in control mechanisms</p>
+                </div>
+                <div class="experiment-card">
+                    <h4>Evolutionary Responses</h4>
+                    <p>How rapid evolution affects community dynamics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let oksanenChart, populationChart, forcesChart, cascadeChart, productivityChart, factorialChart;
+
+        // Initialize all simulations when page loads
+        window.addEventListener('load', function() {
+            initializeOksanenModel();
+            initializePopulationResponse();
+            initializeForces();
+            initializeCascade();
+            initializeProductivityEffect();
+            initializeFactorialExperiment();
+        });
+
+        // Oksanen Model Simulation
+        function initializeOksanenModel() {
+            const ctx = document.getElementById('oksanenChart').getContext('2d');
+            oksanenChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 101}, (_, i) => i),
+                    datasets: [{
+                        label: 'Plants',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        fill: true
+                    }, {
+                        label: 'Herbivores',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        fill: true
+                    }, {
+                        label: 'Carnivores',
+                        data: [],
+                        borderColor: '#1a3d20',
+                        backgroundColor: 'rgba(26, 61, 32, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Primary Productivity'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Abundance/Biomass'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Oksanen Model: Trophic Structure vs. Productivity'
+                        }
+                    }
+                }
+            });
+            updateOksanenModel();
+        }
+
+        function updateOksanenModel() {
+            const productivity = document.getElementById('productivity').value;
+            document.getElementById('productivityValue').textContent = productivity;
+            
+            const data = calculateOksanenModel(productivity);
+            oksanenChart.data.datasets[0].data = data.plants;
+            oksanenChart.data.datasets[1].data = data.herbivores;
+            oksanenChart.data.datasets[2].data = data.carnivores;
+            oksanenChart.update();
+        }
+
+        function calculateOksanenModel(currentProductivity) {
+            const plants = [];
+            const herbivores = [];
+            const carnivores = [];
+            
+            for (let p = 0; p <= 100; p++) {
+                if (p < 20) {
+                    // 1 trophic level
+                    plants.push(p * 0.8);
+                    herbivores.push(0);
+                    carnivores.push(0);
+                } else if (p < 60) {
+                    // 2 trophic levels
+                    plants.push(15 + Math.sin((p-20) * 0.1) * 3);
+                    herbivores.push((p-20) * 0.6);
+                    carnivores.push(0);
+                } else {
+                    // 3 trophic levels
+                    plants.push(20 + (p-60) * 0.4);
+                    herbivores.push(25 + Math.sin((p-60) * 0.1) * 2);
+                    carnivores.push((p-60) * 0.3);
+                }
+            }
+            
+            return { plants, herbivores, carnivores };
+        }
+
+        // Population Response Simulation
+        function initializePopulationResponse() {
+            const ctx = document.getElementById('populationChart').getContext('2d');
+            populationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 50}, (_, i) => i),
+                    datasets: [{
+                        label: 'Control',
+                        data: [],
+                        borderColor: '#666',
+                        backgroundColor: 'rgba(102, 102, 102, 0.1)'
+                    }, {
+                        label: 'Limiting Process Removed',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)'
+                    }, {
+                        label: 'Controlling Process Removed',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Density'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Population Response to Limitation vs. Control Removal'
+                        }
+                    }
+                }
+            });
+            updatePopulationResponse();
+        }
+
+        function updatePopulationResponse() {
+            const limitingRemoved = document.getElementById('limitingFactor').checked;
+            const controllingRemoved = document.getElementById('controllingFactor').checked;
+            
+            const control = [];
+            const limitation = [];
+            const controlling = [];
+            
+            for (let t = 0; t < 50; t++) {
+                // Control condition
+                control.push(10 + Math.sin(t * 0.3) * 2);
+                
+                // Limitation removed - gradual increase
+                if (limitingRemoved) {
+                    limitation.push(10 + t * 0.8 + Math.sin(t * 0.3) * 2);
+                } else {
+                    limitation.push(10 + Math.sin(t * 0.3) * 2);
+                }
+                
+                // Control removed - rapid increase then regulation
+                if (controllingRemoved) {
+                    controlling.push(10 + 20 * (1 - Math.exp(-t * 0.1)) + Math.sin(t * 0.3) * 1);
+                } else {
+                    controlling.push(10 + Math.sin(t * 0.3) * 2);
+                }
+            }
+            
+            populationChart.data.datasets[0].data = control;
+            populationChart.data.datasets[1].data = limitation;
+            populationChart.data.datasets[2].data = controlling;
+            populationChart.update();
+        }
+
+        // Forces Simulation
+        function initializeForces() {
+            const ctx = document.getElementById('forcesChart').getContext('2d');
+            forcesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Plants', 'Herbivores', 'Primary Carnivores'],
+                    datasets: [{
+                        label: 'Biomass',
+                        data: [50, 30, 15],
+                        backgroundColor: ['#4a7c59', '#2c5530', '#1a3d20']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Relative Biomass'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Trophic Level Biomass Response to Bottom-up and Top-down Forces'
+                        }
+                    }
+                }
+            });
+            updateForces();
+        }
+
+        function updateForces() {
+            const nutrients = document.getElementById('nutrients').value;
+            const predation = document.getElementById('predation').value;
+            
+            document.getElementById('nutrientValue').textContent = nutrients;
+            document.getElementById('predationValue').textContent = predation;
+            
+            // Calculate biomass based on nutrient and predation levels
+            const basePlants = 30;
+            const baseHerbivores = 20;
+            const baseCarnivores = 10;
+            
+            // Bottom-up effects (nutrients affect all levels positively)
+            const nutrientMultiplier = nutrients / 5;
+            
+            // Top-down effects (predation affects levels with alternating signs)
+            const predationEffect = (predation - 5) * 2;
+            
+            const plants = (basePlants * nutrientMultiplier) + predationEffect;
+            const herbivores = (baseHerbivores * nutrientMultiplier) - predationEffect;
+            const carnivores = (baseCarnivores * nutrientMultiplier) + predationEffect * 0.5;
+            
+            forcesChart.data.datasets[0].data = [
+                Math.max(5, plants),
+                Math.max(5, herbivores),
+                Math.max(5, carnivores)
+            ];
+            forcesChart.update();
+        }
+
+        // Cascade Simulation
+        function initializeCascade() {
+            const ctx = document.getElementById('cascadeChart').getContext('2d');
+            cascadeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => i),
+                    datasets: [{
+                        label: 'Top Predators',
+                        data: [],
+                        borderColor: '#1a3d20',
+                        backgroundColor: 'rgba(26, 61, 32, 0.1)'
+                    }, {
+                        label: 'Mesopredators',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)'
+                    }, {
+                        label: 'Herbivores',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)'
+                    }, {
+                        label: 'Plants',
+                        data: [],
+                        borderColor: '#666',
+                        backgroundColor: 'rgba(102, 102, 102, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Steps'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Relative Abundance'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Trophic Cascade Through Time'
+                        }
+                    }
+                }
+            });
+            updateCascade();
+        }
+
+        function updateCascade() {
+            const topPredator = document.getElementById('topPredator').value;
+            document.getElementById('topPredatorValue').textContent = topPredator;
+            
+            const topPredators = [];
+            const mesoPredators = [];
+            const herbivores = [];
+            const plants = [];
+            
+            const predatorLevel = topPredator / 100;
+            
+            for (let t = 0; t < 20; t++) {
+                topPredators.push(predatorLevel * 50);
+                mesoPredators.push(50 - predatorLevel * 30 + Math.sin(t * 0.5) * 5);
+                herbivores.push(30 + predatorLevel * 20 + Math.sin(t * 0.4) * 3);
+                plants.push(40 - predatorLevel * 25 + Math.sin(t * 0.3) * 4);
+            }
+            
+            cascadeChart.data.datasets[0].data = topPredators;
+            cascadeChart.data.datasets[1].data = mesoPredators;
+            cascadeChart.data.datasets[2].data = herbivores;
+            cascadeChart.data.datasets[3].data = plants;
+            cascadeChart.update();
+        }
+
+        function demonstrateCascade() {
+            // Animate cascade effect
+            let step = 0;
+            const animate = () => {
+                if (step < 20) {
+                    const predatorValue = 50 + Math.sin(step * 0.5) * 30;
+                    document.getElementById('topPredator').value = predatorValue;
+                    updateCascade();
+                    step++;
+                    setTimeout(animate, 200);
+                }
+            };
+            animate();
+        }
+
+        // Productivity Effect Simulation
+        function initializeProductivityEffect() {
+            const ctx = document.getElementById('productivityChart').getContext('2d');
+            productivityChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Herbivore Effect Size',
+                        data: [],
+                        backgroundColor: '#2c5530',
+                        borderColor: '#2c5530'
+                    }, {
+                        label: 'Trend Line',
+                        data: [],
+                        type: 'line',
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Annual Precipitation (mm)'
+                            },
+                            min: 200,
+                            max: 1200
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Herbivore Effect Size'
+                            },
+                            min: 0,
+                            max: 0.7
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Herbivore Effects Increase with Ecosystem Productivity'
+                        }
+                    }
+                }
+            });
+            updateProductivityEffect();
+        }
+
+        function updateProductivityEffect() {
+            const productivity = document.getElementById('ecosystemProductivity').value;
+            document.getElementById('ecosystemProductivityValue').textContent = productivity;
+            
+            // Generate scatter data
+            const scatterData = [];
+            const trendData = [];
+            
+            for (let i = 0; i < 50; i++) {
+                const x = 200 + Math.random() * 1000;
+                const baseEffect = -0.2 + 0.0008 * x;
+                const y = Math.max(0, baseEffect + (Math.random() - 0.5) * 0.3);
+                scatterData.push({x: x, y: y});
+            }
+            
+            // Generate trend line
+            for (let x = 200; x <= 1200; x += 50) {
+                const y = -0.2 + 0.0008 * x;
+                trendData.push({x: x, y: Math.max(0, y)});
+            }
+            
+            // Highlight current productivity level
+            const currentEffect = -0.2 + 0.0008 * productivity;
+            scatterData.push({
+                x: parseInt(productivity),
+                y: Math.max(0, currentEffect),
+                backgroundColor: '#ff6b6b',
+                borderColor: '#ff6b6b',
+                pointRadius: 8
+            });
+            
+            productivityChart.data.datasets[0].data = scatterData;
+            productivityChart.data.datasets[1].data = trendData;
+            productivityChart.update();
+        }
+
+        // Factorial Experiment Simulation
+        function initializeFactorialExperiment() {
+            const ctx = document.getElementById('factorialChart').getContext('2d');
+            factorialChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Control', 'Fertilizer Only', 'Herbivore Exclusion Only', 'Both Treatments'],
+                    datasets: [{
+                        label: 'Plant Biomass',
+                        data: [100, 150, 140, 220],
+                        backgroundColor: ['#666', '#4a7c59', '#2c5530', '#1a3d20']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Relative Plant Biomass (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Factorial Experiment: Herbivore × Fertilizer Effects'
+                        }
+                    }
+                }
+            });
+            updateFactorialExperiment();
+        }
+
+        function updateFactorialExperiment() {
+            const fertilizer = document.getElementById('fertilizer').checked;
+            const herbivoreExclusion = document.getElementById('herbivoreExclusion').checked;
+            
+            // Base effect sizes
+            const baseEffect = 100;
+            const fertilizerEffect = 50;
+            const herbivoreEffect = 40;
+            const interactionEffect = 30; // Synergistic interaction
+            
+            const control = baseEffect;
+            const fertOnly = baseEffect + (fertilizer ? fertilizerEffect : 0);
+            const herbOnly = baseEffect + (herbivoreExclusion ? herbivoreEffect : 0);
+            const both = baseEffect + 
+                        (fertilizer ? fertilizerEffect : 0) + 
+                        (herbivoreExclusion ? herbivoreEffect : 0) + 
+                        (fertilizer && herbivoreExclusion ? interactionEffect : 0);
+            
+            factorialChart.data.datasets[0].data = [control, fertOnly, herbOnly, both];
+            factorialChart.update();
+        }
+
+        // Slider event listeners
+        document.getElementById('productivity').addEventListener('input', updateOksanenModel);
+        document.getElementById('nutrients').addEventListener('input', updateForces);
+        document.getElementById('predation').addEventListener('input', updateForces);
+        document.getElementById('topPredator').addEventListener('input', updateCascade);
+        document.getElementById('ecosystemProductivity').addEventListener('input', updateProductivityEffect);
+    </script>
+</body>
+</html>
