@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indirect Effects in Population and Community Ecology</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a3d20 0%, #2c5530 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        h2 {
+            color: #2c5530;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.8em;
+        }
+
+        h3 {
+            color: #4a7c59;
+            margin: 1.5rem 0 0.5rem 0;
+            font-size: 1.4em;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #4a7c59;
+        }
+
+        .definition {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+        }
+
+        .math-equation {
+            background: #ffffff;
+            border: 2px solid #2c5530;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2em;
+        }
+
+        .simulation-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .food-web {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .trophic-level {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .species-node {
+            width: 100px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .predator { background: linear-gradient(135deg, #1a3d20, #2c5530); }
+        .herbivore { background: linear-gradient(135deg, #4a7c59, #2c5530); }
+        .plant { background: linear-gradient(135deg, #e8f5e8, #4a7c59); color: #333; }
+
+        .species-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #4a7c59;
+            margin: 0.5rem 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #1a3d20, #2c5530);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .graph-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+            height: 200px;
+            margin: 2rem 0;
+        }
+
+        .bar {
+            background: linear-gradient(to top, #4a7c59, #2c5530);
+            border-radius: 5px 5px 0 0;
+            min-width: 60px;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .bar:hover {
+            background: linear-gradient(to top, #2c5530, #1a3d20);
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .taxonomy-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .interaction-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .interaction-type {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .interaction-type:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #2c5530;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #ffffff, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .case-study::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .slider-container {
+            margin: 1rem 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e8f5e8;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2c5530;
+            cursor: pointer;
+        }
+
+        .output-display {
+            background: #f8f9fa;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: monospace;
+            color: #2c5530;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .active-effect {
+            animation: pulse 2s infinite;
+        }
+
+        .species-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #2c5530;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+
+        .research-findings {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #2c5530;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .tab-container {
+            margin: 2rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: #e8f5e8;
+            border: 2px solid #4a7c59;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: white;
+            border-bottom: 2px solid white;
+            margin-bottom: -2px;
+        }
+
+        .tab-content {
+            background: white;
+            border: 2px solid #4a7c59;
+            border-radius: 0 8px 8px 8px;
+            padding: 2rem;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Indirect Effects in Population and Community Ecology</h1>
+            <p>Understanding Complex Ecological Interactions Through Mathematical Models and Experimental Studies</p>
+        </header>
+
+        <div class="concept-card">
+            <h2>Core Concept: Indirect Effects</h2>
+            <div class="definition">
+                <strong>Indirect Effect:</strong> An effect of one species on another, mediated by a change in the density of an "intermediate" species (a series of &gt;2 direct effects)
+            </div>
+            
+            <div class="math-equation">
+                <strong>Mathematical Representation:</strong><br>
+                Species A → Species B → Species C<br>
+                <em>Net effect of A on C = (A→B effect) × (B→C effect)</em>
+            </div>
+        </div>
+
+        <div class="simulation-container">
+            <h2>Interactive Trophic Cascade Simulation</h2>
+            <div class="food-web" id="trophicCascade">
+                <div class="trophic-level">
+                    <div class="species-node predator" data-species="predator">
+                        Predator
+                        <div class="species-count" id="predator-count">5</div>
+                    </div>
+                </div>
+                <div class="arrow"></div>
+                <div class="trophic-level">
+                    <div class="species-node herbivore" data-species="herbivore">
+                        Herbivore
+                        <div class="species-count" id="herbivore-count">20</div>
+                    </div>
+                </div>
+                <div class="arrow"></div>
+                <div class="trophic-level">
+                    <div class="species-node plant" data-species="plant">
+                        Plant
+                        <div class="species-count" id="plant-count">100</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" onclick="addPredators()">Add Predators</button>
+                <button class="btn" onclick="removePredators()">Remove Predators</button>
+                <button class="btn" onclick="resetSystem()">Reset System</button>
+            </div>
+            
+            <div class="output-display" id="cascadeOutput">
+                Click the buttons above to see how predator changes cascade through the food web!
+            </div>
+        </div>
+
+        <div class="concept-card">
+            <h2>Types of Indirect Effects</h2>
+            
+            <div class="interaction-demo">
+                <div class="interaction-type" onclick="showInteraction('keystone')">
+                    <h3>Keystone Predation</h3>
+                    <p>Predator reduces competitive dominant, benefiting other species</p>
+                </div>
+                <div class="interaction-type" onclick="showInteraction('cascade')">
+                    <h3>Trophic Cascade</h3>
+                    <p>Effects cascade down trophic levels</p>
+                </div>
+                <div class="interaction-type" onclick="showInteraction('apparent')">
+                    <h3>Apparent Competition</h3>
+                    <p>Two prey species affect each other through shared predator</p>
+                </div>
+                <div class="interaction-type" onclick="showInteraction('mutualism')">
+                    <h3>Indirect Mutualism</h3>
+                    <p>Species benefit each other through intermediary</p>
+                </div>
+            </div>
+            
+            <div class="output-display" id="interactionDisplay">
+                Click on an interaction type above to see its mechanism!
+            </div>
+        </div>
+
+        <div class="concept-card">
+            <h2>Density-Mediated vs Trait-Mediated Effects</h2>
+            
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <div class="tab-btn active" onclick="switchTab('density')">Density-Mediated</div>
+                    <div class="tab-btn" onclick="switchTab('trait')">Trait-Mediated</div>
+                    <div class="tab-btn" onclick="switchTab('comparison')">Comparison</div>
+                </div>
+                
+                <div class="tab-content active" id="density-tab">
+                    <h3>Density-Mediated Indirect Effects</h3>
+                    <div class="math-equation">
+                        <strong>Mechanism:</strong> Changes in species abundance<br>
+                        dN<sub>i</sub>/dt = r<sub>i</sub>N<sub>i</sub>(1 - N<sub>i</sub>/K<sub>i</sub>) - a<sub>ij</sub>N<sub>i</sub>N<sub>j</sub>
+                    </div>
+                    <p>Classic indirect effects where one species affects another by changing the density of an intermediate species. The interaction strength (a<sub>ij</sub>) remains constant, but the density (N) changes.</p>
+                    
+                    <div class="slider-container">
+                        <label>Predation Rate: <span id="predation-value">0.5</span></label>
+                        <input type="range" class="slider" min="0" max="1" step="0.1" value="0.5" 
+                               oninput="updateDensityModel(this.value)">
+                    </div>
+                    <div class="output-display" id="density-output">Adjust predation rate to see density changes</div>
+                </div>
+                
+                <div class="tab-content" id="trait-tab">
+                    <h3>Trait-Mediated Indirect Effects</h3>
+                    <div class="math-equation">
+                        <strong>Mechanism:</strong> Changes in interaction strength<br>
+                        a<sub>ij</sub> = f(N<sub>k</sub>, traits)<br>
+                        <em>Where interaction strength depends on third species and trait changes</em>
+                    </div>
+                    <p>Effects mediated by changes in behavior, morphology, physiology, or life history. Also called non-consumptive effects or higher-order interactions.</p>
+                    
+                    <div class="slider-container">
+                        <label>Predator Cues: <span id="cue-value">0</span></label>
+                        <input type="range" class="slider" min="0" max="10" step="1" value="0" 
+                               oninput="updateTraitModel(this.value)">
+                    </div>
+                    <div class="output-display" id="trait-output">Add predator cues to see behavioral changes</div>
+                </div>
+                
+                <div class="tab-content" id="comparison-tab">
+                    <h3>Relative Importance Comparison</h3>
+                    <div class="graph-container">
+                        <div class="bar-chart">
+                            <div class="bar" style="height: 120px;" title="Trait-mediated effects">
+                                <div class="bar-label">TMI Effects</div>
+                            </div>
+                            <div class="bar" style="height: 100px;" title="Density-mediated effects">
+                                <div class="bar-label">DMI Effects</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="research-findings">
+                        <strong>Key Finding (Preisser et al. 2005):</strong> Meta-analysis showed trait-mediated effects are often equal to or greater than density-mediated effects in magnitude.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h2>Case Study 1: Wootton (1994) - Intertidal Food Web</h2>
+            <div class="simulation-container">
+                <h3>Test Alternative Hypotheses</h3>
+                <div class="interaction-demo">
+                    <div class="interaction-type" onclick="testHypothesis(1)">
+                        <h4>Hypothesis 1</h4>
+                        <p>Birds → Gooseneck Barnacles → Mussels</p>
+                    </div>
+                    <div class="interaction-type" onclick="testHypothesis(2)">
+                        <h4>Hypothesis 2</h4>
+                        <p>Birds → Starfish → Snails → Gooseneck Barnacles</p>
+                    </div>
+                    <div class="interaction-type" onclick="testHypothesis(3)">
+                        <h4>Hypothesis 3</h4>
+                        <p>Birds → Starfish → Acorn Barnacles → Snails</p>
+                    </div>
+                </div>
+                <div class="output-display" id="wootton-results">
+                    Click hypotheses to see experimental predictions and results
+                </div>
+            </div>
+            
+            <div class="research-findings">
+                <strong>Experimental Approach:</strong>
+                <ol>
+                    <li>Manipulate intermediate species directly</li>
+                    <li>Remove intermediate species and test if bird effects disappear</li>
+                </ol>
+                <strong>Key Result:</strong> Bird effects depended on presence of gooseneck barnacles (Pollicipes), supporting Hypothesis 1.
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h2>Case Study 2: Schmitz Study - Grassland Diversity</h2>
+            <div class="simulation-container">
+                <h3>Spider-Grasshopper-Plant Interactions</h3>
+                <div class="controls">
+                    <button class="btn" onclick="toggleSpiders()">Toggle Spider Predators</button>
+                    <button class="btn" onclick="showDiversityData()">Show Diversity Data</button>
+                </div>
+                
+                <div class="graph-container" id="schmitz-graph">
+                    <h4>Plant Productivity by Treatment</h4>
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 150px;" title="Plants only">
+                            <div class="bar-label">1 Level</div>
+                        </div>
+                        <div class="bar" style="height: 80px;" title="Plants + Herbivores">
+                            <div class="bar-label">2 Level</div>
+                        </div>
+                        <div class="bar" style="height: 40px;" title="Plants + Herbivores + Predators">
+                            <div class="bar-label">3 Level</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="output-display" id="schmitz-output">
+                    Spider presence changed grasshopper behavior, reducing feeding on dominant goldenrod (Solidago rugosa), increasing plant diversity
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h2>Case Study 3: Peacor & Werner - Partitioning Lethal vs Non-lethal Effects</h2>
+            <div class="simulation-container">
+                <h3>Experimental Design</h3>
+                <div class="math-equation">
+                    <strong>Total Predator Effect = Lethal Effect + Non-lethal Effect + Interactive Effect</strong><br>
+                    Growth = f(Mortality, Behavior, Density × Behavior)
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" onclick="runPeacorExperiment('control')">Control</button>
+                    <button class="btn" onclick="runPeacorExperiment('caged')">Caged Predators</button>
+                    <button class="btn" onclick="runPeacorExperiment('lethal')">Lethal Predators</button>
+                </div>
+                
+                <div class="graph-container" id="peacor-results">
+                    <h4>Bullfrog Tadpole Activity</h4>
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 180px;" title="No predators">
+                            <div class="bar-label">0 Caged</div>
+                        </div>
+                        <div class="bar" style="height: 120px;" title="1 caged predator">
+                            <div class="bar-label">1 Caged</div>
+                        </div>
+                        <div class="bar" style="height: 60px;" title="2 caged predators">
+                            <div class="bar-label">2 Caged</div>
+                        </div>
+                        <div class="bar" style="height: 30px;" title="4 caged predators">
+                            <div class="bar-label">4 Caged</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="research-findings">
+                    <strong>Key Innovation:</strong> Used caged predators to separate chemical cues (non-lethal) from actual predation (lethal).<br>
+                    <strong>Result:</strong> Non-lethal effects were often as large as lethal effects.
+                </div>
+            </div>
+        </div>
+
+        <div class="concept-card">
+            <h2>Mathematical Models of Indirect Effects</h2>
+            
+            <div class="simulation-container">
+                <h3>Model 1: Basic Lotka-Volterra with Indirect Effects</h3>
+                <div class="math-equation">
+                    dN₁/dt = r₁N₁(1 - N₁/K₁) - a₁₂N₁N₂<br>
+                    dN₂/dt = r₂N₂(1 - N₂/K₂) - a₂₃N₂N₃ + e₁₂a₁₂N₁N₂<br>
+                    dN₃/dt = r₃N₃(1 - N₃/K₃) + e₂₃a₂₃N₂N₃<br>
+                    <br>
+                    <em>Where indirect effect of N₁ on N₃ = (∂N₃/∂N₁) through N₂</em>
+                </div>
+                
+                <div class="controls">
+                    <div class="slider-container">
+                        <label>Species 1 Growth Rate (r₁): <span id="r1-value">0.5</span></label>
+                        <input type="range" class="slider" min="0.1" max="1.0" step="0.1" value="0.5" 
+                               oninput="updateLotkaVolterra('r1', this.value)">
+                    </div>
+                    <div class="slider-container">
+                        <label>Interaction Strength (a₁₂): <span id="a12-value">0.02</span></label>
+                        <input type="range" class="slider" min="0.01" max="0.1" step="0.01" value="0.02" 
+                               oninput="updateLotkaVolterra('a12', this.value)">
+                    </div>
+                    <div class="slider-container">
+                        <label>Conversion Efficiency (e₂₃): <span id="e23-value">0.3</span></label>
+                        <input type="range" class="slider" min="0.1" max="0.8" step="0.1" value="0.3" 
+                               oninput="updateLotkaVolterra('e23', this.value)">
+                    </div>
+                </div>
+                
+                <div class="graph-container">
+                    <canvas id="lotka-canvas" width="600" height="300" style="border: 2px solid #4a7c59; border-radius: 8px;"></canvas>
+                </div>
+                
+                <div class="output-display" id="lotka-output">
+                    Adjust parameters to see how indirect effects propagate through the three-species system
+                </div>
+            </div>
+            
+            <div class="simulation-container">
+                <h3>Model 2: Higher Order Interactions</h3>
+                <div class="math-equation">
+                    a₁₂ = a₁₂⁰ + b₁₂₃N₃<br>
+                    <em>Interaction strength between species 1 and 2 depends on density of species 3</em><br>
+                    <br>
+                    dN₁/dt = r₁N₁ - a₁₂(N₃)N₁N₂<br>
+                    dN₂/dt = r₂N₂ + e₁₂a₁₂(N₃)N₁N₂ - a₂₃N₂N₃<br>
+                    dN₃/dt = r₃N₃ + e₂₃a₂₃N₂N₃
+                </div>
+                
+                <div class="controls">
+                    <div class="slider-container">
+                        <label>Base Interaction (a₁₂⁰): <span id="a12-base-value">0.02</span></label>
+                        <input type="range" class="slider" min="0.01" max="0.05" step="0.005" value="0.02" 
+                               oninput="updateHigherOrder('base', this.value)">
+                    </div>
+                    <div class="slider-container">
+                        <label>Modification Coefficient (b₁₂₃): <span id="b123-value">0.001</span></label>
+                        <input type="range" class="slider" min="0" max="0.005" step="0.0005" value="0.001" 
+                               oninput="updateHigherOrder('coeff', this.value)">
+                    </div>
+                    <div class="slider-container">
+                        <label>Species 3 Density (N₃): <span id="n3-density-value">20</span></label>
+                        <input type="range" class="slider" min="5" max="50" step="5" value="20" 
+                               oninput="updateHigherOrder('n3', this.value)">
+                    </div>
+                </div>
+                
+                <div class="graph-container">
+                    <canvas id="higher-order-canvas" width="600" height="300" style="border: 2px solid #4a7c59; border-radius: 8px;"></canvas>
+                </div>
+                
+                <div class="output-display" id="higher-order-output">
+                    Watch how Species 3 density modifies the interaction strength between Species 1 and 2
+                </div>
+            </div>
+            
+            <div class="simulation-container">
+                <h3>Model 3: Trait-Mediated Effects</h3>
+                <div class="math-equation">
+                    Foraging Rate = F₀e^(-cP)<br>
+                    <em>Where P = predator density, c = behavioral response coefficient</em><br>
+                    <br>
+                    Growth Rate = G₀ × Foraging Rate × Resource Density<br>
+                    Net Effect = Direct Effect + Behavioral Effect
+                </div>
+                
+                <div class="controls">
+                    <div class="slider-container">
+                        <label>Base Foraging Rate (F₀): <span id="f0-value">1.0</span></label>
+                        <input type="range" class="slider" min="0.5" max="2.0" step="0.1" value="1.0" 
+                               oninput="updateTraitMediated('f0', this.value)">
+                    </div>
+                    <div class="slider-container">
+                        <label>Behavioral Response (c): <span id="c-value">0.2</span></label>
+                        <input type="range" class="slider" min="0" max="0.5" step="0.05" value="0.2" 
+                               oninput="updateTraitMediated('c', this.value)">
+                    </div>
+                    <div class="slider-container">
+                        <label>Predator Density (P): <span id="p-density-value">2</span></label>
+                        <input type="range" class="slider" min="0" max="10" step="1" value="2" 
+                               oninput="updateTraitMediated('p', this.value)">
+                    </div>
+                </div>
+                
+                <div class="graph-container">
+                    <div style="display: flex; gap: 2rem;">
+                        <div style="flex: 1;">
+                            <h4 style="color: #2c5530; text-align: center;">Foraging Rate vs Predator Density</h4>
+                            <canvas id="trait-canvas1" width="280" height="200" style="border: 2px solid #4a7c59; border-radius: 8px;"></canvas>
+                        </div>
+                        <div style="flex: 1;">
+                            <h4 style="color: #2c5530; text-align: center;">Growth Rate Over Time</h4>
+                            <canvas id="trait-canvas2" width="280" height="200" style="border: 2px solid #4a7c59; border-radius: 8px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="output-display" id="trait-mediated-output">
+                    Observe how predator presence reduces foraging behavior and subsequent growth rates
+                </div>
+            </div>
+        </div>
+
+        <div class="concept-card">
+            <h2>Summary and Implications</h2>
+            <div class="interaction-demo">
+                <div class="interaction-type">
+                    <h4>Experimental Design</h4>
+                    <p>Creative approaches needed to separate density vs trait effects</p>
+                </div>
+                <div class="interaction-type">
+                    <h4>Relative Importance</h4>
+                    <p>Both effect types can be equally important in natural systems</p>
+                </div>
+                <div class="interaction-type">
+                    <h4>Ecological Significance</h4>
+                    <p>Changes in interaction strength as important as density changes</p>
+                </div>
+                <div class="interaction-type">
+                    <h4>Conservation Implications</h4>
+                    <p>Must consider both pathways when predicting community responses</p>
+                </div>
+            </div>
+            
+            <div class="research-findings">
+                <strong>Key Insights:</strong>
+                <ul>
+                    <li>Indirect effects operate through multiple mechanisms simultaneously</li>
+                    <li>Trait-mediated effects can equal or exceed density-mediated effects</li>
+                    <li>Experimental manipulation of intermediate species reveals causal pathways</li>
+                    <li>Both effect types are fundamental to community structure and function</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for simulations
+        let predatorCount = 5;
+        let herbivoreCount = 20;
+        let plantCount = 100;
+        let spidersPresent = true;
+        
+        // Mathematical model parameters
+        let lotkaParams = {
+            r1: 0.5, r2: 0.3, r3: 0.4,
+            K1: 100, K2: 80, K3: 120,
+            a12: 0.02, a23: 0.015,
+            e12: 0.3, e23: 0.3
+        };
+        
+        let higherOrderParams = {
+            base: 0.02, coeff: 0.001, n3: 20,
+            r1: 0.4, r2: 0.3, r3: 0.2
+        };
+        
+        let traitParams = {
+            f0: 1.0, c: 0.2, p: 2,
+            g0: 0.8, resource: 50
+        };
+
+        // Trophic cascade simulation
+        function addPredators() {
+            predatorCount += 2;
+            herbivoreCount = Math.max(1, herbivoreCount - 5);
+            plantCount += 15;
+            updateTrophicDisplay();
+            document.getElementById('cascadeOutput').innerHTML = 
+                `Added predators! Herbivore density decreased, plant biomass increased. This demonstrates a classic trophic cascade effect.`;
+        }
+
+        function removePredators() {
+            predatorCount = Math.max(1, predatorCount - 2);
+            herbivoreCount += 8;
+            plantCount = Math.max(10, plantCount - 20);
+            updateTrophicDisplay();
+            document.getElementById('cascadeOutput').innerHTML = 
+                `Removed predators! Herbivore density increased, plant biomass decreased. Loss of top-down control leads to overgrazing.`;
+        }
+
+        function resetSystem() {
+            predatorCount = 5;
+            herbivoreCount = 20;
+            plantCount = 100;
+            updateTrophicDisplay();
+            document.getElementById('cascadeOutput').innerHTML = 
+                `System reset to baseline levels. Ready for new manipulations!`;
+        }
+
+        function updateTrophicDisplay() {
+            document.getElementById('predator-count').textContent = predatorCount;
+            document.getElementById('herbivore-count').textContent = herbivoreCount;
+            document.getElementById('plant-count').textContent = plantCount;
+            
+            // Add visual effects
+            document.querySelector('[data-species="predator"]').classList.add('active-effect');
+            setTimeout(() => {
+                document.querySelector('[data-species="predator"]').classList.remove('active-effect');
+            }, 2000);
+        }
+
+        // Interaction type demonstrations
+        function showInteraction(type) {
+            const displays = {
+                'keystone': 'Keystone Predation: Predator reduces dominant competitor, allowing inferior competitors to persist. Example: Sea stars controlling mussels, benefiting barnacles.',
+                'cascade': 'Trophic Cascade: Predator → Herbivore → Plant. Effects cascade down trophic levels. Example: Wolves → Deer → Vegetation in Yellowstone.',
+                'apparent': 'Apparent Competition: Two prey species compete indirectly through shared predator. Increase in one prey leads to more predators, harming the other prey.',
+                'mutualism': 'Indirect Mutualism: Two species benefit each other through intermediate species. Example: Ants protect plants from herbivores, plants provide nectar.'
+            };
+            document.getElementById('interactionDisplay').innerHTML = displays[type];
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Model updates
+        function updateDensityModel(value) {
+            document.getElementById('predation-value').textContent = value;
+            const herbivoreReduction = (value * 30).toFixed(1);
+            const plantIncrease = (value * 25).toFixed(1);
+            document.getElementById('density-output').innerHTML = 
+                `Predation rate: ${value}<br>Herbivore density reduced by: ${herbivoreReduction}%<br>Plant biomass increased by: ${plantIncrease}%`;
+        }
+
+        function updateTraitModel(value) {
+            document.getElementById('cue-value').textContent = value;
+            const activityReduction = (value * 8).toFixed(1);
+            const feedingReduction = (value * 12).toFixed(1);
+            document.getElementById('trait-output').innerHTML = 
+                `Predator cues: ${value}<br>Activity reduced by: ${activityReduction}%<br>Feeding rate reduced by: ${feedingReduction}%<br>Effect: Behavioral changes without actual predation`;
+        }
+
+        // Case study functions
+        function testHypothesis(num) {
+            const results = {
+                1: 'Hypothesis 1 (SUPPORTED): Birds reduce gooseneck barnacles, which reduces competition for mussels and acorn barnacles. Experimental removal of gooseneck barnacles eliminated bird effects.',
+                2: 'Hypothesis 2 (NOT SUPPORTED): Birds affecting starfish then snails then gooseneck barnacles. Snail removal experiments showed weak effects and bird effects persisted without snails.',
+                3: 'Hypothesis 3 (NOT SUPPORTED): Birds affecting starfish then acorn barnacles then snails. Pattern doesn\'t match observed increases in gooseneck barnacles.'
+            };
+            document.getElementById('wootton-results').innerHTML = results[num];
+        }
+
+        function toggleSpiders() {
+            spidersPresent = !spidersPresent;
+            const status = spidersPresent ? 'Present' : 'Absent';
+            const effect = spidersPresent ? 
+                'Grasshoppers reduce activity and feeding, concentrate on preferred plants (Solidago rugosa), increasing plant diversity' :
+                'Grasshoppers increase activity and feeding, heavily graze Solidago rugosa, reducing plant diversity';
+            
+            document.getElementById('schmitz-output').innerHTML = 
+                `Spiders: ${status}<br>${effect}`;
+        }
+
+        function showDiversityData() {
+            document.getElementById('schmitz-output').innerHTML = 
+                `Plant Species Richness: Control (9.2) > Herbivores (6.8) > Predators+Herbivores (4.5)<br>
+                Plant Species Evenness: Control (0.82) > Herbivores (0.65) > Predators+Herbivores (0.45)<br>
+                Solidago rugosa dominance inversely related to diversity (r = -0.71, P < 0.001)`;
+        }
+
+        function runPeacorExperiment(treatment) {
+            const results = {
+                'control': 'Control: High tadpole activity (9.2), maximum growth rate, baseline foraging behavior',
+                'caged': 'Caged Predators: Reduced activity (4.6 with 1 predator, 2.1 with 2, 1.0 with 4), behavioral changes reduce foraging efficiency',
+                'lethal': 'Lethal Predators: Combined lethal + non-lethal effects. Growth reduction = Density effect + Foraging reduction + Interactive effect'
+            };
+            document.getElementById('peacor-results').innerHTML = `<div class="output-display">${results[treatment]}</div>`;
+        }
+
+        // Mathematical Model Simulations
+        
+        // Lotka-Volterra with Indirect Effects
+        function updateLotkaVolterra(param, value) {
+            switch(param) {
+                case 'r1': 
+                    lotkaParams.r1 = parseFloat(value);
+                    document.getElementById('r1-value').textContent = value;
+                    break;
+                case 'a12': 
+                    lotkaParams.a12 = parseFloat(value);
+                    document.getElementById('a12-value').textContent = value;
+                    break;
+                case 'e23': 
+                    lotkaParams.e23 = parseFloat(value);
+                    document.getElementById('e23-value').textContent = value;
+                    break;
+            }
+            simulateLotkaVolterra();
+        }
+        
+        function simulateLotkaVolterra() {
+            const canvas = document.getElementById('lotka-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Initial conditions
+            let N1 = 30, N2 = 20, N3 = 15;
+            const dt = 0.1;
+            const steps = 500;
+            const timeData = [];
+            const n1Data = [], n2Data = [], n3Data = [];
+            
+            // Simulate system
+            for (let i = 0; i < steps; i++) {
+                const t = i * dt;
+                timeData.push(t);
+                n1Data.push(N1);
+                n2Data.push(N2);
+                n3Data.push(N3);
+                
+                // Lotka-Volterra equations
+                const dN1dt = lotkaParams.r1 * N1 * (1 - N1/lotkaParams.K1) - lotkaParams.a12 * N1 * N2;
+                const dN2dt = lotkaParams.r2 * N2 * (1 - N2/lotkaParams.K2) - lotkaParams.a23 * N2 * N3 + 
+                             lotkaParams.e12 * lotkaParams.a12 * N1 * N2;
+                const dN3dt = lotkaParams.r3 * N3 * (1 - N3/lotkaParams.K3) + lotkaParams.e23 * lotkaParams.a23 * N2 * N3;
+                
+                N1 += dN1dt * dt;
+                N2 += dN2dt * dt;
+                N3 += dN3dt * dt;
+                
+                // Prevent negative populations
+                N1 = Math.max(0.1, N1);
+                N2 = Math.max(0.1, N2);
+                N3 = Math.max(0.1, N3);
+            }
+            
+            // Draw graph
+            drawTimeSeriesGraph(ctx, timeData, [n1Data, n2Data, n3Data], 
+                              ['#2c5530', '#4a7c59', '#1a3d20'], 
+                              ['Species 1', 'Species 2', 'Species 3']);
+            
+            // Calculate indirect effect
+            const indirectEffect = (n3Data[n3Data.length-1] - n3Data[0]) / (n1Data[n1Data.length-1] - n1Data[0]);
+            document.getElementById('lotka-output').innerHTML = 
+                `Indirect effect of Species 1 on Species 3: ${indirectEffect.toFixed(3)}<br>
+                Final populations - N₁: ${N1.toFixed(1)}, N₂: ${N2.toFixed(1)}, N₃: ${N3.toFixed(1)}`;
+        }
+        
+        // Higher Order Interactions
+        function updateHigherOrder(param, value) {
+            switch(param) {
+                case 'base': 
+                    higherOrderParams.base = parseFloat(value);
+                    document.getElementById('a12-base-value').textContent = value;
+                    break;
+                case 'coeff': 
+                    higherOrderParams.coeff = parseFloat(value);
+                    document.getElementById('b123-value').textContent = value;
+                    break;
+                case 'n3': 
+                    higherOrderParams.n3 = parseFloat(value);
+                    document.getElementById('n3-density-value').textContent = value;
+                    break;
+            }
+            simulateHigherOrder();
+        }
+        
+        function simulateHigherOrder() {
+            const canvas = document.getElementById('higher-order-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Calculate interaction strength over range of N3 values
+            const n3Range = [];
+            const interactionStrength = [];
+            
+            for (let n3 = 0; n3 <= 50; n3 += 2) {
+                n3Range.push(n3);
+                const a12 = higherOrderParams.base + higherOrderParams.coeff * n3;
+                interactionStrength.push(a12);
+            }
+            
+            // Draw interaction strength graph
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let i = 0; i < n3Range.length; i++) {
+                const x = (i / (n3Range.length - 1)) * (canvas.width - 60) + 30;
+                const y = canvas.height - 30 - (interactionStrength[i] / 0.1) * (canvas.height - 60);
+                
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Highlight current N3 value
+            const currentIndex = Math.floor(higherOrderParams.n3 / 2);
+            const currentX = (currentIndex / (n3Range.length - 1)) * (canvas.width - 60) + 30;
+            const currentY = canvas.height - 30 - (interactionStrength[currentIndex] / 0.1) * (canvas.height - 60);
+            
+            ctx.fillStyle = '#1a3d20';
+            ctx.beginPath();
+            ctx.arc(currentX, currentY, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add axes and labels
+            drawAxes(ctx, canvas.width, canvas.height, 'Species 3 Density', 'Interaction Strength (a₁₂)');
+            
+            const currentStrength = higherOrderParams.base + higherOrderParams.coeff * higherOrderParams.n3;
+            document.getElementById('higher-order-output').innerHTML = 
+                `Current interaction strength a₁₂ = ${currentStrength.toFixed(4)}<br>
+                Base strength: ${higherOrderParams.base}, Modified by N₃: +${(higherOrderParams.coeff * higherOrderParams.n3).toFixed(4)}`;
+        }
+        
+        // Trait-Mediated Effects
+        function updateTraitMediated(param, value) {
+            switch(param) {
+                case 'f0': 
+                    traitParams.f0 = parseFloat(value);
+                    document.getElementById('f0-value').textContent = value;
+                    break;
+                case 'c': 
+                    traitParams.c = parseFloat(value);
+                    document.getElementById('c-value').textContent = value;
+                    break;
+                case 'p': 
+                    traitParams.p = parseFloat(value);
+                    document.getElementById('p-density-value').textContent = value;
+                    break;
+            }
+            simulateTraitMediated();
+        }
+        
+        function simulateTraitMediated() {
+            const canvas1 = document.getElementById('trait-canvas1');
+            const canvas2 = document.getElementById('trait-canvas2');
+            const ctx1 = canvas1.getContext('2d');
+            const ctx2 = canvas2.getContext('2d');
+            
+            ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+            ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+            
+            // Graph 1: Foraging Rate vs Predator Density
+            const predatorRange = [];
+            const foragingRates = [];
+            
+            for (let p = 0; p <= 10; p += 0.5) {
+                predatorRange.push(p);
+                const foragingRate = traitParams.f0 * Math.exp(-traitParams.c * p);
+                foragingRates.push(foragingRate);
+            }
+            
+            // Draw foraging rate curve
+            ctx1.strokeStyle = '#2c5530';
+            ctx1.lineWidth = 3;
+            ctx1.beginPath();
+            
+            for (let i = 0; i < predatorRange.length; i++) {
+                const x = (predatorRange[i] / 10) * (canvas1.width - 60) + 30;
+                const y = canvas1.height - 30 - (foragingRates[i] / traitParams.f0) * (canvas1.height - 60);
+                
+                if (i === 0) ctx1.moveTo(x, y);
+                else ctx1.lineTo(x, y);
+            }
+            ctx1.stroke();
+            
+            // Highlight current predator density
+            const currentForagingRate = traitParams.f0 * Math.exp(-traitParams.c * traitParams.p);
+            const currentX = (traitParams.p / 10) * (canvas1.width - 60) + 30;
+            const currentY = canvas1.height - 30 - (currentForagingRate / traitParams.f0) * (canvas1.height - 60);
+            
+            ctx1.fillStyle = '#1a3d20';
+            ctx1.beginPath();
+            ctx1.arc(currentX, currentY, 5, 0, 2 * Math.PI);
+            ctx1.fill();
+            
+            drawAxes(ctx1, canvas1.width, canvas1.height, 'Predator Density', 'Foraging Rate');
+            
+            // Graph 2: Growth Rate Over Time
+            const timeSteps = [];
+            const growthRates = [];
+            const biomass = [];
+            let currentBiomass = 10;
+            
+            for (let t = 0; t <= 20; t += 0.5) {
+                timeSteps.push(t);
+                const growthRate = traitParams.g0 * currentForagingRate * (traitParams.resource / 50);
+                growthRates.push(growthRate);
+                
+                currentBiomass += growthRate * 0.5;
+                biomass.push(currentBiomass);
+            }
+            
+            // Draw biomass curve
+            ctx2.strokeStyle = '#4a7c59';
+            ctx2.lineWidth = 3;
+            ctx2.beginPath();
+            
+            const maxBiomass = Math.max(...biomass);
+            for (let i = 0; i < timeSteps.length; i++) {
+                const x = (timeSteps[i] / 20) * (canvas2.width - 60) + 30;
+                const y = canvas2.height - 30 - (biomass[i] / maxBiomass) * (canvas2.height - 60);
+                
+                if (i === 0) ctx2.moveTo(x, y);
+                else ctx2.lineTo(x, y);
+            }
+            ctx2.stroke();
+            
+            drawAxes(ctx2, canvas2.width, canvas2.height, 'Time', 'Biomass');
+            
+            document.getElementById('trait-mediated-output').innerHTML = 
+                `Current foraging rate: ${currentForagingRate.toFixed(3)} (${((currentForagingRate/traitParams.f0)*100).toFixed(1)}% of maximum)<br>
+                Growth rate: ${(traitParams.g0 * currentForagingRate).toFixed(3)}<br>
+                Final biomass: ${currentBiomass.toFixed(1)}`;
+        }
+        
+        // Helper functions for drawing graphs
+        function drawTimeSeriesGraph(ctx, timeData, seriesData, colors, labels) {
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const maxTime = Math.max(...timeData);
+            const maxValue = Math.max(...seriesData.flat());
+            
+            // Draw series
+            for (let s = 0; s < seriesData.length; s++) {
+                ctx.strokeStyle = colors[s];
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                for (let i = 0; i < timeData.length; i++) {
+                    const x = (timeData[i] / maxTime) * (width - 60) + 30;
+                    const y = height - 30 - (seriesData[s][i] / maxValue) * (height - 60);
+                    
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            
+            drawAxes(ctx, width, height, 'Time', 'Population Density');
+            
+            // Add legend
+            for (let s = 0; s < labels.length; s++) {
+                ctx.fillStyle = colors[s];
+                ctx.fillRect(width - 150, 20 + s * 20, 15, 15);
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.fillText(labels[s], width - 130, 32 + s * 20);
+            }
+        }
+        
+        function drawAxes(ctx, width, height, xlabel, ylabel) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(30, height - 30);
+            ctx.lineTo(width - 30, height - 30);
+            ctx.stroke();
+            
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(30, 30);
+            ctx.lineTo(30, height - 30);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(xlabel, width / 2, height - 5);
+            
+            ctx.save();
+            ctx.translate(15, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(ylabel, 0, 0);
+            ctx.restore();
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTrophicDisplay();
+            showInteraction('cascade');
+            
+            // Initialize mathematical model simulations
+            setTimeout(() => {
+                simulateLotkaVolterra();
+                simulateHigherOrder();
+                simulateTraitMediated();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
