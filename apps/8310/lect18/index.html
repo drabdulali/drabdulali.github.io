@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Ecology: Population and Community Interactions</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-dark: rgba(0,0,0,0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background-color: var(--light-gray);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 1rem;
+            box-shadow: 0 4px 8px var(--shadow-medium);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .section {
+            background: var(--white);
+            margin: 2rem 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            border-bottom: 3px solid var(--medium-green);
+        }
+
+        .section-header h2 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-content {
+            padding: 2rem;
+        }
+
+        .concept-card {
+            background: var(--light-green-2);
+            border: 2px solid var(--medium-green);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .concept-card h3 {
+            color: var(--dark-green);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .math-equation {
+            background: var(--white);
+            border: 2px solid var(--medium-green);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--light-green-2), var(--light-green-1));
+            border: 2px solid var(--dark-green);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            color: var(--dark-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-group input {
+            padding: 0.5rem;
+            border: 2px solid var(--medium-green);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .control-group input:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 0 3px rgba(76, 124, 89, 0.2);
+        }
+
+        .button {
+            background: var(--dark-green);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background: var(--medium-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-medium);
+        }
+
+        .chart-container {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .results-display {
+            background: var(--white);
+            border: 2px solid var(--dark-green);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .results-display h4 {
+            color: var(--dark-green);
+            margin-bottom: 1rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: var(--light-green-2);
+            border-radius: 4px;
+        }
+
+        .highlight {
+            background: var(--medium-green);
+            color: var(--white);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, var(--light-green-1), var(--white));
+            border-left: 4px solid var(--dark-green);
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .example-box h4 {
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--light-green-1);
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            background: var(--light-green-1);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--dark-green);
+            transition: background 0.3s ease;
+        }
+
+        .tab.active {
+            background: var(--white);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            background: var(--white);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Disease Ecology</h1>
+        <p>Population and Community Interactions: Mathematical Models and Real-World Applications</p>
+    </div>
+
+    <div class="container">
+        <!-- Introduction Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Why Study Host-Parasite Interactions?</h2>
+                <p>Understanding disease dynamics is crucial for ecology, conservation, and public health</p>
+            </div>
+            <div class="section-content">
+                <div class="grid-2">
+                    <div>
+                        <div class="concept-card">
+                            <h3>Interesting Population Dynamics</h3>
+                            <p>Diseases create fascinating cyclical patterns in host populations, from single epidemic waves to regular seasonal cycles.</p>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Population Regulation</h3>
+                            <p>Parasites and pathogens act as major regulators of wildlife populations, controlling population growth and creating cycles.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="concept-card">
+                            <h3>Conservation Impact</h3>
+                            <p>Infectious diseases are a major cause of decline in threatened and endangered species worldwide.</p>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Zoonotic Threats</h3>
+                            <p>Animal diseases that jump to humans represent the main source of emerging infectious diseases.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIR Model Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>The SIR Model Framework</h2>
+                <p>The foundation of mathematical epidemiology</p>
+            </div>
+            <div class="section-content">
+                <div class="concept-card">
+                    <h3>Model Structure</h3>
+                    <p>The SIR model divides the host population into three compartments:</p>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li><strong>S (Susceptible):</strong> Individuals who can become infected</li>
+                        <li><strong>I (Infected):</strong> Individuals who are infected and infectious</li>
+                        <li><strong>R (Removed):</strong> Individuals who are dead or immune</li>
+                    </ul>
+                </div>
+
+                <div class="math-equation">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2rem;">
+                        <div style="background: var(--light-green-2); padding: 1rem; border-radius: 50%; color: var(--dark-green); font-weight: bold; min-width: 60px;">S</div>
+                        <div style="color: var(--dark-green);">→</div>
+                        <div style="background: #ffcccc; padding: 1rem; border-radius: 50%; color: #cc0000; font-weight: bold; min-width: 60px;">I</div>
+                        <div style="color: var(--dark-green);">→</div>
+                        <div style="background: #cccccc; padding: 1rem; border-radius: 50%; color: #666; font-weight: bold; min-width: 60px;">R</div>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Mathematical Equations</h3>
+                    <div class="math-equation">
+                        $$\frac{dS}{dt} = -\beta S I$$
+                        $$\frac{dI}{dt} = \beta S I - \gamma I$$
+                        $$\frac{dR}{dt} = \gamma I$$
+                    </div>
+                    <p><strong>Where:</strong></p>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li><strong>β (beta):</strong> Transmission rate coefficient</li>
+                        <li><strong>γ (gamma):</strong> Removal rate (recovery/death rate)</li>
+                        <li><strong>1/γ:</strong> Mean duration of infection</li>
+                    </ul>
+                </div>
+
+                <!-- Interactive SIR Simulation -->
+                <div class="interactive-demo">
+                    <h3 style="color: var(--dark-green); margin-bottom: 1rem;">Interactive SIR Model Simulation</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="beta">Transmission Rate (β)</label>
+                            <input type="number" id="beta" value="0.3" step="0.01" min="0" max="1">
+                        </div>
+                        <div class="control-group">
+                            <label for="gamma">Recovery Rate (γ)</label>
+                            <input type="number" id="gamma" value="0.1" step="0.01" min="0.01" max="1">
+                        </div>
+                        <div class="control-group">
+                            <label for="population">Population Size (N)</label>
+                            <input type="number" id="population" value="1000" step="100" min="100" max="10000">
+                        </div>
+                        <div class="control-group">
+                            <label for="initial-infected">Initial Infected</label>
+                            <input type="number" id="initial-infected" value="1" step="1" min="1" max="100">
+                        </div>
+                    </div>
+                    <button class="button" onclick="runSIRSimulation()">Run Simulation</button>
+                    
+                    <div class="chart-container">
+                        <canvas id="sirChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <div class="results-display" id="sirResults">
+                        <h4>Simulation Results</h4>
+                        <div class="result-item">
+                            <span>Basic Reproductive Number (R₀):</span>
+                            <span class="highlight" id="r0Value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Epidemic Occurs:</span>
+                            <span class="highlight" id="epidemicStatus">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Peak Infected:</span>
+                            <span class="highlight" id="peakInfected">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Total Ever Infected:</span>
+                            <span class="highlight" id="totalInfected">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Basic Reproductive Number Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Basic Reproductive Number (R₀)</h2>
+                <p>The key threshold parameter determining epidemic potential</p>
+            </div>
+            <div class="section-content">
+                <div class="concept-card">
+                    <h3>Definition and Calculation</h3>
+                    <div class="math-equation">
+                        $$R_0 = \frac{\beta N}{\gamma}$$
+                    </div>
+                    <p><strong>R₀</strong> represents the number of new infections that will arise from one infected individual in an entirely susceptible population.</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="concept-card">
+                        <h3>Epidemic Threshold</h3>
+                        <ul style="margin: 1rem 0; padding-left: 2rem;">
+                            <li><strong>R₀ > 1:</strong> Epidemic occurs</li>
+                            <li><strong>R₀ = 1:</strong> Endemic equilibrium</li>
+                            <li><strong>R₀ < 1:</strong> Disease dies out</li>
+                        </ul>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Critical Population Size</h3>
+                        <div class="math-equation">
+                            $$N_{crit} = \frac{\gamma}{\beta}$$
+                        </div>
+                        <p>Minimum population size needed for an epidemic.</p>
+                    </div>
+                </div>
+
+                <!-- R0 Calculator -->
+                <div class="interactive-demo">
+                    <h3 style="color: var(--dark-green); margin-bottom: 1rem;">R₀ Calculator</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="calc-beta">Transmission Rate (β)</label>
+                            <input type="number" id="calc-beta" value="0.5" step="0.01" min="0" max="2">
+                        </div>
+                        <div class="control-group">
+                            <label for="calc-gamma">Recovery Rate (γ)</label>
+                            <input type="number" id="calc-gamma" value="0.1" step="0.01" min="0.01" max="1">
+                        </div>
+                        <div class="control-group">
+                            <label for="calc-population">Population Size (N)</label>
+                            <input type="number" id="calc-population" value="1000" step="100" min="100" max="100000">
+                        </div>
+                    </div>
+                    <button class="button" onclick="calculateR0()">Calculate R₀</button>
+                    
+                    <div class="results-display" id="r0Results">
+                        <h4>R₀ Analysis</h4>
+                        <div class="result-item">
+                            <span>R₀ Value:</span>
+                            <span class="highlight" id="r0CalcValue">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Epidemic Potential:</span>
+                            <span class="highlight" id="epidemicPotential">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Critical Population Size:</span>
+                            <span class="highlight" id="criticalPop">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h4>Real-World R₀ Values</h4>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li><strong>Measles:</strong> R₀ ≈ 12-18</li>
+                        <li><strong>Smallpox:</strong> R₀ ≈ 3-5</li>
+                        <li><strong>Influenza:</strong> R₀ ≈ 1.5-3</li>
+                        <li><strong>COVID-19 (Original):</strong> R₀ ≈ 2-3</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vaccination Theory Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Vaccination and Herd Immunity</h2>
+                <p>How vaccines protect individuals and populations</p>
+            </div>
+            <div class="section-content">
+                <div class="concept-card">
+                    <h3>Herd Immunity Threshold</h3>
+                    <p>To prevent epidemics, we need to vaccinate a critical proportion of the population:</p>
+                    <div class="math-equation">
+                        $$p_{crit} = 1 - \frac{1}{R_0}$$
+                    </div>
+                    <p>Where <strong>p</strong> is the proportion vaccinated needed to achieve herd immunity.</p>
+                </div>
+
+                <!-- Vaccination Calculator -->
+                <div class="interactive-demo">
+                    <h3 style="color: var(--dark-green); margin-bottom: 1rem;">Vaccination Threshold Calculator</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="vacc-r0">Basic Reproductive Number (R₀)</label>
+                            <input type="number" id="vacc-r0" value="15" step="0.1" min="1" max="20">
+                        </div>
+                        <div class="control-group">
+                            <label for="current-vaccination">Current Vaccination Rate (%)</label>
+                            <input type="number" id="current-vaccination" value="90" step="1" min="0" max="100">
+                        </div>
+                    </div>
+                    <button class="button" onclick="calculateVaccination()">Calculate Thresholds</button>
+                    
+                    <div class="results-display" id="vaccResults">
+                        <h4>Vaccination Analysis</h4>
+                        <div class="result-item">
+                            <span>Required Vaccination Rate:</span>
+                            <span class="highlight" id="requiredVacc">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Current Protection Status:</span>
+                            <span class="highlight" id="protectionStatus">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Additional Coverage Needed:</span>
+                            <span class="highlight" id="additionalCoverage">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="vaccChart" width="400" height="200"></canvas>
+                </div>
+
+                <div class="grid-2">
+                    <div class="example-box">
+                        <h4>Measles Vaccination</h4>
+                        <p>With R₀ ≈ 15, measles requires <strong>93.3%</strong> vaccination coverage to prevent outbreaks.</p>
+                    </div>
+                    <div class="example-box">
+                        <h4>Smallpox Eradication</h4>
+                        <p>With R₀ ≈ 3-5, smallpox required <strong>67-80%</strong> coverage and was successfully eradicated.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transmission Types Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Types of Disease Transmission</h2>
+                <p>Density-dependent vs Frequency-dependent transmission</p>
+            </div>
+            <div class="section-content">
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('density')">Density-Dependent</button>
+                    <button class="tab" onclick="showTab('frequency')">Frequency-Dependent</button>
+                    <button class="tab" onclick="showTab('comparison')">Comparison</button>
+                </div>
+
+                <div class="tab-content active" id="density">
+                    <div class="concept-card">
+                        <h3>Density-Dependent Transmission</h3>
+                        <p>Contact rate increases with population density</p>
+                        <div class="math-equation">
+                            $$R_0 = \frac{\beta N}{\gamma}$$
+                        </div>
+                        <p><strong>Examples:</strong> Airborne diseases like flu, cold, measles (theoretical)</p>
+                        <ul style="margin: 1rem 0; padding-left: 2rem;">
+                            <li>Higher population density → More contacts</li>
+                            <li>Creates population size threshold for invasion</li>
+                            <li>R₀ increases with population size</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="frequency">
+                    <div class="concept-card">
+                        <h3>Frequency-Dependent Transmission</h3>
+                        <p>Contact rate remains constant regardless of population size</p>
+                        <div class="math-equation">
+                            $$R_0 = \frac{\beta}{\gamma}$$
+                        </div>
+                        <p><strong>Examples:</strong> Sexually transmitted diseases, vector-borne diseases</p>
+                        <ul style="margin: 1rem 0; padding-left: 2rem;">
+                            <li>Fixed number of contacts per individual</li>
+                            <li>No population threshold for invasion</li>
+                            <li>R₀ independent of population size</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="comparison">
+                    <div class="chart-container">
+                        <canvas id="transmissionChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="grid-2">
+                        <div class="concept-card">
+                            <h3>Density-Dependent</h3>
+                            <ul style="margin: 1rem 0; padding-left: 2rem;">
+                                <li>R₀ ∝ Population size</li>
+                                <li>Critical community size exists</li>
+                                <li>Large cities favor persistence</li>
+                            </ul>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Frequency-Dependent</h3>
+                            <ul style="margin: 1rem 0; padding-left: 2rem;">
+                                <li>R₀ independent of size</li>
+                                <li>No critical community size</li>
+                                <li>Can persist in small populations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endemic vs Epidemic Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Endemic vs Epidemic Dynamics</h2>
+                <p>Understanding disease persistence and critical community size</p>
+            </div>
+            <div class="section-content">
+                <div class="concept-card">
+                    <h3>Critical Community Size</h3>
+                    <p>The minimum host population size required for pathogen persistence</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="concept-card">
+                        <h3>Epidemic Patterns</h3>
+                        <ul style="margin: 1rem 0; padding-left: 2rem;">
+                            <li>Below critical size</li>
+                            <li>Recurrent outbreaks</li>
+                            <li>Frequent fade-outs</li>
+                            <li>Reintroduction needed</li>
+                        </ul>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Endemic Patterns</h3>
+                        <ul style="margin: 1rem 0; padding-left: 2rem;">
+                            <li>Above critical size</li>
+                            <li>Continuous circulation</li>
+                            <li>Rare fade-outs</li>
+                            <li>Self-sustaining</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h4>Measles Critical Community Size</h4>
+                    <p>Approximately <strong>300,000-500,000</strong> people needed for endemic maintenance. Below this threshold, measles experiences regular fade-outs and requires reintroduction.</p>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="fadeoutChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-World Examples Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Real-World Case Studies</h2>
+                <p>Applications of disease ecology principles</p>
+            </div>
+            <div class="section-content">
+                <div class="grid-2">
+                    <div class="example-box">
+                        <h4>Red Grouse Population Cycles</h4>
+                        <p><strong>Host:</strong> Lagopus lagopus scoticus</p>
+                        <p><strong>Parasite:</strong> Trichostrongylus tenuis (nematode)</p>
+                        <ul style="margin: 1rem 0; padding-left: 2rem;">
+                            <li>5-year population cycles</li>
+                            <li>Parasite intensity negatively affects reproduction</li>
+                            <li>Experimental removal breaks cycles</li>
+                        </ul>
+                    </div>
+                    <div class="example-box">
+                        <h4>Measles in England and Wales</h4>
+                        <p><strong>Pattern:</strong> Size-dependent dynamics</p>
+                        <ul style="margin: 1rem 0; padding-left: 2rem;">
+                            <li>Large cities: Endemic cycles</li>
+                            <li>Medium cities: Regular epidemics</li>
+                            <li>Small cities: Irregular outbreaks</li>
+                            <li>Critical size: ~300,000-500,000</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h3>Conservation Implications</h3>
+                    <p>Disease ecology principles inform conservation strategies:</p>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li><strong>Population size thresholds:</strong> Minimum viable populations must consider disease dynamics</li>
+                        <li><strong>Habitat fragmentation:</strong> Small isolated populations more vulnerable to disease extinction</li>
+                        <li><strong>Vaccination strategies:</strong> Wildlife vaccination programs need appropriate coverage</li>
+                        <li><strong>Reintroduction programs:</strong> Must consider pathogen risks and population size requirements</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Topics Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Advanced Topics and Extensions</h2>
+                <p>Beyond the basic SIR model</p>
+            </div>
+            <div class="section-content">
+                <div class="grid-2">
+                    <div class="concept-card">
+                        <h3>SEIR Models</h3>
+                        <p>Include exposed/latent period before becoming infectious</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Vector-Borne Diseases</h3>
+                        <p>Indirect transmission through vectors like mosquitoes</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Age Structure</h3>
+                        <p>Different age classes with varying susceptibility and contact rates</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Spatial Structure</h3>
+                        <p>Geographic spread and metapopulation dynamics</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Pathogen Evolution</h3>
+                        <p>Host-pathogen coevolution and antigenic variation</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Stochastic Models</h3>
+                        <p>Random effects and demographic stochasticity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let sirChart, vaccChart, transmissionChart, fadeoutChart;
+
+        // Initialize MathJax
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+
+        // SIR Model Simulation
+        function runSIRSimulation() {
+            const beta = parseFloat(document.getElementById('beta').value);
+            const gamma = parseFloat(document.getElementById('gamma').value);
+            const N = parseInt(document.getElementById('population').value);
+            const I0 = parseInt(document.getElementById('initial-infected').value);
+            
+            const S0 = N - I0;
+            const R0 = 0;
+            
+            const dt = 0.1;
+            const days = 200;
+            const steps = days / dt;
+            
+            let S = S0, I = I0, R = R0;
+            const time = [], susceptible = [], infected = [], recovered = [];
+            let maxInfected = I0;
+            
+            for (let i = 0; i <= steps; i++) {
+                time.push(i * dt);
+                susceptible.push(S);
+                infected.push(I);
+                recovered.push(R);
+                
+                if (I > maxInfected) maxInfected = I;
+                
+                const dS = -beta * S * I / N;
+                const dI = beta * S * I / N - gamma * I;
+                const dR = gamma * I;
+                
+                S += dS * dt;
+                I += dI * dt;
+                R += dR * dt;
+                
+                if (I < 0.1) break;
+            }
+            
+            const r0 = (beta * N / gamma).toFixed(2);
+            const totalInfected = Math.round(N - S);
+            
+            // Update results
+            document.getElementById('r0Value').textContent = r0;
+            document.getElementById('epidemicStatus').textContent = r0 > 1 ? 'Yes' : 'No';
+            document.getElementById('peakInfected').textContent = Math.round(maxInfected);
+            document.getElementById('totalInfected').textContent = `${totalInfected} (${(100 * totalInfected / N).toFixed(1)}%)`;
+            
+            // Update chart
+            updateSIRChart(time, susceptible, infected, recovered);
+        }
+
+        function updateSIRChart(time, susceptible, infected, recovered) {
+            const ctx = document.getElementById('sirChart').getContext('2d');
+            
+            if (sirChart) {
+                sirChart.destroy();
+            }
+            
+            sirChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: time.map(t => Math.round(t)),
+                    datasets: [{
+                        label: 'Susceptible',
+                        data: susceptible,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.1
+                    }, {
+                        label: 'Infected',
+                        data: infected,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.1
+                    }, {
+                        label: 'Recovered',
+                        data: recovered,
+                        borderColor: '#666',
+                        backgroundColor: 'rgba(102, 102, 102, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (days)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Individuals'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'SIR Model Dynamics'
+                        }
+                    }
+                }
+            });
+        }
+
+        // R0 Calculator
+        function calculateR0() {
+            const beta = parseFloat(document.getElementById('calc-beta').value);
+            const gamma = parseFloat(document.getElementById('calc-gamma').value);
+            const N = parseInt(document.getElementById('calc-population').value);
+            
+            const r0 = (beta * N / gamma).toFixed(2);
+            const criticalPop = Math.round(gamma / beta);
+            
+            document.getElementById('r0CalcValue').textContent = r0;
+            document.getElementById('epidemicPotential').textContent = r0 > 1 ? 'High' : 'Low';
+            document.getElementById('criticalPop').textContent = criticalPop.toLocaleString();
+        }
+
+        // Vaccination Calculator
+        function calculateVaccination() {
+            const r0 = parseFloat(document.getElementById('vacc-r0').value);
+            const currentVacc = parseFloat(document.getElementById('current-vaccination').value);
+            
+            const requiredVacc = (1 - 1/r0) * 100;
+            const additional = Math.max(0, requiredVacc - currentVacc);
+            
+            document.getElementById('requiredVacc').textContent = `${requiredVacc.toFixed(1)}%`;
+            document.getElementById('protectionStatus').textContent = currentVacc >= requiredVacc ? 'Protected' : 'Vulnerable';
+            document.getElementById('additionalCoverage').textContent = `${additional.toFixed(1)}%`;
+            
+            updateVaccinationChart(r0, requiredVacc, currentVacc);
+        }
+
+        function updateVaccinationChart(r0, required, current) {
+            const ctx = document.getElementById('vaccChart').getContext('2d');
+            
+            if (vaccChart) {
+                vaccChart.destroy();
+            }
+            
+            const r0Values = [];
+            const thresholds = [];
+            for (let r = 1; r <= 20; r += 0.1) {
+                r0Values.push(r.toFixed(1));
+                thresholds.push((1 - 1/r) * 100);
+            }
+            
+            vaccChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: r0Values,
+                    datasets: [{
+                        label: 'Vaccination Threshold',
+                        data: thresholds,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Basic Reproductive Number (R₀)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Vaccination Coverage Required (%)'
+                            },
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Vaccination Threshold vs R₀'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Initialize transmission chart if comparison tab is shown
+            if (tabName === 'comparison') {
+                setTimeout(initTransmissionChart, 100);
+            }
+        }
+
+        function initTransmissionChart() {
+            const ctx = document.getElementById('transmissionChart').getContext('2d');
+            
+            if (transmissionChart) {
+                transmissionChart.destroy();
+            }
+            
+            const populations = [100, 500, 1000, 2000, 5000, 10000];
+            const densityR0 = populations.map(n => n * 0.0005); // β = 0.0005, γ = 1
+            const frequencyR0 = populations.map(n => 2.5); // Constant R0 = 2.5
+            
+            transmissionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: populations,
+                    datasets: [{
+                        label: 'Density-Dependent',
+                        data: densityR0,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.1
+                    }, {
+                        label: 'Frequency-Dependent',
+                        data: frequencyR0,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Population Size'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Basic Reproductive Number (R₀)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'R₀ vs Population Size for Different Transmission Types'
+                        }
+                    }
+                }
+            });
+        }
+
+        function initFadeoutChart() {
+            const ctx = document.getElementById('fadeoutChart').getContext('2d');
+            
+            if (fadeoutChart) {
+                fadeoutChart.destroy();
+            }
+            
+            const popSizes = [10000, 30000, 50000, 100000, 200000, 500000, 1000000, 2000000];
+            const fadeoutProbs = [0.6, 0.45, 0.35, 0.25, 0.15, 0.05, 0.02, 0.01];
+            
+            fadeoutChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: popSizes.map(p => (p/1000).toFixed(0) + 'k'),
+                    datasets: [{
+                        label: 'Proportion of Time Extinct',
+                        data: fadeoutProbs,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        tension: 0.3,
+                        pointBackgroundColor: '#4a7c59',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Population Size (thousands)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Proportion of Time Extinct'
+                            },
+                            max: 0.7
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Disease Persistence vs Population Size (Measles Example)'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            runSIRSimulation();
+            calculateR0();
+            calculateVaccination();
+            initFadeoutChart();
+        });
+    </script>
+</body>
+</html>
