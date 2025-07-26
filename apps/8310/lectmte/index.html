@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scaling and Metabolic Theory of Ecology</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        :root {
+            --dark-green: #2c5530;
+            --medium-green: #4a7c59;
+            --very-dark-green: #1a3d20;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --light-green-1: #e8f5e8;
+            --light-green-2: #f0f8f0;
+            --dark-gray: #333;
+            --medium-gray: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--white);
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--medium-green);
+        }
+
+        .section h2 {
+            color: var(--dark-green);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--light-green-1);
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: var(--medium-green);
+            font-size: 1.3rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+            text-align: center;
+        }
+
+        .chart-container {
+            background: var(--white);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .interactive-controls {
+            background: var(--light-green-2);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+        }
+
+        .control-group {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .control-group label {
+            min-width: 120px;
+            color: var(--dark-green);
+            font-weight: 600;
+        }
+
+        .control-group input[type="range"] {
+            flex: 1;
+            accent-color: var(--medium-green);
+        }
+
+        .control-group span {
+            min-width: 60px;
+            color: var(--dark-gray);
+            font-weight: 500;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--light-green-1), var(--light-green-2));
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--medium-green);
+        }
+
+        .concept-card h4 {
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight {
+            background: var(--light-green-1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: var(--dark-green);
+            font-weight: 600;
+        }
+
+        .formula {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1rem;
+            color: var(--very-dark-green);
+        }
+
+        .parameter-description {
+            font-size: 0.9rem;
+            color: var(--medium-gray);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .simulation-box {
+            background: var(--white);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 2px solid var(--medium-green);
+        }
+
+        button {
+            background: var(--medium-green);
+            color: var(--white);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background: var(--dark-green);
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, var(--very-dark-green), var(--dark-green));
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--white);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Scaling and Metabolic Theory of Ecology</h1>
+            <p>Interactive exploration of fundamental ecological scaling relationships</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Section 1: Power Functions and Scaling -->
+        <div class="section">
+            <h2>1. Power Functions and Scaling Relationships</h2>
+            <p>Biological traits scale predictably with body size following power law relationships. This fundamental pattern underlies much of ecological theory.</p>
+            
+            <div class="equation-box">
+                <div class="formula">$$Y = aX^b$$</div>
+                <div class="parameter-description">
+                    Where: Y = biological trait, X = body mass, a = normalization constant, b = scaling exponent
+                </div>
+            </div>
+
+            <div class="interactive-controls">
+                <h3>Interactive Power Function Explorer</h3>
+                <div class="control-group">
+                    <label>Scaling Exponent (b):</label>
+                    <input type="range" id="exponentSlider" min="0" max="2" step="0.1" value="0.75">
+                    <span id="exponentValue">0.75</span>
+                </div>
+                <div class="control-group">
+                    <label>Constant (a):</label>
+                    <input type="range" id="constantSlider" min="0.1" max="5" step="0.1" value="1">
+                    <span id="constantValue">1.0</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="powerFunctionChart" width="400" height="300"></canvas>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Linear Scale (b = 1)</h4>
+                    <p>Trait increases proportionally with body size. Rare in biology.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Allometric Scale (b ≠ 1)</h4>
+                    <p>Most biological traits show non-linear scaling with body size.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>3/4 Power Law</h4>
+                    <p>Many metabolic rates scale as <span class="highlight">M^0.75</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Metabolic Rate Scaling -->
+        <div class="section">
+            <h2>2. Metabolic Rate Scaling</h2>
+            <p>One of the most fundamental relationships in biology: metabolic rate scales with body mass to the 3/4 power.</p>
+            
+            <div class="equation-box">
+                <div class="formula">$$R = aM^{3/4}$$</div>
+                <div class="parameter-description">
+                    Metabolic rate (R) scales with mass (M) to the 3/4 power across species
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <strong>Key Insight:</strong> Larger animals are more metabolically efficient per unit mass. 
+                Mass-specific metabolic rate scales as M^(-1/4), meaning a 16-fold increase in mass 
+                results in only a 2-fold decrease in mass-specific metabolic rate.
+            </div>
+
+            <div class="chart-container">
+                <canvas id="metabolicScalingChart" width="400" height="300"></canvas>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Intraspecific Scaling</h4>
+                    <p>Within species, scaling exponents are often close to 0.75-0.8</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Interspecific Scaling</h4>
+                    <p>Across species, the 3/4 power law is remarkably consistent</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Biological Times</h4>
+                    <p>Development time, lifespan scale as M^(1/4)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Damuth's Rule -->
+        <div class="section">
+            <h2>3. Damuth's Rule: Population Energy Equivalence</h2>
+            <p>If metabolic rate scales as M^(3/4) and population density scales as M^(-3/4), then population energy use is independent of body size.</p>
+            
+            <div class="equation-box">
+                <div class="formula">$$D = aM^{-3/4}$$</div>
+                <div class="formula">$$R = bM^{3/4}$$</div>
+                <div class="formula">$$DR = abM^0 = \text{constant}$$</div>
+                <div class="parameter-description">
+                    Population density (D) × Individual metabolic rate (R) = constant across species
+                </div>
+            </div>
+
+            <div class="simulation-box">
+                <h3>Damuth's Rule Simulation</h3>
+                <button onclick="animateDamuthRule()">Animate Energy Equivalence</button>
+                <div class="chart-container">
+                    <canvas id="damuthChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Temperature Effects -->
+        <div class="section">
+            <h2>4. Temperature Effects: Arrhenius Equation</h2>
+            <p>Temperature affects biological rates exponentially through the Arrhenius relationship.</p>
+            
+            <div class="equation-box">
+                <div class="formula">$$B = ae^{-E_a/kT}$$</div>
+                <div class="parameter-description">
+                    B = biological rate, E_a = activation energy, k = Boltzmann constant, T = absolute temperature
+                </div>
+            </div>
+
+            <div class="interactive-controls">
+                <h3>Temperature Response Explorer</h3>
+                <div class="control-group">
+                    <label>Activation Energy:</label>
+                    <input type="range" id="activationSlider" min="0.3" max="1.2" step="0.1" value="0.65">
+                    <span id="activationValue">0.65</span> eV
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="temperatureChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Section 5: Metabolic Theory of Ecology -->
+        <div class="section">
+            <h2>5. Metabolic Theory of Ecology (MTE)</h2>
+            <p>The unified framework combining body size and temperature effects on biological rates.</p>
+            
+            <div class="equation-box">
+                <div class="formula">$$B = aM^{\alpha}e^{-E_a/kT}$$</div>
+                <div class="parameter-description">
+                    Universal equation combining mass scaling (α = 1/4 or 3/4) and temperature dependence
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <strong>Universal Clock Hypothesis:</strong> When adjusted for size and temperature, 
+                all organisms operate on the same universal biological clock with similar rates.
+            </div>
+
+            <div class="interactive-controls">
+                <h3>MTE Interactive Model</h3>
+                <div class="control-group">
+                    <label>Mass (g):</label>
+                    <input type="range" id="massSlider" min="0.1" max="1000" step="0.1" value="10" style="background: var(--medium-green);">
+                    <span id="massValue">10</span> g
+                </div>
+                <div class="control-group">
+                    <label>Temperature (°C):</label>
+                    <input type="range" id="tempSlider" min="0" max="40" step="1" value="20">
+                    <span id="tempValue">20</span> °C
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="mteChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Section 6: Thermal Performance Curves -->
+        <div class="section">
+            <h2>6. Thermal Performance Curves (TPCs)</h2>
+            <p>Real organisms don't follow simple Arrhenius relationships. Performance peaks at intermediate temperatures due to enzyme denaturation at high temperatures.</p>
+            
+            <div class="equation-box">
+                <div class="formula">$$B(T) = B_0M^{\alpha}\frac{e^{E_a(\frac{1}{kT_c} - \frac{1}{kT})}}{1 + e^{E_h(\frac{1}{kT_h} - \frac{1}{kT})}}$$</div>
+                <div class="parameter-description">
+                    Extended model including both activation (E_a) and deactivation (E_h) energies
+                </div>
+            </div>
+
+            <div class="interactive-controls">
+                <h3>TPC Parameter Explorer</h3>
+                <div class="control-group">
+                    <label>Optimal Temperature:</label>
+                    <input type="range" id="tOptSlider" min="15" max="35" step="1" value="25">
+                    <span id="tOptValue">25</span> °C
+                </div>
+                <div class="control-group">
+                    <label>Thermal Breadth:</label>
+                    <input type="range" id="breadthSlider" min="5" max="20" step="1" value="10">
+                    <span id="breadthValue">10</span> °C
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="tpcChart" width="400" height="300"></canvas>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>T_min</h4>
+                    <p>Minimum temperature for survival</p>
+                </div>
+                <div class="concept-card">
+                    <h4>T_opt</h4>
+                    <p>Temperature of maximum performance</p>
+                </div>
+                <div class="concept-card">
+                    <h4>T_max</h4>
+                    <p>Maximum temperature for survival</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7: Jensen's Inequality -->
+        <div class="section">
+            <h2>7. Jensen's Inequality and Temperature Variability</h2>
+            <p>For non-linear functions, the function of the average does not equal the average of the function.</p>
+            
+            <div class="equation-box">
+                <div class="formula">$$f(E[X]) \neq E[f(X)]$$</div>
+                <div class="parameter-description">
+                    For convex functions: f(E[X]) < E[f(X)], For concave functions: f(E[X]) > E[f(X)]
+                </div>
+            </div>
+
+            <div class="warning">
+                <strong>Climate Implication:</strong> Temperature variability, not just mean temperature, 
+                critically affects biological performance due to non-linear thermal responses.
+            </div>
+
+            <div class="interactive-controls">
+                <h3>Jensen's Inequality Demonstration</h3>
+                <div class="control-group">
+                    <label>Temperature Variance:</label>
+                    <input type="range" id="varianceSlider" min="0" max="10" step="0.5" value="2">
+                    <span id="varianceValue">2</span> °C
+                </div>
+                <button onclick="simulateJensen()">Simulate Variable vs Constant Temperature</button>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="jensenChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Section 8: Disease Ecology Applications -->
+        <div class="section">
+            <h2>8. Applications to Disease Ecology</h2>
+            <p>Thermal performance curves have revolutionized our understanding of vector-borne disease transmission.</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Malaria Transmission</h4>
+                    <p>Previous models predicted optimal transmission at 31°C. TPC-based models show optimum at 25°C with sharp decline at high temperatures.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Zika Virus</h4>
+                    <p>Temperature variability significantly affects transmission dynamics through non-linear mosquito performance curves.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Climate Change Impacts</h4>
+                    <p>Both mean temperature change and increased variability affect disease transmission patterns.</p>
+                </div>
+            </div>
+
+            <div class="simulation-box">
+                <h3>Disease Transmission Model</h3>
+                <p>Explore how temperature affects vector-borne disease transmission rates</p>
+                <div class="chart-container">
+                    <canvas id="diseaseChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 9: West's Network Theory -->
+        <div class="section">
+            <h2>9. West's Network Theory</h2>
+            <p>The mechanistic explanation for 3/4 power scaling based on fractal-like distribution networks.</p>
+
+            <div class="key-insight">
+                <strong>Network Principles:</strong>
+                <br>• Space-filling fractal networks
+                <br>• Minimize energy transport costs  
+                <br>• Invariant terminal units (capillaries, alveoli)
+                <br>• Predict different scaling for different organizational levels
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Solitary Individuals</h4>
+                    <p>Scaling exponent: <span class="highlight">3/4</span></p>
+                    <p>Internal distribution networks</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Colonies</h4>
+                    <p>Scaling exponent: <span class="highlight">Intermediate</span></p>
+                    <p>Partially integrated networks</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Aggregates</h4>
+                    <p>Scaling exponent: <span class="highlight">1</span></p>
+                    <p>Independent individuals</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="networkChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Section 10: Climate Change Implications -->
+        <div class="section">
+            <h2>10. Climate Change and Ecological Scaling</h2>
+            <p>Understanding how metabolic constraints interact with changing thermal regimes.</p>
+
+            <div class="warning">
+                <strong>Critical Considerations:</strong>
+                <br>• Non-linear responses to temperature change
+                <br>• Importance of temperature variability, not just means
+                <br>• Species-specific thermal performance curves
+                <br>• Potential for thermal mismatches in ecological interactions
+            </div>
+
+            <div class="interactive-controls">
+                <h3>Climate Change Scenario Explorer</h3>
+                <div class="control-group">
+                    <label>Temperature Increase:</label>
+                    <input type="range" id="climateSlider" min="0" max="5" step="0.1" value="2">
+                    <span id="climateValue">2</span> °C
+                </div>
+                <div class="control-group">
+                    <label>Variability Change:</label>
+                    <input type="range" id="variabilitySlider" min="0" max="3" step="0.1" value="1">
+                    <span id="variabilityValue">1</span> °C
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="climateChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize MathJax
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+
+        // Chart configurations with custom colors
+        const chartColors = {
+            primary: '#4a7c59',
+            secondary: '#2c5530',
+            accent: '#1a3d20',
+            background: '#e8f5e8',
+            grid: '#cccccc'
+        };
+
+        // Power Function Chart
+        function createPowerFunctionChart() {
+            const ctx = document.getElementById('powerFunctionChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Y = aX^b',
+                        data: [],
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Body Mass (X)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Biological Trait (Y)' },
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            function updatePowerFunction() {
+                const exponent = parseFloat(document.getElementById('exponentSlider').value);
+                const constant = parseFloat(document.getElementById('constantSlider').value);
+                
+                document.getElementById('exponentValue').textContent = exponent;
+                document.getElementById('constantValue').textContent = constant.toFixed(1);
+
+                const data = [];
+                const labels = [];
+                for (let x = 0.1; x <= 1000; x *= 1.5) {
+                    const y = constant * Math.pow(x, exponent);
+                    data.push({x: x, y: y});
+                    labels.push(x.toFixed(1));
+                }
+
+                chart.data.datasets[0].data = data;
+                chart.data.labels = labels;
+                chart.update();
+            }
+
+            document.getElementById('exponentSlider').addEventListener('input', updatePowerFunction);
+            document.getElementById('constantSlider').addEventListener('input', updatePowerFunction);
+            
+            updatePowerFunction();
+            return chart;
+        }
+
+        // Metabolic Scaling Chart
+        function createMetabolicScalingChart() {
+            const ctx = document.getElementById('metabolicScalingChart').getContext('2d');
+            
+            // Generate data for different scaling exponents
+            const masses = [];
+            const threeFourths = [];
+            const linear = [];
+            const twoThirds = [];
+
+            for (let m = 0.001; m <= 100000; m *= 2) {
+                masses.push(m);
+                threeFourths.push(Math.pow(m, 0.75));
+                linear.push(m);
+                twoThirds.push(Math.pow(m, 0.67));
+            }
+
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: masses,
+                    datasets: [
+                        {
+                            label: 'M^0.75 (Observed)',
+                            data: threeFourths.map((y, i) => ({x: masses[i], y: y})),
+                            borderColor: chartColors.primary,
+                            backgroundColor: chartColors.background,
+                            borderWidth: 3,
+                            fill: false
+                        },
+                        {
+                            label: 'M^1.0 (Linear)',
+                            data: linear.map((y, i) => ({x: masses[i], y: y})),
+                            borderColor: chartColors.secondary,
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: 'M^0.67 (Surface Area)',
+                            data: twoThirds.map((y, i) => ({x: masses[i], y: y})),
+                            borderColor: chartColors.accent,
+                            borderWidth: 2,
+                            borderDash: [10, 5],
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Body Mass (g)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Metabolic Rate (relative)' },
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            return chart;
+        }
+
+        // Temperature Chart
+        function createTemperatureChart() {
+            const ctx = document.getElementById('temperatureChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Biological Rate',
+                        data: [],
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Temperature (°C)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            title: { display: true, text: 'Relative Rate' },
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            function updateTemperatureResponse() {
+                const Ea = parseFloat(document.getElementById('activationSlider').value);
+                document.getElementById('activationValue').textContent = Ea;
+
+                const k = 8.617e-5; // Boltzmann constant in eV/K
+                const data = [];
+                const labels = [];
+                
+                for (let temp = 0; temp <= 40; temp += 1) {
+                    const tempK = temp + 273.15;
+                    const rate = Math.exp(-Ea / (k * tempK));
+                    data.push(rate);
+                    labels.push(temp);
+                }
+
+                chart.data.datasets[0].data = data;
+                chart.data.labels = labels;
+                chart.update();
+            }
+
+            document.getElementById('activationSlider').addEventListener('input', updateTemperatureResponse);
+            updateTemperatureResponse();
+            return chart;
+        }
+
+        // TPC Chart
+        function createTPCChart() {
+            const ctx = document.getElementById('tpcChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Performance',
+                        data: [],
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        fill: true,
+                        fillOpacity: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Temperature (°C)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            title: { display: true, text: 'Performance' },
+                            min: 0,
+                            max: 1,
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            function updateTPC() {
+                const tOpt = parseFloat(document.getElementById('tOptSlider').value);
+                const breadth = parseFloat(document.getElementById('breadthSlider').value);
+                
+                document.getElementById('tOptValue').textContent = tOpt;
+                document.getElementById('breadthValue').textContent = breadth;
+
+                const data = [];
+                const labels = [];
+                
+                for (let temp = 0; temp <= 50; temp += 0.5) {
+                    const performance = Math.exp(-0.5 * Math.pow((temp - tOpt) / (breadth/2), 2));
+                    data.push(Math.max(0, performance));
+                    labels.push(temp);
+                }
+
+                chart.data.datasets[0].data = data;
+                chart.data.labels = labels;
+                chart.update();
+            }
+
+            document.getElementById('tOptSlider').addEventListener('input', updateTPC);
+            document.getElementById('breadthSlider').addEventListener('input', updateTPC);
+            updateTPC();
+            return chart;
+        }
+
+        // MTE Chart
+        function createMTEChart() {
+            const ctx = document.getElementById('mteChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Metabolic Rate',
+                        data: [],
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.background,
+                        borderWidth: 3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Body Mass (g)' },
+                            type: 'logarithmic',
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            title: { display: true, text: 'Metabolic Rate' },
+                            type: 'logarithmic',
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            function updateMTE() {
+                const mass = parseFloat(document.getElementById('massSlider').value);
+                const temp = parseFloat(document.getElementById('tempSlider').value);
+                
+                document.getElementById('massValue').textContent = mass;
+                document.getElementById('tempValue').textContent = temp;
+
+                const tempK = temp + 273.15;
+                const k = 8.617e-5;
+                const Ea = 0.65;
+                
+                const data = [];
+                const labels = [];
+                
+                for (let m = 0.1; m <= 10000; m *= 1.5) {
+                    const rate = Math.pow(m, 0.75) * Math.exp(-Ea / (k * tempK));
+                    data.push({x: m, y: rate});
+                    labels.push(m.toFixed(1));
+                }
+
+                chart.data.datasets[0].data = data;
+                chart.data.labels = labels;
+                chart.update();
+            }
+
+            document.getElementById('massSlider').addEventListener('input', updateMTE);
+            document.getElementById('tempSlider').addEventListener('input', updateMTE);
+            updateMTE();
+            return chart;
+        }
+
+        // Damuth Chart
+        function createDamuthChart() {
+            const ctx = document.getElementById('damuthChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Population Density',
+                            data: [],
+                            borderColor: chartColors.primary,
+                            yAxisID: 'y',
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Metabolic Rate',
+                            data: [],
+                            borderColor: chartColors.secondary,
+                            yAxisID: 'y1',
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Energy Use (D×R)',
+                            data: [],
+                            borderColor: chartColors.accent,
+                            yAxisID: 'y2',
+                            borderWidth: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Body Mass (g)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            type: 'logarithmic',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Density' }
+                        },
+                        y1: {
+                            type: 'logarithmic',
+                            display: false,
+                            position: 'right'
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: false,
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+
+            const masses = [];
+            const densities = [];
+            const rates = [];
+            const energyUse = [];
+
+            for (let m = 0.001; m <= 1000; m *= 2) {
+                masses.push(m);
+                const density = Math.pow(m, -0.75);
+                const rate = Math.pow(m, 0.75);
+                densities.push({x: m, y: density});
+                rates.push({x: m, y: rate});
+                energyUse.push({x: m, y: density * rate});
+            }
+
+            chart.data.datasets[0].data = densities;
+            chart.data.datasets[1].data = rates;
+            chart.data.datasets[2].data = energyUse;
+            chart.data.labels = masses;
+            chart.update();
+
+            return chart;
+        }
+
+        // Jensen's Inequality Chart
+        function createJensenChart() {
+            const ctx = document.getElementById('jensenChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'TPC',
+                            data: [],
+                            borderColor: chartColors.primary,
+                            borderWidth: 3,
+                            fill: false
+                        },
+                        {
+                            label: 'Mean Temperature',
+                            data: [],
+                            borderColor: chartColors.secondary,
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: 'Variable Temperature Effect',
+                            data: [],
+                            borderColor: chartColors.accent,
+                            borderWidth: 2,
+                            pointRadius: 5,
+                            showLine: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Temperature (°C)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            title: { display: true, text: 'Performance' },
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            function updateJensen() {
+                const variance = parseFloat(document.getElementById('varianceSlider').value);
+                document.getElementById('varianceValue').textContent = variance;
+
+                const meanTemp = 20;
+                const tpcData = [];
+                const meanLine = [];
+                const temps = [];
+
+                for (let temp = 0; temp <= 40; temp += 0.5) {
+                    const performance = Math.exp(-0.5 * Math.pow((temp - 25) / 5, 2));
+                    tpcData.push(performance);
+                    temps.push(temp);
+                    
+                    if (temp === meanTemp) {
+                        meanLine.push({x: temp, y: 0});
+                        meanLine.push({x: temp, y: performance});
+                    }
+                }
+
+                chart.data.datasets[0].data = tpcData;
+                chart.data.datasets[1].data = meanLine;
+                chart.data.labels = temps;
+                chart.update();
+            }
+
+            document.getElementById('varianceSlider').addEventListener('input', updateJensen);
+            updateJensen();
+            return chart;
+        }
+
+        // Disease Chart
+        function createDiseaseChart() {
+            const ctx = document.getElementById('diseaseChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Malaria R₀ (Previous)',
+                            data: [],
+                            borderColor: chartColors.secondary,
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Malaria R₀ (TPC-based)',
+                            data: [],
+                            borderColor: chartColors.primary,
+                            borderWidth: 3,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Temperature (°C)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            title: { display: true, text: 'R₀ (Transmission Potential)' },
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            const temps = [];
+            const previousModel = [];
+            const tpcModel = [];
+
+            for (let temp = 15; temp <= 40; temp += 0.5) {
+                temps.push(temp);
+                
+                // Previous linear model (peaked at 31°C)
+                const prevR0 = Math.max(0, 1 - Math.abs(temp - 31) / 10);
+                previousModel.push(prevR0);
+                
+                // TPC-based model (peaks at 25°C, sharp decline)
+                const tpcR0 = Math.exp(-0.5 * Math.pow((temp - 25) / 4, 2)) * 
+                              Math.exp(-Math.max(0, temp - 30) / 2);
+                tpcModel.push(Math.max(0, tpcR0));
+            }
+
+            chart.data.labels = temps;
+            chart.data.datasets[0].data = previousModel;
+            chart.data.datasets[1].data = tpcModel;
+            chart.update();
+
+            return chart;
+        }
+
+        // Network scaling chart
+        function createNetworkChart() {
+            const ctx = document.getElementById('networkChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Solitary (3/4)',
+                            data: [],
+                            borderColor: chartColors.primary,
+                            borderWidth: 3,
+                            fill: false
+                        },
+                        {
+                            label: 'Colonies (Intermediate)',
+                            data: [],
+                            borderColor: chartColors.secondary,
+                            borderWidth: 3,
+                            fill: false
+                        },
+                        {
+                            label: 'Aggregates (1)',
+                            data: [],
+                            borderColor: chartColors.accent,
+                            borderWidth: 3,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Body Mass (g)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Metabolic Rate' },
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            const masses = [];
+            const solitary = [];
+            const colonies = [];
+            const aggregates = [];
+
+            for (let m = 0.01; m <= 1000; m *= 1.5) {
+                masses.push(m);
+                solitary.push({x: m, y: Math.pow(m, 0.75)});
+                colonies.push({x: m, y: Math.pow(m, 0.9)});
+                aggregates.push({x: m, y: Math.pow(m, 1.0)});
+            }
+
+            chart.data.datasets[0].data = solitary;
+            chart.data.datasets[1].data = colonies;
+            chart.data.datasets[2].data = aggregates;
+            chart.data.labels = masses;
+            chart.update();
+
+            return chart;
+        }
+
+        // Climate change chart
+        function createClimateChart() {
+            const ctx = document.getElementById('climateChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Current Climate',
+                            data: [],
+                            borderColor: chartColors.primary,
+                            borderWidth: 3,
+                            fill: false
+                        },
+                        {
+                            label: 'Future Climate',
+                            data: [],
+                            borderColor: chartColors.accent,
+                            borderWidth: 3,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Temperature (°C)' },
+                            grid: { color: chartColors.grid }
+                        },
+                        y: {
+                            title: { display: true, text: 'Performance' },
+                            grid: { color: chartColors.grid }
+                        }
+                    }
+                }
+            });
+
+            function updateClimate() {
+                const tempIncrease = parseFloat(document.getElementById('climateSlider').value);
+                const variabilityIncrease = parseFloat(document.getElementById('variabilitySlider').value);
+                
+                document.getElementById('climateValue').textContent = tempIncrease;
+                document.getElementById('variabilityValue').textContent = variabilityIncrease;
+
+                const temps = [];
+                const current = [];
+                const future = [];
+
+                for (let temp = 0; temp <= 50; temp += 0.5) {
+                    temps.push(temp);
+                    
+                    // Current TPC
+                    const currentPerf = Math.exp(-0.5 * Math.pow((temp - 25) / 5, 2));
+                    current.push(currentPerf);
+                    
+                    // Future TPC (shifted and broadened)
+                    const futurePerf = Math.exp(-0.5 * Math.pow((temp - (25 + tempIncrease)) / (5 + variabilityIncrease), 2));
+                    future.push(futurePerf);
+                }
+
+                chart.data.labels = temps;
+                chart.data.datasets[0].data = current;
+                chart.data.datasets[1].data = future;
+                chart.update();
+            }
+
+            document.getElementById('climateSlider').addEventListener('input', updateClimate);
+            document.getElementById('variabilitySlider').addEventListener('input', updateClimate);
+            updateClimate();
+            return chart;
+        }
+
+        // Animation functions
+        function animateDamuthRule() {
+            // This would animate the Damuth chart showing how density and metabolic rate balance
+            console.log("Animating Damuth's Rule...");
+        }
+
+        function simulateJensen() {
+            const jensenChart = charts.jensen;
+            const variance = parseFloat(document.getElementById('varianceSlider').value);
+            
+            // Simulate variable temperature effects
+            const variablePoints = [];
+            const meanTemp = 20;
+            
+            for (let i = 0; i < 100; i++) {
+                const temp = meanTemp + (Math.random() - 0.5) * variance * 2;
+                const performance = Math.exp(-0.5 * Math.pow((temp - 25) / 5, 2));
+                variablePoints.push({x: temp, y: performance});
+            }
+            
+            jensenChart.data.datasets[2].data = variablePoints;
+            jensenChart.update();
+        }
+
+        // Initialize all charts
+        const charts = {};
+        
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            charts.powerFunction = createPowerFunctionChart();
+            charts.metabolicScaling = createMetabolicScalingChart();
+            charts.temperature = createTemperatureChart();
+            charts.tpc = createTPCChart();
+            charts.mte = createMTEChart();
+            charts.damuth = createDamuthChart();
+            charts.jensen = createJensenChart();
+            charts.disease = createDiseaseChart();
+            charts.network = createNetworkChart();
+            charts.climate = createClimateChart();
+        });
+    </script>
+</body>
+</html>
