@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biodiversity and Ecosystem Function</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a3d20 0%, #2c5530 100%);
+            color: #ffffff;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: #ffffff;
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #4a7c59;
+        }
+
+        .section h2 {
+            color: #2c5530;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e8f5e8;
+            padding-bottom: 10px;
+        }
+
+        .section h3 {
+            color: #4a7c59;
+            font-size: 1.4em;
+            margin: 25px 0 15px 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #4a7c59;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(74, 124, 89, 0.2);
+        }
+
+        .concept-card h4 {
+            color: #2c5530;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .math-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4a7c59;
+            overflow-x: auto;
+        }
+
+        .chart-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .chart-container canvas {
+            max-height: 400px;
+        }
+
+        .simulation-container {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid #4a7c59;
+        }
+
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #2c5530;
+            font-size: 0.9em;
+        }
+
+        .slider {
+            width: 200px;
+            height: 5px;
+            border-radius: 5px;
+            background: #e8f5e8;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+            border: none;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #4a7c59 0%, #2c5530 100%);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .study-box {
+            background: #f0f8f0;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #4a7c59;
+            margin: 15px 0;
+        }
+
+        .study-box h4 {
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .consensus-list {
+            counter-reset: consensus-counter;
+        }
+
+        .consensus-item {
+            counter-increment: consensus-counter;
+            background: #f0f8f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .consensus-item::before {
+            content: counter(consensus-counter);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #4a7c59;
+            color: #ffffff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .slider {
+                width: 100%;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header fade-in">
+            <h1>Biodiversity and Ecosystem Function</h1>
+            <p>Understanding how species diversity affects ecosystem processes through experimental evidence and mathematical models</p>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Core Question</h2>
+            <div class="highlight-box">
+                <h3 style="color: #ffffff;">How does species diversity affect ecosystem function?</h3>
+                <p style="color: #ffffff;">Do more diverse ecological systems provide greater ecosystem functions (biomass production, nutrient cycling) and services (water quality, food production, shoreline protection)?</p>
+            </div>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Ecosystem Functions</h4>
+                    <p>Biological and physical processes within ecosystems:</p>
+                    <ul>
+                        <li>Primary productivity</li>
+                        <li>Nutrient cycling</li>
+                        <li>Decomposition</li>
+                        <li>Energy flow</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h4>Ecosystem Services</h4>
+                    <p>Benefits humans derive from ecosystems:</p>
+                    <ul>
+                        <li>Water purification</li>
+                        <li>Food production</li>
+                        <li>Climate regulation</li>
+                        <li>Coastal protection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Competing Hypotheses</h2>
+            <div class="two-column">
+                <div class="concept-card">
+                    <h4>Species Redundancy Hypothesis</h4>
+                    <p>Many species perform similar ecological functions, so losing some species doesn't significantly impact ecosystem function.</p>
+                    <div class="math-container">
+                        Function = f(Keystone Species)
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4>Species Complementarity Hypothesis</h4>
+                    <p>Each species contributes uniquely to ecosystem function through niche partitioning and complementary resource use.</p>
+                    <div class="math-container">
+                        Function = f(∑ Species Contributions)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Biodiversity-Ecosystem Function Relationship</h2>
+            <div class="chart-container">
+                <h3>Interactive BEF Relationship</h3>
+                <canvas id="befChart"></canvas>
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="maxFunction">Maximum Function:</label>
+                        <input type="range" id="maxFunction" class="slider" min="50" max="200" value="100">
+                        <span id="maxFunctionValue">100</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="saturationRate">Saturation Rate:</label>
+                        <input type="range" id="saturationRate" class="slider" min="0.1" max="2" step="0.1" value="0.5">
+                        <span id="saturationRateValue">0.5</span>
+                    </div>
+                    <button class="button" onclick="updateBEFChart()">Update Chart</button>
+                </div>
+            </div>
+            
+            <div class="math-container">
+                <h4>Mathematical Model:</h4>
+                $$F(S) = F_{max} \cdot \frac{S}{K + S}$$
+                <p>Where:</p>
+                <ul>
+                    <li>F(S) = Ecosystem function at species richness S</li>
+                    <li>F<sub>max</sub> = Maximum possible function</li>
+                    <li>S = Species richness</li>
+                    <li>K = Half-saturation constant</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Key Experimental Studies</h2>
+            
+            <h3>Tilman & Downing (1994): Grassland Drought Study</h3>
+            <div class="study-box">
+                <h4>Experimental Design</h4>
+                <p><strong>Natural experiment:</strong> Severe drought in 1987-1988 affected grassland plots with varying species richness</p>
+                <p><strong>Response variable:</strong> Drought resistance = Biomass<sub>1988</sub> / Biomass<sub>1986</sub></p>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Drought Resistance vs Species Richness</h3>
+                <canvas id="droughtChart"></canvas>
+            </div>
+            
+            <div class="math-container">
+                <h4>Resistance Index:</h4>
+                $$R = \frac{B_{during}}{B_{before}} = \frac{B_{1988}}{B_{1986}}$$
+                <p>Where R approaches 1 for complete resistance, and decreases as impact increases.</p>
+            </div>
+
+            <h3>Species vs Functional Diversity (Tilman et al. 1997)</h3>
+            <div class="chart-container">
+                <h3>Comparative Effects</h3>
+                <canvas id="diversityComparisonChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Mechanisms of Diversity Effects</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Niche Complementarity</h4>
+                    <p>Different species use different resources or occupy different niches, leading to more complete resource utilization.</p>
+                    <div class="math-container">
+                        $Y_{mix} > \bar{Y}_{mono}$
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4>Sampling Effects</h4>
+                    <p>Higher diversity increases probability of including highly productive species.</p>
+                    <div class="math-container">
+                        $P(high\ producer) = 1 - (1-p)^S$
+                    </div>
+                </div>
+            </div>
+            
+            <p>Both mechanisms tend to operate simultaneously in natural ecosystems, contributing to the positive relationship between biodiversity and ecosystem function.</p>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Portfolio Effect</h2>
+            <p>The statistical tendency for diverse systems to have lower temporal variance, analogous to financial portfolio diversification.</p>
+            
+            <div class="math-container">
+                <h4>Portfolio Effect Components:</h4>
+                $$CV_{community}^2 = \frac{1}{S^2} \sum_{i=1}^{S} CV_i^2 + \frac{2}{S^2} \sum_{i<j} \rho_{ij} CV_i CV_{j}$$
+                
+                <p><strong>Three Components:</strong></p>
+                <ol>
+                    <li><strong>Portfolio Effect:</strong> $\frac{1}{S} \sum_{i=1}^{S} CV_i^2$ (averaging reduces variance)</li>
+                    <li><strong>Covariance Effect:</strong> $\frac{2}{S^2} \sum_{i<j} \rho_{ij} CV_i CV_{j}$ (asynchrony further reduces variance)</li>
+                    <li><strong>Overyielding:</strong> Mean biomass increases with S</li>
+                </ol>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Portfolio Effect Simulation</h3>
+                <canvas id="portfolioChart"></canvas>
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="numSpecies">Number of Species:</label>
+                        <input type="range" id="numSpecies" class="slider" min="1" max="20" value="5">
+                        <span id="numSpeciesValue">5</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="correlation">Species Correlation:</label>
+                        <input type="range" id="correlation" class="slider" min="-1" max="1" step="0.1" value="0">
+                        <span id="correlationValue">0.0</span>
+                    </div>
+                    <button class="button" onclick="updatePortfolioChart()">Generate New Data</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Transgressive Overyielding</h2>
+            <div class="highlight-box">
+                <h3>Extreme Test: Do polycultures outperform the best monoculture?</h3>
+                <p>Only 37% of studies show transgressive overyielding (63% do not)</p>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Overyielding Analysis</h3>
+                <canvas id="overyieldingChart"></canvas>
+            </div>
+            
+            <div class="math-container">
+                <h4>Overyielding Index:</h4>
+                $$OI = \frac{Y_{polyculture}}{max(Y_{monocultures})}$$
+                <p>Where OI > 1 indicates transgressive overyielding</p>
+            </div>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Ecosystem Stability</h2>
+            <div class="chart-container">
+                <h3>Diversity-Stability Relationship</h3>
+                <canvas id="stabilityChart"></canvas>
+            </div>
+            
+            <div class="two-column">
+                <div class="concept-card">
+                    <h4>Resistance</h4>
+                    <p>Ability to maintain function during disturbance</p>
+                    <div class="math-container">
+                        $$Resistance = \frac{|μ_0 - μ_d|}{μ_0}$$
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4>Resilience</h4>
+                    <p>Ability to recover function after disturbance</p>
+                    <div class="math-container">
+                        $$Resilience = \frac{1}{return\ time}$$
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Scientific Consensus</h2>
+            <p>Based on hundreds of experiments across multiple ecosystems, the scientific community has reached consensus on six key statements:</p>
+            
+            <div class="consensus-list">
+                <div class="consensus-item">
+                    <strong>Biodiversity increases efficiency</strong> of resource capture, biomass production, and nutrient cycling.
+                </div>
+                <div class="consensus-item">
+                    <strong>Biodiversity increases ecosystem stability</strong> through reduced temporal variance and enhanced resistance/resilience.
+                </div>
+                <div class="consensus-item">
+                    <strong>Effects are nonlinear and saturating</strong> - most benefits occur at low-to-moderate diversity levels.
+                </div>
+                <div class="consensus-item">
+                    <strong>Productivity increases</strong> due to both key species effects and functional trait diversity (niche partitioning).
+                </div>
+                <div class="consensus-item">
+                    <strong>Diversity across trophic levels</strong> has greater effects than diversity within trophic levels.
+                </div>
+                <div class="consensus-item">
+                    <strong>Functional traits have large effects</strong> - what species do matters more than just how many species there are.
+                </div>
+            </div>
+        </div>
+
+        <div class="section fade-in">
+            <h2>Key Takeaways</h2>
+            <div class="highlight-box">
+                <h3>Diversity is important, but mechanisms are complex</h3>
+                <p>Multiple mechanisms operate simultaneously: niche complementarity, sampling effects, portfolio effects, and species identity effects all contribute to biodiversity-ecosystem function relationships.</p>
+            </div>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>For Conservation</h4>
+                    <p>Protecting biodiversity maintains ecosystem services essential for human well-being.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>For Management</h4>
+                    <p>Functional diversity may be more important than species richness alone for ecosystem management.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>For Research</h4>
+                    <p>Future studies should focus on functional traits and multi-trophic interactions.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>For Policy</h4>
+                    <p>Evidence strongly supports biodiversity conservation as essential for ecosystem stability and function.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Color scheme
+        const colors = {
+            primary: '#2c5530',
+            secondary: '#4a7c59',
+            dark: '#1a3d20',
+            light: '#e8f5e8',
+            background: '#f8f9fa',
+            gradient1: '#e8f5e8',
+            gradient2: '#f0f8f0'
+        };
+
+        // Chart configurations
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.color = '#333';
+
+        // BEF Relationship Chart
+        let befChart;
+        function initBEFChart() {
+            const ctx = document.getElementById('befChart').getContext('2d');
+            const data = generateBEFData(100, 0.5);
+            
+            befChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Ecosystem Function',
+                        data: data.values,
+                        borderColor: colors.primary,
+                        backgroundColor: colors.light,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: colors.secondary,
+                        pointBorderColor: colors.primary,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Species Richness',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Ecosystem Function',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.primary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateBEFData(maxFunction, k) {
+            const labels = [];
+            const values = [];
+            for (let s = 1; s <= 20; s++) {
+                labels.push(s);
+                values.push(maxFunction * s / (k * 20 + s));
+            }
+            return { labels, values };
+        }
+
+        function updateBEFChart() {
+            const maxFunction = parseFloat(document.getElementById('maxFunction').value);
+            const saturationRate = parseFloat(document.getElementById('saturationRate').value);
+            document.getElementById('maxFunctionValue').textContent = maxFunction;
+            document.getElementById('saturationRateValue').textContent = saturationRate.toFixed(1);
+            
+            const data = generateBEFData(maxFunction, saturationRate);
+            befChart.data.datasets[0].data = data.values;
+            befChart.update('none');
+        }
+
+        // Drought Chart
+        function initDroughtChart() {
+            const ctx = document.getElementById('droughtChart').getContext('2d');
+            const droughtData = {
+                labels: [1, 2, 4, 6, 8, 10, 12, 16, 20],
+                datasets: [{
+                    label: 'Drought Resistance',
+                    data: [0.1, 0.15, 0.25, 0.35, 0.42, 0.48, 0.52, 0.55, 0.58],
+                    borderColor: colors.primary,
+                    backgroundColor: colors.secondary,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            };
+            
+            new Chart(ctx, {
+                type: 'scatter',
+                data: droughtData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Plant Species Richness',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Drought Resistance (Biomass₁₉₈₈/Biomass₁₉₈₆)',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.primary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Diversity Comparison Chart
+        function initDiversityComparisonChart() {
+            const ctx = document.getElementById('diversityComparisonChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Plant Biomass', 'Plant % N', 'Plant Total N', 'Soil Ammonia', 'Soil Nitrate', 'Light Attenuation'],
+                    datasets: [{
+                        label: 'Species Diversity Effect',
+                        data: [1, 0, 0, 0, 0, 0],
+                        backgroundColor: colors.primary
+                    }, {
+                        label: 'Functional Diversity Effect',
+                        data: [1, -1, 1, -1, -1, -1],
+                        backgroundColor: colors.secondary
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Effect Direction',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value === 1 ? 'Positive' : value === -1 ? 'Negative' : 'No Effect';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.primary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Mechanism Chart
+        let mechanismChart;
+        function initMechanismChart() {
+            const ctx = document.getElementById('mechanismChart').getContext('2d');
+            
+            mechanismChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => i + 1),
+                    datasets: [{
+                        label: 'Total Effect',
+                        data: generateMechanismData(0.5, 0.3).total,
+                        borderColor: colors.primary,
+                        backgroundColor: colors.light,
+                        fill: false,
+                        tension: 0.4
+                    }, {
+                        label: 'Complementarity',
+                        data: generateMechanismData(0.5, 0.3).complementarity,
+                        borderColor: colors.secondary,
+                        backgroundColor: 'transparent',
+                        fill: false,
+                        tension: 0.4,
+                        borderDash: [5, 5]
+                    }, {
+                        label: 'Sampling',
+                        data: generateMechanismData(0.5, 0.3).sampling,
+                        borderColor: colors.dark,
+                        backgroundColor: 'transparent',
+                        fill: false,
+                        tension: 0.4,
+                        borderDash: [10, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Species Richness',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Effect Magnitude',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.primary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateMechanismData(compStrength, sampStrength) {
+            const complementarity = [];
+            const sampling = [];
+            const total = [];
+            
+            for (let s = 1; s <= 20; s++) {
+                const comp = compStrength * Math.log(s + 1) * 20;
+                const samp = sampStrength * (1 - Math.pow(0.9, s)) * 80;
+                complementarity.push(comp);
+                sampling.push(samp);
+                total.push(comp + samp);
+            }
+            
+            return { complementarity, sampling, total };
+        }
+
+        function updateMechanismChart() {
+            const comp = parseFloat(document.getElementById('complementarity').value);
+            const samp = parseFloat(document.getElementById('sampling').value);
+            document.getElementById('complementarityValue').textContent = comp.toFixed(1);
+            document.getElementById('samplingValue').textContent = samp.toFixed(1);
+            
+            const data = generateMechanismData(comp, samp);
+            mechanismChart.data.datasets[0].data = data.total;
+            mechanismChart.data.datasets[1].data = data.complementarity;
+            mechanismChart.data.datasets[2].data = data.sampling;
+            mechanismChart.update('none');
+        }
+
+        // Portfolio Chart
+        let portfolioChart;
+        function initPortfolioChart() {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            
+            portfolioChart = new Chart(ctx, {
+                type: 'line',
+                data: generatePortfolioData(5, 0),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Biomass',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.primary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generatePortfolioData(numSpecies, correlation) {
+            const timePoints = 50;
+            const datasets = [];
+            const labels = Array.from({length: timePoints}, (_, i) => i + 1);
+            
+            // Generate individual species data
+            const speciesData = [];
+            for (let i = 0; i < numSpecies; i++) {
+                const data = [];
+                let value = 50;
+                for (let t = 0; t < timePoints; t++) {
+                    value += (Math.random() - 0.5) * 10;
+                    if (correlation > 0 && i > 0) {
+                        value += correlation * (speciesData[0][t] - 50) * 0.1;
+                    }
+                    data.push(Math.max(0, value));
+                }
+                speciesData.push(data);
+                
+                if (i < 5) { // Only show first 5 species to avoid clutter
+                    datasets.push({
+                        label: `Species ${i + 1}`,
+                        data: data,
+                        borderColor: `hsl(${120 + i * 40}, 60%, 50%)`,
+                        backgroundColor: 'transparent',
+                        fill: false,
+                        tension: 0.2,
+                        pointRadius: 1
+                    });
+                }
+            }
+            
+            // Community total
+            const communityData = labels.map((_, t) => {
+                return speciesData.reduce((sum, species) => sum + species[t], 0) / numSpecies;
+            });
+            
+            datasets.push({
+                label: 'Community Average',
+                data: communityData,
+                borderColor: colors.primary,
+                backgroundColor: colors.light,
+                fill: false,
+                tension: 0.4,
+                pointRadius: 2,
+                borderWidth: 3
+            });
+            
+            return { labels, datasets };
+        }
+
+        function updatePortfolioChart() {
+            const numSpecies = parseInt(document.getElementById('numSpecies').value);
+            const correlation = parseFloat(document.getElementById('correlation').value);
+            document.getElementById('numSpeciesValue').textContent = numSpecies;
+            document.getElementById('correlationValue').textContent = correlation.toFixed(1);
+            
+            const data = generatePortfolioData(numSpecies, correlation);
+            portfolioChart.data = data;
+            portfolioChart.update('none');
+        }
+
+        // Overyielding Chart
+        function initOveryieldingChart() {
+            const ctx = document.getElementById('overyieldingChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Transgressive Overyielding', 'No Transgressive Overyielding'],
+                    datasets: [{
+                        data: [37, 63],
+                        backgroundColor: [colors.primary, colors.light],
+                        borderColor: [colors.dark, colors.secondary],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: colors.primary,
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Stability Chart
+        function initStabilityChart() {
+            const ctx = document.getElementById('stabilityChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [1, 2, 4, 8, 16],
+                    datasets: [{
+                        label: 'Species Stability',
+                        data: [2.5, 2.2, 1.8, 1.5, 1.3],
+                        borderColor: colors.primary,
+                        backgroundColor: colors.light,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Ecosystem Stability',
+                        data: [3.0, 3.5, 4.2, 5.0, 5.8],
+                        borderColor: colors.secondary,
+                        backgroundColor: colors.gradient1,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Species Number Treatment',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Species Stability (CV⁻¹)',
+                                color: colors.primary,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Ecosystem Stability (CV⁻¹)',
+                                color: colors.secondary,
+                                font: { weight: 'bold' }
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.primary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize all charts when page loads
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                // Initialize all charts
+                initBEFChart();
+                initDroughtChart();
+                initDiversityComparisonChart();
+                initPortfolioChart();
+                initOveryieldingChart();
+                initStabilityChart();
+                
+                // Initialize display values
+                document.getElementById('maxFunctionValue').textContent = document.getElementById('maxFunction').value;
+                document.getElementById('saturationRateValue').textContent = document.getElementById('saturationRate').value;
+                document.getElementById('numSpeciesValue').textContent = document.getElementById('numSpecies').value;
+                document.getElementById('correlationValue').textContent = parseFloat(document.getElementById('correlation').value).toFixed(1);
+                
+                // Set up event listeners for sliders
+                document.getElementById('maxFunction').addEventListener('input', updateBEFChart);
+                document.getElementById('saturationRate').addEventListener('input', updateBEFChart);
+                document.getElementById('numSpecies').addEventListener('input', updatePortfolioChart);
+                document.getElementById('correlation').addEventListener('input', updatePortfolioChart);
+                
+                // Add fade-in animation to sections
+                const sections = document.querySelectorAll('.section');
+                sections.forEach((section, index) => {
+                    setTimeout(() => {
+                        section.classList.add('fade-in');
+                    }, index * 200);
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
