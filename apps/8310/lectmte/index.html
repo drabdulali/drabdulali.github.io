@@ -277,7 +277,7 @@
             <p>One of the most fundamental relationships in biology: metabolic rate scales with body mass to the 3/4 power.</p>
             
             <div class="equation-box">
-                <div class="formula">$$R = aM^{3/4}$$</div>
+                <div class="formula">$R = aM^{3/4}$</div>
                 <div class="parameter-description">
                     Metabolic rate (R) scales with mass (M) to the 3/4 power across species
                 </div>
@@ -289,8 +289,37 @@
                 results in only a 2-fold decrease in mass-specific metabolic rate.
             </div>
 
+            <div class="interactive-controls">
+                <h3>Metabolic Scaling Explorer</h3>
+                <div class="control-group">
+                    <label>Scaling Exponent:</label>
+                    <input type="range" id="metabolicExponentSlider" min="0.5" max="1.2" step="0.05" value="0.75">
+                    <span id="metabolicExponentValue">0.75</span>
+                </div>
+                <div class="control-group">
+                    <label>Animal Size:</label>
+                    <input type="range" id="animalSizeSlider" min="0.001" max="5000" step="0.1" value="1">
+                    <span id="animalSizeValue">1</span> kg
+                </div>
+                <button onclick="animateMetabolicScaling()">Compare Animals</button>
+            </div>
+
             <div class="chart-container">
                 <canvas id="metabolicScalingChart" width="400" height="300"></canvas>
+            </div>
+
+            <div class="simulation-box">
+                <h3>Animal Comparison</h3>
+                <div id="animalComparison" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div style="text-align: center;">
+                        <h4>Mouse (30g)</h4>
+                        <div id="mouseStats"></div>
+                    </div>
+                    <div style="text-align: center;">
+                        <h4>Elephant (3000kg)</h4>
+                        <div id="elephantStats"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="concept-grid">
@@ -514,6 +543,37 @@
                 <br>• Predict different scaling for different organizational levels
             </div>
 
+            <div class="interactive-controls">
+                <h3>Network Structure Simulator</h3>
+                <div class="control-group">
+                    <label>Organization Level:</label>
+                    <select id="organizationSelect">
+                        <option value="solitary">Solitary Individual</option>
+                        <option value="colony">Colony</option>
+                        <option value="aggregate">Aggregate</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Network Depth:</label>
+                    <input type="range" id="networkDepthSlider" min="3" max="7" step="1" value="5">
+                    <span id="networkDepthValue">5</span> levels
+                </div>
+                <button onclick="simulateNetworkStructure()">Simulate Network</button>
+            </div>
+
+            <div class="simulation-box">
+                <h3>Fractal Network Visualization</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <canvas id="networkCanvas" width="300" height="300" style="border: 1px solid var(--medium-green); border-radius: 8px;"></canvas>
+                    </div>
+                    <div>
+                        <h4>Network Properties</h4>
+                        <div id="networkStats"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="concept-grid">
                 <div class="concept-card">
                     <h4>Solitary Individuals</h4>
@@ -652,47 +712,35 @@
         function createMetabolicScalingChart() {
             const ctx = document.getElementById('metabolicScalingChart').getContext('2d');
             
-            // Generate data for different scaling exponents
-            const masses = [];
-            const threeFourths = [];
-            const linear = [];
-            const twoThirds = [];
-
-            for (let m = 0.001; m <= 100000; m *= 2) {
-                masses.push(m);
-                threeFourths.push(Math.pow(m, 0.75));
-                linear.push(m);
-                twoThirds.push(Math.pow(m, 0.67));
-            }
-
             const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: masses,
+                    labels: [],
                     datasets: [
                         {
-                            label: 'M^0.75 (Observed)',
-                            data: threeFourths.map((y, i) => ({x: masses[i], y: y})),
+                            label: 'Current Exponent',
+                            data: [],
                             borderColor: chartColors.primary,
                             backgroundColor: chartColors.background,
                             borderWidth: 3,
                             fill: false
                         },
                         {
-                            label: 'M^1.0 (Linear)',
-                            data: linear.map((y, i) => ({x: masses[i], y: y})),
+                            label: 'M^0.75 (Observed)',
+                            data: [],
                             borderColor: chartColors.secondary,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             fill: false
                         },
                         {
-                            label: 'M^0.67 (Surface Area)',
-                            data: twoThirds.map((y, i) => ({x: masses[i], y: y})),
+                            label: 'Selected Animal',
+                            data: [],
                             borderColor: chartColors.accent,
-                            borderWidth: 2,
-                            borderDash: [10, 5],
-                            fill: false
+                            backgroundColor: chartColors.accent,
+                            borderWidth: 0,
+                            pointRadius: 8,
+                            showLine: false
                         }
                     ]
                 },
@@ -701,19 +749,112 @@
                     scales: {
                         x: {
                             type: 'logarithmic',
-                            title: { display: true, text: 'Body Mass (g)' },
+                            title: { display: true, text: 'Body Mass (kg)' },
                             grid: { color: chartColors.grid }
                         },
                         y: {
                             type: 'logarithmic',
-                            title: { display: true, text: 'Metabolic Rate (relative)' },
+                            title: { display: true, text: 'Metabolic Rate (W)' },
                             grid: { color: chartColors.grid }
                         }
                     }
                 }
             });
 
+            function updateMetabolicScaling() {
+                const exponent = parseFloat(document.getElementById('metabolicExponentSlider').value);
+                const animalSize = parseFloat(document.getElementById('animalSizeSlider').value);
+                
+                document.getElementById('metabolicExponentValue').textContent = exponent;
+                document.getElementById('animalSizeValue').textContent = animalSize;
+
+                const masses = [];
+                const currentData = [];
+                const observedData = [];
+
+                for (let m = 0.001; m <= 10000; m *= 1.5) {
+                    masses.push(m);
+                    currentData.push({x: m, y: Math.pow(m, exponent)});
+                    observedData.push({x: m, y: Math.pow(m, 0.75)});
+                }
+
+                const selectedPoint = [{x: animalSize, y: Math.pow(animalSize, exponent)}];
+
+                chart.data.datasets[0].data = currentData;
+                chart.data.datasets[1].data = observedData;
+                chart.data.datasets[2].data = selectedPoint;
+                chart.data.labels = masses;
+                chart.update();
+
+                updateAnimalComparison(exponent);
+            }
+
+            document.getElementById('metabolicExponentSlider').addEventListener('input', updateMetabolicScaling);
+            document.getElementById('animalSizeSlider').addEventListener('input', updateMetabolicScaling);
+            
+            updateMetabolicScaling();
             return chart;
+        }
+
+        function updateAnimalComparison(exponent) {
+            const mouseMass = 0.03; // 30g
+            const elephantMass = 3000; // 3000kg
+            
+            const mouseRate = Math.pow(mouseMass, exponent);
+            const elephantRate = Math.pow(elephantMass, exponent);
+            
+            const mouseSpecific = mouseRate / mouseMass;
+            const elephantSpecific = elephantRate / elephantMass;
+            
+            document.getElementById('mouseStats').innerHTML = `
+                <p>Mass: ${mouseMass} kg</p>
+                <p>Metabolic Rate: ${mouseRate.toFixed(3)} W</p>
+                <p>Mass-specific: ${mouseSpecific.toFixed(3)} W/kg</p>
+            `;
+            
+            document.getElementById('elephantStats').innerHTML = `
+                <p>Mass: ${elephantMass} kg</p>
+                <p>Metabolic Rate: ${elephantRate.toFixed(0)} W</p>
+                <p>Mass-specific: ${elephantSpecific.toFixed(3)} W/kg</p>
+            `;
+        }
+
+        function animateMetabolicScaling() {
+            const animals = [
+                {name: 'Shrew', mass: 0.002, color: '#ff6b6b'},
+                {name: 'Mouse', mass: 0.03, color: '#4ecdc4'},
+                {name: 'Rat', mass: 0.3, color: '#45b7d1'},
+                {name: 'Cat', mass: 4, color: '#96ceb4'},
+                {name: 'Human', mass: 70, color: '#ffeaa7'},
+                {name: 'Horse', mass: 400, color: '#dda0dd'},
+                {name: 'Elephant', mass: 3000, color: '#ff7675'}
+            ];
+
+            const chart = charts.metabolicScaling;
+            const exponent = parseFloat(document.getElementById('metabolicExponentSlider').value);
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < animals.length) {
+                    const animal = animals[i];
+                    const rate = Math.pow(animal.mass, exponent);
+                    
+                    chart.data.datasets[2].data.push({
+                        x: animal.mass, 
+                        y: rate,
+                        backgroundColor: animal.color,
+                        label: animal.name
+                    });
+                    chart.update();
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        chart.data.datasets[2].data = [];
+                        chart.update();
+                    }, 3000);
+                }
+            }, 500);
         }
 
         // Temperature Chart
@@ -1268,8 +1409,151 @@
 
         // Animation functions
         function animateDamuthRule() {
-            // This would animate the Damuth chart showing how density and metabolic rate balance
-            console.log("Animating Damuth's Rule...");
+            const chart = charts.damuth;
+            const originalData = {
+                densities: [...chart.data.datasets[0].data],
+                rates: [...chart.data.datasets[1].data],
+                energyUse: [...chart.data.datasets[2].data]
+            };
+            
+            // Clear the chart
+            chart.data.datasets[0].data = [];
+            chart.data.datasets[1].data = [];
+            chart.data.datasets[2].data = [];
+            chart.update();
+            
+            let index = 0;
+            const animationInterval = setInterval(() => {
+                if (index < originalData.densities.length) {
+                    // Add one point at a time
+                    chart.data.datasets[0].data.push(originalData.densities[index]);
+                    chart.data.datasets[1].data.push(originalData.rates[index]);
+                    chart.data.datasets[2].data.push(originalData.energyUse[index]);
+                    
+                    chart.update('none'); // No animation for smoother effect
+                    index++;
+                } else {
+                    clearInterval(animationInterval);
+                    
+                    // Highlight the constant energy use
+                    setTimeout(() => {
+                        chart.data.datasets[2].borderWidth = 6;
+                        chart.data.datasets[2].backgroundColor = chartColors.accent + '40';
+                        chart.update();
+                        
+                        setTimeout(() => {
+                            chart.data.datasets[2].borderWidth = 4;
+                            chart.data.datasets[2].backgroundColor = 'transparent';
+                            chart.update();
+                        }, 2000);
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        function simulateNetworkStructure() {
+            const organizationType = document.getElementById('organizationSelect').value;
+            const networkDepth = parseInt(document.getElementById('networkDepthSlider').value);
+            
+            document.getElementById('networkDepthValue').textContent = networkDepth;
+            
+            const canvas = document.getElementById('networkCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Set colors
+            ctx.strokeStyle = chartColors.primary;
+            ctx.fillStyle = chartColors.secondary;
+            ctx.lineWidth = 2;
+            
+            // Draw fractal network based on organization type
+            if (organizationType === 'solitary') {
+                drawFractalNetwork(ctx, 150, 50, 0, 100, networkDepth, 0.75);
+                updateNetworkStats(networkDepth, 0.75, 'Highly integrated internal network');
+            } else if (organizationType === 'colony') {
+                drawColonyNetwork(ctx, networkDepth);
+                updateNetworkStats(networkDepth, 0.9, 'Partially integrated colony network');
+            } else {
+                drawAggregateNetwork(ctx, networkDepth);
+                updateNetworkStats(networkDepth, 1.0, 'Independent individual networks');
+            }
+        }
+
+        function drawFractalNetwork(ctx, x, y, angle, length, depth, scalingFactor) {
+            if (depth === 0) {
+                // Draw terminal unit (capillary/alveoli)
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+                return;
+            }
+            
+            const x2 = x + Math.cos(angle) * length;
+            const y2 = y + Math.sin(angle) * length;
+            
+            // Draw branch
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            // Branching with fractal scaling
+            const newLength = length * scalingFactor;
+            const angleSpread = Math.PI / 6; // 30 degrees
+            
+            // Left branch
+            drawFractalNetwork(ctx, x2, y2, angle - angleSpread, newLength, depth - 1, scalingFactor);
+            // Right branch
+            drawFractalNetwork(ctx, x2, y2, angle + angleSpread, newLength, depth - 1, scalingFactor);
+        }
+
+        function drawColonyNetwork(ctx, depth) {
+            // Draw multiple interconnected units
+            const centers = [
+                {x: 75, y: 75}, {x: 225, y: 75}, {x: 150, y: 200}
+            ];
+            
+            centers.forEach((center, i) => {
+                drawFractalNetwork(ctx, center.x, center.y - 30, Math.PI/2, 40, depth - 1, 0.8);
+                
+                // Draw connections between colonies
+                if (i < centers.length - 1) {
+                    ctx.strokeStyle = chartColors.secondary;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(center.x, center.y);
+                    ctx.lineTo(centers[i + 1].x, centers[i + 1].y);
+                    ctx.stroke();
+                    ctx.strokeStyle = chartColors.primary;
+                    ctx.lineWidth = 2;
+                }
+            });
+        }
+
+        function drawAggregateNetwork(ctx, depth) {
+            // Draw separate individual networks
+            const positions = [
+                {x: 75, y: 75}, {x: 225, y: 75}, {x: 75, y: 225}, {x: 225, y: 225}
+            ];
+            
+            positions.forEach(pos => {
+                drawFractalNetwork(ctx, pos.x, pos.y - 20, Math.PI/2, 30, depth - 2, 0.7);
+            });
+        }
+
+        function updateNetworkStats(depth, scalingExponent, description) {
+            const totalBranches = Math.pow(2, depth) - 1;
+            const terminalUnits = Math.pow(2, depth - 1);
+            
+            document.getElementById('networkStats').innerHTML = `
+                <p><strong>Network Depth:</strong> ${depth} levels</p>
+                <p><strong>Total Branches:</strong> ${totalBranches}</p>
+                <p><strong>Terminal Units:</strong> ${terminalUnits}</p>
+                <p><strong>Scaling Exponent:</strong> ${scalingExponent}</p>
+                <p><strong>Type:</strong> ${description}</p>
+            `;
         }
 
         function simulateJensen() {
@@ -1305,6 +1589,16 @@
             charts.disease = createDiseaseChart();
             charts.network = createNetworkChart();
             charts.climate = createClimateChart();
+
+            // Initialize network simulation
+            document.getElementById('organizationSelect').addEventListener('change', simulateNetworkStructure);
+            document.getElementById('networkDepthSlider').addEventListener('input', function() {
+                document.getElementById('networkDepthValue').textContent = this.value;
+                simulateNetworkStructure();
+            });
+            
+            // Initialize network simulation on load
+            simulateNetworkStructure();
         });
     </script>
 </body>
