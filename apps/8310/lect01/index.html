@@ -1,0 +1,857 @@
+import React, { useMemo, useState } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine, Legend, Area, AreaChart, ScatterChart, Scatter, ZAxis } from "recharts";
+import { motion } from "framer-motion";
+import 'katex/dist/katex.min.css';
+// IMPORTANT: react-katex on some CDNs exposes components via the default export, not named exports.
+// We import the default and safely destructure; if unavailable, we fall back to a local KaTeX renderer.
+import ReactKaTeX from 'react-katex';
+import * as katex from 'katex';
+
+// Safe wrappers for BlockMath / InlineMath (fallback to direct KaTeX rendering if needed)
+const { BlockMath: ImportedBlockMath, InlineMath: ImportedInlineMath } = ReactKaTeX || {};
+function KatexFallback({ math, displayMode = false }) {
+  const html = useMemo(() => katex.renderToString(math || '', { throwOnError: false, displayMode }), [math, displayMode]);
+  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+}
+const BlockMath = ImportedBlockMath ?? (({ math }) => <KatexFallback math={math} displayMode />);
+const InlineMath = ImportedInlineMath ?? (({ math }) => <KatexFallback math={math} />);
+
+/**
+ * Population Ecology Interactive Artifact
+ *
+ * Design goals
+ * - Faithfully cover ALL concepts in the provided lecture deck
+ * - Include simulations with user-controlled inputs (N0, r, λ, K, R, timesteps, etc.)
+ * - Provide paired visualizations: time series, log-scale views, return maps, cobwebs
+ * - Aesthetic math with KaTeX
+ * - Color system aligned to drabdulali.github.io palette
+ * - Clear, didactic text that mirrors lecture sequence
+ *
+ * Tech
+ * - React + TailwindCSS (assumed available by the platform)
+ * - Recharts for plotting
+ * - KaTeX via react-katex for equations (with safe fallback)
+ */
+
+// ---- Color System (matches requested palette) ----
+const COLORS = {
+  darkGreen: "#2c5530", // headings, primary accents
+  mediumGreen: "#4a7c59", // borders, links
+  veryDarkGreen: "#1a3d20", // nav/footer backgrounds
+  lightGray: "#f8f9fa", // page background
+  white: "#ffffff", // cards/sections
+  gradA: "#e8f5e8",
+  gradB: "#f0f8f0",
+  textDark: "#333",
+  textSecondary: "#666",
+  shadow1: "rgba(0,0,0,0.10)",
+  shadow2: "rgba(0,0,0,0.15)",
+  shadow3: "rgba(0,0,0,0.20)",
+};
+
+// ---- Utilities ----
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const range = (n) => Array.from({ length: n }, (_, i) => i);
+
+// Runge-Kutta 4th order for dN/dt = f(t, N)
+function rk4({ f, N0, t0 = 0, dt = 0.1, steps = 300 }) {
+  let t = t0;
+  let N = N0;
+  const out = [{ t, N }];
+  for (let i = 1; i <= steps; i++) {
+    const k1 = f(t, N);
+    const k2 = f(t + dt / 2, N + (dt / 2) * k1);
+    const k3 = f(t + dt / 2, N + (dt / 2) * k2);
+    const k4 = f(t + dt, N + dt * k3);
+    N = N + (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+    t = t + dt;
+    out.push({ t, N });
+  }
+  return out;
+}
+
+// Geometric growth: N_{t+1} = λ N_t
+function simulateGeometric({ N0, lambda, steps }) {
+  const data = [{ t: 0, N: N0, logN: Math.log10(Math.max(N0, 1e-12)) }];
+  let N = N0;
+  for (let t = 1; t <= steps; t++) {
+    N = lambda * N;
+    data.push({ t, N, logN: Math.log10(Math.max(N, 1e-12)) });
+  }
+  return data;
+}
+
+// Exponential growth: N(t) = N0 * e^{rt}
+function simulateExponential({ N0, r, tMax, dt }) {
+  const steps = Math.max(1, Math.round(tMax / dt));
+  const data = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i * dt;
+    const N = N0 * Math.exp(r * t);
+    data.push({ t, N, logN: Math.log(Math.max(N, 1e-12)) });
+  }
+  return data;
+}
+
+// Logistic ODE: dN/dt = r N (1 - N/K)
+function simulateLogisticODE({ N0, r, K, tMax, dt }) {
+  return rk4({
+    f: (_t, N) => r * N * (1 - N / K),
+    N0,
+    t0: 0,
+    dt,
+    steps: Math.max(1, Math.round(tMax / dt)),
+  });
+}
+
+// Discrete Logistic Map (one common form used in lecture):
+// N_{t+1} = N_t [1 + R (1 - N_t / K)]
+function simulateDiscreteLogistic({ N0, R, K, steps }) {
+  const data = [{ t: 0, N: N0 }];
+  let N = N0;
+  for (let t = 1; t <= steps; t++) {
+    N = N * (1 + R * (1 - N / K));
+    data.push({ t, N });
+  }
+  return data;
+}
+
+// Ricker Model: N_{t+1} = N_t * exp(r (1 - N_t/K))
+function simulateRicker({ N0, r, K, steps }) {
+  const data = [{ t: 0, N: N0 }];
+  let N = N0;
+  for (let t = 1; t <= steps; t++) {
+    N = N * Math.exp(r * (1 - N / K));
+    data.push({ t, N });
+  }
+  return data;
+}
+
+// Per-capita growth across density (for density dependence plot)
+// For logistic ODE per-capita rate: (1/N) dN/dt = r (1 - N/K)
+function perCapitaLogistic({ r, K, Nmax, samples = 200 }) {
+  const out = [];
+  for (let i = 0; i <= samples; i++) {
+    const N = (i / samples) * Nmax;
+    const pc = r * (1 - N / K); // negative slope; crosses zero at N=K
+    out.push({ N, pc });
+  }
+  return out;
+}
+
+// Cobweb data for discrete maps: given F(N), plot y=F(N) and y=N and the cobweb path
+function makeCobweb({ F, N0, steps, Nmin, Nmax, samples = 400 }) {
+  // Curve for y = F(N)
+  const curve = [];
+  for (let i = 0; i <= samples; i++) {
+    const N = Nmin + (i / samples) * (Nmax - Nmin);
+    curve.push({ x: N, y: F(N) });
+  }
+  // Line y=N
+  const diag = [
+    { x: Nmin, y: Nmin },
+    { x: Nmax, y: Nmax },
+  ];
+  // Path
+  const path = [{ x: N0, y: 0 }];
+  let N = N0;
+  for (let i = 0; i < steps; i++) {
+    const next = F(N);
+    // vertical to (N, F(N))
+    path.push({ x: N, y: next });
+    // horizontal to (F(N), F(N))
+    path.push({ x: next, y: next });
+    N = next;
+  }
+  return { curve, diag, path };
+}
+
+// Utility to build gradient background
+function Card({ title, subtitle, children, id }) {
+  return (
+    <motion.section
+      id={id}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl shadow-lg p-6 my-6"
+      style={{
+        background: `linear-gradient(135deg, ${COLORS.gradA}, ${COLORS.gradB})`,
+        boxShadow: `0 8px 20px ${COLORS.shadow2}`,
+      }}
+    >
+      <h2 className="text-2xl font-semibold mb-1" style={{ color: COLORS.darkGreen }}>{title}</h2>
+      {subtitle && (
+        <p className="text-sm mb-4" style={{ color: COLORS.textSecondary }}>{subtitle}</p>
+      )}
+      <div className="bg-white rounded-xl p-4" style={{ boxShadow: `inset 0 1px 0 ${COLORS.shadow1}` }}>
+        {children}
+      </div>
+    </motion.section>
+  );
+}
+
+function Control({ label, children }) {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <div className="w-48 text-sm font-medium" style={{ color: COLORS.darkGreen }}>{label}</div>
+      <div className="flex-1">{children}</div>
+    </div>
+  );
+}
+
+function NumberInput({ value, onChange, min, max, step }) {
+  return (
+    <input
+      type="number"
+      className="w-full rounded-lg border px-3 py-2"
+      style={{ borderColor: COLORS.mediumGreen }}
+      value={Number.isFinite(value) ? value : ''}
+      min={min}
+      max={max}
+      step={step}
+      onChange={(e) => {
+        const v = parseFloat(e.target.value);
+        onChange(Number.isFinite(v) ? v : 0);
+      }}
+    />
+  );
+}
+
+function Slider({ value, onChange, min, max, step }) {
+  return (
+    <input
+      type="range"
+      className="w-full"
+      value={value}
+      min={min}
+      max={max}
+      step={step}
+      onChange={(e) => onChange(parseFloat(e.target.value))}
+    />
+  );
+}
+
+// --------- Main Component ---------
+export default function PopulationEcologyArtifact() {
+  // Shared
+  const [N0, setN0] = useState(100);
+
+  // Geometric
+  const [lambda, setLambda] = useState(1.04);
+  const [geoSteps, setGeoSteps] = useState(40);
+  const geo = useMemo(() => simulateGeometric({ N0, lambda, steps: geoSteps }), [N0, lambda, geoSteps]);
+
+  // Exponential
+  const [rExp, setRExp] = useState(0.0392); // ln(1.04)
+  const [tMaxExp, setTMaxExp] = useState(40);
+  const [dtExp, setDtExp] = useState(0.25);
+  const exp = useMemo(() => simulateExponential({ N0, r: rExp, tMax: tMaxExp, dt: dtExp }), [N0, rExp, tMaxExp, dtExp]);
+  const doublingTime = rExp !== 0 ? Math.log(2) / rExp : Infinity;
+
+  // Logistic ODE
+  const [rLog, setRLog] = useState(0.2);
+  const [K, setK] = useState(500);
+  const [tMaxLog, setTMaxLog] = useState(40);
+  const [dtLog, setDtLog] = useState(0.2);
+  const logODE = useMemo(() => simulateLogisticODE({ N0, r: rLog, K, tMax: tMaxLog, dt: dtLog }), [N0, rLog, K, tMaxLog, dtLog]);
+  const pcLog = useMemo(() => perCapitaLogistic({ r: rLog, K, Nmax: K * 1.2 }), [rLog, K]);
+
+  // Discrete Logistic Map
+  const [R, setR] = useState(1.6);
+  const [stepsDL, setStepsDL] = useState(60);
+  const discLog = useMemo(() => simulateDiscreteLogistic({ N0, R, K, steps: stepsDL }), [N0, R, K, stepsDL]);
+  const cobDL = useMemo(() => makeCobweb({
+    F: (N) => N * (1 + R * (1 - N / K)),
+    N0: Math.min(N0, K),
+    steps: 40,
+    Nmin: 0,
+    Nmax: K * 1.2,
+  }), [R, K, N0]);
+
+  // Ricker
+  const [rR, setRR] = useState(1.1);
+  const [stepsR, setStepsR] = useState(60);
+  const ricker = useMemo(() => simulateRicker({ N0, r: rR, K, steps: stepsR }), [N0, rR, K, stepsR]);
+  const cobRicker = useMemo(() => makeCobweb({
+    F: (N) => N * Math.exp(rR * (1 - N / K)),
+    N0: Math.min(N0, K),
+    steps: 40,
+    Nmin: 0,
+    Nmax: K * 1.2,
+  }), [rR, K, N0]);
+
+  return (
+    <div style={{ background: COLORS.lightGray, color: COLORS.textDark }} className="min-h-screen">
+      {/* Header */}
+      <header className="w-full py-8 px-6" style={{ background: COLORS.veryDarkGreen, color: COLORS.white, boxShadow: `0 6px 20px ${COLORS.shadow3}` }}>
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold">Population Ecology — Interactive Guide</h1>
+          <p className="mt-2 text-sm opacity-90">All core concepts from the lecture, with simulations, graphs, and aesthetic mathematics. Adjust the controls and explore.</p>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-6 pb-20">
+        {/* Core Concepts */}
+        <Card id="core" title="Dynamics: Variables, Time, and Space" subtitle="State variable N, discrete vs. continuous time, deterministic vs. stochastic">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <p className="mb-4" style={{ color: COLORS.textDark }}>
+                Population size <InlineMath math={"N(t)"}/> (or <InlineMath math={"N(x,t)"}/> in space and time) is a state variable describing the system. Dynamics asks how <InlineMath math={"N"}/> changes through time and across space as a function of births, deaths, immigration, and emigration, often influenced by environmental parameters.
+              </p>
+              <ul className="list-disc pl-6" style={{ color: COLORS.textSecondary }}>
+                <li>Discrete-time models track <InlineMath math={"t = 0,1,2,\\ldots"}/>; continuous-time models use derivatives <InlineMath math={"\\tfrac{dN}{dt}"}/>.
+                </li>
+                <li>Deterministic models produce the same outcome from the same initial condition; stochastic models include random variation.</li>
+              </ul>
+            </div>
+            <div className="rounded-xl p-4" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <h3 className="font-semibold mb-2" style={{ color: COLORS.darkGreen }}>Notation</h3>
+              <BlockMath math={"N_{t+1} = F(N_t) \\quad (\\text{discrete map})"} />
+              <BlockMath math={"\\frac{dN}{dt} = f(t, N) \\quad (\\text{ODE})"} />
+              <BlockMath math={"N(t) = N_0 e^{rt} \\quad (\\text{exponential solution})"} />
+            </div>
+          </div>
+        </Card>
+
+        {/* Geometric Growth */}
+        <Card id="geometric" title="Geometric Growth (Discrete)" subtitle="N_{t+1} = \\lambda N_t; slope on log-scale = log(\\lambda)">
+          <div className="grid lg:grid-cols-5 gap-6">
+            <div className="lg:col-span-2">
+              <BlockMath math={"N_{t+1} = \\lambda N_t,\\quad N_t = N_0 \\lambda^t"} />
+              <p className="text-sm mb-4" style={{ color: COLORS.textSecondary }}>
+                If <InlineMath math={"\\lambda > 1"}/> the population grows; <InlineMath math={"\\lambda = 1"}/> is steady; <InlineMath math={"\\lambda < 1"}/> declines.
+              </p>
+              <Control label={"Initial size N₀"}>
+                <NumberInput value={N0} onChange={setN0} min={1} max={10000} step={1} />
+              </Control>
+              <Control label={"λ (finite rate)"}>
+                <Slider value={lambda} onChange={setLambda} min={0.7} max={1.3} step={0.001} />
+                <div className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>λ = {lambda.toFixed(3)}</div>
+              </Control>
+              <Control label={"Steps"}>
+                <Slider value={geoSteps} onChange={setGeoSteps} min={10} max={120} step={1} />
+                <div className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>t_max = {geoSteps}</div>
+              </Control>
+            </div>
+            <div className="lg:col-span-3 grid grid-cols-1 gap-6">
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={geo} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                    <CartesianGrid stroke={COLORS.shadow1} />
+                    <XAxis dataKey="t" stroke={COLORS.textSecondary} />
+                    <YAxis stroke={COLORS.textSecondary} />
+                    <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="N" stroke={COLORS.darkGreen} dot={false} name="N (linear)" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={geo} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                    <CartesianGrid stroke={COLORS.shadow1} />
+                    <XAxis dataKey="t" stroke={COLORS.textSecondary} />
+                    <YAxis stroke={COLORS.textSecondary} domain={["auto", "auto"]} />
+                    <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="logN" stroke={COLORS.mediumGreen} dot={false} name="log10(N)" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Exponential Growth */}
+        <Card id="exponential" title="Exponential Growth (Continuous)" subtitle="N(t) = N₀ e^{rt}; r = ln(λ); t_d = ln(2)/r">
+          <div className="grid lg:grid-cols-5 gap-6">
+            <div className="lg:col-span-2">
+              <BlockMath math={"N(t) = N_0 e^{rt},\\quad r = \\ln(\\lambda)"} />
+              <BlockMath math={"t_d = \\frac{\\ln 2}{r}"} />
+              <Control label={"Initial size N₀"}>
+                <NumberInput value={N0} onChange={setN0} min={1} max={10000} step={1} />
+              </Control>
+              <Control label={"r (per-capita rate)"}>
+                <Slider value={rExp} onChange={setRExp} min={-0.2} max={0.3} step={0.0001} />
+                <div className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>r = {rExp.toFixed(4)} {rExp !== 0 && `(doubling time ≈ ${(Math.log(2)/Math.abs(rExp)).toFixed(2)} ${rExp>0?"time units":"(halving)"})`}</div>
+              </Control>
+              <Control label={"t_max"}>
+                <Slider value={tMaxExp} onChange={setTMaxExp} min={5} max={200} step={1} />
+              </Control>
+              <Control label={"Δt (resolution)"}>
+                <Slider value={dtExp} onChange={setDtExp} min={0.05} max={1} step={0.05} />
+              </Control>
+            </div>
+            <div className="lg:col-span-3 h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={exp} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                  <CartesianGrid stroke={COLORS.shadow1} />
+                  <XAxis dataKey="t" stroke={COLORS.textSecondary} />
+                  <YAxis stroke={COLORS.textSecondary} />
+                  <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                  <Legend />
+                  <Line type="monotone" dataKey="N" stroke={COLORS.darkGreen} dot={false} name="N" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </Card>
+
+        {/* Logistic ODE */}
+        <Card id="logistic" title="Logistic Growth (Continuous, Density-Dependent)" subtitle="dN/dt = rN(1 - N/K); equilibrium at N* = K; stability from negative slope of per-capita rate">
+          <div className="grid lg:grid-cols-5 gap-6">
+            <div className="lg:col-span-2">
+              <BlockMath math={"\\frac{dN}{dt} = rN\\left(1 - \\frac{N}{K}\\right)"} />
+              <p className="text-sm" style={{ color: COLORS.textSecondary }}>At low density, growth is approximately exponential; as N approaches K, growth slows and stops at the stable equilibrium <InlineMath math={"N^* = K"}/>.</p>
+              <Control label={"Initial size N₀"}>
+                <NumberInput value={N0} onChange={setN0} min={1} max={5000} step={1} />
+              </Control>
+              <Control label={"r"}>
+                <Slider value={rLog} onChange={setRLog} min={0.01} max={1} step={0.01} />
+                <div className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>r = {rLog.toFixed(2)}</div>
+              </Control>
+              <Control label={"K (carrying capacity)"}>
+                <Slider value={K} onChange={setK} min={50} max={5000} step={10} />
+                <div className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>K = {K.toFixed(0)}</div>
+              </Control>
+              <Control label={"t_max"}>
+                <Slider value={tMaxLog} onChange={setTMaxLog} min={5} max={200} step={1} />
+              </Control>
+              <Control label={"Δt"}>
+                <Slider value={dtLog} onChange={setDtLog} min={0.05} max={1} step={0.05} />
+              </Control>
+            </div>
+            <div className="lg:col-span-3 grid grid-cols-1 gap-6">
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={logODE}>
+                    <CartesianGrid stroke={COLORS.shadow1} />
+                    <XAxis dataKey="t" stroke={COLORS.textSecondary} />
+                    <YAxis stroke={COLORS.textSecondary} />
+                    <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="N" stroke={COLORS.darkGreen} dot={false} name="N(t)" />
+                    <ReferenceLine y={K} stroke={COLORS.mediumGreen} strokeDasharray="5 5" label={{ value: "K", position: "right", fill: COLORS.mediumGreen }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={pcLog}>
+                    <CartesianGrid stroke={COLORS.shadow1} />
+                    <XAxis dataKey="N" stroke={COLORS.textSecondary} />
+                    <YAxis stroke={COLORS.textSecondary} />
+                    <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="pc" stroke={COLORS.mediumGreen} dot={false} name="per-capita rate r(1-N/K)" />
+                    <ReferenceLine x={K} stroke={COLORS.darkGreen} strokeDasharray="4 4" label={{ value: "N = K", position: "top", fill: COLORS.darkGreen }} />
+                    <ReferenceLine y={0} stroke={COLORS.shadow3} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Equilibrium & Stability — Disturbance Play */}
+        <Card id="stability" title="Equilibrium and Stability" subtitle="Return to equilibrium after disturbance; local vs. global stability">
+          <div className="grid md:grid-cols-2 gap-6 items-start">
+            <div>
+              <p className="mb-3" style={{ color: COLORS.textSecondary }}>
+                An equilibrium <InlineMath math={"N^*"}/> satisfies <InlineMath math={"dN/dt = 0"}/>. Stability asks whether small perturbations decay back to <InlineMath math={"N^*"}/>.
+                For the logistic ODE, the per-capita slope at <InlineMath math={"N^* = K"}/> is negative, giving a locally stable equilibrium.
+              </p>
+              <BlockMath math={"\\text{Per-capita rate: }\\; \\frac{1}{N}\\frac{dN}{dt} = r\\left(1-\\frac{N}{K}\\right)\\;\\Rightarrow\\; \\left.\\frac{d}{dN}\\Big(\\tfrac{1}{N}\\tfrac{dN}{dt}\\Big)\\right|_{N=K} = -\\tfrac{r}{K} < 0"} />
+              <p className="text-sm" style={{ color: COLORS.textSecondary }}>Use the controls above to nudge <InlineMath math={"N_0"}/> far from K and watch the trajectory return.</p>
+            </div>
+            <div className="rounded-xl p-4" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <p className="text-sm mb-2" style={{ color: COLORS.darkGreen }}>Tip: Set a small <InlineMath math={"r"}/> and large <InlineMath math={"K"}/> to see slow return (local stability). Try a very large <InlineMath math={"N_0"}/> relative to K.</p>
+              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Global stability means return from any starting value; logistic is globally stable for positive r, K with N≥0 (in continuous time).</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Density Dependence: Positive vs Negative (Qualitative) */}
+        <Card id="density" title="Density Dependence: Negative vs. Positive" subtitle="Competition, Allee effects, predator saturation/attraction">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold mb-2" style={{ color: COLORS.darkGreen }}>Negative Density Dependence</h4>
+              <ul className="list-disc pl-6 text-sm" style={{ color: COLORS.textSecondary }}>
+                <li>Competition reduces births or increases deaths as N increases.</li>
+                <li>Predator attraction or disease transmission may increase with N.</li>
+              </ul>
+              <h4 className="font-semibold mt-4 mb-2" style={{ color: COLORS.darkGreen }}>Positive Density Dependence (Allee effect)</h4>
+              <ul className="list-disc pl-6 text-sm" style={{ color: COLORS.textSecondary }}>
+                <li>At very low N, cooperation or mate-finding increases growth.</li>
+                <li>Can create an unstable equilibrium at low N.</li>
+              </ul>
+            </div>
+            <div>
+              <BlockMath math={"\\text{Negative (logistic): }\\; \\frac{1}{N}\\frac{dN}{dt}=r\\big(1-\\frac{N}{K}\\big)"} />
+              <BlockMath math={"\\text{Simple positive (Allee) form: }\\; \\frac{1}{N}\\frac{dN}{dt}= r\\Big(1-\\frac{N}{K}\\Big)\\Big(\\frac{N}{A}-1\\Big)"} />
+              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Where A is the Allee threshold; below A, per-capita growth is negative.</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Discrete-Time Density Dependence: Maps, Stability, Cobwebs */}
+        <Card id="maps" title="Discrete-Time Density Dependence: Return Maps and Cobwebs" subtitle="Stability from slope at equilibrium; oscillations if slope is negative; chaos for large slope magnitude">
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="rounded-xl p-4" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <h4 className="font-semibold mb-2" style={{ color: COLORS.darkGreen }}>Discrete Logistic Map</h4>
+              <BlockMath math={"N_{t+1} = N_t\\big[1 + R\\big(1 - \\tfrac{N_t}{K}\\big)\\big]"} />
+              <p className="text-sm mb-2" style={{ color: COLORS.textSecondary }}>Equilibrium at N* = K. Local stability requires |F′(N*)| &lt; 1 with F′(N*) = 1 − R. Thus stable if R &lt; 2; period-doubling and chaos emerge as R increases.</p>
+              <Control label={"R (growth intensity)"}>
+                <Slider value={R} onChange={setR} min={-0.5} max={3.0} step={0.01} />
+              </Control>
+              <div className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>R = {R.toFixed(2)} {R<2?"(locally stable)":R<2.6?"(cycles)":"(chaotic/complex)"}</div>
+              <Control label={"K (equilibrium)"}>
+                <Slider value={K} onChange={setK} min={50} max={5000} step={10} />
+              </Control>
+              <Control label={"N₀"}>
+                <NumberInput value={N0} onChange={setN0} min={1} max={5000} step={1} />
+              </Control>
+              <Control label={"Steps"}>
+                <Slider value={stepsDL} onChange={setStepsDL} min={10} max={400} step={1} />
+              </Control>
+            </div>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={discLog}>
+                    <CartesianGrid stroke={COLORS.shadow1} />
+                    <XAxis dataKey="t" stroke={COLORS.textSecondary} />
+                    <YAxis stroke={COLORS.textSecondary} />
+                    <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="N" stroke={COLORS.darkGreen} dot={false} name="N vs t" />
+                    <ReferenceLine y={K} stroke={COLORS.mediumGreen} strokeDasharray="5 5" label={{ value: "K", position: "right", fill: COLORS.mediumGreen }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart>
+                    <CartesianGrid stroke={COLORS.shadow1} />
+                    <XAxis type="number" dataKey="x" name="N_t" stroke={COLORS.textSecondary} />
+                    <YAxis type="number" dataKey="y" name="N_{t+1}" stroke={COLORS.textSecondary} />
+                    <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                    <Legend />
+                    <Scatter name="y = F(N)" data={cobDL.curve} fill={COLORS.mediumGreen} line lineType="fitting" />
+                    <Scatter name="y = N" data={cobDL.diag} fill={COLORS.darkGreen} line lineType="joint" />
+                    <Scatter name="Cobweb path" data={cobDL.path} fill={COLORS.veryDarkGreen} />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Ricker Equation */}
+        <Card id="ricker" title="Ricker Model (Discrete, Density-Dependent)" subtitle="N_{t+1}=N_t e^{r(1-N_t/K)}; classic for stock–recruitment and insects">
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div>
+              <BlockMath math={"N_{t+1}=N_t\\exp\\left[r\\left(1-\\frac{N_t}{K}\\right)\\right]"} />
+              <p className="text-sm" style={{ color: COLORS.textSecondary }}>As r increases, dynamics progress from stable convergence to cycles to chaos. Use the cobweb to see fixed points and oscillatory behavior.</p>
+              <Control label={"r"}>
+                <Slider value={rR} onChange={setRR} min={-1} max={3} step={0.01} />
+                <div className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>r = {rR.toFixed(2)}</div>
+              </Control>
+              <Control label={"K"}>
+                <Slider value={K} onChange={setK} min={50} max={5000} step={10} />
+              </Control>
+              <Control label={"N₀"}>
+                <NumberInput value={N0} onChange={setN0} min={1} max={5000} step={1} />
+              </Control>
+              <Control label={"Steps"}>
+                <Slider value={stepsR} onChange={setStepsR} min={10} max={400} step={1} />
+              </Control>
+            </div>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={ricker}>
+                    <CartesianGrid stroke={COLORS.shadow1} />
+                    <XAxis dataKey="t" stroke={COLORS.textSecondary} />
+                    <YAxis stroke={COLORS.textSecondary} />
+                    <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="N" stroke={COLORS.darkGreen} dot={false} name="N vs t" />
+                    <ReferenceLine y={K} stroke={COLORS.mediumGreen} strokeDasharray="5 5" label={{ value: "K", position: "right", fill: COLORS.mediumGreen }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart>
+                    <CartesianGrid stroke={COLORS.shadow1} />
+                    <XAxis type="number" dataKey="x" name="N_t" stroke={COLORS.textSecondary} />
+                    <YAxis type="number" dataKey="y" name="N_{t+1}" stroke={COLORS.textSecondary} />
+                    <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+                    <Legend />
+                    <Scatter name="y = F(N)" data={cobRicker.curve} fill={COLORS.mediumGreen} line lineType="fitting" />
+                    <Scatter name="y = N" data={cobRicker.diag} fill={COLORS.darkGreen} line lineType="joint" />
+                    <Scatter name="Cobweb path" data={cobRicker.path} fill={COLORS.veryDarkGreen} />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Open Systems: Settlement vs Death (Conceptual Regulation) */}
+        <Card id="open-systems" title="Regulation in Open Systems" subtitle="Local regulation can arise via immigration (propagule rain) without local density-dependent feedbacks">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm mb-2" style={{ color: COLORS.textSecondary }}>
+                In open systems (e.g., marine invertebrates with larval settlement), local abundance can converge due to a balance of external settlement and local mortality. This creates regulation at the patch scale even when local birth processes are absent.
+              </p>
+              <BlockMath math={"\\frac{dN}{dt} = S - d N"} />
+              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Where S is density-independent settlement rate and d is per-capita death rate. Equilibrium <InlineMath math={"N^* = S/d"}/> is stable (linear, negative slope).</p>
+            </div>
+            <div className="h-72">
+              <OpenSystemDemo />
+            </div>
+          </div>
+        </Card>
+
+        {/* Definitions: Limited, Controlled, Regulated */}
+        <Card id="definitions" title="Limited, Controlled, and Regulated" subtitle="Clarifying terminology used across population and community ecology">
+          <div className="grid md:grid-cols-3 gap-6 text-sm" style={{ color: COLORS.textSecondary }}>
+            <div className="p-3 rounded-lg" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <h5 className="font-semibold mb-1" style={{ color: COLORS.darkGreen }}>Limited</h5>
+              Growth is constrained by a factor (e.g., resource). Removing the limitation increases growth.
+            </div>
+            <div className="p-3 rounded-lg" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <h5 className="font-semibold mb-1" style={{ color: COLORS.darkGreen }}>Controlled</h5>
+              Abundance is directly influenced by a driver (e.g., predator). Changing the driver changes <InlineMath math={"N"}/>.
+            </div>
+            <div className="p-3 rounded-lg" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <h5 className="font-semibold mb-1" style={{ color: COLORS.darkGreen }}>Regulated</h5>
+              Feedback keeps <InlineMath math={"N"}/> within bounds. Negative density dependence is a typical regulator; open systems can also show regulation via immigration–mortality balance.
+            </div>
+          </div>
+        </Card>
+
+        {/* Chaos (Deterministic, Unpredictable Long-Term) */}
+        <Card id="chaos" title="Chaos in Discrete Maps" subtitle="Deterministic systems can yield aperiodic, sensitive dynamics">
+          <div className="grid md:grid-cols-2 gap-6 items-start">
+            <div>
+              <p className="text-sm mb-2" style={{ color: COLORS.textSecondary }}>Chaos emerges via period-doubling as control parameters increase (e.g., R in the discrete logistic or r in the Ricker). Nearby initial conditions diverge over time.</p>
+              <p className="text-sm" style={{ color: COLORS.textSecondary }}>Use the cobweb and time series above to explore transitions: stable → 2-cycle → 4-cycle → 8-cycle → chaos.</p>
+            </div>
+            <div className="rounded-xl p-4" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Suggestion: set K = 100, N₀ = 10, then increase R from 1.8 → 2.2 → 2.5 → 2.7 and observe behavior.</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Practice & Self-Test */}
+        <Card id="practice" title="Practice & Self‑Test" subtitle="Infer parameters from plots; reason about stability; connect math to ecology">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-4 rounded-xl" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <h5 className="font-semibold mb-2" style={{ color: COLORS.darkGreen }}>Quick Questions</h5>
+              <ol className="list-decimal pl-6 text-sm" style={{ color: COLORS.textSecondary }}>
+                <li>From a log-scale geometric plot, estimate <InlineMath math={"\\log(\\lambda)"}/> from the slope.</li>
+                <li>Given an exponential time series, compute doubling time <InlineMath math={"t_d = (\\ln 2)/r"}/>.
+                </li>
+                <li>For the logistic ODE, explain why <InlineMath math={"N=K"}/> is stable using the per-capita slope.</li>
+                <li>Use a cobweb to classify a discrete system as stable, oscillatory, or chaotic.</li>
+              </ol>
+            </div>
+            <div className="p-4 rounded-xl" style={{ background: COLORS.white, border: `1px solid ${COLORS.mediumGreen}` }}>
+              <h5 className="font-semibold mb-2" style={{ color: COLORS.darkGreen }}>Try These Setups</h5>
+              <ul className="list-disc pl-6 text-sm" style={{ color: COLORS.textSecondary }}>
+                <li><strong>Constant multiplier:</strong> λ = 1.02 vs 0.98. Compare linear vs log plots.</li>
+                <li><strong>Logistic approach:</strong> r = 0.1, K = 600, N₀ = 50 → approach to K.</li>
+                <li><strong>Discrete logistic cycles:</strong> R = 2.1, K = 100 → period-2 oscillation.</li>
+                <li><strong>Ricker chaos:</strong> r = 2.6, K = 100 → irregular aperiodic trajectory.</li>
+              </ul>
+            </div>
+          </div>
+        </Card>
+
+        {/* --- Minimal Built-In Tests to Validate Core Math (no external runner) --- */}
+        <Card id="tests" title="Built‑in Math Sanity Tests" subtitle="These lightweight tests validate model behavior. They run in the browser with a numerical tolerance.">
+          <TestPanel />
+        </Card>
+      </main>
+
+      <footer className="w-full py-10 mt-10" style={{ background: COLORS.veryDarkGreen, color: COLORS.white }}>
+        <div className="max-w-7xl mx-auto px-6 text-sm opacity-90">
+          Built for drabdulali.github.io • Palette matched • © {new Date().getFullYear()}
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// ---- Small interactive demo for Open Systems ----
+function OpenSystemDemo() {
+  const [S, setS] = useState(20); // settlement rate
+  const [d, setD] = useState(0.1); // per-capita death rate
+  const [N0, setN0] = useState(0);
+  const [tMax, setTMax] = useState(100);
+  const dt = 1;
+
+  const data = useMemo(() => {
+    const steps = Math.max(1, Math.round(tMax / dt));
+    let N = N0;
+    const out = [];
+    for (let t = 0; t <= steps; t++) {
+      out.push({ t, N });
+      const dN = S - d * N;
+      N = N + dt * dN;
+    }
+    return out;
+  }, [S, d, N0, tMax]);
+
+  const Kstar = d !== 0 ? S / d : Infinity;
+
+  return (
+    <div>
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <Control label={"Settlement S"}>
+          <Slider value={S} onChange={setS} min={0} max={100} step={1} />
+        </Control>
+        <Control label={"Death rate d"}>
+          <Slider value={d} onChange={setD} min={0.01} max={0.5} step={0.01} />
+        </Control>
+        <Control label={"N₀"}>
+          <NumberInput value={N0} onChange={setN0} min={0} max={5000} step={1} />
+        </Control>
+        <Control label={"t_max"}>
+          <Slider value={tMax} onChange={setTMax} min={20} max={300} step={5} />
+        </Control>
+      </div>
+      <div className="h-56">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <CartesianGrid stroke={COLORS.shadow1} />
+            <XAxis dataKey="t" stroke={COLORS.textSecondary} />
+            <YAxis stroke={COLORS.textSecondary} />
+            <Tooltip contentStyle={{ borderColor: COLORS.mediumGreen }} />
+            <Legend />
+            <Line type="monotone" dataKey="N" stroke={COLORS.darkGreen} dot={false} name="N vs t" />
+            {Number.isFinite(Kstar) && (
+              <ReferenceLine y={Kstar} stroke={COLORS.mediumGreen} strokeDasharray="5 5" label={{ value: "S/d", position: "right", fill: COLORS.mediumGreen }} />
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+// ---- Tiny in-app test panel to validate core formulas ----
+function TestPanel() {
+  const [results, setResults] = useState([]);
+
+  useMemo(() => {
+    const tol = 1e-6;
+    const approxEq = (a, b, t = tol) => Math.abs(a - b) <= t;
+
+    const t1 = (() => {
+      const N0 = 100; const λ = 1.0; const steps = 10;
+      const data = simulateGeometric({ N0, lambda: λ, steps });
+      const pass = approxEq(data[data.length - 1].N, N0);
+      return { name: "Geometric: λ = 1 keeps N constant", pass, details: `N_end=${data[data.length-1].N}, expected=${N0}` };
+    })();
+
+    const t2 = (() => {
+      const N0 = 100; const r = 0; const tMax = 10; const dt = 0.5;
+      const data = simulateExponential({ N0, r, tMax, dt });
+      const pass = approxEq(data[data.length - 1].N, N0);
+      return { name: "Exponential: r = 0 keeps N constant", pass, details: `N_end=${data[data.length-1].N}, expected=${N0}` };
+    })();
+
+    const t3 = (() => {
+      const N0 = 250; const r = 0.2; const K = 250; const tMax = 5; const dt = 0.05;
+      const data = simulateLogisticODE({ N0, r, K, tMax, dt });
+      const last = data[data.length - 1].N;
+      const pass = approxEq(last, K, 1e-2);
+      return { name: "Logistic ODE: N0 = K stays at K (≈)", pass, details: `N_end=${last.toFixed(4)}, K=${K}` };
+    })();
+
+    const t4 = (() => {
+      const N0 = 77; const R = 0; const K = 100; const steps = 25;
+      const data = simulateDiscreteLogistic({ N0, R, K, steps });
+      const pass = approxEq(data[data.length - 1].N, N0);
+      return { name: "Discrete logistic: R = 0 keeps N constant", pass, details: `N_end=${data[data.length-1].N}, N0=${N0}` };
+    })();
+
+    const t5 = (() => {
+      const N0 = 33; const r = 0; const K = 100; const steps = 25;
+      const data = simulateRicker({ N0, r, K, steps });
+      const pass = approxEq(data[data.length - 1].N, N0);
+      return { name: "Ricker: r = 0 keeps N constant", pass, details: `N_end=${data[data.length-1].N}, N0=${N0}` };
+    })();
+
+    const t6 = (() => {
+      const r = 0.5, K = 100, Nmax = 100;
+      const pc = perCapitaLogistic({ r, K, Nmax });
+      const atK = pc.find(p => Math.abs(p.N - K) < 1e-9);
+      const pass = approxEq(atK?.pc ?? NaN, 0, 1e-6);
+      return { name: "Per-capita logistic: r(1 - N/K) = 0 at N=K", pass, details: `pc(N=K)≈${(atK?.pc ?? NaN).toFixed?.(6) ?? atK?.pc}` };
+    })();
+
+    const t7 = (() => {
+      const N0 = 100; const r = Math.log(2); const tMax = 1; const dt = 1;
+      const data = simulateExponential({ N0, r, tMax, dt });
+      const pass = approxEq(data[data.length - 1].N, 2 * N0, 1e-9);
+      return { name: "Exponential: r = ln 2 doubles in 1 time unit", pass, details: `N_end=${data[data.length-1].N}, expected=${2*N0}` };
+    })();
+
+    // Additional tests (do not alter existing ones)
+    const t8 = (() => {
+      // Ricker fixed point: if N0 = K, it should remain K for any r
+      const N0 = 150; const r = 2.0; const K = 150; const steps = 5;
+      const data = simulateRicker({ N0, r, K, steps });
+      const pass = approxEq(data[data.length - 1].N, K, 1e-9);
+      return { name: "Ricker: N0 = K remains at K", pass, details: `N_end=${data[data.length-1].N}, K=${K}` };
+    })();
+
+    const t9 = (() => {
+      // Discrete logistic fixed point: N0 = K remains at K for any R
+      const N0 = 200; const R = 1.7; const K = 200; const steps = 20;
+      const data = simulateDiscreteLogistic({ N0, R, K, steps });
+      const pass = approxEq(data[data.length - 1].N, K, 1e-9);
+      return { name: "Discrete logistic: N0 = K remains at K", pass, details: `N_end=${data[data.length-1].N}, K=${K}` };
+    })();
+
+    const t10 = (() => {
+      // Geometric closed form: N_t = N0 * λ^t for integer t
+      const N0 = 50; const λ = 1.1; const steps = 10;
+      const data = simulateGeometric({ N0, lambda: λ, steps });
+      const expected = N0 * Math.pow(λ, steps);
+      const got = data[data.length - 1].N;
+      const pass = approxEq(got, expected, 1e-9);
+      return { name: "Geometric: closed-form matches simulation", pass, details: `N_end=${got}, expected=${expected}` };
+    })();
+
+    setResults([t1, t2, t3, t4, t5, t6, t7, t8, t9, t10]);
+  }, []);
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr style={{ color: COLORS.darkGreen }}>
+            <th className="text-left p-2">Test</th>
+            <th className="text-left p-2">Status</th>
+            <th className="text-left p-2">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {results.map((r, i) => (
+            <tr key={i} className="border-t" style={{ borderColor: COLORS.mediumGreen }}>
+              <td className="p-2">{r.name}</td>
+              <td className="p-2" style={{ color: r.pass ? COLORS.darkGreen : '#a02020' }}>{r.pass ? 'PASS' : 'FAIL'}</td>
+              <td className="p-2" style={{ color: COLORS.textSecondary }}>{r.details}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
