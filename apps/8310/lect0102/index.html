@@ -6,7 +6,7 @@
     <title>Population Ecology: Dynamics, Models & Simulations</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mtml-chtml.js"></script>
     <script>
         window.MathJax = {
             tex: {
@@ -223,6 +223,16 @@
             display: block;
         }
 
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-left: 4px solid #fdcb6e;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 6px;
+            color: #856404;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
@@ -383,6 +393,10 @@
                 <div class="concept-card">
                     <h3>Positive Density Dependence (Allee Effect)</h3>
                     <p>Per capita growth rate <strong>increases</strong> with population density (at low densities)</p>
+                    <div class="math-box">
+                        $$\frac{dN}{dt} = rN\left(\frac{N}{A} - 1\right)\left(1 - \frac{N}{K}\right)$$
+                        <p>Where $A$ is the Allee threshold</p>
+                    </div>
                     <p><strong>Causes:</strong> Cooperative breeding, predator satiation, mate finding</p>
                 </div>
             </div>
@@ -449,7 +463,7 @@
                 <div class="controls">
                     <div class="control-group">
                         <label for="log-r">Growth Rate (r):</label>
-                        <input type="range" id="log-r" min="0.01" max="0.5" step="0.01" value="0.1">
+                        <input type="range" id="log-r" min="-0.3" max="0.5" step="0.01" value="0.1">
                         <span id="log-r-value">0.1</span>
                     </div>
                     <div class="control-group">
@@ -459,7 +473,7 @@
                     </div>
                     <div class="control-group">
                         <label for="log-n0">Initial Population (N₀):</label>
-                        <input type="range" id="log-n0" min="1" max="50" step="1" value="5">
+                        <input type="range" id="log-n0" min="1" max="200" step="1" value="5">
                         <span id="log-n0-value">5</span>
                     </div>
                     <button onclick="updateLogisticChart()">Update Simulation</button>
@@ -509,8 +523,8 @@
             
             <div class="math-box">
                 <h3>Discrete Logistic Map</h3>
-                $$N_{t+1} = N_t\left[1 + R\left(1 - \frac{N_t}{K}\right)\right]$$
-                <p>Where R is the discrete growth parameter</p>
+                $$N_{t+1} = rN_t\left(1 - \frac{N_t}{K}\right)$$
+                <p>Where r is the discrete growth parameter (note: different from continuous r)</p>
             </div>
 
             <div class="concept-grid">
@@ -529,10 +543,11 @@
                 <div class="concept-card">
                     <h3>Complex Dynamics</h3>
                     <ul style="margin-left: 1.5rem;">
-                        <li><strong>R < 2:</strong> Stable equilibrium</li>
-                        <li><strong>R = 2:</strong> Period-2 cycle begins</li>
-                        <li><strong>R > 2.4:</strong> Period-doubling cascade</li>
-                        <li><strong>R > 2.57:</strong> Chaos</li>
+                        <li><strong>r < 1:</strong> Extinction</li>
+                        <li><strong>1 < r < 3:</strong> Stable equilibrium</li>
+                        <li><strong>r = 3:</strong> Period-2 cycle begins</li>
+                        <li><strong>r > 3.44:</strong> Period-doubling cascade</li>
+                        <li><strong>r > 3.57:</strong> Chaos</li>
                     </ul>
                 </div>
             </div>
@@ -541,8 +556,8 @@
                 <h3>Discrete Logistic Map Simulator</h3>
                 <div class="controls">
                     <div class="control-group">
-                        <label for="disc-r">Growth Parameter (R):</label>
-                        <input type="range" id="disc-r" min="0.5" max="3.0" step="0.1" value="1.5">
+                        <label for="disc-r">Growth Parameter (r):</label>
+                        <input type="range" id="disc-r" min="0.5" max="4.0" step="0.1" value="1.5">
                         <span id="disc-r-value">1.5</span>
                     </div>
                     <div class="control-group">
@@ -574,6 +589,62 @@
             </div>
         </div>
 
+        <!-- Bifurcation Diagram Section -->
+        <div class="section">
+            <h2>Bifurcation Diagram</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Understanding Bifurcations</h3>
+                    <p>A bifurcation diagram shows how the long-term behavior of a dynamical system changes as a parameter varies. For the discrete logistic map, we plot the parameter r against the eventual population values.</p>
+                    <div class="warning">
+                        <strong>Note:</strong> This is for the May (1976) logistic map formulation, so parameter transitions occur at different values than our standard form.
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>Key Transitions</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li><strong>r = 3.0:</strong> Onset of period-2 cycle</li>
+                        <li><strong>r ≈ 3.45:</strong> Period-4 cycle begins</li>
+                        <li><strong>r ≈ 3.54:</strong> Period-8, 16, 32... (period-doubling cascade)</li>
+                        <li><strong>r ≈ 3.57:</strong> Onset of chaos</li>
+                        <li><strong>r > 3.8:</strong> Complex chaotic behavior</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Interactive Bifurcation Diagram</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="bifur-r-min">Minimum r:</label>
+                        <input type="range" id="bifur-r-min" min="2.4" max="3.5" step="0.1" value="2.4">
+                        <span id="bifur-r-min-value">2.4</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="bifur-r-max">Maximum r:</label>
+                        <input type="range" id="bifur-r-max" min="3.0" max="4.0" step="0.1" value="4.0">
+                        <span id="bifur-r-max-value">4.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="bifur-resolution">Resolution:</label>
+                        <select id="bifur-resolution">
+                            <option value="low">Low (Fast)</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High (Slow)</option>
+                        </select>
+                    </div>
+                    <button onclick="generateBifurcationDiagram()">Generate Diagram</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bifurcationChart"></canvas>
+                </div>
+                <div class="highlight">
+                    <p><strong>Instructions:</strong> Adjust the r range and click "Generate Diagram" to see how population behavior changes. Higher resolution takes longer but shows more detail in the chaotic region.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Population Regulation Section -->
         <div class="section">
             <h2>Population Regulation</h2>
@@ -599,12 +670,15 @@
 
             <div class="highlight">
                 <h3>Regulation in Open Systems</h3>
-                <p>In open systems with constant immigration rate and density-dependent mortality:</p>
+                <p>In open systems with constant immigration rate and density-<strong>independent</strong> mortality:</p>
                 <div class="math-box">
                     $$\frac{dN}{dt} = I - dN$$
                 </div>
-                <p>Where I = immigration rate, d = per capita death rate</p>
+                <p>Where I = immigration rate, d = per capita death rate (constant)</p>
                 <p>Equilibrium: $N^* = I/d$ (regulated by immigration-mortality balance)</p>
+                <div class="warning">
+                    <strong>Important:</strong> This mortality pattern (dN) is density-<strong>independent</strong> because the per capita death rate (d) remains constant regardless of population density.
+                </div>
             </div>
         </div>
 
@@ -642,21 +716,24 @@
                     <div class="control-group">
                         <label for="phase-model">Model Type:</label>
                         <select id="phase-model">
-                            <option value="logistic">Logistic Growth</option>
+                            <option value="logistic">Logistic Growth (r=2.5)</option>
                             <option value="allee">Allee Effect</option>
-                            <option value="complex">Complex Dynamics</option>
+                            <option value="chaotic">Chaotic Dynamics (r=3.8)</option>
                         </select>
                     </div>
                     <button onclick="updatePhasePortrait()">Update Phase Portrait</button>
                 </div>
                 <canvas id="phasePortrait" class="phase-portrait"></canvas>
+                <div class="warning">
+                    <strong>Note:</strong> Axes now have scales. The slope at equilibrium determines stability. Chaotic dynamics show complex behavior distinct from simple logistic growth.
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         // Global variables for charts
-        let exponentialChart, logisticChart, discreteChart, densityDependenceChart;
+        let exponentialChart, logisticChart, discreteChart, densityDependenceChart, bifurcationChart;
 
         // Initialize all charts when page loads
         window.onload = function() {
@@ -664,6 +741,7 @@
             initializeLogisticChart();
             initializeDiscreteChart();
             initializeDensityDependenceChart();
+            initializeBifurcationChart();
             updatePhasePortrait();
             
             // Add event listeners for real-time updates
@@ -679,6 +757,14 @@
             document.getElementById('disc-r').addEventListener('input', updateDiscreteChart);
             document.getElementById('disc-k').addEventListener('input', updateDiscreteChart);
             document.getElementById('disc-n0').addEventListener('input', updateDiscreteChart);
+            
+            // Bifurcation diagram listeners
+            document.getElementById('bifur-r-min').addEventListener('input', function() {
+                document.getElementById('bifur-r-min-value').textContent = this.value;
+            });
+            document.getElementById('bifur-r-max').addEventListener('input', function() {
+                document.getElementById('bifur-r-max-value').textContent = this.value;
+            });
         };
 
         // Tab functionality
@@ -772,12 +858,12 @@
             for (let t = 0; t <= timeSteps; t++) {
                 times.push(t);
                 const nt = n0 * Math.exp(r * t);
-                populations.push(scale === 'log' ? Math.log10(nt) : nt);
+                populations.push(nt);
             }
             
             exponentialChart.data.labels = times;
             exponentialChart.data.datasets[0].data = populations;
-            exponentialChart.options.scales.y.title.text = scale === 'log' ? 'log₁₀(Population Size)' : 'Population Size (N)';
+            exponentialChart.options.scales.y.title.text = 'Population Size (N)';
             exponentialChart.options.scales.y.type = scale === 'log' ? 'logarithmic' : 'linear';
             exponentialChart.update();
         }
@@ -824,7 +910,8 @@
                                 text: 'Population Size (N)',
                                 color: '#2c5530',
                                 font: { weight: 'bold' }
-                            }
+                            },
+                            beginAtZero: true
                         }
                     },
                     plugins: {
@@ -868,7 +955,7 @@
             logisticChart.update();
         }
 
-        // Discrete Logistic Chart
+        // Discrete Logistic Chart - CORRECTED
         function initializeDiscreteChart() {
             const ctx = document.getElementById('discreteChart').getContext('2d');
             discreteChart = new Chart(ctx, {
@@ -911,7 +998,8 @@
                                 text: 'Population Size (N)',
                                 color: '#2c5530',
                                 font: { weight: 'bold' }
-                            }
+                            },
+                            beginAtZero: true
                         }
                     },
                     plugins: {
@@ -928,12 +1016,12 @@
         }
 
         function updateDiscreteChart() {
-            const R = parseFloat(document.getElementById('disc-r').value);
+            const r = parseFloat(document.getElementById('disc-r').value);
             const k = parseFloat(document.getElementById('disc-k').value);
             const n0 = parseFloat(document.getElementById('disc-n0').value);
             
             // Update display values
-            document.getElementById('disc-r-value').textContent = R.toFixed(1);
+            document.getElementById('disc-r-value').textContent = r.toFixed(1);
             document.getElementById('disc-k-value').textContent = k;
             document.getElementById('disc-n0-value').textContent = n0;
             
@@ -941,17 +1029,18 @@
             const populations = [];
             const carryingCapacity = [];
             
-            let nt = n0;
+            let nt = n0 / k; // Normalize to [0,1] for standard logistic map
             for (let t = 0; t <= 50; t++) {
                 times.push(t);
-                populations.push(nt);
+                populations.push(nt * k); // Scale back to actual population
                 carryingCapacity.push(k);
                 
-                // Discrete logistic equation
-                nt = nt * (1 + R * (1 - nt / k));
+                // Standard discrete logistic map: x_{t+1} = r * x_t * (1 - x_t)
+                nt = r * nt * (1 - nt);
                 
                 // Prevent negative populations
                 if (nt < 0) nt = 0;
+                if (nt > 1) nt = 1;
             }
             
             discreteChart.data.labels = times;
@@ -960,7 +1049,7 @@
             discreteChart.update();
         }
 
-        // Density Dependence Chart
+        // Density Dependence Chart - CORRECTED
         function initializeDensityDependenceChart() {
             const ctx = document.getElementById('densityDependenceChart').getContext('2d');
             densityDependenceChart = new Chart(ctx, {
@@ -968,12 +1057,20 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'Per Capita Growth Rate',
+                        label: 'Per Capita Growth Rate (1/N)(dN/dt)',
                         data: [],
                         borderColor: '#2c5530',
                         backgroundColor: 'rgba(44, 85, 48, 0.1)',
                         borderWidth: 3,
                         fill: true
+                    }, {
+                        label: 'Absolute Growth Rate (dN/dt)',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        hidden: true
                     }]
                 },
                 options: {
@@ -991,7 +1088,7 @@
                         y: {
                             title: {
                                 display: true,
-                                text: 'Per Capita Growth Rate (dN/Ndt)',
+                                text: 'Growth Rate',
                                 color: '#2c5530',
                                 font: { weight: 'bold' }
                             }
@@ -1014,36 +1111,181 @@
             const type = document.getElementById('dd-type').value;
             
             const densities = [];
-            const growthRates = [];
+            const perCapitaGrowthRates = [];
+            const absoluteGrowthRates = [];
             
-            for (let n = 0; n <= 200; n += 2) {
+            for (let n = 1; n <= 200; n += 2) { // Start from 1 to avoid division by zero
                 densities.push(n);
-                let growthRate;
+                let perCapitaGrowthRate;
+                let absoluteGrowthRate;
                 
                 switch(type) {
                     case 'negative':
-                        // Negative density dependence (logistic)
-                        growthRate = 0.1 * (1 - n / 100);
+                        // Negative density dependence (logistic): (1/N)(dN/dt) = r(1 - N/K)
+                        perCapitaGrowthRate = 0.1 * (1 - n / 100);
+                        absoluteGrowthRate = n * perCapitaGrowthRate; // dN/dt = N * (1/N)(dN/dt)
                         break;
                     case 'positive':
-                        // Positive density dependence (Allee effect)
-                        growthRate = 0.1 * (n / 50 - 1) * (1 - n / 150);
+                        // Positive density dependence (Allee effect): (1/N)(dN/dt) = r(N/A - 1)(1 - N/K)
+                        // where A is Allee threshold
+                        const A = 30; // Allee threshold
+                        const K = 150; // Carrying capacity
+                        perCapitaGrowthRate = 0.1 * (n / A - 1) * (1 - n / K);
+                        absoluteGrowthRate = n * perCapitaGrowthRate;
                         break;
                     case 'independent':
-                        // Density independent
-                        growthRate = 0.05;
+                        // Density independent: (1/N)(dN/dt) = r (constant)
+                        perCapitaGrowthRate = 0.05;
+                        absoluteGrowthRate = n * perCapitaGrowthRate;
                         break;
                 }
                 
-                growthRates.push(growthRate);
+                perCapitaGrowthRates.push(perCapitaGrowthRate);
+                absoluteGrowthRates.push(absoluteGrowthRate);
             }
             
             densityDependenceChart.data.labels = densities;
-            densityDependenceChart.data.datasets[0].data = growthRates;
+            densityDependenceChart.data.datasets[0].data = perCapitaGrowthRates;
+            densityDependenceChart.data.datasets[1].data = absoluteGrowthRates;
+            
+            // Update y-axis label based on which dataset is visible
+            const isAbsoluteVisible = !densityDependenceChart.data.datasets[1].hidden;
+            densityDependenceChart.options.scales.y.title.text = isAbsoluteVisible ? 
+                'Growth Rate' : 'Per Capita Growth Rate (1/N)(dN/dt)';
+            
             densityDependenceChart.update();
         }
 
-        // Phase Portrait
+        // Bifurcation Diagram
+        function initializeBifurcationChart() {
+            const ctx = document.getElementById('bifurcationChart').getContext('2d');
+            bifurcationChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Population Values',
+                        data: [],
+                        backgroundColor: 'rgba(44, 85, 48, 0.6)',
+                        borderColor: 'rgba(44, 85, 48, 0.8)',
+                        pointRadius: 0.5,
+                        showLine: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Parameter r',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            },
+                            min: 2.4,
+                            max: 4.0
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population (x)',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 0.5
+                        }
+                    },
+                    animation: {
+                        duration: 0
+                    }
+                }
+            });
+        }
+
+        function generateBifurcationDiagram() {
+            const rMin = parseFloat(document.getElementById('bifur-r-min').value);
+            const rMax = parseFloat(document.getElementById('bifur-r-max').value);
+            const resolution = document.getElementById('bifur-resolution').value;
+            
+            // Set step size based on resolution
+            let stepSize;
+            let settleSteps = 500;  // Steps to let system settle
+            let plotSteps = 100;    // Steps to plot after settling
+            
+            switch(resolution) {
+                case 'low':
+                    stepSize = 0.02;
+                    settleSteps = 300;
+                    plotSteps = 50;
+                    break;
+                case 'medium':
+                    stepSize = 0.01;
+                    settleSteps = 500;
+                    plotSteps = 100;
+                    break;
+                case 'high':
+                    stepSize = 0.005;
+                    settleSteps = 800;
+                    plotSteps = 200;
+                    break;
+            }
+            
+            const data = [];
+            
+            // Show loading message
+            const button = document.querySelector('button[onclick="generateBifurcationDiagram()"]');
+            const originalText = button.textContent;
+            button.textContent = 'Generating...';
+            button.disabled = true;
+            
+            // Use setTimeout to allow UI to update
+            setTimeout(() => {
+                for (let r = rMin; r <= rMax; r += stepSize) {
+                    let x = 0.5; // Initial condition
+                    
+                    // Let system settle to attractor
+                    for (let i = 0; i < settleSteps; i++) {
+                        x = r * x * (1 - x);
+                        if (x < 0) x = 0;
+                        if (x > 1) x = 1;
+                    }
+                    
+                    // Collect points on the attractor
+                    for (let i = 0; i < plotSteps; i++) {
+                        x = r * x * (1 - x);
+                        if (x < 0) x = 0;
+                        if (x > 1) x = 1;
+                        data.push({x: r, y: x});
+                    }
+                }
+                
+                // Update chart
+                bifurcationChart.data.datasets[0].data = data;
+                bifurcationChart.options.scales.x.min = rMin;
+                bifurcationChart.options.scales.x.max = rMax;
+                bifurcationChart.update('none'); // No animation for performance
+                
+                // Restore button
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 100);
+        }
+
+        // Phase Portrait - CORRECTED with scales and clear differences
         function updatePhasePortrait() {
             const canvas = document.getElementById('phasePortrait');
             const ctx = canvas.getContext('2d');
@@ -1055,58 +1297,115 @@
             
             const width = canvas.width;
             const height = canvas.height;
+            const margin = 60;
             
             // Clear canvas
             ctx.clearRect(0, 0, width, height);
+            
+            // Set max population for axes
+            const maxN = 1.2; // Normalized population (K = 1)
             
             // Draw axes
             ctx.strokeStyle = '#2c5530';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(50, height - 50);
-            ctx.lineTo(width - 20, height - 50);
-            ctx.moveTo(50, height - 50);
-            ctx.lineTo(50, 20);
+            // X-axis
+            ctx.moveTo(margin, height - margin);
+            ctx.lineTo(width - 20, height - margin);
+            // Y-axis
+            ctx.moveTo(margin, height - margin);
+            ctx.lineTo(margin, 20);
             ctx.stroke();
             
             // Add axis labels
             ctx.fillStyle = '#2c5530';
             ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
             ctx.fillText('N(t)', width - 40, height - 30);
             ctx.save();
             ctx.translate(25, height/2);
             ctx.rotate(-Math.PI/2);
+            ctx.textAlign = 'center';
             ctx.fillText('N(t+1)', 0, 0);
             ctx.restore();
             
+            // Add tick marks and labels
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#666';
+            ctx.textAlign = 'center';
+            
+            // X-axis ticks
+            for (let i = 0; i <= 5; i++) {
+                const x = margin + (i / 5) * (width - margin - 20);
+                const value = (i / 5 * maxN).toFixed(1);
+                ctx.fillText(value, x, height - margin + 20);
+                // Tick mark
+                ctx.beginPath();
+                ctx.moveTo(x, height - margin);
+                ctx.lineTo(x, height - margin + 5);
+                ctx.stroke();
+            }
+            
+            // Y-axis ticks
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const y = height - margin - (i / 5) * (height - margin - 20);
+                const value = (i / 5 * maxN).toFixed(1);
+                ctx.fillText(value, margin - 10, y + 4);
+                // Tick mark
+                ctx.beginPath();
+                ctx.moveTo(margin - 5, y);
+                ctx.lineTo(margin, y);
+                ctx.stroke();
+            }
+            
             // Draw model-specific dynamics
-            ctx.strokeStyle = '#4a7c59';
             ctx.lineWidth = 3;
             ctx.beginPath();
             
-            const maxN = 150;
-            for (let n = 0; n <= maxN; n += 1) {
-                const x = 50 + (n / maxN) * (width - 70);
+            let r_param;
+            switch(model) {
+                case 'logistic':
+                    r_param = 2.5; // Stable
+                    ctx.strokeStyle = '#2c5530';
+                    break;
+                case 'allee':
+                    r_param = 2.8; // Stable with Allee effect
+                    ctx.strokeStyle = '#4a7c59';
+                    break;
+                case 'chaotic':
+                    r_param = 3.8; // Chaotic
+                    ctx.strokeStyle = '#c0392b';
+                    break;
+            }
+            
+            for (let i = 0; i <= 500; i++) {
+                const nt = (i / 500) * maxN;
+                const x = margin + (nt / maxN) * (width - margin - 20);
                 let nNext;
                 
                 switch(model) {
                     case 'logistic':
-                        nNext = n * (1 + 0.8 * (1 - n / 100));
+                        nNext = r_param * nt * (1 - nt);
                         break;
                     case 'allee':
-                        nNext = n * (1 + 1.5 * (n / 30 - 1) * (1 - n / 100));
+                        // Allee effect: N(t+1) = N(t) + r*N(t)*(N(t)/A - 1)*(1 - N(t)/K)
+                        const A = 0.3; // Allee threshold
+                        const K = 1.0; // Carrying capacity (normalized)
+                        const r_allee = 2.0; // Growth parameter for Allee model
+                        nNext = nt + r_allee * nt * (nt / A - 1) * (1 - nt / K);
                         break;
-                    case 'complex':
-                        nNext = n * (1 + 2.2 * (1 - n / 100));
+                    case 'chaotic':
+                        nNext = r_param * nt * (1 - nt);
                         break;
                 }
                 
                 if (nNext < 0) nNext = 0;
                 if (nNext > maxN) nNext = maxN;
                 
-                const y = height - 50 - (nNext / maxN) * (height - 70);
+                const y = height - margin - (nNext / maxN) * (height - margin - 20);
                 
-                if (n === 0) {
+                if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
                     ctx.lineTo(x, y);
@@ -1119,20 +1418,97 @@
             ctx.lineWidth = 2;
             ctx.setLineDash([5, 5]);
             ctx.beginPath();
-            ctx.moveTo(50, height - 50);
+            ctx.moveTo(margin, height - margin);
             ctx.lineTo(width - 20, 20);
             ctx.stroke();
             ctx.setLineDash([]);
             
-            // Mark equilibria
+            // Mark equilibria and show slope information
             ctx.fillStyle = '#2c5530';
+            ctx.font = 'bold 12px Arial';
+            
             if (model === 'logistic') {
-                const eqX = 50 + (100 / maxN) * (width - 70);
-                const eqY = height - 50 - (100 / maxN) * (height - 70);
+                // Equilibrium at N* = (r-1)/r = 1.5/2.5 = 0.6
+                const eqN = (r_param - 1) / r_param;
+                const eqX = margin + (eqN / maxN) * (width - margin - 20);
+                const eqY = height - margin - (eqN / maxN) * (height - margin - 20);
                 ctx.beginPath();
                 ctx.arc(eqX, eqY, 6, 0, 2 * Math.PI);
                 ctx.fill();
+                
+                // Show slope at equilibrium
+                const slope = r_param * (1 - 2 * eqN);
+                ctx.fillText(`Slope at eq: ${slope.toFixed(2)}`, width - 150, 40);
+                ctx.fillText('(|slope| < 1 → stable)', width - 150, 60);
+                
+            } else if (model === 'chaotic') {
+                // Multiple fixed points, show slope at main equilibrium
+                const eqN = (r_param - 1) / r_param;
+                const slope = r_param * (1 - 2 * eqN);
+                ctx.fillText(`Slope at eq: ${slope.toFixed(2)}`, width - 150, 40);
+                ctx.fillText('(|slope| > 1 → unstable)', width - 150, 60);
+                ctx.fillText('→ Complex dynamics', width - 150, 80);
+                
+            } else if (model === 'allee') {
+                // Mark three equilibria for Allee effect
+                const A = 0.3; // Allee threshold
+                const K = 1.0; // Carrying capacity
+                
+                // Extinction equilibrium (N = 0)
+                const eq1X = margin;
+                const eq1Y = height - margin;
+                ctx.fillStyle = '#c0392b'; // Red for unstable
+                ctx.beginPath();
+                ctx.arc(eq1X, eq1Y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Allee threshold equilibrium (N = A)
+                const eq2X = margin + (A / maxN) * (width - margin - 20);
+                const eq2Y = height - margin - (A / maxN) * (height - margin - 20);
+                ctx.fillStyle = '#c0392b'; // Red for unstable
+                ctx.beginPath();
+                ctx.arc(eq2X, eq2Y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Carrying capacity equilibrium (N = K)
+                const eq3X = margin + (K / maxN) * (width - margin - 20);
+                const eq3Y = height - margin - (K / maxN) * (height - margin - 20);
+                ctx.fillStyle = '#27ae60'; // Green for stable
+                ctx.beginPath();
+                ctx.arc(eq3X, eq3Y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Labels
+                ctx.fillStyle = '#2c5530';
+                ctx.font = 'bold 10px Arial';
+                ctx.fillText('N=0 (unstable)', 10, height - 10);
+                ctx.fillText(`N=${A} (unstable)`, eq2X - 20, eq2Y - 10);
+                ctx.fillText('N=K (stable)', eq3X - 20, eq3Y - 10);
+                
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText('Three equilibria:', width - 150, 40);
+                ctx.fillText('• Extinction (red)', width - 150, 60);
+                ctx.fillText('• Allee threshold (red)', width - 150, 80);
+                ctx.fillText('• Carrying capacity (green)', width - 150, 100);
             }
+            
+            // Add title
+            ctx.fillStyle = '#2c5530';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            let title;
+            switch(model) {
+                case 'logistic':
+                    title = 'Logistic Map (r=2.5, stable)';
+                    break;
+                case 'allee':
+                    title = 'Allee Effect Model';
+                    break;
+                case 'chaotic':
+                    title = 'Chaotic Dynamics (r=3.8)';
+                    break;
+            }
+            ctx.fillText(title, width/2, 30);
         }
 
         // Add resize listener for phase portrait
