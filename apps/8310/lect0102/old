@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Ecology: Dynamics, Models & Simulations</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a3d20 0%, #2c5530 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #4a7c59;
+        }
+
+        .section h2 {
+            color: #2c5530;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: #2c5530;
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #4a7c59;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .math-box {
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #2c5530;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .simulation-container {
+            background: white;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 2px solid #4a7c59;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #4a7c59;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #2c5530;
+            font-size: 0.9rem;
+        }
+
+        .control-group input, .control-group select {
+            padding: 0.5rem;
+            border: 2px solid #4a7c59;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #2c5530;
+            box-shadow: 0 0 0 2px rgba(44, 85, 48, 0.2);
+        }
+
+        button {
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 1rem 0;
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #4a7c59;
+        }
+
+        .phase-portrait {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #2c5530;
+            margin: 1rem 0;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #4a7c59;
+        }
+
+        .tab {
+            background: #f8f9fa;
+            border: 2px solid #4a7c59;
+            border-bottom: none;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2c5530;
+            border-radius: 8px 8px 0 0;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #2c5530;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Population Ecology: Dynamics, Models & Simulations</h1>
+        <p>Interactive Guide to Population Growth, Stability, and Regulation</p>
+    </div>
+
+    <div class="container">
+        <!-- Introduction Section -->
+        <div class="section">
+            <h2>Introduction to Population Dynamics</h2>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>What is Population Dynamics?</h3>
+                    <p>Population dynamics studies how population sizes change over time and space. The fundamental question is: <strong>What controls population abundance?</strong></p>
+                    <div class="math-box">
+                        <p><strong>State Variable:</strong> $N(t)$ represents population size as a function of time</p>
+                        <p><strong>Spatial variation:</strong> $N(x,t)$ includes spatial dimension</p>
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>Key Terminology</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li><strong>Birth rate (b):</strong> Births per capita per time</li>
+                        <li><strong>Death rate (d):</strong> Deaths per capita per time</li>
+                        <li><strong>Growth rate (r):</strong> Net per capita change = b - d</li>
+                        <li><strong>Carrying capacity (K):</strong> Maximum sustainable population</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exponential Growth Section -->
+        <div class="section">
+            <h2>Exponential Growth Models</h2>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('continuous-exp')">Continuous Time</div>
+                <div class="tab" onclick="showTab('discrete-exp')">Discrete Time</div>
+                <div class="tab" onclick="showTab('exp-simulation')">Interactive Simulation</div>
+            </div>
+
+            <div id="continuous-exp" class="tab-content active">
+                <h3>Continuous Time Exponential Growth</h3>
+                <div class="math-box">
+                    <p><strong>Differential Equation:</strong></p>
+                    $$\frac{dN}{dt} = rN$$
+                    <p><strong>Solution:</strong></p>
+                    $$N(t) = N_0 e^{rt}$$
+                    <p>Where:</p>
+                    <ul style="margin-left: 2rem;">
+                        <li>$r$ = intrinsic growth rate</li>
+                        <li>$N_0$ = initial population size</li>
+                        <li>$e$ = base of natural logarithm ≈ 2.718</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight">
+                    <h4>Doubling Time Formula</h4>
+                    <p>Time for population to double: $t_{double} = \frac{\ln(2)}{r} = \frac{0.693}{r}$</p>
+                </div>
+            </div>
+
+            <div id="discrete-exp" class="tab-content">
+                <h3>Discrete Time Geometric Growth</h3>
+                <div class="math-box">
+                    <p><strong>Difference Equation:</strong></p>
+                    $$N_{t+1} = \lambda N_t$$
+                    <p><strong>Solution:</strong></p>
+                    $$N_t = N_0 \lambda^t$$
+                    <p><strong>Relationship to Continuous Model:</strong></p>
+                    $$\lambda = e^r \quad \text{and} \quad r = \ln(\lambda)$$
+                </div>
+                
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>Growth Outcomes</h4>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>$\lambda > 1$ (or $r > 0$): Population increases</li>
+                            <li>$\lambda = 1$ (or $r = 0$): Population stable</li>
+                            <li>$\lambda < 1$ (or $r < 0$): Population decreases</li>
+                        </ul>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Log-Linear Relationship</h4>
+                        <p>On a log scale, exponential growth appears as a straight line with slope = $r$</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="exp-simulation" class="tab-content">
+                <h3>Exponential Growth Simulator</h3>
+                <div class="simulation-container">
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="exp-r">Growth Rate (r):</label>
+                            <input type="range" id="exp-r" min="-0.2" max="0.2" step="0.01" value="0.05">
+                            <span id="exp-r-value">0.05</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="exp-n0">Initial Population (N₀):</label>
+                            <input type="range" id="exp-n0" min="1" max="100" step="1" value="10">
+                            <span id="exp-n0-value">10</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="exp-time">Time Steps:</label>
+                            <input type="range" id="exp-time" min="10" max="100" step="10" value="50">
+                            <span id="exp-time-value">50</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="exp-scale">Y-axis Scale:</label>
+                            <select id="exp-scale">
+                                <option value="linear">Linear</option>
+                                <option value="log">Logarithmic</option>
+                            </select>
+                        </div>
+                        <button onclick="updateExponentialChart()">Update Simulation</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="exponentialChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Density Dependence Section -->
+        <div class="section">
+            <h2>Density Dependence</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Negative Density Dependence</h3>
+                    <p>Per capita growth rate <strong>decreases</strong> with population density</p>
+                    <div class="math-box">
+                        $$\frac{1}{N}\frac{dN}{dt} = r - aN$$
+                        <p>Where $a$ measures strength of density dependence</p>
+                    </div>
+                    <p><strong>Causes:</strong> Competition for resources, increased mortality, reduced reproduction</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Positive Density Dependence (Allee Effect)</h3>
+                    <p>Per capita growth rate <strong>increases</strong> with population density (at low densities)</p>
+                    <p><strong>Causes:</strong> Cooperative breeding, predator satiation, mate finding</p>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Density Dependence Visualizer</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="dd-type">Density Dependence Type:</label>
+                        <select id="dd-type">
+                            <option value="negative">Negative (Competition)</option>
+                            <option value="positive">Positive (Allee Effect)</option>
+                            <option value="independent">Density Independent</option>
+                        </select>
+                    </div>
+                    <button onclick="updateDensityDependenceChart()">Update Visualization</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="densityDependenceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logistic Growth Section -->
+        <div class="section">
+            <h2>Logistic Growth Model</h2>
+            
+            <div class="math-box">
+                <h3>The Logistic Equation</h3>
+                <p><strong>Differential Form:</strong></p>
+                $$\frac{dN}{dt} = rN\left(1 - \frac{N}{K}\right) = rN\frac{K-N}{K}$$
+                
+                <p><strong>Solution:</strong></p>
+                $$N(t) = \frac{K}{1 + \left(\frac{K-N_0}{N_0}\right)e^{-rt}}$$
+                
+                <p><strong>Alternative Form:</strong></p>
+                $$\frac{1}{N}\frac{dN}{dt} = r - aN \quad \text{where } a = \frac{r}{K}$$
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Key Features</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>S-shaped (sigmoid) growth curve</li>
+                        <li>Exponential growth at low N</li>
+                        <li>Slowing growth as N approaches K</li>
+                        <li>Equilibrium at N = K</li>
+                        <li>Maximum growth rate at N = K/2</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>Biological Interpretation</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li><strong>r:</strong> Intrinsic growth rate</li>
+                        <li><strong>K:</strong> Carrying capacity</li>
+                        <li><strong>(K-N)/K:</strong> Unutilized capacity</li>
+                        <li><strong>a = r/K:</strong> Competitive effect</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Logistic Growth Simulator</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="log-r">Growth Rate (r):</label>
+                        <input type="range" id="log-r" min="0.01" max="0.5" step="0.01" value="0.1">
+                        <span id="log-r-value">0.1</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="log-k">Carrying Capacity (K):</label>
+                        <input type="range" id="log-k" min="50" max="500" step="10" value="100">
+                        <span id="log-k-value">100</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="log-n0">Initial Population (N₀):</label>
+                        <input type="range" id="log-n0" min="1" max="50" step="1" value="5">
+                        <span id="log-n0-value">5</span>
+                    </div>
+                    <button onclick="updateLogisticChart()">Update Simulation</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="logisticChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equilibrium and Stability Section -->
+        <div class="section">
+            <h2>Equilibrium and Stability</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Equilibrium</h3>
+                    <p>Population size where net growth = 0</p>
+                    <div class="math-box">
+                        $$\frac{dN}{dt} = 0 \quad \text{or} \quad N_{t+1} = N_t$$
+                    </div>
+                    <p>For logistic model: $N^* = K$</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Stability Types</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li><strong>Local:</strong> Returns after small perturbations</li>
+                        <li><strong>Global:</strong> Returns after any perturbation</li>
+                        <li><strong>Regional:</strong> Bounded but not convergent</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h3>Stability Analysis for Continuous Models</h3>
+                <p>For $\frac{dN}{dt} = f(N)$, stability at equilibrium $N^*$ requires:</p>
+                <div class="math-box">
+                    $$\frac{df}{dN}\bigg|_{N^*} < 0$$
+                </div>
+                <p>For logistic model: $\frac{df}{dN} = r - 2rN/K$, so at $N^* = K$: $\frac{df}{dN} = -r < 0$ ✓ Stable</p>
+            </div>
+        </div>
+
+        <!-- Discrete Time Dynamics Section -->
+        <div class="section">
+            <h2>Discrete Time Dynamics and Chaos</h2>
+            
+            <div class="math-box">
+                <h3>Discrete Logistic Map</h3>
+                $$N_{t+1} = N_t\left[1 + R\left(1 - \frac{N_t}{K}\right)\right]$$
+                <p>Where R is the discrete growth parameter</p>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Stability Conditions</h3>
+                    <p>For discrete maps $N_{t+1} = F(N_t)$, stability requires:</p>
+                    <div class="math-box">
+                        $$-1 < \frac{dF}{dN}\bigg|_{N^*} < +1$$
+                    </div>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>$0 < slope < 1$: Stable convergence</li>
+                        <li>$-1 < slope < 0$: Stable oscillations</li>
+                        <li>$|slope| > 1$: Unstable</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>Complex Dynamics</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li><strong>R < 2:</strong> Stable equilibrium</li>
+                        <li><strong>R = 2:</strong> Period-2 cycle begins</li>
+                        <li><strong>R > 2.4:</strong> Period-doubling cascade</li>
+                        <li><strong>R > 2.57:</strong> Chaos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Discrete Logistic Map Simulator</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="disc-r">Growth Parameter (R):</label>
+                        <input type="range" id="disc-r" min="0.5" max="3.0" step="0.1" value="1.5">
+                        <span id="disc-r-value">1.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="disc-k">Carrying Capacity (K):</label>
+                        <input type="range" id="disc-k" min="50" max="200" step="10" value="100">
+                        <span id="disc-k-value">100</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="disc-n0">Initial Population (N₀):</label>
+                        <input type="range" id="disc-n0" min="1" max="50" step="1" value="10">
+                        <span id="disc-n0-value">10</span>
+                    </div>
+                    <button onclick="updateDiscreteChart()">Update Simulation</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="discreteChart"></canvas>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h3>Chaos in Population Dynamics</h3>
+                <p>Chaos is deterministic but unpredictable behavior arising from simple nonlinear equations. Key features:</p>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Sensitive dependence:</strong> Small changes in initial conditions lead to vastly different outcomes</li>
+                    <li><strong>Deterministic:</strong> Generated by precise mathematical rules</li>
+                    <li><strong>Bounded:</strong> Values stay within finite limits</li>
+                    <li><strong>Non-periodic:</strong> No repeating patterns</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Population Regulation Section -->
+        <div class="section">
+            <h2>Population Regulation</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Closed vs Open Systems</h3>
+                    <p><strong>Closed:</strong> No migration in/out</p>
+                    <p><strong>Open:</strong> Immigration and emigration occur</p>
+                    <div class="math-box">
+                        $$\frac{dN}{dt} = \text{Birth} - \text{Death} + \text{Immigration} - \text{Emigration}$$
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>Terminology Distinctions</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li><strong>Limitation:</strong> Factors that reduce population size</li>
+                        <li><strong>Regulation:</strong> Density-dependent processes</li>
+                        <li><strong>Control:</strong> Any factor affecting population</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h3>Regulation in Open Systems</h3>
+                <p>In open systems with constant immigration rate and density-dependent mortality:</p>
+                <div class="math-box">
+                    $$\frac{dN}{dt} = I - dN$$
+                </div>
+                <p>Where I = immigration rate, d = per capita death rate</p>
+                <p>Equilibrium: $N^* = I/d$ (regulated by immigration-mortality balance)</p>
+            </div>
+        </div>
+
+        <!-- Real-World Applications Section -->
+        <div class="section">
+            <h2>Real-World Applications</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Darwin's Insight</h3>
+                    <blockquote style="font-style: italic; margin: 1rem; padding: 1rem; border-left: 4px solid #2c5530;">
+                        "If an annual plant produced only two seeds... in twenty years there would be a million plants. The elephant... at the end of the fifth century there would be alive fifteen million elephants."
+                    </blockquote>
+                    <p>Despite enormous reproductive potential, populations remain relatively stable → regulation must occur</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Marine Intertidal Example</h3>
+                    <p><strong>Stimson & Black (1975) - Limpet Study:</strong></p>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Manipulated algal food supply</li>
+                        <li>Populations converged to similar densities</li>
+                        <li>Regulation by recruitment limitation, not competition</li>
+                        <li>Demonstrates "supply-side" ecology</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Phase Portrait -->
+        <div class="section">
+            <h2>Phase Portrait Analyzer</h2>
+            <div class="simulation-container">
+                <h3>Visualize Population Dynamics</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="phase-model">Model Type:</label>
+                        <select id="phase-model">
+                            <option value="logistic">Logistic Growth</option>
+                            <option value="allee">Allee Effect</option>
+                            <option value="complex">Complex Dynamics</option>
+                        </select>
+                    </div>
+                    <button onclick="updatePhasePortrait()">Update Phase Portrait</button>
+                </div>
+                <canvas id="phasePortrait" class="phase-portrait"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let exponentialChart, logisticChart, discreteChart, densityDependenceChart;
+
+        // Initialize all charts when page loads
+        window.onload = function() {
+            initializeExponentialChart();
+            initializeLogisticChart();
+            initializeDiscreteChart();
+            initializeDensityDependenceChart();
+            updatePhasePortrait();
+            
+            // Add event listeners for real-time updates
+            document.getElementById('exp-r').addEventListener('input', updateExponentialChart);
+            document.getElementById('exp-n0').addEventListener('input', updateExponentialChart);
+            document.getElementById('exp-time').addEventListener('input', updateExponentialChart);
+            document.getElementById('exp-scale').addEventListener('change', updateExponentialChart);
+            
+            document.getElementById('log-r').addEventListener('input', updateLogisticChart);
+            document.getElementById('log-k').addEventListener('input', updateLogisticChart);
+            document.getElementById('log-n0').addEventListener('input', updateLogisticChart);
+            
+            document.getElementById('disc-r').addEventListener('input', updateDiscreteChart);
+            document.getElementById('disc-k').addEventListener('input', updateDiscreteChart);
+            document.getElementById('disc-n0').addEventListener('input', updateDiscreteChart);
+        };
+
+        // Tab functionality
+        function showTab(tabId) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Update slider values display
+        function updateSliderValue(sliderId, valueId) {
+            const slider = document.getElementById(sliderId);
+            const valueSpan = document.getElementById(valueId);
+            valueSpan.textContent = slider.value;
+        }
+
+        // Exponential Growth Chart
+        function initializeExponentialChart() {
+            const ctx = document.getElementById('exponentialChart').getContext('2d');
+            exponentialChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Population Size',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Size (N)',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+            updateExponentialChart();
+        }
+
+        function updateExponentialChart() {
+            const r = parseFloat(document.getElementById('exp-r').value);
+            const n0 = parseFloat(document.getElementById('exp-n0').value);
+            const timeSteps = parseInt(document.getElementById('exp-time').value);
+            const scale = document.getElementById('exp-scale').value;
+            
+            // Update display values
+            document.getElementById('exp-r-value').textContent = r.toFixed(3);
+            document.getElementById('exp-n0-value').textContent = n0;
+            document.getElementById('exp-time-value').textContent = timeSteps;
+            
+            const times = [];
+            const populations = [];
+            
+            for (let t = 0; t <= timeSteps; t++) {
+                times.push(t);
+                const nt = n0 * Math.exp(r * t);
+                populations.push(scale === 'log' ? Math.log10(nt) : nt);
+            }
+            
+            exponentialChart.data.labels = times;
+            exponentialChart.data.datasets[0].data = populations;
+            exponentialChart.options.scales.y.title.text = scale === 'log' ? 'log₁₀(Population Size)' : 'Population Size (N)';
+            exponentialChart.options.scales.y.type = scale === 'log' ? 'logarithmic' : 'linear';
+            exponentialChart.update();
+        }
+
+        // Logistic Growth Chart
+        function initializeLogisticChart() {
+            const ctx = document.getElementById('logisticChart').getContext('2d');
+            logisticChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Population Size',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        fill: true
+                    }, {
+                        label: 'Carrying Capacity (K)',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Size (N)',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+            updateLogisticChart();
+        }
+
+        function updateLogisticChart() {
+            const r = parseFloat(document.getElementById('log-r').value);
+            const k = parseFloat(document.getElementById('log-k').value);
+            const n0 = parseFloat(document.getElementById('log-n0').value);
+            
+            // Update display values
+            document.getElementById('log-r-value').textContent = r.toFixed(3);
+            document.getElementById('log-k-value').textContent = k;
+            document.getElementById('log-n0-value').textContent = n0;
+            
+            const times = [];
+            const populations = [];
+            const carryingCapacity = [];
+            
+            for (let t = 0; t <= 100; t += 0.5) {
+                times.push(t);
+                const denominator = 1 + ((k - n0) / n0) * Math.exp(-r * t);
+                const nt = k / denominator;
+                populations.push(nt);
+                carryingCapacity.push(k);
+            }
+            
+            logisticChart.data.labels = times;
+            logisticChart.data.datasets[0].data = populations;
+            logisticChart.data.datasets[1].data = carryingCapacity;
+            logisticChart.update();
+        }
+
+        // Discrete Logistic Chart
+        function initializeDiscreteChart() {
+            const ctx = document.getElementById('discreteChart').getContext('2d');
+            discreteChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Population Size',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2c5530'
+                    }, {
+                        label: 'Carrying Capacity (K)',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Steps',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Size (N)',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+            updateDiscreteChart();
+        }
+
+        function updateDiscreteChart() {
+            const R = parseFloat(document.getElementById('disc-r').value);
+            const k = parseFloat(document.getElementById('disc-k').value);
+            const n0 = parseFloat(document.getElementById('disc-n0').value);
+            
+            // Update display values
+            document.getElementById('disc-r-value').textContent = R.toFixed(1);
+            document.getElementById('disc-k-value').textContent = k;
+            document.getElementById('disc-n0-value').textContent = n0;
+            
+            const times = [];
+            const populations = [];
+            const carryingCapacity = [];
+            
+            let nt = n0;
+            for (let t = 0; t <= 50; t++) {
+                times.push(t);
+                populations.push(nt);
+                carryingCapacity.push(k);
+                
+                // Discrete logistic equation
+                nt = nt * (1 + R * (1 - nt / k));
+                
+                // Prevent negative populations
+                if (nt < 0) nt = 0;
+            }
+            
+            discreteChart.data.labels = times;
+            discreteChart.data.datasets[0].data = populations;
+            discreteChart.data.datasets[1].data = carryingCapacity;
+            discreteChart.update();
+        }
+
+        // Density Dependence Chart
+        function initializeDensityDependenceChart() {
+            const ctx = document.getElementById('densityDependenceChart').getContext('2d');
+            densityDependenceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Per Capita Growth Rate',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Population Density (N)',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Per Capita Growth Rate (dN/Ndt)',
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#2c5530',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+            updateDensityDependenceChart();
+        }
+
+        function updateDensityDependenceChart() {
+            const type = document.getElementById('dd-type').value;
+            
+            const densities = [];
+            const growthRates = [];
+            
+            for (let n = 0; n <= 200; n += 2) {
+                densities.push(n);
+                let growthRate;
+                
+                switch(type) {
+                    case 'negative':
+                        // Negative density dependence (logistic)
+                        growthRate = 0.1 * (1 - n / 100);
+                        break;
+                    case 'positive':
+                        // Positive density dependence (Allee effect)
+                        growthRate = 0.1 * (n / 50 - 1) * (1 - n / 150);
+                        break;
+                    case 'independent':
+                        // Density independent
+                        growthRate = 0.05;
+                        break;
+                }
+                
+                growthRates.push(growthRate);
+            }
+            
+            densityDependenceChart.data.labels = densities;
+            densityDependenceChart.data.datasets[0].data = growthRates;
+            densityDependenceChart.update();
+        }
+
+        // Phase Portrait
+        function updatePhasePortrait() {
+            const canvas = document.getElementById('phasePortrait');
+            const ctx = canvas.getContext('2d');
+            const model = document.getElementById('phase-model').value;
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw axes
+            ctx.strokeStyle = '#2c5530';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, height - 50);
+            ctx.lineTo(width - 20, height - 50);
+            ctx.moveTo(50, height - 50);
+            ctx.lineTo(50, 20);
+            ctx.stroke();
+            
+            // Add axis labels
+            ctx.fillStyle = '#2c5530';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('N(t)', width - 40, height - 30);
+            ctx.save();
+            ctx.translate(25, height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('N(t+1)', 0, 0);
+            ctx.restore();
+            
+            // Draw model-specific dynamics
+            ctx.strokeStyle = '#4a7c59';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            const maxN = 150;
+            for (let n = 0; n <= maxN; n += 1) {
+                const x = 50 + (n / maxN) * (width - 70);
+                let nNext;
+                
+                switch(model) {
+                    case 'logistic':
+                        nNext = n * (1 + 0.8 * (1 - n / 100));
+                        break;
+                    case 'allee':
+                        nNext = n * (1 + 1.5 * (n / 30 - 1) * (1 - n / 100));
+                        break;
+                    case 'complex':
+                        nNext = n * (1 + 2.2 * (1 - n / 100));
+                        break;
+                }
+                
+                if (nNext < 0) nNext = 0;
+                if (nNext > maxN) nNext = maxN;
+                
+                const y = height - 50 - (nNext / maxN) * (height - 70);
+                
+                if (n === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw diagonal line (N(t+1) = N(t))
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(50, height - 50);
+            ctx.lineTo(width - 20, 20);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Mark equilibria
+            ctx.fillStyle = '#2c5530';
+            if (model === 'logistic') {
+                const eqX = 50 + (100 / maxN) * (width - 70);
+                const eqY = height - 50 - (100 / maxN) * (height - 70);
+                ctx.beginPath();
+                ctx.arc(eqX, eqY, 6, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        // Add resize listener for phase portrait
+        window.addEventListener('resize', updatePhasePortrait);
+    </script>
+</body>
+</html>
