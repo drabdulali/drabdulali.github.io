@@ -359,69 +359,464 @@
             </div>
         </div>
 
-        <!-- Phase Plane Analysis -->
+        <!-- Interactive Phase Plane Analysis -->
         <div class="section">
-            <h2>Phase Plane Analysis</h2>
-            <p>Phase planes help visualize the dynamics of predator-prey systems by showing population trajectories:</p>
-
-            <div class="concept-card">
-                <h3>Isoclines (Zero Growth Lines)</h3>
-                <div class="grid-container">
-                    <div class="equation-box">
-                        <h4>Prey Isocline (dN/dt = 0)</h4>
-                        $$P = \frac{r}{a}$$
-                    </div>
-                    <div class="equation-box">
-                        <h4>Predator Isocline (dP/dt = 0)</h4>
-                        $$N = \frac{\mu}{ca}$$
-                    </div>
-                </div>
-                <p>The intersection of these lines gives the equilibrium point where both populations remain constant.</p>
-            </div>
-
-            <div class="plot-container">
-                <div id="isoclinePlot"></div>
-            </div>
-        </div>
-
-        <!-- Stabilizing Mechanisms -->
-        <div class="section">
-            <h2>Stabilizing Mechanisms</h2>
-            <p>Several mechanisms can stabilize predator-prey oscillations:</p>
+            <h2>Interactive Phase Plane Analysis</h2>
+            <p>Explore predator-prey dynamics by clicking on the phase plane to add trajectory starting points. Watch how populations evolve over time in this interactive visualization of the Lotka-Volterra system.</p>
 
             <div class="grid-container">
-                <div class="concept-card">
-                    <h3>Predator Interference</h3>
-                    <p>When predators interfere with each other's hunting, the predator isocline slopes upward, creating a stable equilibrium.</p>
-                    <div class="equation-box">
-                        $$f(N,P) = \frac{aN}{P^m}$$
-                    </div>
-                </div>
-
-                <div class="concept-card">
-                    <h3>Prey Competition</h3>
-                    <p>Logistic growth in prey creates a negatively sloped prey isocline, stabilizing the system.</p>
-                    <div class="equation-box">
-                        $$\frac{dN}{dt} = rN\left(1-\frac{N}{K}\right) - aPN$$
-                    </div>
+                <div class="plot-container" style="grid-column: 1 / -1;">
+                    <canvas id="phaseCanvas" width="800" height="500" style="border: 2px solid var(--medium-green); border-radius: 8px; cursor: crosshair; background: white; display: block; margin: 0 auto;"></canvas>
+                    <p style="text-align: center; margin-top: 10px; color: var(--medium-gray); font-style: italic;">
+                        Click anywhere on the phase plane to add trajectory starting points
+                    </p>
                 </div>
             </div>
 
-            <div class="controls">
-                <label for="carryingCapacity">Carrying Capacity (K):</label>
-                <input type="range" id="carryingCapacity" min="50" max="200" value="100" step="10">
-                <span id="carryingCapacityValue">100</span>
-                <br>
-                <label for="interference">Interference (m):</label>
-                <input type="range" id="interference" min="0" max="1" value="0" step="0.1">
-                <span id="interferenceValue">0.0</span>
-                <br>
-                <button onclick="updateStabilityPlot()">Update Stability Plot</button>
+            <div class="grid-container">
+                <div class="controls">
+                    <h3 style="color: var(--dark-green); margin-bottom: 1rem;">Model Parameters</h3>
+                    <label for="rSlider">Prey growth rate (r): <span id="rValue" style="background: var(--medium-green); color: white; padding: 2px 8px; border-radius: 4px;">0.8</span></label>
+                    <input type="range" id="rSlider" min="0.1" max="2.0" step="0.1" value="0.8" style="width: 100%; margin: 0.5rem 0;">
+                    
+                    <label for="aSlider">Attack rate (a): <span id="aValue" style="background: var(--medium-green); color: white; padding: 2px 8px; border-radius: 4px;">0.5</span></label>
+                    <input type="range" id="aSlider" min="0.1" max="1.0" step="0.1" value="0.5" style="width: 100%; margin: 0.5rem 0;">
+                    
+                    <label for="muSlider">Predator death rate (μ): <span id="muValue" style="background: var(--medium-green); color: white; padding: 2px 8px; border-radius: 4px;">0.6</span></label>
+                    <input type="range" id="muSlider" min="0.1" max="1.5" step="0.1" value="0.6" style="width: 100%; margin: 0.5rem 0;">
+                    
+                    <label for="cSlider">Conversion efficiency (c): <span id="cValue" style="background: var(--medium-green); color: white; padding: 2px 8px; border-radius: 4px;">0.7</span></label>
+                    <input type="range" id="cSlider" min="0.1" max="1.0" step="0.1" value="0.7" style="width: 100%; margin: 0.5rem 0;">
+                </div>
+
+                <div class="controls">
+                    <h3 style="color: var(--dark-green); margin-bottom: 1rem;">Visualization Controls</h3>
+                    <button onclick="clearPhasePlaneTrajectories()" style="background: var(--medium-green); margin: 0.3rem;">Clear Trajectories</button>
+                    <button onclick="addRandomPhasePlaneTrajectories()" style="background: var(--medium-green); margin: 0.3rem;">Add Random Paths</button>
+                    <button onclick="toggleVectorField()" style="background: var(--medium-green); margin: 0.3rem;">Toggle Vectors</button>
+                    
+                    <div style="margin-top: 1rem; padding: 1rem; background: var(--light-green-1); border-radius: 8px;">
+                        <h4 style="color: var(--dark-green); margin-bottom: 0.5rem;">Equilibrium Point</h4>
+                        <p id="equilibriumPoint" style="font-family: monospace; color: var(--very-dark-green); font-weight: bold;">N* = 1.71, P* = 1.60</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="plot-container">
-                <div id="stabilityPlot"></div>
+            <!-- Quadrant Analysis -->
+            <div class="concept-card">
+                <h3>Phase Plane Quadrant Analysis</h3>
+                <p>The phase plane is divided into four regions by the isoclines, each showing different population dynamics:</p>
             </div>
+
+            <div class="grid-container">
+                <div class="concept-card" style="border-left: 4px solid #e74c3c;">
+                    <h4 style="color: #c0392b;">Quadrant I (Upper Right)</h4>
+                    <p><strong>N > μ/(ca), P > r/a</strong></p>
+                    <p>dN/dt < 0 (prey decreasing)<br>
+                    dP/dt > 0 (predators increasing)</p>
+                    <p style="font-style: italic;">High predation reduces prey despite abundant food for predators</p>
+                </div>
+
+                <div class="concept-card" style="border-left: 4px solid #f39c12;">
+                    <h4 style="color: #d68910;">Quadrant II (Upper Left)</h4>
+                    <p><strong>N < μ/(ca), P > r/a</strong></p>
+                    <p>dN/dt < 0 (prey decreasing)<br>
+                    dP/dt < 0 (predators decreasing)</p>
+                    <p style="font-style: italic;">Too many predators, not enough prey to sustain them</p>
+                </div>
+
+                <div class="concept-card" style="border-left: 4px solid #27ae60;">
+                    <h4 style="color: #229954;">Quadrant III (Lower Left)</h4>
+                    <p><strong>N < μ/(ca), P < r/a</strong></p>
+                    <p>dN/dt > 0 (prey increasing)<br>
+                    dP/dt < 0 (predators decreasing)</p>
+                    <p style="font-style: italic;">Low predation allows prey recovery, predators still declining</p>
+                </div>
+
+                <div class="concept-card" style="border-left: 4px solid #9b59b6;">
+                    <h4 style="color: #8e44ad;">Quadrant IV (Lower Right)</h4>
+                    <p><strong>N > μ/(ca), P < r/a</strong></p>
+                    <p>dN/dt > 0 (prey increasing)<br>
+                    dP/dt > 0 (predators increasing)</p>
+                    <p style="font-style: italic;">Abundant prey supports both prey growth and predator recovery</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Neutral Stability</h3>
+                <p>The Lotka-Volterra system exhibits neutral stability - trajectories form closed orbits around the equilibrium point. This means:</p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Populations oscillate indefinitely without damping or amplification</li>
+                    <li>Orbit size depends on initial conditions</li>
+                    <li>Small perturbations persist rather than decay</li>
+                    <li>System lacks stabilizing mechanisms found in real ecosystems</li>
+                </ul>
+                
+                <div style="background: var(--light-green-2); padding: 1rem; border-radius: 5px; margin-top: 1rem;">
+                    <strong>Phase Relationships:</strong> Predator populations lag behind prey by 1/4 cycle. When prey peaks, predators are at equilibrium and increasing. When predators peak, prey are at equilibrium and decreasing.
+                </div>
+            </div>
+
+            <div class="equation-box">
+                <h3>Lotka-Volterra Equations</h3>
+                <div style="margin: 1rem 0; font-size: 1.1em;">$$\frac{dN}{dt} = rN - aNP$$</div>
+                <div style="margin: 1rem 0; font-size: 1.1em;">$$\frac{dP}{dt} = -\mu P + caNP$$</div>
+                <div style="margin: 1rem 0; font-size: 1.1em;">Prey isocline: $$P = \frac{r}{a}$$</div>
+                <div style="margin: 1rem 0; font-size: 1.1em;">Predator isocline: $$N = \frac{\mu}{ca}$$</div>
+            </div>
+
+            <script>
+                // Phase Plane Analysis Variables
+                let phaseCanvas, phaseCtx;
+                let phaseParams = { r: 0.8, a: 0.5, mu: 0.6, c: 0.7 };
+                let phaseShowVectors = true;
+                let phaseTrajectories = [];
+                
+                // Scale factors for phase plane display
+                const phaseScaleN = 100;
+                const phaseScaleP = 100;
+                const phaseOffsetX = 60;
+                const phaseOffsetY = 420;
+
+                function initializePhasePane() {
+                    phaseCanvas = document.getElementById('phaseCanvas');
+                    phaseCtx = phaseCanvas.getContext('2d');
+                    
+                    updatePhaseParameters();
+                    drawPhasePane();
+                    
+                    // Add event listeners
+                    document.getElementById('rSlider').oninput = updatePhaseParameters;
+                    document.getElementById('aSlider').oninput = updatePhaseParameters;
+                    document.getElementById('muSlider').oninput = updatePhaseParameters;
+                    document.getElementById('cSlider').oninput = updatePhaseParameters;
+                    
+                    phaseCanvas.onclick = function(event) {
+                        const rect = phaseCanvas.getBoundingClientRect();
+                        const x = event.clientX - rect.left;
+                        const y = event.clientY - rect.top;
+                        const model = phaseScreenToModel(x, y);
+                        
+                        if (model.N > 0 && model.P > 0 && model.N < 7 && model.P < 4) {
+                            const traj = calculatePhaseTrajectory(model.N, model.P);
+                            if (traj.length > 10) {
+                                phaseTrajectories.push(traj);
+                                if (phaseTrajectories.length > 8) {
+                                    phaseTrajectories.shift();
+                                }
+                                drawPhasePane();
+                            }
+                        }
+                    };
+                }
+
+                function updatePhaseParameters() {
+                    phaseParams.r = parseFloat(document.getElementById('rSlider').value);
+                    phaseParams.a = parseFloat(document.getElementById('aSlider').value);
+                    phaseParams.mu = parseFloat(document.getElementById('muSlider').value);
+                    phaseParams.c = parseFloat(document.getElementById('cSlider').value);
+                    
+                    document.getElementById('rValue').textContent = phaseParams.r.toFixed(1);
+                    document.getElementById('aValue').textContent = phaseParams.a.toFixed(1);
+                    document.getElementById('muValue').textContent = phaseParams.mu.toFixed(1);
+                    document.getElementById('cValue').textContent = phaseParams.c.toFixed(1);
+                    
+                    updatePhaseEquilibrium();
+                    drawPhasePane();
+                }
+
+                function updatePhaseEquilibrium() {
+                    const nStar = phaseParams.mu / (phaseParams.c * phaseParams.a);
+                    const pStar = phaseParams.r / phaseParams.a;
+                    document.getElementById('equilibriumPoint').textContent = 
+                        `N* = ${nStar.toFixed(2)}, P* = ${pStar.toFixed(2)}`;
+                }
+
+                function phaseScreenToModel(x, y) {
+                    return {
+                        N: (x - phaseOffsetX) / phaseScaleN,
+                        P: (phaseOffsetY - y) / phaseScaleP
+                    };
+                }
+
+                function phaseModelToScreen(N, P) {
+                    return {
+                        x: phaseOffsetX + N * phaseScaleN,
+                        y: phaseOffsetY - P * phaseScaleP
+                    };
+                }
+
+                function phaseDNdt(N, P) {
+                    return phaseParams.r * N - phaseParams.a * N * P;
+                }
+
+                function phaseDPdt(N, P) {
+                    return -phaseParams.mu * P + phaseParams.c * phaseParams.a * N * P;
+                }
+
+                function drawPhasePane() {
+                    phaseCtx.clearRect(0, 0, phaseCanvas.width, phaseCanvas.height);
+                    
+                    // Background
+                    const gradient = phaseCtx.createLinearGradient(0, 0, phaseCanvas.width, phaseCanvas.height);
+                    gradient.addColorStop(0, '#f8f9fa');
+                    gradient.addColorStop(1, '#e9ecef');
+                    phaseCtx.fillStyle = gradient;
+                    phaseCtx.fillRect(0, 0, phaseCanvas.width, phaseCanvas.height);
+                    
+                    drawPhaseAxes();
+                    drawPhaseIsoclines();
+                    drawPhaseEquilibriumPoint();
+                    if (phaseShowVectors) drawPhaseVectorField();
+                    drawPhaseTrajectories();
+                    drawPhaseLabels();
+                }
+
+                function drawPhaseAxes() {
+                    phaseCtx.strokeStyle = '#2c5530';
+                    phaseCtx.lineWidth = 2;
+                    
+                    // X-axis (N)
+                    phaseCtx.beginPath();
+                    phaseCtx.moveTo(phaseOffsetX, phaseOffsetY);
+                    phaseCtx.lineTo(phaseCanvas.width - 20, phaseOffsetY);
+                    phaseCtx.stroke();
+                    
+                    // Y-axis (P)
+                    phaseCtx.beginPath();
+                    phaseCtx.moveTo(phaseOffsetX, phaseOffsetY);
+                    phaseCtx.lineTo(phaseOffsetX, 20);
+                    phaseCtx.stroke();
+                    
+                    // Tick marks
+                    phaseCtx.fillStyle = '#2c5530';
+                    phaseCtx.font = '12px Arial';
+                    phaseCtx.textAlign = 'center';
+                    
+                    for (let i = 1; i <= 7; i++) {
+                        const x = phaseOffsetX + i * phaseScaleN;
+                        const y = phaseOffsetY - i * phaseScaleP;
+                        
+                        // X-axis ticks
+                        phaseCtx.beginPath();
+                        phaseCtx.moveTo(x, phaseOffsetY - 5);
+                        phaseCtx.lineTo(x, phaseOffsetY + 5);
+                        phaseCtx.stroke();
+                        phaseCtx.fillText(i.toString(), x, phaseOffsetY + 20);
+                        
+                        // Y-axis ticks
+                        if (y > 20 && i <= 4) {
+                            phaseCtx.beginPath();
+                            phaseCtx.moveTo(phaseOffsetX - 5, y);
+                            phaseCtx.lineTo(phaseOffsetX + 5, y);
+                            phaseCtx.stroke();
+                            phaseCtx.textAlign = 'right';
+                            phaseCtx.fillText(i.toString(), phaseOffsetX - 10, y + 4);
+                            phaseCtx.textAlign = 'center';
+                        }
+                    }
+                }
+
+                function drawPhaseIsoclines() {
+                    const nStar = phaseParams.mu / (phaseParams.c * phaseParams.a);
+                    const pStar = phaseParams.r / phaseParams.a;
+                    
+                    // Prey isocline (horizontal)
+                    phaseCtx.strokeStyle = '#4a7c59';
+                    phaseCtx.lineWidth = 3;
+                    const yPrey = phaseOffsetY - pStar * phaseScaleP;
+                    
+                    phaseCtx.beginPath();
+                    phaseCtx.moveTo(phaseOffsetX, yPrey);
+                    phaseCtx.lineTo(phaseCanvas.width - 20, yPrey);
+                    phaseCtx.stroke();
+                    
+                    // Predator isocline (vertical)
+                    phaseCtx.strokeStyle = '#2c5530';
+                    const xPred = phaseOffsetX + nStar * phaseScaleN;
+                    
+                    phaseCtx.beginPath();
+                    phaseCtx.moveTo(xPred, phaseOffsetY);
+                    phaseCtx.lineTo(xPred, 20);
+                    phaseCtx.stroke();
+                }
+
+                function drawPhaseEquilibriumPoint() {
+                    const nStar = phaseParams.mu / (phaseParams.c * phaseParams.a);
+                    const pStar = phaseParams.r / phaseParams.a;
+                    const pos = phaseModelToScreen(nStar, pStar);
+                    
+                    phaseCtx.fillStyle = '#1a3d20';
+                    phaseCtx.beginPath();
+                    phaseCtx.arc(pos.x, pos.y, 8, 0, 2 * Math.PI);
+                    phaseCtx.fill();
+                    
+                    phaseCtx.strokeStyle = '#ffffff';
+                    phaseCtx.lineWidth = 3;
+                    phaseCtx.stroke();
+                }
+
+                function drawPhaseVectorField() {
+                    const step = 80;
+                    phaseCtx.strokeStyle = 'rgba(76, 124, 89, 0.4)';
+                    phaseCtx.lineWidth = 1;
+                    
+                    for (let x = phaseOffsetX + step; x < phaseCanvas.width - 20; x += step) {
+                        for (let y = 40; y < phaseOffsetY; y += step) {
+                            const model = phaseScreenToModel(x, y);
+                            if (model.N > 0 && model.P > 0) {
+                                const dndt = phaseDNdt(model.N, model.P);
+                                const dpdt = phaseDPdt(model.N, model.P);
+                                
+                                const magnitude = Math.sqrt(dndt * dndt + dpdt * dpdt);
+                                if (magnitude > 0) {
+                                    const scale = 25 / (1 + magnitude * 0.5);
+                                    const dx = (dndt / magnitude) * scale;
+                                    const dy = -(dpdt / magnitude) * scale;
+                                    
+                                    drawPhaseArrow(x, y, x + dx, y + dy);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                function drawPhaseArrow(x1, y1, x2, y2) {
+                    const angle = Math.atan2(y2 - y1, x2 - x1);
+                    const headLength = 6;
+                    
+                    phaseCtx.beginPath();
+                    phaseCtx.moveTo(x1, y1);
+                    phaseCtx.lineTo(x2, y2);
+                    phaseCtx.stroke();
+                    
+                    phaseCtx.beginPath();
+                    phaseCtx.moveTo(x2, y2);
+                    phaseCtx.lineTo(x2 - headLength * Math.cos(angle - Math.PI/6), y2 - headLength * Math.sin(angle - Math.PI/6));
+                    phaseCtx.moveTo(x2, y2);
+                    phaseCtx.lineTo(x2 - headLength * Math.cos(angle + Math.PI/6), y2 - headLength * Math.sin(angle + Math.PI/6));
+                    phaseCtx.stroke();
+                }
+
+                function drawPhaseTrajectories() {
+                    phaseTrajectories.forEach((traj, index) => {
+                        const colors = ['#e74c3c', '#4a7c59', '#27ae60', '#f39c12', '#9b59b6', '#1abc9c', '#34495e', '#e67e22'];
+                        phaseCtx.strokeStyle = colors[index % colors.length];
+                        phaseCtx.lineWidth = 2;
+                        
+                        if (traj.length > 1) {
+                            phaseCtx.beginPath();
+                            const start = phaseModelToScreen(traj[0].N, traj[0].P);
+                            phaseCtx.moveTo(start.x, start.y);
+                            
+                            for (let i = 1; i < traj.length; i++) {
+                                const pos = phaseModelToScreen(traj[i].N, traj[i].P);
+                                phaseCtx.lineTo(pos.x, pos.y);
+                            }
+                            phaseCtx.stroke();
+                        }
+                        
+                        // Draw starting point
+                        if (traj.length > 0) {
+                            const start = phaseModelToScreen(traj[0].N, traj[0].P);
+                            phaseCtx.fillStyle = colors[index % colors.length];
+                            phaseCtx.beginPath();
+                            phaseCtx.arc(start.x, start.y, 4, 0, 2 * Math.PI);
+                            phaseCtx.fill();
+                        }
+                    });
+                }
+
+                function drawPhaseLabels() {
+                    phaseCtx.fillStyle = '#2c5530';
+                    phaseCtx.font = 'bold 16px Arial';
+                    
+                    // Axis labels
+                    phaseCtx.textAlign = 'center';
+                    phaseCtx.fillText('Prey Density (N)', phaseCanvas.width / 2, phaseCanvas.height - 10);
+                    
+                    phaseCtx.save();
+                    phaseCtx.translate(15, phaseCanvas.height / 2);
+                    phaseCtx.rotate(-Math.PI / 2);
+                    phaseCtx.fillText('Predator Density (P)', 0, 0);
+                    phaseCtx.restore();
+                    
+                    // Isocline labels
+                    phaseCtx.font = '14px Arial';
+                    phaseCtx.fillStyle = '#4a7c59';
+                    phaseCtx.fillText('dN/dt = 0', phaseCanvas.width - 80, phaseOffsetY - phaseParams.r/phaseParams.a * phaseScaleP - 10);
+                    
+                    phaseCtx.fillStyle = '#2c5530';
+                    phaseCtx.save();
+                    phaseCtx.translate(phaseOffsetX + (phaseParams.mu/(phaseParams.c*phaseParams.a)) * phaseScaleN + 15, 100);
+                    phaseCtx.rotate(-Math.PI / 2);
+                    phaseCtx.fillText('dP/dt = 0', 0, 0);
+                    phaseCtx.restore();
+                }
+
+                function phaseRungeKutta4(N, P, dt) {
+                    const k1n = phaseDNdt(N, P);
+                    const k1p = phaseDPdt(N, P);
+                    
+                    const k2n = phaseDNdt(N + 0.5 * dt * k1n, P + 0.5 * dt * k1p);
+                    const k2p = phaseDPdt(N + 0.5 * dt * k1n, P + 0.5 * dt * k1p);
+                    
+                    const k3n = phaseDNdt(N + 0.5 * dt * k2n, P + 0.5 * dt * k2p);
+                    const k3p = phaseDPdt(N + 0.5 * dt * k2n, P + 0.5 * dt * k2p);
+                    
+                    const k4n = phaseDNdt(N + dt * k3n, P + dt * k3p);
+                    const k4p = phaseDPdt(N + dt * k3n, P + dt * k3p);
+                    
+                    return {
+                        N: N + (dt / 6) * (k1n + 2 * k2n + 2 * k3n + k4n),
+                        P: P + (dt / 6) * (k1p + 2 * k2p + 2 * k3p + k4p)
+                    };
+                }
+
+                function calculatePhaseTrajectory(startN, startP, steps = 800) {
+                    const trajectory = [];
+                    let N = startN, P = startP;
+                    const dt = 0.01;
+                    
+                    for (let i = 0; i < steps; i++) {
+                        trajectory.push({N: N, P: P});
+                        const next = phaseRungeKutta4(N, P, dt);
+                        N = next.N;
+                        P = next.P;
+                        
+                        if (N <= 0 || P <= 0 || N > 8 || P > 5) break;
+                    }
+                    
+                    return trajectory;
+                }
+
+                function clearPhasePlaneTrajectories() {
+                    phaseTrajectories = [];
+                    drawPhasePane();
+                }
+
+                function addRandomPhasePlaneTrajectories() {
+                    for (let i = 0; i < 4; i++) {
+                        const N = Math.random() * 5 + 0.5;
+                        const P = Math.random() * 3 + 0.5;
+                        const traj = calculatePhaseTrajectory(N, P);
+                        if (traj.length > 10) {
+                            phaseTrajectories.push(traj);
+                        }
+                    }
+                    drawPhasePane();
+                }
+
+                function toggleVectorField() {
+                    phaseShowVectors = !phaseShowVectors;
+                    drawPhasePane();
+                }
+
+                // Initialize phase plane when DOM is loaded
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(initializePhasePane, 100);
+                });
+            </script>
         </div>
 
         <!-- Paradox of Enrichment -->
