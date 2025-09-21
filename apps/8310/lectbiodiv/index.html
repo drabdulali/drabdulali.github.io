@@ -440,19 +440,27 @@
         </div>
 
         <div class="section fade-in">
+<div class="section fade-in">
             <h2>Portfolio Effect</h2>
             <p>The statistical tendency for diverse systems to have lower temporal variance, analogous to financial portfolio diversification.</p>
             
             <div class="math-container">
-                <h4>Portfolio Effect Components:</h4>
+                <h4>Portfolio Effect Mathematical Framework:</h4>
                 $$CV_{community}^2 = \frac{1}{S^2} \sum_{i=1}^{S} CV_i^2 + \frac{2}{S^2} \sum_{i<j} \rho_{ij} CV_i CV_{j}$$
                 
                 <p><strong>Three Components:</strong></p>
-                <ol>
-                    <li><strong>Portfolio Effect:</strong> $\frac{1}{S} \sum_{i=1}^{S} CV_i^2$ (averaging reduces variance)</li>
-                    <li><strong>Covariance Effect:</strong> $\frac{2}{S^2} \sum_{i<j} \rho_{ij} CV_i CV_{j}$ (asynchrony further reduces variance)</li>
-                    <li><strong>Overyielding:</strong> Mean biomass increases with S</li>
-                </ol>
+                <ul>
+                    <li><strong>Portfolio effect (baseline):</strong> Species fluctuate independently; more species leads to more "averaging" and less variance</li>
+                    <li><strong>Covariance effect:</strong> Asynchrony (negative correlations) reduces variance even more than independent fluctuations</li>
+                    <li><strong>Overyielding:</strong> Mean biomass increases with species richness (S)</li>
+                </ul>
+                
+                <p><strong>Where:</strong></p>
+                <ul>
+                    <li>CV = Coefficient of variation (standard deviation / mean)</li>
+                    <li>S = Number of species</li>
+                    <li>ρ<sub>ij</sub> = Correlation coefficient between species i and j</li>
+                </ul>
             </div>
             
             <div class="chart-container">
