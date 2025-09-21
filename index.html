@@ -400,11 +400,11 @@
                 <li class="dropdown">
                     <a href="#" onclick="showSection('concepts')">Study Concepts</a>
                     <div class="dropdown-content">
-                        <a href="#" onclick="showSection('concepts', 'ecology')">Ecological Concepts</a>
-                        <a href="#" onclick="showSection('concepts', 'population8310')">Population Ecology (8310)</a>
+                        <a href="#" onclick="showSection('concepts', 'ecology')">Ecology Concepts</a>
                         <a href="#" onclick="showSection('concepts', 'statistics')">Statistical Concepts</a>
                         <a href="#" onclick="showSection('concepts', 'disease')">Disease Dynamics</a>
                         <a href="#" onclick="showSection('concepts', 'modeling')">Infectious Disease Modeling</a>
+                        <a href="#" onclick="showSection('concepts', 'population8310')">Population Ecology (8310)</a>
                     </div>
                 </li>
                 <li><a href="#" onclick="showSection('apps')">Interactive Apps</a></li>
@@ -679,226 +679,66 @@
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Interactive Apps Section -->
-            <section class="section" id="apps">
-                <h2>Interactive Learning Apps</h2>
-                <p>HTML-based applications I've developed to visualize and understand key concepts in ecology, statistics, and disease dynamics.</p>
-
-                <div class="app-showcase">
-                    <h3>Disease Dynamics Apps</h3>
-                    <div class="app-grid">
-                        <div class="app-card">
-                            <h4>SIR Model Simulator</h4>
-                            <p>Interactive simulation of Susceptible-Infected-Recovered disease dynamics with adjustable parameters.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                <div id="population8310-concepts" class="concept-subsection" style="display: none;">
+                    <h3>Population Ecology (8310)</h3>
+                    <p>Course lectures and materials for Population Ecology graduate course.</p>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <h3>Lecture 01</h3>
+                            <p>Introduction to Population Ecology</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect01/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                        <div class="app-card">
-                            <h4>R₀ Calculator</h4>
-                            <p>Tool for calculating and visualizing the basic reproduction number under different scenarios.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                        <div class="concept-card">
+                            <h3>Lecture 01-02</h3>
+                            <p>Population Growth Models</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect0102/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                        <div class="app-card">
-                            <h4>Spatial Disease Spread</h4>
-                            <p>Visualization of disease spread in spatially structured populations with different connectivity patterns.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                        <div class="concept-card">
+                            <h3>Lecture 03</h3>
+                            <p>Density-Dependent Growth</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect03/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                    </div>
-                </div>
-
-                <div class="app-showcase">
-                    <h3>Ecology Apps</h3>
-                    <div class="app-grid">
-                        <div class="app-card">
-                            <h4>Population Growth Models</h4>
-                            <p>Compare exponential and logistic growth models with adjustable parameters and initial conditions.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                        <div class="concept-card">
+                            <h3>Lecture 04</h3>
+                            <p>Age-Structured Populations</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect04/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                        <div class="app-card">
-                            <h4>Predator-Prey Dynamics</h4>
-                            <p>Lotka-Volterra model simulation with phase plane visualization and parameter exploration.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                        <div class="concept-card">
+                            <h3>Lecture 05</h3>
+                            <p>Life Tables and Survivorship</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect05/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                        <div class="app-card">
-                            <h4>Metapopulation Simulator</h4>
-                            <p>Explore patch occupancy dynamics in fragmented landscapes with varying connectivity.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                        <div class="concept-card">
+                            <h3>Lecture 06-07</h3>
+                            <p>Matrix Population Models</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect0607/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                    </div>
-                </div>
-
-                <div class="app-showcase">
-                    <h3>Statistical Apps</h3>
-                    <div class="app-grid">
-                        <div class="app-card">
-                            <h4>ANOVA Visualizer</h4>
-                            <p>Interactive tool for understanding ANOVA concepts with data visualization and effect size calculations.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                        <div class="concept-card">
+                            <h3>Lecture 08</h3>
+                            <p>Population Viability Analysis</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect08/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                        <div class="app-card">
-                            <h4>Regression Explorer</h4>
-                            <p>Explore linear and non-linear regression models with interactive data points and residual analysis.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                        <div class="concept-card">
+                            <h3>Lecture 09</h3>
+                            <p>Metapopulation Dynamics</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect09/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                        <div class="app-card">
-                            <h4>Power Analysis Tool</h4>
-                            <p>Calculate sample sizes and statistical power for common experimental designs.</p>
-                            <div class="app-links">
-                                <a href="https://github.com/drabdulali" target="_blank">Launch App</a>
-                                <a href="https://github.com/drabdulali" target="_blank">GitHub Repo</a>
-                            </div>
+                        <div class="concept-card">
+                            <h3>Lecture 10</h3>
+                            <p>Spatial Population Models</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect10/index.html" target="_blank" class="read-more">View Lecture</a>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Comprehensive Exam Section -->
-            <section class="section" id="comps">
-                <h2>Comprehensive Exam Preparation</h2>
-                <p>Resources and study materials for comprehensive examinations, organized by topic area and committee member.</p>
-
-                <div class="concept-grid">
-                    <div class="concept-card">
-                        <h3>Exam Timeline</h3>
-                        <p>Detailed schedule for comprehensive exam preparation, including reading lists and milestone dates.</p>
-                        <a href="https://github.com/drabdulali" class="read-more">View Schedule</a>
-                    </div>
-                    <div class="concept-card">
-                        <h3>Reading Lists</h3>
-                        <p>Comprehensive reading lists organized by topic area and committee member recommendations.</p>
-                        <a href="https://github.com/drabdulali" class="read-more">View Lists</a>
-                    </div>
-                    <div class="concept-card">
-                        <h3>Practice Questions</h3>
-                        <p>Collection of practice questions and answers for each major topic area covered in the comprehensive exam.</p>
-                        <a href="https://github.com/drabdulali" class="read-more">Practice</a>
-                    </div>
-                    <div class="concept-card">
-                        <h3>Study Groups</h3>
-                        <p>Schedule and notes from study group sessions with fellow graduate students.</p>
-                        <a href="https://github.com/drabdulali" class="read-more">Join Groups</a>
-                    </div>
-                </div>
-
-                <h3>Exam Topics</h3>
-                <div class="research-grid">
-                    <div class="research-item">
-                        <h3>Theoretical Ecology</h3>
-                        <p>Population dynamics, community ecology, ecosystem processes</p>
-                    </div>
-                    <div class="research-item">
-                        <h3>Disease Ecology</h3>
-                        <p>Epidemiological models, host-pathogen interactions, disease evolution</p>
-                    </div>
-                    <div class="research-item">
-                        <h3>Statistical Methods</h3>
-                        <p>Experimental design, multivariate analysis, Bayesian methods</p>
-                    </div>
-                    <div class="research-item">
-                        <h3>Infectious Disease Modeling</h3>
-                        <p>Mathematical and computational models of disease dynamics</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Contact Section -->
-            <section class="section" id="contact">
-                <h2>Contact</h2>
-                <div class="concept-grid">
-                    <div class="concept-card">
-                        <h3>Email</h3>
-                        <p>your.email@university.edu</p>
-                    </div>
-                    <div class="concept-card">
-                        <h3>Office</h3>
-                        <p>Biology Building, Room 123<br>
-                        University Name<br>
-                        City, State 12345</p>
-                    </div>
-                    <div class="concept-card">
-                        <h3>Office Hours</h3>
-                        <p>Tuesdays & Thursdays<br>
-                        2:00 PM - 4:00 PM<br>
-                        Or by appointment</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Abdul Ali. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com/drabdulali">ORCID</a>
-                <a href="https://github.com/drabdulali">Google Scholar</a>
-                <a href="https://github.com/drabdulali">ResearchGate</a>
-                <a href="https://github.com/drabdulali">GitHub</a>
-                <a href="https://github.com/drabdulali">Twitter</a>
-                <a href="https://github.com/drabdulali">LinkedIn</a>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        function showSection(sectionName, subsection = null) {
-            // Hide all sections
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => section.classList.remove('active'));
-            
-            // Remove active class from all nav links
-            const navLinks = document.querySelectorAll('nav a');
-            navLinks.forEach(link => link.classList.remove('active'));
-            
-            // Show the selected section
-            document.getElementById(sectionName).classList.add('active');
-            
-            // Add active class to the clicked nav link
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-            
-            // Handle subsections for concepts
-            if (sectionName === 'concepts' && subsection) {
-                const subsections = document.querySelectorAll('.concept-subsection');
-                subsections.forEach(sub => sub.style.display = 'none');
-                
-                const targetSubsection = document.getElementById(subsection + '-concepts');
-                if (targetSubsection) {
-                    targetSubsection.style.display = 'block';
-                }
-            } else if (sectionName === 'concepts') {
-                // Show ecology by default
-                const subsections = document.querySelectorAll('.concept-subsection');
-                subsections.forEach(sub => sub.style.display = 'none');
-                document.getElementById('ecology-concepts').style.display = 'block';
-            }
-        }
-    </script>
-</body>
-</html>
+                        <div class="concept-card">
+                            <h3>Lecture 11</h3>
+                            <p>Competition and Coexistence</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect11/index.html" target="_blank" class="read-more">View Lecture</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Lecture 12</h3>
+                            <p>Predator-Prey Dynamics</p>
+                            <a href="https://drabdulali.github.io/apps/8310/lect12/index.html" target="_blank" class="read-more">View Lecture</a>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Lecture 13</h3>
+                            <p>Population
