@@ -1,1 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Ecology 8310 - Lecture 1: Introduction to Population and Community Ecology</title>
+    <style>
+    body {
+        font-family: 'Georgia', serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
 
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Header */
+    header {
+        background: linear-gradient(135deg, #2c5530, #4a7c59);
+        color: white;
+        padding: 2rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+        pointer-events: none;
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 300;
+    }
+
+    .subtitle {
+        font-size: 1.2rem;
+        font-weight: 300;
+        opacity: 0.9;
+    }
+
+    /* Navigation */
+    nav {
+        background: #1a3d20;
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    nav ul {
+        list-style: none;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 0;
+        padding: 0;
+    }
+
+    nav li {
+        margin: 0 0.5rem;
+    }
+
+    nav a {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        display: block;
+        white-space: nowrap;
+    }
+
+    nav a:hover {
+        background: #2c5530;
+    }
+
+    /* Main Content */
+    main {
+        padding: 2rem 0;
+    }
+
+    .content-section {
+        background: white;
+        margin: 2rem 0;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .disclaimer {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        color: #856404;
+    }
+
+    .disclaimer strong {
+        color: #856404;
+    }
+
+    h2 {
+        color: #2c5530;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        border-bottom: 3px solid #4a7c59;
+        padding-bottom: 0.5rem;
+    }
+
+    h3 {
+        color: #2c5530;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    h4 {
+        color: #4a7c59;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .concept-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .concept-card {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #4a7c59;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .concept-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .concept-card h4 {
+        color: #2c5530;
+        margin-bottom: 0.5rem;
+        margin-top: 0;
+    }
+
+    .concept-card p {
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .gotelli-links {
+        background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+        padding: 2rem;
+        border-radius: 10px;
+        margin: 2rem 0;
+        border: 2px solid #4a7c59;
+    }
+
+    .gotelli-links h3 {
+        color: #2c5530;
+        margin-bottom: 1rem;
+        margin-top: 0;
+    }
+
+    .chapter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .chapter-card {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+        border: 2px solid #4a7c59;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .chapter-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .chapter-card a {
+        color: #2c5530;
+        text-decoration: none;
+        font-weight: bold;
+        display: block;
+    }
+
+    .chapter-card a:hover {
+        color: #4a7c59;
+    }
+
+    .definitions {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 10px;
+        margin: 2rem 0;
+        border-left: 5px solid #4a7c59;
+    }
+
+    .definition-item {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .definition-item:last-child {
+        border-bottom: none;
+    }
+
+    .definition-term {
+        font-weight: bold;
+        color: #2c5530;
+        font-size: 1.1rem;
+    }
+
+    .definition-text {
+        margin-top: 0.5rem;
+        color: #666;
+    }
+
+    .key-points {
+        background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+        border: 2px solid #4a7c59;
+    }
+
+    .key-points ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .key-points li {
+        margin-bottom: 0.5rem;
+        color: #2c5530;
+    }
+
+    /* Footer */
+    footer {
+        background: #1a3d20;
+        color: white;
+        text-align: center;
+        padding: 2rem 0;
+        margin-top: 3rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2rem;
+        }
+        
+        nav ul {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        nav li {
+            margin: 0.25rem 0;
+        }
+        
+        .concept-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .chapter-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Population Ecology 8310</h1>
+                <p class="subtitle">Lecture 1: Introduction to Population and Community Ecology</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#population">Population Ecology</a></li>
+                <li><a href="#community">Community Ecology</a></li>
+                <li><a href="#gotelli">Gotelli Resources</a></li>
+                <li><a href="#definitions">Key Definitions</a></li>
+                <li><a href="https://drabdulali.github.io">Back to Main Site</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Disclaimer -->
+            <div class="disclaimer">
+                <strong>Disclaimer:</strong> The content presented in this lecture may contain errors or require updates. If you identify any inaccuracies or have suggestions for improvement, please report them to <a href="mailto:abdul.ali@uga.edu">abdul.ali@uga.edu</a>. This material is intended for educational purposes and should be supplemented with primary literature and additional resources.
+            </div>
+
+            <!-- Overview Section -->
+            <section class="content-section" id="overview">
+                <h2>Course Overview</h2>
+                <p>Population and community ecology form the foundation of understanding how organisms interact with their environment and with each other. This introductory lecture establishes the conceptual framework for the entire course, covering the scope, methods, and fundamental principles that govern ecological systems at the population and community levels.</p>
+
+                <div class="key-points">
+                    <h4>Learning Objectives</h4>
+                    <ul>
+                        <li>Understand the scope and scale of population and community ecology</li>
+                        <li>Distinguish between population-level and community-level processes</li>
+                        <li>Recognize the importance of spatial and temporal scales in ecological studies</li>
+                        <li>Identify key methodological approaches in population and community ecology</li>
+                        <li>Understand the historical development of ecological theory</li>
+                    </ul>
+                </div>
+
+                <h3>The Ecological Hierarchy</h3>
+                <p>Ecology operates across multiple levels of biological organization, each with distinct properties and processes:</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>Individual Level</h4>
+                        <p>Physiological ecology, behavior, life history traits, and adaptation to environmental conditions.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Population Level</h4>
+                        <p>Dynamics of single species including growth, regulation, genetics, and evolution within populations.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Community Level</h4>
+                        <p>Interactions among species including competition, predation, mutualism, and community structure.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Ecosystem Level</h4>
+                        <p>Energy flow, nutrient cycling, and interactions between biotic and abiotic components.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Population Ecology Section -->
+            <section class="content-section" id="population">
+                <h2>Population Ecology Fundamentals</h2>
+                <p>Population ecology focuses on the dynamics of single species, examining how populations change in size, structure, and genetic composition over time and space.</p>
+
+                <h3>Core Concepts in Population Ecology</h3>
+
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>Population Growth</h4>
+                        <p>Exponential and logistic growth models, carrying capacity, and growth rate parameters. Understanding how populations increase or decrease under different environmental conditions.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Population Regulation</h4>
+                        <p>Density-dependent and density-independent factors that control population size. Mechanisms of population regulation including competition and predation.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Life History Theory</h4>
+                        <p>Trade-offs between survival and reproduction, r- and K-selection, and optimization of life history strategies under different environmental conditions.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Spatial Population Dynamics</h4>
+                        <p>Metapopulation theory, source-sink dynamics, and the role of dispersal in population persistence and evolution.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Population Genetics</h4>
+                        <p>Allele frequencies, genetic drift, gene flow, and natural selection within populations. Hardy-Weinberg equilibrium and deviations from it.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Stochastic Processes</h4>
+                        <p>Environmental stochasticity, demographic stochasticity, and extinction risk in small populations. Population viability analysis.</p>
+                    </div>
+                </div>
+
+                <h3>Mathematical Modeling in Population Ecology</h3>
+                <p>Population ecology relies heavily on mathematical models to predict and understand population dynamics. Key modeling approaches include:</p>
+
+                <h4>Deterministic Models</h4>
+                <ul>
+                    <li>Exponential growth: dN/dt = rN</li>
+                    <li>Logistic growth: dN/dt = rN(1 - N/K)</li>
+                    <li>Age-structured models using Leslie matrices</li>
+                    <li>Stage-structured population models</li>
+                </ul>
+
+                <h4>Stochastic Models</h4>
+                <ul>
+                    <li>Birth-death processes</li>
+                    <li>Environmental stochasticity models</li>
+                    <li>Demographic stochasticity models</li>
+                    <li>Population viability analysis (PVA)</li>
+                </ul>
+            </section>
+
+            <!-- Community Ecology Section -->
+            <section class="content-section" id="community">
+                <h2>Community Ecology Fundamentals</h2>
+                <p>Community ecology examines patterns and processes involving multiple interacting species within ecological communities.</p>
+
+                <h3>Species Interactions</h3>
+                
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>Competition</h4>
+                        <p>Interspecific and intraspecific competition for limited resources. Competitive exclusion principle, resource partitioning, and coexistence mechanisms.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Predation</h4>
+                        <p>Predator-prey dynamics, functional and numerical responses, and the role of predation in structuring communities.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Mutualism</h4>
+                        <p>Beneficial interactions between species including pollination, seed dispersal, and symbiotic relationships.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Parasitism</h4>
+                        <p>Host-parasite dynamics, effects on host populations, and the role of parasites in community structure.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Commensalism & Amensalism</h4>
+                        <p>Neutral and negative interactions where one species is unaffected by the interaction.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h4>Facilitation</h4>
+                        <p>Positive interactions where one species enhances the performance of another without direct benefit.</p>
+                    </div>
+                </div>
+
+                <h3>Community Structure and Dynamics</h3>
+
+                <h4>Diversity Patterns</h4>
+                <ul>
+                    <li>Species richness and evenness</li>
+                    <li>Alpha, beta, and gamma diversity</li>
+                    <li>Diversity indices (Shannon, Simpson, etc.)</li>
+                    <li>Species-area relationships</li>
+                    <li>Latitudinal diversity gradients</li>
+                </ul>
+
+                <h4>Community Assembly</h4>
+                <ul>
+                    <li>Ecological succession (primary and secondary)</li>
+                    <li>Colonization and extinction dynamics</li>
+                    <li>Priority effects and historical contingency</li>
+                    <li>Neutral theory vs. niche theory</li>
+                </ul>
+
+                <h4>Food Webs and Trophic Structure</h4>
+                <ul>
+                    <li>Food chains and food webs</li>
+                    <li>Trophic levels and energy transfer</li>
+                    <li>Top-down vs. bottom-up control</li>
+                    <li>Keystone species and ecosystem engineers</li>
+                    <li>Trophic cascades</li>
+                </ul>
+
+                <h3>Spatial Patterns in Communities</h3>
+                
+                <div class="key-points">
+                    <h4>Key Spatial Concepts</h4>
+                    <ul>
+                        <li>Habitat heterogeneity and patch dynamics</li>
+                        <li>Edge effects and fragmentation</li>
+                        <li>Metacommunity theory</li>
+                        <li>Dispersal limitation and mass effects</li>
+                        <li>Species sorting and neutral assembly</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Gotelli Resources Section -->
+            <section class="gotelli-links" id="gotelli">
+                <h3>Gotelli's "A Primer of Ecology" - Supplementary Resources</h3>
+                <p>Nicholas Gotelli's textbook provides foundational mathematical approaches to population and community ecology. The following chapters are essential reading for understanding the quantitative framework of ecological theory:</p>
+
+                <div class="chapter-grid">
+                    <div class="chapter-card">
+                        <a href="https://drabdulali.github.io/apps/Gotelli_Chap1/index.html" target="_blank">
+                            <h4>Chapter 1</h4>
+                            <p>Exponential Population Growth</p>
+                        </a>
+                    </div>
+                    <div class="chapter-card">
+                        <a href="https://drabdulali.github.io/apps/Gotelli_Chap2/index.html" target="_blank">
+                            <h4>Chapter 2</h4>
+                            <p>Logistic Population Growth</p>
+                        </a>
+                    </div>
+                    <div class="chapter-card">
+                        <a href="https://drabdulali.github.io/apps/Gotelli_Chap3/index.html" target="_blank">
+                            <h4>Chapter 3</h4>
+                            <p>Age-Structured Population Growth</p>
+                        </a>
+                    </div>
+                    <div class="chapter-card">
+                        <a href="https://drabdulali.github.io/apps/Gotelli_Chap4/index.html" target="_blank">
+                            <h4>Chapter 4</h4>
+                            <p>Metapopulation Dynamics</p>
+                        </a>
+                    </div>
+                    <div class="chapter-card">
+                        <a href="https://drabdulali.github.io/apps/Gotelli_Chap5/index.html" target="_blank">
+                            <h4>Chapter 5</h4>
+                            <p>Interspecific Competition</p>
+                        </a>
+                    </div>
+                    <div class="chapter-card">
+                        <a href="https://drabdulali.github.io/apps/Gotelli_Chap6/index.html" target="_blank">
+                            <h4>Chapter 6</h4>
+                            <p>Predation</p>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Definitions Section -->
+            <section class="definitions" id="definitions">
+                <h2>Essential Definitions for PhD Students</h2>
+                <p>The following terms represent fundamental concepts that every PhD student in population and community ecology should understand thoroughly:</p>
+
+                <div class="definition-item">
+                    <div class="definition-term">Population</div>
+                    <div class="definition-text">A group of individuals of the same species occupying a defined geographical area and potentially interbreeding.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Community</div>
+                    <div class="definition-text">An assemblage of populations of different species living in the same place at the same time and potentially interacting.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Intrinsic Rate of Increase (r)</div>
+                    <div class="definition-text">The maximum potential rate of population growth under ideal conditions, representing the difference between birth and death rates.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Carrying Capacity (K)</div>
+                    <div class="definition-text">The maximum population size that an environment can sustain indefinitely given available resources and environmental conditions.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Density Dependence</div>
+                    <div class="definition-text">Population regulation mechanisms where birth rates, death rates, or dispersal rates change as a function of population density.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Metapopulation</div>
+                    <div class="definition-text">A population of populations - a set of local populations connected by dispersal, where local extinctions are balanced by recolonization.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Competitive Exclusion Principle</div>
+                    <div class="definition-text">The principle stating that two species competing for the same limiting resource cannot coexist indefinitely; one will exclude the other.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Ecological Niche</div>
+                    <div class="definition-text">The total range of environmental conditions under which a species can survive and reproduce, including all resources and habitat requirements.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Functional Response</div>
+                    <div class="definition-text">The change in predation rate by an individual predator as prey density changes, typically categorized as Type I, II, or III responses.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Numerical Response</div>
+                    <div class="definition-text">The change in predator population size in response to changes in prey population size, typically through reproduction or aggregation.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Species Diversity</div>
+                    <div class="definition-text">A measure combining both species richness (number of species) and species evenness (relative abundance of species) in a community.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Trophic Cascade</div>
+                    <div class="definition-text">Indirect effects that occur when predators suppress herbivore populations, thereby releasing plants from herbivory pressure.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Keystone Species</div>
+                    <div class="definition-text">A species that has a disproportionately large effect on community structure relative to its abundance.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Source-Sink Dynamics</div>
+                    <div class="definition-text">Population dynamics where high-quality habitats (sources) produce emigrants that support populations in low-quality habitats (sinks).</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Life History Strategy</div>
+                    <div class="definition-text">The evolved pattern of survival, growth, and reproduction that characterizes a species, including trade-offs between reproduction and survival.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">r-Selection vs. K-Selection</div>
+                    <div class="definition-text">Evolutionary strategies where r-selected species emphasize high reproductive rates and rapid development, while K-selected species emphasize competitive ability and survival.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Ecological Succession</div>
+                    <div class="definition-text">The predictable sequence of changes in community composition following disturbance or colonization of new habitat.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Alpha, Beta, and Gamma Diversity</div>
+                    <div class="definition-text">Local diversity within habitats (alpha), diversity between habitats (beta), and total regional diversity (gamma) across a landscape.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Environmental Stochasticity</div>
+                    <div class="definition-text">Random fluctuations in environmental conditions that affect population growth rates and increase extinction risk.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Demographic Stochasticity</div>
+                    <div class="definition-text">Random variation in individual survival and reproduction that affects population growth, particularly important in small populations.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Population Viability Analysis (PVA)</div>
+                    <div class="definition-text">Quantitative assessment of extinction risk using demographic models that incorporate stochastic processes and environmental variation.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Neutral Theory</div>
+                    <div class="definition-text">Theory proposing that community structure is determined primarily by random processes rather than species-specific differences in fitness.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Metacommunity</div>
+                    <div class="definition-text">A set of local communities linked by dispersal of potentially interacting species across multiple patches.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Effective Population Size (Ne)</div>
+                    <div class="definition-text">The number of individuals in an idealized population that would experience the same amount of genetic drift as the actual population being studied.</div>
+                </div>
+
+                <div class="definition-item">
+                    <div class="definition-term">Allee Effect</div>
+                    <div class="definition-text">A phenomenon where fitness decreases at low population densities, potentially leading to extinction vortices in small populations.</div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Abdul Ali - Population Ecology 8310. For questions or corrections, contact: abdul.ali@uga.edu</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
