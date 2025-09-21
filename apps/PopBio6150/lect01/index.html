@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>L1 – Introduction | Population Biology of Infectious Diseases</title>
+<style>
+  :root{
+    --header-grad: linear-gradient(135deg, #2c5530, #4a7c59);
+    --nav-bg:#1a3d20;
+    --accent:#4a7c59;
+    --heading:#2c5530;
+    --bg:#f8f9fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:#222}
+  a{color:#0b6bcb;text-decoration:none}
+  header{
+    background:var(--header-grad);
+    color:#fff;
+    padding:2.5rem 1rem 2rem;
+    box-shadow:0 4px 30px rgba(0,0,0,.08) inset
+  }
+  .container{max-width:1100px;margin:0 auto;padding:0 1rem}
+  h1{margin:.2rem 0 0;font-weight:800;letter-spacing:.2px}
+  .subtitle{opacity:.9;margin-top:.5rem}
+  nav{background:var(--nav-bg);color:#fff}
+  nav .container{display:flex;gap:1rem;flex-wrap:wrap}
+  nav a{color:#e8f5e8;padding:.9rem .8rem;display:inline-block;border-radius:.6rem}
+  nav a:hover{background:rgba(255,255,255,.06)}
+  main{padding:2rem 0 4rem}
+  section{margin:1.25rem 0 0}
+  h2,h3{color:var(--heading);margin:.2rem 0 1rem}
+  .grid{display:grid;gap:1rem}
+  @media (min-width:900px){.grid-3{grid-template-columns:repeat(3,1fr)} .grid-2{grid-template-columns:repeat(2,1fr)}}
+  .card{
+    background:#fff;border:1px solid #e6ece7;border-radius:16px;padding:1rem 1.1rem;
+    box-shadow:0 8px 28px rgba(44,85,48,.05)
+  }
+  .soft{background:#fff}
+  .callout{
+    background:linear-gradient(135deg,#e8f5e8,#ffffff);
+    border:1px solid #d9ead9;border-radius:16px;padding:1rem 1.1rem
+  }
+  .pill{display:inline-block;padding:.25rem .6rem;border:1px solid var(--accent);border-radius:999px;color:var(--accent);font-size:.85rem;margin-right:.4rem}
+  .muted{color:#555}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#f3f5f4;border:1px solid #e6e9e7;border-radius:6px;padding:.08rem .35rem}
+  .small{font-size:.92rem}
+  .footer{margin-top:3rem;color:#556;opacity:.9}
+  details summary{cursor:pointer;font-weight:600;color:var(--heading)}
+  .controls{display:flex;gap:.6rem;flex-wrap:wrap;align-items:flex-end;margin:.6rem 0}
+  label{font-size:.9rem;color:#234}
+  input[type="number"],input[type="range"]{
+    width:140px;padding:.35rem .45rem;border:1px solid #dce3de;border-radius:8px;background:#fff
+  }
+  .slider{width:220px}
+  button{
+    background:var(--header-grad);color:#fff;border:none;border-radius:10px;padding:.55rem .8rem;
+    font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(44,85,48,.18)
+  }
+  button.ghost{background:#fff;color:#2c5530;border:1px solid var(--accent)}
+  .stat{display:inline-block;min-width:110px;margin-right:.6rem;padding:.35rem .55rem;background:#f3f7f4;border:1px solid #e2ebe4;border-radius:10px}
+  .svg-wrap{background:#fff;border:1px solid #e6ece7;border-radius:14px;padding:.75rem;overflow:hidden}
+  .note{font-size:.92rem;color:#445;margin-top:.4rem}
+  ul.tight>li{margin:.3rem 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <div class="pill">ECOL/BIOL 4150L/6150L</div>
+    <h1>Population Biology of Infectious Diseases — L1: Introduction</h1>
+    <p class="subtitle">From ecological principles to outbreak dynamics: hosts, pathogens, contact structure, thresholds, seasonality, and global change.</p>
+  </div>
+</header>
+
+<nav>
+  <div class="container">
+    <a href="#objectives">Objectives</a>
+    <a href="#foundations">Foundations</a>
+    <a href="#case-studies">Case studies</a>
+    <a href="#big-picture">Big picture</a>
+    <a href="#simulations">Interactive sims</a>
+    <a href="#summary">Summary</a>
+  </div>
+</nav>
+
+<main class="container">
+  <!-- Objectives -->
+  <section id="objectives" class="grid grid-3">
+    <div class="card">
+      <h3>Learning objectives</h3>
+      <ul class="tight">
+        <li>Define disease ecology and distinguish <em>microparasite</em> vs <em>macroparasite</em> dynamics.</li>
+        <li>Explain how host density, contact rates, and seasonality shape epidemic cycles.</li>
+        <li>Interpret threshold concepts (e.g., critical community size; herd immunity).</li>
+        <li>Describe how land use & climate alter multi-host systems and spillover risk.</li>
+        <li>Extract general principles from Hendra, Hawaiian avian malaria, and measles.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Assessment cues</h3>
+      <ul class="tight">
+        <li>Reason from first principles: how would changing <span class="kbd">β</span> or mixing alter outcomes?</li>
+        <li>Identify which variables are <em>state</em> vs <em>parameters</em> in simple models.</li>
+        <li>Connect ecological change → contact patterns → transmission → persistence.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Key terms</h3>
+      <p class="small"><span class="pill">R<sub>0</sub></span><span class="pill">Critical community size</span><span class="pill">Superspreading</span><span class="pill">Reservoir</span><span class="pill">Spillover</span><span class="pill">Seasonal forcing</span><span class="pill">Tolerance vs resistance</span></p>
+    </div>
+  </section>
+
+  <!-- Foundations -->
+  <section id="foundations">
+    <h2>Foundations</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>What is disease ecology?</h3>
+        <p><strong>Ecology</strong> studies interactions among organisms and their environment; <strong>disease ecology</strong> applies this to pathogens. For parasites, the <em>host</em> (and host population/community plus abiotic context) is the environment in which infection, transmission, and evolution unfold. :contentReference[oaicite:4]{index=4}</p>
+        <ul class="tight">
+          <li><strong>Microparasites</strong> (viruses, bacteria, protozoa): binary infection status, rapid replication, immunity common.</li>
+          <li><strong>Macroparasites</strong> (worms, ectoparasites): burden matters; partial immunity; aggregation common.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Why it matters</h3>
+        <ul class="tight">
+          <li><strong>Human & wildlife health, conservation</strong>: pathogens can drive declines/extinctions; management needs ecology. :contentReference[oaicite:5]{index=5}</li>
+          <li><strong>Multi-host reality</strong>: many pathogens bridge wildlife–livestock–human networks. :contentReference[oaicite:6]{index=6}</li>
+          <li><strong>Anthropogenic change</strong>: land use, urbanization, and climate reshape contact and suitability. :contentReference[oaicite:7]{index=7}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Case studies -->
+  <section id="case-studies">
+    <h2>Case studies</h2>
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>Hendra virus (Australia)</h3>
+        <ul class="tight">
+          <li>RNA virus shed in bat urine; benign in bats, severe in horses/dogs/humans. :contentReference[oaicite:8]{index=8}</li>
+          <li>Urban fruit trees & permanent bat camps near people ↑ contact & spillover risk. :contentReference[oaicite:9]{index=9}</li>
+          <li><em>Principles</em>: habitat disruption → novel contact networks; multi-host spillover; modeling clarifies dynamics. :contentReference[oaicite:10]{index=10}</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Avian malaria (Hawaii)</h3>
+        <ul class="tight">
+          <li>Pre-1830: no mosquitoes → later introductions + <em>Plasmodium relictum</em> → honeycreeper collapses. :contentReference[oaicite:11]{index=11}</li>
+          <li>Native birds highly susceptible (65–90% mortality); introduced birds can amplify. :contentReference[oaicite:12]{index=12}</li>
+          <li>Warming shifts vector/parasite to higher elevations; protection of high-elevation forests is crucial. :contentReference[oaicite:13]{index=13}</li>
+          <li><em>Rapid evolution</em>: low-elevation Amakihi show tolerance within ~100 years. :contentReference[oaicite:14]{index=14}</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Measles (humans)</h3>
+        <ul class="tight">
+          <li>Highly contagious, lifelong immunity post-infection. :contentReference[oaicite:15]{index=15}</li>
+          <li><strong>Critical community size</strong> ≈ 300k–500k for persistence; small populations show fade-outs. :contentReference[oaicite:16]{index=16}</li>
+          <li>Biennial cycles & strong seasonality tied to school terms (“pulses”). :contentReference[oaicite:17]{index=17}</li>
+          <li>Vaccination can interrupt transmission and eliminate outbreaks. :contentReference[oaicite:18]{index=18}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Big picture -->
+  <section id="big-picture" class="callout">
+    <h2>The big picture</h2>
+    <ul class="tight">
+      <li><strong>Density & persistence</strong>: higher host density → easier pathogen persistence. :contentReference[oaicite:19]{index=19}</li>
+      <li><strong>Contact structure</strong>: social behavior (schools, farms, urban wildlife) shapes β and superspreading. :contentReference[oaicite:20]{index=20}</li>
+      <li><strong>Seasonal forcing</strong>: periodic changes in contact/susceptibles sustain cycles. :contentReference[oaicite:21]{index=21}</li>
+      <li><strong>Multi-host landscapes</strong> & <strong>reservoirs</strong> complicate control. :contentReference[oaicite:22]{index=22}</li>
+      <li><strong>Global change</strong>: climate & land use shift vector suitability and encounter rates. :contentReference[oaicite:23]{index=23}</li>
+    </ul>
+  </section>
+
+  <!-- Simulations -->
+  <section id="simulations">
+    <h2>Interactive simulations</h2>
+
+    <!-- SIR -->
+    <div class="card">
+      <h3>1) Classic SIR epidemic (microparasite)</h3>
+      <p class="muted small">Adjust transmission <span class="kbd">β</span>, recovery <span class="kbd">γ</span>, and population size <span class="kbd">N</span>. The basic reproduction number is R<sub>0</sub>=β/γ under mass action.</p>
+      <div class="controls">
+        <div>
+          <label>β (per day)<br><input id="sirBeta" type="number" step="0.01" value="0.30"></label>
+        </div>
+        <div>
+          <label>γ (per day)<br><input id="sirGamma" type="number" step="0.01" value="0.10"></label>
+        </div>
+        <div>
+          <label>N (people)<br><input id="sirN" type="number" step="100" value="100000"></label>
+        </div>
+        <div>
+          <label>I<sub>0</sub> (initial)<br><input id="sirI0" type="number" step="1" value="10"></label>
+        </div>
+        <div>
+          <label>Days<br><input id="sirDays" type="number" step="10" value="180"></label>
+        </div>
+        <button id="runSIR">Run</button>
+        <button class="ghost" id="resetSIR">Reset</button>
+      </div>
+      <div class="stat">R₀ = <span id="sirR0">3.00</span></div>
+      <div class="stat">Peak I = <span id="sirPeakI">—</span></div>
+      <div class="stat">Final R = <span id="sirFinalR">—</span></div>
+      <div class="svg-wrap"><svg id="sirPlot" viewBox="0 0 700 320" width="100%" height="320" aria-label="SIR plot"></svg></div>
+      <p class="note">Takeaway: When R<sub>0</sub>&gt;1, incidence grows; higher β or lower γ increases peak size and speeds timing. Lowering effective β (e.g., via vaccination/behavior) flattens and can prevent the epidemic.</p>
+    </div>
+
+    <!-- CCS intuition -->
+    <div class="card">
+      <h3>2) Critical community size (CCS) intuition</h3>
+      <p class="muted small">A stylized, qualitative toy: the probability the pathogen <em>persists</em> between waves increases with N and with the influx of susceptibles (births/waning).</p>
+      <div class="controls">
+        <div>
+          <label>Population size N<br><input id="ccsN" type="range" min="1e4" max="1e6" step="10000" value="300000" class="slider"></label>
+        </div>
+        <div>
+          <label>Births per year (%)<br><input id="ccsB" type="range" min="0" max="5" step="0.1" value="2.0" class="slider"></label>
+        </div>
+        <button id="calcCCS">Estimate</button>
+      </div>
+      <div class="stat">Persistence chance: <span id="ccsOut">—</span></div>
+      <div class="note">Takeaway: As N approaches ~300–500k and replenishment of susceptibles is higher, fade-outs become rare (measles example). :contentReference[oaicite:24]{index=24}</div>
+    </div>
+
+    <!-- Climate-elevation vector suitability -->
+    <div class="card">
+      <h3>3) Climate & elevation suitability (vector window)</h3>
+      <p class="muted small">A simple “window” model for mosquito suitability vs temperature and elevation band. Warmer temps shift the suitable band upslope.</p>
+      <div class="controls">
+        <div>
+          <label>Mean temp (°C)<br><input id="temp" type="range" min="10" max="28" step="0.5" value="17" class="slider"></label>
+        </div>
+        <div>
+          <label>Elevation (m)<br><input id="elev" type="range" min="0" max="3000" step="50" value="1200" class="slider"></label>
+        </div>
+        <button id="calcSuit">Check suitability</button>
+      </div>
+      <div class="stat">Suitability: <span id="suitOut">—</span></div>
+      <div class="note">Takeaway: With warming (e.g., +2 °C), the “malaria-free” high-elevation refugia shrink, risking upward shifts in transmission zones. :contentReference[oaicite:25]{index=25}</div>
+    </div>
+  </section>
+
+  <!-- Summary -->
+  <section id="summary" class="card">
+    <h2>Summary</h2>
+    <ul class="tight">
+      <li>Pathogens live in ecological networks: the <em>host</em> is their environment, but population structure and climate set the stage. :contentReference[oaicite:26]{index=26}</li>
+      <li>For microparasites, <strong>R₀</strong>, contact rates, and susceptible supply (births/waning) govern growth and persistence. :contentReference[oaicite:27]{index=27}</li>
+      <li>Thresholds matter: <em>critical community size</em> separates persistence from fade-out; vaccination shifts effective R<sub>0</sub> below 1. :contentReference[oaicite:28]{index=28}</li>
+      <li>Multi-host realities and environmental change (urbanization, climate) reshape spillover risks (Hendra; Hawaiian birds). :contentReference[oaicite:29]{index=29} :contentReference[oaicite:30]{index=30}</li>
+      <li>Management leverages ecology: reduce contact, protect refugia, vaccinate strategically, and monitor reservoirs.</li>
+    </ul>
+  </section>
+
+  <p class="footer small">© Your Course • L1 – Introduction</p>
+</main>
+
+<script>
+/* ---------- Simple helpers ----------- */
+function linePath(data, xScale, yScale){
+  return data.map((p,i)=> (i? "L":"M") + xScale(i) + " " + yScale(p)).join(" ");
+}
+function makeAxes(svg, w, h, pad){
+  // axes
+  const ax = document.createElementNS("http://www.w3.org/2000/svg","path");
+  ax.setAttribute("d",`M ${pad} ${h-pad} H ${w-pad} M ${pad} ${h-pad} V ${pad}`);
+  ax.setAttribute("stroke","#8aa193"); ax.setAttribute("fill","none");
+  ax.setAttribute("stroke-width","1");
+  svg.appendChild(ax);
+}
+
+/* ---------- SIR simulation ----------- */
+const sirEl = {
+  beta: document.getElementById('sirBeta'),
+  gamma: document.getElementById('sirGamma'),
+  N: document.getElementById('sirN'),
+  I0: document.getElementById('sirI0'),
+  days: document.getElementById('sirDays'),
+  r0: document.getElementById('sirR0'),
+  peakI: document.getElementById('sirPeakI'),
+  finalR: document.getElementById('sirFinalR'),
+  plot: document.getElementById('sirPlot'),
+  run: document.getElementById('runSIR'),
+  reset: document.getElementById('resetSIR')
+};
+function runSIR(){
+  const beta = parseFloat(sirEl.beta.value);
+  const gamma = parseFloat(sirEl.gamma.value);
+  const N = parseInt(sirEl.N.value);
+  const I0 = Math.max(1, parseInt(sirEl.I0.value));
+  const D = Math.max(10, parseInt(sirEl.days.value));
+  sirEl.r0.textContent = (beta/gamma).toFixed(2);
+
+  // simple Euler
+  let S = N - I0, I = I0, R = 0;
+  const dt = 1.0;
+  const Sarr=[], Iarr=[], Rarr=[];
+  let peakI = I;
+  for(let t=0; t<=D; t+=dt){
+    Sarr.push(S); Iarr.push(I); Rarr.push(R);
+    const dS = -beta * S * I / N * dt;
+    const dI = (beta * S * I / N - gamma * I) * dt;
+    const dR = gamma * I * dt;
+    S = Math.max(0, S + dS);
+    I = Math.max(0, I + dI);
+    R = Math.max(0, R + dR);
+    if(I>peakI) peakI = I;
+  }
+  sirEl.peakI.textContent = Math.round(peakI).toLocaleString();
+  sirEl.finalR.textContent = Math.round(R).toLocaleString();
+
+  // plot
+  const svg = sirEl.plot;
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const w=700,h=320,pad=38;
+  makeAxes(svg,w,h,pad);
+
+  const maxY = Math.max(...Iarr, ...Sarr, ...Rarr);
+  const xScale = (i)=> pad + (i/(Iarr.length-1))*(w-2*pad);
+  const yScale = (v)=> h - pad - (v/maxY)*(h-2*pad);
+
+  const mk = (data, stroke)=>{
+    const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d", linePath(data, xScale, yScale));
+    p.setAttribute("fill","none"); p.setAttribute("stroke", stroke); p.setAttribute("stroke-width","2");
+    svg.appendChild(p);
+  };
+  mk(Sarr, "#7fbf7f"); // S
+  mk(Iarr, "#e87461"); // I
+  mk(Rarr, "#5a8bcf"); // R
+
+  // legend
+  const legend = [
+    {label:"S", color:"#7fbf7f", x: w-170},
+    {label:"I", color:"#e87461", x: w-120},
+    {label:"R", color:"#5a8bcf", x: w-70},
+  ];
+  legend.forEach((d,i)=>{
+    const r = document.createElementNS("http://www.w3.org/2000/svg","rect");
+    r.setAttribute("x", d.x); r.setAttribute("y", 12);
+    r.setAttribute("width", 10); r.setAttribute("height",10); r.setAttribute("fill", d.color);
+    svg.appendChild(r);
+    const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t.setAttribute("x", d.x+14); t.setAttribute("y", 21); t.setAttribute("font-size","12");
+    t.textContent = d.label; svg.appendChild(t);
+  });
+}
+sirEl.run.addEventListener('click', runSIR);
+sirEl.reset.addEventListener('click', ()=>{
+  sirEl.beta.value=0.30; sirEl.gamma.value=0.10; sirEl.N.value=100000; sirEl.I0.value=10; sirEl.days.value=180;
+  sirEl.r0.textContent="3.00"; sirEl.peakI.textContent="—"; sirEl.finalR.textContent="—";
+  sirEl.plot.innerHTML="";
+});
+
+/* ---------- CCS intuition (toy) ----------- */
+const ccsN = document.getElementById('ccsN');
+const ccsB = document.getElementById('ccsB');
+const ccsOut = document.getElementById('ccsOut');
+document.getElementById('calcCCS').addEventListener('click', ()=>{
+  const N = parseFloat(ccsN.value);
+  const b = parseFloat(ccsB.value)/100;
+  // heuristic: map N and births to persistence in [0,1]
+  // center CCS around 400k; logistic in N; linear mod by b
+  const pN = 1/(1+Math.exp(-(N-400000)/60000));
+  const pB = Math.min(1, 0.5 + 5*b); // 0.5 at 0%, ~1 at ≥10%
+  const p  = Math.max(0, Math.min(1, 0.15 + 0.85*(0.7*pN + 0.3*pB)));
+  ccsOut.textContent = (p*100).toFixed(0) + "%";
+});
+
+/* ---------- Climate-elevation suitability (window) ----------- */
+const temp = document.getElementById('temp');
+const elev = document.getElementById('elev');
+const suitOut = document.getElementById('suitOut');
+document.getElementById('calcSuit').addEventListener('click', ()=>{
+  const T = parseFloat(temp.value);
+  const E = parseFloat(elev.value);
+  // window: suitable if 14°C <= T <= 27°C; effective threshold shifts with elevation (−6.5°C/km)
+  // crude lapse adjustment: T_eff = T - 0.0065 * E
+  const Teff = T - 0.0065 * E;
+  const ok = (Teff >= 14 && Teff <= 27);
+  suitOut.textContent = ok ? "Suitable" : "Not suitable";
+});
+</script>
+</body>
+</html>
