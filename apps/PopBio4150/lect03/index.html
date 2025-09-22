@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Biology of Infectious Diseases - Lecture 3</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: normal;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav li {
+            margin: 0 1rem;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        nav button:hover, nav button.active {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+
+        .concept-card h2 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e8f5e8;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 5px solid #1a3d20;
+        }
+
+        .key-insight h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .simulation-container {
+            background: #f8f9fa;
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+            color: #2c5530;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+
+        .value-display {
+            font-weight: bold;
+            color: #4a7c59;
+            font-size: 1.1rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 300px;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .example-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #4a7c59;
+        }
+
+        .example-card h4 {
+            color: #2c5530;
+            margin-top: 0;
+        }
+
+        .transmission-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .arrow {
+            color: #4a7c59;
+            font-size: 1.5rem;
+            margin: 0 1rem;
+        }
+
+        .special-case {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .quiz-section h2 {
+            color: #155724;
+            margin-top: 0;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .line-direct {
+            stroke: #2c5530;
+        }
+
+        .line-environmental {
+            stroke: #4a7c59;
+        }
+
+        .line-human {
+            stroke: #2c5530;
+        }
+
+        .line-vector {
+            stroke: #4a7c59;
+        }
+
+        .line-capacity {
+            stroke: #1a3d20;
+        }
+
+        .axis {
+            stroke: #666;
+        }
+
+        .axis text {
+            font-size: 12px;
+            fill: #666;
+        }
+
+        .legend {
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav li {
+                margin: 0.25rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Population Biology of Infectious Diseases</h1>
+        <div class="subtitle">Course 6150 - Lecture 3: Parasite Transmission Modes & Trophic Strategies</div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><button onclick="showSection('objectives')" class="nav-btn active">Learning Objectives</button></li>
+            <li><button onclick="showSection('review')" class="nav-btn">Review</button></li>
+            <li><button onclick="showSection('transmission-overview')" class="nav-btn">Transmission Overview</button></li>
+            <li><button onclick="showSection('direct')" class="nav-btn">Direct Transmission</button></li>
+            <li><button onclick="showSection('environmental')" class="nav-btn">Environmental Transmission</button></li>
+            <li><button onclick="showSection('vector')" class="nav-btn">Vector-Borne</button></li>
+            <li><button onclick="showSection('trophic')" class="nav-btn">Trophic Transmission</button></li>
+            <li><button onclick="showSection('simulations')" class="nav-btn">Interactive Models</button></li>
+            <li><button onclick="showSection('quiz')" class="nav-btn">Quiz</button></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="objectives" class="section active">
+            <div class="objectives">
+                <h2>Learning Objectives</h2>
+                <p>By the end of this lecture, students should be able to:</p>
+                <ul>
+                    <li><strong>Classify transmission modes:</strong> Distinguish between direct, environmental, vector-borne, and trophic transmission with specific examples</li>
+                    <li><strong>Analyze density-dependent dynamics:</strong> Explain how host density affects transmission rates for different transmission modes</li>
+                    <li><strong>Evaluate parasite strategies:</strong> Compare how different transmission modes influence parasite evolution and host manipulation</li>
+                    <li><strong>Apply concepts to case studies:</strong> Identify transmission modes in real-world disease examples and predict control strategies</li>
+                    <li><strong>Understand trophic strategies:</strong> Explain how parasites interact with their hosts and the evolutionary implications</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="review" class="section">
+            <div class="concept-card">
+                <h2>Review: Key Ways Parasites Differ</h2>
+                <p>Parasites exhibit remarkable diversity across multiple dimensions. Understanding these differences is crucial for predicting disease dynamics and developing effective control strategies.</p>
+                
+                <h3>Classification Schemes</h3>
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <h4>Life Cycles</h4>
+                        <ul>
+                            <li>Simple vs. complex life cycles</li>
+                            <li>Single vs. multiple host species</li>
+                            <li>Microparasites vs. macroparasites</li>
+                        </ul>
+                    </div>
+                    <div class="example-card">
+                        <h4>Taxonomy</h4>
+                        <ul>
+                            <li>Viruses (e.g., COVID-19, measles)</li>
+                            <li>Bacteria (e.g., cholera, tuberculosis)</li>
+                            <li>Fungi (e.g., white-nose syndrome)</li>
+                            <li>Helminths (e.g., hookworm)</li>
+                        </ul>
+                    </div>
+                    <div class="example-card">
+                        <h4>Transmission Mode</h4>
+                        <ul>
+                            <li>Direct: host-to-host contact</li>
+                            <li>Environmental: via environment</li>
+                            <li>Vector-borne: via arthropod vectors</li>
+                            <li>Trophic: through predation</li>
+                        </ul>
+                    </div>
+                    <div class="example-card">
+                        <h4>Trophic Strategy</h4>
+                        <ul>
+                            <li>Host survival requirements</li>
+                            <li>Castrating vs. non-castrating</li>
+                            <li>Host behavior modification</li>
+                            <li>Resource extraction methods</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>These classification schemes are non-mutually exclusive. A single parasite may exhibit characteristics from multiple categories, and understanding these combinations helps predict ecological and evolutionary dynamics.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="transmission-overview" class="section">
+            <div class="concept-card">
+                <h2>Transmission Modes: Overview</h2>
+                <p>Transmission is the fundamental process by which parasites move from one host to another, ensuring their survival and reproduction. The mode of transmission profoundly influences parasite ecology, evolution, and control strategies.</p>
+
+                <div class="transmission-flow">
+                    <span>Infected Host</span>
+                    <span class="arrow">→</span>
+                    <span>Transmission Process</span>
+                    <span class="arrow">→</span>
+                    <span>New Host</span>
+                </div>
+
+                <h3>Four Primary Transmission Modes</h3>
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <h4>1. Direct Transmission</h4>
+                        <div class="transmission-flow">
+                            <span>Host</span>
+                            <span class="arrow">→</span>
+                            <span>Host</span>
+                        </div>
+                        <p>Requires close contact between hosts. Parasites typically cannot survive long in the environment.</p>
+                    </div>
+                    <div class="example-card">
+                        <h4>2. Environmental Transmission</h4>
+                        <div class="transmission-flow">
+                            <span>Host</span>
+                            <span class="arrow">→</span>
+                            <span>Environment</span>
+                            <span class="arrow">→</span>
+                            <span>Host</span>
+                        </div>
+                        <p>Parasites survive outside hosts and are acquired from the environment.</p>
+                    </div>
+                    <div class="example-card">
+                        <h4>3. Vector-Borne Transmission</h4>
+                        <div class="transmission-flow">
+                            <span>Host</span>
+                            <span class="arrow">→</span>
+                            <span>Vector</span>
+                            <span class="arrow">→</span>
+                            <span>Host</span>
+                        </div>
+                        <p>Arthropod vectors transport parasites between hosts, often while feeding.</p>
+                    </div>
+                    <div class="example-card">
+                        <h4>4. Trophic Transmission</h4>
+                        <div class="transmission-flow">
+                            <span>Host Species 1</span>
+                            <span class="arrow">→</span>
+                            <span>Host Species 2</span>
+                        </div>
+                        <p>Transmission occurs through predation, with parasites requiring consumption of infected prey.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="direct" class="section">
+            <div class="concept-card">
+                <h2>Direct Transmission</h2>
+                <p>Direct transmission requires close physical contact between hosts and is characteristic of many highly contagious diseases. The transmission rate typically depends on host density and contact patterns.</p>
+
+                <h3>Mechanisms and Characteristics</h3>
+                <ul>
+                    <li><strong>Contact Requirements:</strong> Physical proximity for droplet transmission, sexual contact, or direct contact with infected tissues</li>
+                    <li><strong>Environmental Vulnerability:</strong> Parasites cannot survive long outside hosts</li>
+                    <li><strong>Density Dependence:</strong> Transmission increases with host density when contacts are proportional to density</li>
+                    <li><strong>Prevention:</strong> Social distancing, masks, and contact reduction are highly effective</li>
+                </ul>
+
+                <div class="equation-box">
+                    <p><strong>Transmission Rate:</strong></p>
+                    <p>β = transmission coefficient × contact rate × host density</p>
+                    <p>If contacts ∝ density, then transmission is density-dependent</p>
+                </div>
+
+                <h3>Examples</h3>
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <h4>Human Diseases</h4>
+                        <ul>
+                            <li><strong>COVID-19:</strong> Respiratory droplets, R₀ ≈ 2-3</li>
+                            <li><strong>Measles:</strong> Highly contagious airborne transmission, R₀ ≈ 12-18</li>
+                            <li><strong>Influenza:</strong> Seasonal respiratory transmission</li>
+                        </ul>
+                    </div>
+                    <div class="example-card">
+                        <h4>Wildlife Diseases</h4>
+                        <ul>
+                            <li><strong>White-nose syndrome:</strong> Bat-to-bat contact in hibernacula</li>
+                            <li><strong>Tasmanian devil facial tumor:</strong> Transmitted through biting during social interactions</li>
+                            <li><strong>Rinderpest:</strong> Contact transmission in ungulates (now eradicated)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="special-case">
+                    <h4>Special Cases of Direct Transmission</h4>
+                    <p><strong>Sexually Transmitted Infections (STIs):</strong> Transmission through mating behavior. Contact rates may not scale linearly with population density due to mate selection and mating systems.</p>
+                    <p><strong>Vertical Transmission:</strong> Parent-to-offspring transmission during reproduction, pregnancy, or birth. Examples include Zika virus mother-to-fetus transmission.</p>
+                </div>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>Direct transmission parasites often evolve high contagiousness because they must successfully transmit during brief contact opportunities. This explains why respiratory viruses like measles are among the most contagious pathogens known.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="environmental" class="section">
+            <div class="concept-card">
+                <h2>Environmental Transmission</h2>
+                <p>Environmental transmission involves parasites that can survive outside their hosts and are acquired from the environment. This mode allows parasites to persist when hosts are rare or absent.</p>
+
+                <h3>Mechanisms and Characteristics</h3>
+                <ul>
+                    <li><strong>Environmental Survival:</strong> Parasites produce resistant stages (spores, cysts, eggs) that survive outside hosts</li>
+                    <li><strong>Foraging-Based Transmission:</strong> Hosts encounter parasites while feeding, drinking, or moving through the environment</li>
+                    <li><strong>Persistence:</strong> Parasites can accumulate in the environment, creating infectious reservoirs</li>
+                    <li><strong>Control Challenges:</strong> Environmental stages are difficult to eliminate</li>
+                </ul>
+
+                <div class="equation-box">
+                    <p><strong>Environmental Transmission:</strong></p>
+                    <p>Transmission Rate = encounter rate × infectivity × environmental concentration</p>
+                    <p>Often frequency-dependent rather than density-dependent</p>
+                </div>
+
+                <h3>Examples</h3>
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <h4>Soil-Transmitted Helminths</h4>
+                        <ul>
+                            <li><strong>Hookworm:</strong> Larvae penetrate skin from contaminated soil (~1 billion people infected)</li>
+                            <li><strong>Ascaris:</strong> Eggs ingested from contaminated soil/water</li>
+                            <li><strong>Whipworm:</strong> Eggs survive months in environment</li>
+                        </ul>
+                    </div>
+                    <div class="example-card">
+                        <h4>Plant Pathogens</h4>
+                        <ul>
+                            <li><strong>Blackberry rust:</strong> Fungal spores dispersed by wind</li>
+                            <li><strong>Potato blight:</strong> Spores survive on plant debris</li>
+                            <li><strong>Root rot fungi:</strong> Persist in soil for years</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="special-case">
+                    <h4>Fecal-Oral Route</h4>
+                    <p>A common form of environmental transmission where parasites are shed in feces and acquired through contaminated water or food.</p>
+                    <ul>
+                        <li><strong>Cholera:</strong> Vibrio cholerae bacteria in contaminated water (~100,000 deaths annually)</li>
+                        <li><strong>Giardia:</strong> Cysts in water sources</li>
+                        <li><strong>Hepatitis A:</strong> Viral contamination of food/water</li>
+                    </ul>
+                </div>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>Environmental transmission allows parasites to decouple reproduction from immediate transmission opportunities. This strategy is particularly advantageous in environments where hosts are spatially or temporally dispersed.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="vector" class="section">
+            <div class="concept-card">
+                <h2>Vector-Borne Transmission</h2>
+                <p>Vector-borne transmission involves arthropod vectors that transport parasites between hosts. Vectors typically seek hosts for nutrition (blood or phloem), inadvertently facilitating parasite dispersal.</p>
+
+                <h3>Vector Biology and Transmission</h3>
+                <ul>
+                    <li><strong>Vector Types:</strong> Mosquitoes, ticks, flies, fleas, aphids, and other arthropods</li>
+                    <li><strong>Feeding Behavior:</strong> Blood-feeding (animals) or phloem-feeding (plants)</li>
+                    <li><strong>Parasite Development:</strong> May replicate or undergo development within vectors</li>
+                    <li><strong>Transmission Efficiency:</strong> Depends on vector density, feeding frequency, and parasite load</li>
+                </ul>
+
+                <div class="equation-box">
+                    <p><strong>Vectorial Capacity (C):</strong></p>
+                    <p>C = (ma²bpⁿ) / (-ln(p))</p>
+                    <p>Where: m = vector density, a = biting rate, b = transmission efficiency,<br>
+                    p = vector survival probability, n = extrinsic incubation period</p>
+                </div>
+
+                <h3>Examples</h3>
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <h4>Mosquito-Borne Diseases</h4>
+                        <ul>
+                            <li><strong>Malaria:</strong> Plasmodium parasites develop in Anopheles mosquitoes</li>
+                            <li><strong>Dengue:</strong> Aedes mosquitoes, expanding range with climate change</li>
+                            <li><strong>Zika:</strong> Aedes vectors, also capable of sexual and vertical transmission</li>
+                            <li><strong>Yellow Fever:</strong> Sylvatic and urban transmission cycles</li>
+                        </ul>
+                    </div>
+                    <div class="example-card">
+                        <h4>Other Vector-Borne Diseases</h4>
+                        <ul>
+                            <li><strong>Lyme Disease:</strong> Borrelia bacteria transmitted by Ixodes ticks</li>
+                            <li><strong>Plague:</strong> Yersinia pestis transmitted by fleas</li>
+                            <li><strong>Chagas Disease:</strong> Trypanosoma cruzi transmitted by triatomine bugs</li>
+                            <li><strong>Plant Viruses:</strong> Many transmitted by aphids, thrips, or whiteflies</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>Climate change is expanding vector ranges globally, increasing the geographic risk of vector-borne diseases. Dengue cases have doubled each decade, with vectors now found in previously temperate regions.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="trophic" class="section">
+            <div class="concept-card">
+                <h2>Trophic Transmission</h2>
+                <p>Trophic transmission occurs when parasites are transmitted through predation, requiring the intermediate host to be consumed by the definitive host. This creates strong selective pressure for host manipulation.</p>
+
+                <h3>Complex Life Cycles</h3>
+                <ul>
+                    <li><strong>Intermediate Hosts:</strong> Support juvenile parasite stages</li>
+                    <li><strong>Definitive Hosts:</strong> Support adult parasite reproduction</li>
+                    <li><strong>Host Manipulation:</strong> Parasites alter intermediate host behavior to increase predation risk</li>
+                    <li><strong>Transmission Efficiency:</strong> Depends on predator-prey dynamics</li>
+                </ul>
+
+                <div class="equation-box">
+                    <p><strong>Trophic Transmission Rate:</strong></p>
+                    <p>Transmission = predation rate × infection probability × parasite survival</p>
+                    <p>Often enhanced by parasite-induced host manipulation</p>
+                </div>
+
+                <h3>Host Manipulation Examples</h3>
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <h4>Behavioral Changes</h4>
+                        <ul>
+                            <li><strong>Toxoplasma:</strong> Infected mice lose fear of cats, increasing predation risk</li>
+                            <li><strong>Acanthocephalans:</strong> Infected amphipods become more conspicuous and surface-oriented</li>
+                            <li><strong>Nematomorphs:</strong> Infected insects jump into water where parasites reproduce</li>
+                        </ul>
+                    </div>
+                    <div class="example-card">
+                        <h4>Morphological Changes</h4>
+                        <ul>
+                            <li><strong>Ribeiroia trematodes:</strong> Cause limb deformities in frogs, impairing escape ability</li>
+                            <li><strong>Leucochloridium:</strong> Parasites mimic caterpillars in snail eyestalks</li>
+                            <li><strong>Dicrocoelium:</strong> Infected ants climb grass blades and clamp down</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>Trophic transmission creates an evolutionary arms race between parasites and hosts. Parasites evolve increasingly sophisticated manipulation strategies, while hosts evolve resistance mechanisms, leading to complex coevolutionary dynamics.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="simulations" class="section">
+            <div class="concept-card">
+                <h2>Interactive Transmission Models</h2>
+
+                <div class="simulation-container">
+                    <h3>Direct vs. Environmental Transmission Dynamics</h3>
+                    <p>Explore how different transmission modes affect disease spread under varying host densities and environmental conditions.</p>
+                    
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="hostDensity">Host Density:</label>
+                            <input type="range" id="hostDensity" min="10" max="1000" value="100" step="10">
+                            <span class="value-display" id="hostDensityValue">100</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="contactRate">Contact Rate:</label>
+                            <input type="range" id="contactRate" min="0.001" max="0.05" value="0.01" step="0.001">
+                            <span class="value-display" id="contactRateValue">0.01</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="envSurvival">Environmental Survival (days):</label>
+                            <input type="range" id="envSurvival" min="1" max="100" value="30" step="1">
+                            <span class="value-display" id="envSurvivalValue">30</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="recoveryRate">Recovery Rate:</label>
+                            <input type="range" id="recoveryRate" min="0.01" max="0.5" value="0.1" step="0.01">
+                            <span class="value-display" id="recoveryRateValue">0.1</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <svg class="chart-svg" id="transmissionChart">
+                            <defs>
+                                <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse">
+                                    <path d="M 40 0 L 0 0 0 30" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <!-- Chart will be drawn here -->
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="simulation-container">
+                    <h3>Vector-Borne Disease Model</h3>
+                    <p>Examine how vector density and climate factors influence vector-borne disease transmission.</p>
+                    
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="vectorDensity">Vector Density:</label>
+                            <input type="range" id="vectorDensity" min="0.1" max="5" value="1" step="0.1">
+                            <span class="value-display" id="vectorDensityValue">1.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="temperature">Temperature (°C):</label>
+                            <input type="range" id="temperature" min="15" max="35" value="25" step="1">
+                            <span class="value-display" id="temperatureValue">25</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="bitingRate">Biting Rate:</label>
+                            <input type="range" id="bitingRate" min="0.1" max="2" value="0.5" step="0.1">
+                            <span class="value-display" id="bitingRateValue">0.5</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="vectorSurvival">Vector Survival:</label>
+                            <input type="range" id="vectorSurvival" min="0.7" max="0.95" value="0.85" step="0.01">
+                            <span class="value-display" id="vectorSurvivalValue">0.85</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <svg class="chart-svg" id="vectorChart">
+                            <defs>
+                                <pattern id="grid2" width="40" height="30" patternUnits="userSpaceOnUse">
+                                    <path d="M 40 0 L 0 0 0 30" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <!-- Chart will be drawn here -->
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz" class="section">
+            <div class="quiz-section">
+                <h2>Quiz: Test Your Understanding</h2>
+                
+                <div class="example-card">
+                    <h4>Question 1: Taxonomic Groups</h4>
+                    <p>Select one taxonomic group of microparasites (viruses, bacteria, or fungi) and provide two characteristic examples with their key features.</p>
+                    
+                    <div class="special-case">
+                        <p><strong>Sample Answer - Viruses:</strong></p>
+                        <ul>
+                            <li><strong>SARS-CoV-2 (COVID-19):</strong> RNA virus causing respiratory disease, R₀ ≈ 2-3, primarily direct transmission via respiratory droplets</li>
+                            <li><strong>Measles virus:</strong> RNA virus, extremely contagious (R₀ ≈ 12-18), direct airborne transmission, vaccine-preventable</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>Question 2: Direct Transmission Examples</h4>
+                    <p>Provide one example of a parasite/pathogen that spreads via direct transmission and explain why this mode is effective for that particular organism.</p>
+                    
+                    <div class="special-case">
+                        <p><strong>Sample Answer:</strong> Influenza virus spreads through direct transmission via respiratory droplets. This mode is effective because: (1) the virus cannot survive long outside hosts, (2) respiratory transmission allows rapid spread in crowded environments, and (3) the short generation time matches the brief survival outside hosts.</p>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>Question 3: Critical Thinking</h4>
+                    <p>A new parasite is discovered that manipulates its intermediate host's behavior to make it more likely to be eaten. What transmission mode is this, and what does this tell us about the parasite's life cycle?</p>
+                    
+                    <div class="special-case">
+                        <p><strong>Answer:</strong> This describes trophic transmission. The behavior manipulation indicates: (1) a complex life cycle with intermediate and definitive hosts, (2) the parasite requires predation for completion of its life cycle, (3) strong evolutionary pressure has led to sophisticated host manipulation strategies, and (4) the parasite likely reproduces sexually in the definitive host.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>Take-Home Messages</h2>
+            <p>Parasites exhibit incredible diversity in their transmission strategies and trophic relationships with hosts. Understanding these patterns is essential for predicting disease dynamics and developing effective control measures.</p>
+
+            <div class="examples-grid">
+                <div class="example-card">
+                    <h4>Life Cycle Diversity</h4>
+                    <p>Simple vs. complex life cycles, micro vs. macroparasites, single vs. multiple host species - each pattern creates different ecological dynamics and control challenges.</p>
+                </div>
+                <div class="example-card">
+                    <h4>Taxonomic Classifications</h4>
+                    <p>Bacteria, viruses, fungi, helminths - taxonomic identity influences transmission potential, host range, and available control strategies.</p>
+                </div>
+                <div class="example-card">
+                    <h4>Transmission Modes</h4>
+                    <p>Vector-borne, direct, environmental, and trophic transmission each create distinct selective pressures and control opportunities.</p>
+                </div>
+                <div class="example-card">
+                    <h4>Trophic Strategies</h4>
+                    <p>Whether parasites require host death, castrate hosts, or manipulate behavior determines their ecological impact and evolutionary trajectory.</p>
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <h4>Final Insight</h4>
+                <p>These classification schemes are non-mutually exclusive tools for understanding parasite biology. Real parasites often combine multiple strategies (e.g., Zika using both vector-borne and vertical transmission), and successful disease control requires understanding all relevant transmission pathways and trophic interactions.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Initialize simulations if showing simulations section
+            if (sectionId === 'simulations') {
+                setTimeout(() => {
+                    initializeSimulations();
+                }, 100);
+            }
+        }
+
+        // Simple SVG-based charting functions
+        function createSVGElement(tag, attributes) {
+            const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const [key, value] of Object.entries(attributes)) {
+                element.setAttribute(key, value);
+            }
+            return element;
+        }
+
+        function drawChart(svgId, data, config) {
+            const svg = document.getElementById(svgId);
+            if (!svg) return;
+            
+            // Clear existing content except defs
+            const defs = svg.querySelector('defs');
+            svg.innerHTML = '';
+            if (defs) svg.appendChild(defs);
+            
+            const width = 600;
+            const height = 250;
+            const margin = { top: 20, right: 60, bottom: 40, left: 60 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+            
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            
+            // Background
+            const bg = createSVGElement('rect', {
+                x: 0, y: 0, width: width, height: height,
+                fill: 'white', stroke: '#ddd'
+            });
+            svg.appendChild(bg);
+            
+            // Chart area
+            const chartArea = createSVGElement('g', {
+                transform: `translate(${margin.left}, ${margin.top})`
+            });
+            svg.appendChild(chartArea);
+            
+            // Grid
+            const grid = createSVGElement('rect', {
+                x: 0, y: 0, width: chartWidth, height: chartHeight,
+                fill: 'url(#grid)', opacity: 0.3
+            });
+            chartArea.appendChild(grid);
+            
+            if (!data.length) return;
+            
+            // Find data ranges
+            const maxY = Math.max(...data.flatMap(series => series.data));
+            const maxX = data[0].data.length - 1;
+            
+            // Draw axes
+            const xAxis = createSVGElement('line', {
+                x1: 0, y1: chartHeight, x2: chartWidth, y2: chartHeight,
+                stroke: '#333', 'stroke-width': 2
+            });
+            chartArea.appendChild(xAxis);
+            
+            const yAxis = createSVGElement('line', {
+                x1: 0, y1: 0, x2: 0, y2: chartHeight,
+                stroke: '#333', 'stroke-width': 2
+            });
+            chartArea.appendChild(yAxis);
+            
+            // Draw data lines
+            data.forEach((series, index) => {
+                const pathData = series.data.map((y, x) => {
+                    const px = (x / maxX) * chartWidth;
+                    const py = chartHeight - (y / maxY) * chartHeight;
+                    return `${x === 0 ? 'M' : 'L'} ${px} ${py}`;
+                }).join(' ');
+                
+                const path = createSVGElement('path', {
+                    d: pathData,
+                    fill: 'none',
+                    stroke: series.color,
+                    'stroke-width': 2,
+                    class: `chart-line ${series.class}`
+                });
+                chartArea.appendChild(path);
+            });
+            
+            // Y-axis labels
+            for (let i = 0; i <= 5; i++) {
+                const y = (i / 5) * chartHeight;
+                const value = Math.round((1 - i / 5) * maxY);
+                
+                const label = createSVGElement('text', {
+                    x: -10, y: y + 4,
+                    'text-anchor': 'end',
+                    'font-size': '12',
+                    fill: '#666'
+                });
+                label.textContent = value;
+                chartArea.appendChild(label);
+            }
+            
+            // X-axis labels
+            for (let i = 0; i <= 4; i++) {
+                const x = (i / 4) * chartWidth;
+                const value = Math.round((i / 4) * maxX * 0.5); // Time in days
+                
+                const label = createSVGElement('text', {
+                    x: x, y: chartHeight + 20,
+                    'text-anchor': 'middle',
+                    'font-size': '12',
+                    fill: '#666'
+                });
+                label.textContent = value;
+                chartArea.appendChild(label);
+            }
+            
+            // Legend
+            data.forEach((series, index) => {
+                const legendY = 15 + index * 20;
+                const legendGroup = createSVGElement('g', {
+                    transform: `translate(${width - 150}, ${legendY})`
+                });
+                
+                const line = createSVGElement('line', {
+                    x1: 0, y1: 0, x2: 20, y2: 0,
+                    stroke: series.color,
+                    'stroke-width': 2
+                });
+                legendGroup.appendChild(line);
+                
+                const text = createSVGElement('text', {
+                    x: 25, y: 4,
+                    'font-size': '12',
+                    fill: '#333'
+                });
+                text.textContent = series.label;
+                legendGroup.appendChild(text);
+                
+                svg.appendChild(legendGroup);
+            });
+        }
+
+        // Simulation logic
+        function runTransmissionSimulation() {
+            const hostDensity = parseInt(document.getElementById('hostDensity')?.value) || 100;
+            const contactRate = parseFloat(document.getElementById('contactRate')?.value) || 0.01;
+            const envSurvival = parseFloat(document.getElementById('envSurvival')?.value) || 30;
+            const recoveryRate = parseFloat(document.getElementById('recoveryRate')?.value) || 0.1;
+
+            const timePoints = 100;
+            const dt = 0.5;
+            const directData = [];
+            const envData = [];
+
+            // Initial conditions
+            let S_direct = hostDensity - 1;
+            let I_direct = 1;
+            let S_env = hostDensity - 1;
+            let I_env = 1;
+            let envPool = 0;
+
+            for (let t = 0; t < timePoints; t++) {
+                directData.push(Math.max(0, I_direct));
+                envData.push(Math.max(0, I_env));
+
+                // Direct transmission (density-dependent)
+                const directTransmission = contactRate * (hostDensity / 1000) * S_direct * I_direct / hostDensity;
+                const directRecovery = recoveryRate * I_direct;
+
+                // Environmental transmission
+                const envShedding = 0.1 * I_env;
+                const envDecay = envPool / envSurvival;
+                const envTransmission = 0.01 * S_env * envPool / hostDensity;
+                const envRecovery = recoveryRate * I_env;
+
+                // Update populations
+                S_direct = Math.max(0, S_direct - directTransmission * dt);
+                I_direct = Math.max(0, I_direct + (directTransmission - directRecovery) * dt);
+                
+                envPool = Math.max(0, envPool + (envShedding - envDecay) * dt);
+                S_env = Math.max(0, S_env - envTransmission * dt);
+                I_env = Math.max(0, I_env + (envTransmission - envRecovery) * dt);
+            }
+
+            return [
+                { label: 'Direct Transmission', data: directData, color: '#2c5530', class: 'line-direct' },
+                { label: 'Environmental Transmission', data: envData, color: '#4a7c59', class: 'line-environmental' }
+            ];
+        }
+
+        function runVectorSimulation() {
+            const vectorDensity = parseFloat(document.getElementById('vectorDensity')?.value) || 1.0;
+            const temperature = parseFloat(document.getElementById('temperature')?.value) || 25;
+            const bitingRate = parseFloat(document.getElementById('bitingRate')?.value) || 0.5;
+            const vectorSurvival = parseFloat(document.getElementById('vectorSurvival')?.value) || 0.85;
+
+            const tempEffect = Math.max(0, Math.min(2, (temperature - 15) / 10));
+            const adjustedBitingRate = bitingRate * tempEffect;
+
+            const timePoints = 100;
+            const dt = 0.5;
+            const humanData = [];
+            const vectorData = [];
+
+            const totalHumans = 1000;
+            let Sh = totalHumans - 1;
+            let Ih = 1;
+            let Sv = vectorDensity * totalHumans * 0.99;
+            let Iv = vectorDensity * totalHumans * 0.01;
+
+            for (let t = 0; t < timePoints; t++) {
+                humanData.push(Math.max(0, Ih));
+                vectorData.push(Math.max(0, Iv) / 10); // Scale for visibility
+
+                const h2v = 0.5 * adjustedBitingRate * (Iv / Math.max(1, vectorDensity * totalHumans)) * Sh;
+                const v2h = 0.3 * adjustedBitingRate * (Ih / Math.max(1, totalHumans)) * Sv;
+                const humanRecovery = 0.1 * Ih;
+                const vectorMortality = (1 - vectorSurvival) * Iv;
+
+                Sh = Math.max(0, Sh - h2v * dt);
+                Ih = Math.max(0, Ih + (h2v - humanRecovery) * dt);
+                Sv = Math.max(0, Sv - v2h * dt);
+                Iv = Math.max(0, Iv + (v2h - vectorMortality) * dt);
+            }
+
+            return [
+                { label: 'Human Infections', data: humanData, color: '#2c5530', class: 'line-human' },
+                { label: 'Vector Infections (÷10)', data: vectorData, color: '#4a7c59', class: 'line-vector' }
+            ];
+        }
+
+        function updateDisplays() {
+            const updates = [
+                ['hostDensityValue', 'hostDensity'],
+                ['contactRateValue', 'contactRate', 3],
+                ['envSurvivalValue', 'envSurvival'],
+                ['recoveryRateValue', 'recoveryRate', 2],
+                ['vectorDensityValue', 'vectorDensity', 1],
+                ['temperatureValue', 'temperature'],
+                ['bitingRateValue', 'bitingRate', 1],
+                ['vectorSurvivalValue', 'vectorSurvival', 2]
+            ];
+
+            updates.forEach(([displayId, inputId, decimals]) => {
+                const displayEl = document.getElementById(displayId);
+                const inputEl = document.getElementById(inputId);
+                if (displayEl && inputEl) {
+                    const value = parseFloat(inputEl.value);
+                    displayEl.textContent = decimals ? value.toFixed(decimals) : value;
+                }
+            });
+        }
+
+        function initializeSimulations() {
+            updateDisplays();
+            
+            // Update transmission simulation
+            const transmissionData = runTransmissionSimulation();
+            drawChart('transmissionChart', transmissionData);
+            
+            // Update vector simulation
+            const vectorData = runVectorSimulation();
+            drawChart('vectorChart', vectorData);
+
+            // Add event listeners
+            const sliders = ['hostDensity', 'contactRate', 'envSurvival', 'recoveryRate', 
+                            'vectorDensity', 'temperature', 'bitingRate', 'vectorSurvival'];
+            
+            sliders.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', () => {
+                        updateDisplays();
+                        const transmissionData = runTransmissionSimulation();
+                        drawChart('transmissionChart', transmissionData);
+                        const vectorData = runVectorSimulation();
+                        drawChart('vectorChart', vectorData);
+                    });
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDisplays();
+        });
+
+        // Make functions available globally
+        window.showSection = showSection;
+        window.initializeSimulations = initializeSimulations;
+    </script>
+</body>
+</html>
