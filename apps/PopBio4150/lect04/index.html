@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microparasites 1: Invasion & Spread - Population Biology 6150</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .navigation {
+            background-color: #1a3d20;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0 1rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .nav-link:hover {
+            background-color: #4a7c59;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        .objectives ul {
+            list-style-position: inside;
+            color: #2c5530;
+        }
+        
+        .objectives li {
+            margin-bottom: 0.8rem;
+            padding-left: 1rem;
+        }
+        
+        .concept-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #4a7c59;
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            border-bottom: 2px solid #e8f5e8;
+            padding-bottom: 0.5rem;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        
+        .equation {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .equation-description {
+            color: #2c5530;
+            font-style: italic;
+        }
+        
+        .key-insight {
+            background: linear-gradient(135deg, #4a7c59, #2c5530);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .key-insight h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #e8f5e8;
+        }
+        
+        .simulation-container {
+            background: white;
+            border: 2px solid #4a7c59;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        
+        .simulation-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+        
+        .control-group label {
+            color: #2c5530;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-group input {
+            padding: 0.5rem;
+            border: 2px solid #4a7c59;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin-top: 1rem;
+        }
+        
+        .disease-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .disease-card {
+            background: white;
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .disease-card h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        .r0-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a7c59;
+        }
+        
+        .model-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .compartment {
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(135deg, #4a7c59, #2c5530);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .arrow {
+            font-size: 2rem;
+            color: #4a7c59;
+            font-weight: bold;
+        }
+        
+        .flow-label {
+            position: absolute;
+            font-size: 0.9rem;
+            color: #2c5530;
+            font-weight: bold;
+            margin-top: -30px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .simulation-controls {
+                flex-direction: column;
+            }
+            
+            .model-diagram {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .compartment {
+                width: 100px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Microparasites 1: Invasion & Spread</h1>
+        <p>Population Biology of Infectious Diseases - ECOL/BIOL 4150/6150</p>
+    </header>
+
+    <nav class="navigation">
+        <div class="nav-container">
+            <a href="#objectives" class="nav-link">Learning Objectives</a>
+            <a href="#introduction" class="nav-link">Introduction</a>
+            <a href="#compartment-models" class="nav-link">Compartment Models</a>
+            <a href="#sir-model" class="nav-link">SIR Model</a>
+            <a href="#transmission" class="nav-link">Transmission</a>
+            <a href="#r0-concept" class="nav-link">R₀ Concept</a>
+            <a href="#density-dependent" class="nav-link">Density-Dependent</a>
+            <a href="#frequency-dependent" class="nav-link">Frequency-Dependent</a>
+            <a href="#simulations" class="nav-link">Simulations</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the fundamental characteristics of microparasites and how they differ from macroparasites</li>
+                <li>Master the basic structure and logic of compartmental models (SIR framework)</li>
+                <li>Comprehend the concept of R₀ (basic reproductive number) and its critical role in disease invasion</li>
+                <li>Distinguish between density-dependent and frequency-dependent transmission mechanisms</li>
+                <li>Analyze threshold population sizes and their implications for disease establishment</li>
+                <li>Apply mathematical models to predict disease dynamics and control strategies</li>
+                <li>Evaluate real-world examples of microparasite invasions using COVID-19 and other case studies</li>
+            </ul>
+        </section>
+
+        <section id="introduction" class="concept-card">
+            <h2>Understanding Disease Patterns in Nature</h2>
+            <p>Disease outbreaks exhibit remarkably diverse patterns in nature. The COVID-19 pandemic demonstrated one type of behavior - sustained spread with multiple waves - but this represents just one possible trajectory for infectious diseases.</p>
+            
+            <h3>Three Major Patterns of Disease Dynamics</h3>
+            
+            <h4>1. Lone Epidemics</h4>
+            <p>Some diseases erupt suddenly and then fade away permanently. Examples include:</p>
+            <ul>
+                <li><strong>Poliomyelitis in the USA:</strong> Major outbreaks in the 1940s-1950s that were eventually eliminated through vaccination</li>
+                <li><strong>Canine parvovirus in Minnesota wolves:</strong> A devastating outbreak that swept through the population once and then disappeared</li>
+            </ul>
+            
+            <h4>2. Cyclical Epidemics</h4>
+            <p>Other diseases show recurring patterns, appearing in waves over time:</p>
+            <ul>
+                <li><strong>Measles in England:</strong> Regular epidemic cycles every 2-3 years before widespread vaccination</li>
+                <li><strong>Rabies in red foxes in France:</strong> Periodic outbreaks spreading across geographic regions</li>
+            </ul>
+            
+            <h4>3. Endemic Diseases</h4>
+            <p>Some pathogens establish stable, persistent infections at relatively constant levels:</p>
+            <ul>
+                <li><strong>West Nile virus:</strong> Maintained at low but stable levels in bird populations</li>
+                <li><strong>Many childhood diseases:</strong> Present at consistent background levels in populations</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>The pattern a disease follows depends on complex interactions between pathogen characteristics, host population dynamics, and environmental factors. Understanding these patterns is crucial for predicting and controlling infectious diseases.</p>
+            </div>
+        </section>
+
+        <section id="compartment-models" class="concept-card">
+            <h2>The Logic of Compartmental Models</h2>
+            
+            <p>Compartmental models provide a powerful framework for understanding disease dynamics by simplifying the complex biological processes of infection into manageable mathematical representations.</p>
+
+            <h3>Within-Host Dynamics Are Complex</h3>
+            <p>During a typical microparasite infection, several processes occur simultaneously within an infected host:</p>
+            <ul>
+                <li><strong>Pathogen replication:</strong> The microparasite multiplies rapidly within host tissues</li>
+                <li><strong>Immune response activation:</strong> The host's immune system recognizes and responds to the invader</li>
+                <li><strong>Symptom development:</strong> Clinical signs may appear as pathogen load increases</li>
+                <li><strong>Recovery or death:</strong> The outcome depends on the balance between pathogen virulence and host immunity</li>
+            </ul>
+
+            <h3>Basic Aims of Compartmental Modeling</h3>
+            <p>Compartmental models achieve two primary goals:</p>
+            <ol>
+                <li><strong>Classification:</strong> Categorize individuals in a population according to their infection status</li>
+                <li><strong>Process quantification:</strong> Identify and measure the rates of processes that cause individuals to transition between infection states</li>
+            </ol>
+
+            <div class="model-diagram">
+                <div class="compartment" style="background: linear-gradient(135deg, #d4691e, #8b4513);">S</div>
+                <div class="arrow">→</div>
+                <div class="compartment" style="background: linear-gradient(135deg, #dc143c, #8b0000);">I</div>
+                <div class="arrow">→</div>
+                <div class="compartment" style="background: linear-gradient(135deg, #4682b4, #2f4f4f);">R</div>
+            </div>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>Compartmental models allow us to connect biological processes (transmission, recovery) with observable patterns (case numbers, epidemic curves) through mathematical relationships.</p>
+            </div>
+        </section>
+
+        <section id="sir-model" class="concept-card">
+            <h2>The Classic SIR Model</h2>
+            
+            <p>The SIR (Susceptible-Infected-Recovered) model represents the fundamental framework for understanding microparasite dynamics. This model makes several key assumptions that simplify the complex reality of infectious disease transmission.</p>
+
+            <h3>Model Compartments</h3>
+            <ul>
+                <li><strong>S (Susceptible):</strong> Individuals who can become infected</li>
+                <li><strong>I (Infected):</strong> Individuals who are currently infected and infectious</li>
+                <li><strong>R (Recovered):</strong> Individuals who have recovered and gained immunity</li>
+            </ul>
+
+            <h3>Key Assumptions</h3>
+            <ul>
+                <li>No exposed/latent period (infected = infectious)</li>
+                <li>No host births, deaths, or disease-induced mortality</li>
+                <li>Permanent immunity after recovery</li>
+                <li>Homogeneous mixing of population</li>
+            </ul>
+
+            <h3>Mathematical Representation</h3>
+            
+            <div class="equation-box">
+                <div class="equation">dS/dt = -βSI</div>
+                <div class="equation">dI/dt = βSI - γI</div>
+                <div class="equation">dR/dt = γI</div>
+                <div class="equation-description">
+                    Where β = transmission rate, γ = recovery rate
+                </div>
+            </div>
+
+            <h3>Understanding the Parameters</h3>
+            <ul>
+                <li><strong>β (Beta):</strong> Transmission rate - measures how quickly the disease spreads</li>
+                <li><strong>γ (Gamma):</strong> Recovery rate = 1/(infectious period)</li>
+                <li><strong>1/γ:</strong> Average infectious period - how long individuals remain infectious</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>The SIR model captures the essential dynamics of microparasite infections: susceptibles become infected through contact with infectious individuals, and infected individuals recover at a constant rate.</p>
+            </div>
+        </section>
+
+        <section id="transmission" class="concept-card">
+            <h2>Transmission Between Hosts</h2>
+            
+            <p>Understanding how pathogens transmit between hosts is fundamental to predicting disease spread. Transmission requires three essential components working together.</p>
+
+            <h3>Requirements for Successful Transmission</h3>
+            
+            <h4>1. Contact Between Individuals</h4>
+            <p>Physical or environmental contact must occur between infectious and susceptible individuals. The rate of contact can vary dramatically based on:</p>
+            <ul>
+                <li>Population density</li>
+                <li>Social behavior patterns</li>
+                <li>Environmental conditions</li>
+                <li>Seasonal factors</li>
+            </ul>
+
+            <h4>2. Appropriate Contact Type</h4>
+            <p>Not all contacts result in transmission opportunity. The contact must be of the right type for the specific pathogen:</p>
+            <ul>
+                <li><strong>Respiratory pathogens:</strong> Require close proximity for droplet transmission</li>
+                <li><strong>Vector-borne diseases:</strong> Require specific vector species to be present</li>
+                <li><strong>Sexually transmitted diseases:</strong> Require intimate contact</li>
+                <li><strong>Waterborne diseases:</strong> Require contaminated water sources</li>
+            </ul>
+
+            <h4>3. Successful Pathogen Establishment</h4>
+            <p>Even with appropriate contact, the pathogen must successfully establish infection in the new host. This depends on:</p>
+            <ul>
+                <li><strong>Pathogen viability:</strong> The organism must survive the transmission process</li>
+                <li><strong>Infectious dose:</strong> Sufficient pathogen load must be transmitted</li>
+                <li><strong>Host susceptibility:</strong> The recipient must be vulnerable to infection</li>
+                <li><strong>Environmental factors:</strong> Conditions must support pathogen survival and establishment</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>Transmission is a multi-step process where failure at any stage prevents successful pathogen spread. Public health interventions can target any of these steps to reduce transmission rates.</p>
+            </div>
+        </section>
+
+        <section id="r0-concept" class="concept-card">
+            <h2>R₀: The Basic Reproductive Number</h2>
+            
+            <p>R₀ (pronounced "R-naught") is perhaps the most important concept in infectious disease epidemiology. It represents the average number of secondary infections caused by one infectious individual in a completely susceptible population.</p>
+
+            <h3>Mathematical Definition</h3>
+            
+            <div class="equation-box">
+                <div class="equation">R₀ = βN/γ</div>
+                <div class="equation-description">
+                    For density-dependent transmission
+                </div>
+            </div>
+
+            <h3>Biological Interpretation</h3>
+            <p>R₀ can be understood as the product of three factors:</p>
+            <ul>
+                <li><strong>β:</strong> Transmission rate per contact</li>
+                <li><strong>N:</strong> Number of contacts (population size for density-dependent transmission)</li>
+                <li><strong>1/γ:</strong> Duration of infectiousness</li>
+            </ul>
+
+            <h3>Critical Thresholds</h3>
+            <ul>
+                <li><strong>R₀ > 1:</strong> Disease will spread and cause an epidemic</li>
+                <li><strong>R₀ = 1:</strong> Disease will persist at current level</li>
+                <li><strong>R₀ < 1:</strong> Disease will die out</li>
+            </ul>
+
+            <h3>R₀ Values for Common Diseases</h3>
+            <div class="disease-comparison">
+                <div class="disease-card">
+                    <h4>Measles</h4>
+                    <div class="r0-value">12-18</div>
+                </div>
+                <div class="disease-card">
+                    <h4>Whooping Cough</h4>
+                    <div class="r0-value">15-17</div>
+                </div>
+                <div class="disease-card">
+                    <h4>COVID-19 (Omicron)</h4>
+                    <div class="r0-value">9-10</div>
+                </div>
+                <div class="disease-card">
+                    <h4>HIV/AIDS</h4>
+                    <div class="r0-value">2-5</div>
+                </div>
+                <div class="disease-card">
+                    <h4>COVID-19 (Original)</h4>
+                    <div class="r0-value">2-3</div>
+                </div>
+                <div class="disease-card">
+                    <h4>Pandemic Flu</h4>
+                    <div class="r0-value">1.4-1.6</div>
+                </div>
+                <div class="disease-card">
+                    <h4>SARS</h4>
+                    <div class="r0-value">2-3</div>
+                </div>
+                <div class="disease-card">
+                    <h4>Polio</h4>
+                    <div class="r0-value">5-7</div>
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>R₀ is not just a measure of contagiousness - it reflects the complex interplay between pathogen characteristics, host behavior, and population structure. High R₀ can result from different combinations of high transmission rates, large contact networks, or long infectious periods.</p>
+            </div>
+        </section>
+
+        <section id="density-dependent" class="concept-card">
+            <h2>Density-Dependent Transmission</h2>
+            
+            <p>In density-dependent transmission, the rate of contact between individuals increases linearly with population density. This model is most appropriate for directly transmitted pathogens like respiratory viruses.</p>
+
+            <h3>Mathematical Framework</h3>
+            
+            <div class="equation-box">
+                <div class="equation">Transmission rate = cN × (S/N) × I × a = cSIa</div>
+                <div class="equation-description">
+                    Simplified to βSI where β = ca
+                </div>
+            </div>
+
+            <h3>Key Components</h3>
+            <ul>
+                <li><strong>c:</strong> Per-capita contact rate (contacts per individual per time)</li>
+                <li><strong>N:</strong> Total population size</li>
+                <li><strong>S/N:</strong> Probability that a random contact involves a susceptible</li>
+                <li><strong>a:</strong> Probability of transmission given contact</li>
+            </ul>
+
+            <h3>Threshold Population Size</h3>
+            <p>Density-dependent transmission leads to a critical threshold population size (N_T) below which the disease cannot establish:</p>
+            
+            <div class="equation-box">
+                <div class="equation">N_T = γ/β</div>
+                <div class="equation-description">
+                    Minimum population size required for disease invasion
+                </div>
+            </div>
+
+            <h3>Real-World Examples</h3>
+            <ul>
+                <li><strong>COVID-19 in dense urban areas:</strong> Higher transmission rates in cities like New York during early pandemic</li>
+                <li><strong>Childhood diseases in schools:</strong> Rapid spread in crowded classrooms</li>
+                <li><strong>Influenza in confined populations:</strong> Cruise ships, military barracks</li>
+            </ul>
+
+            <h3>Public Health Implications</h3>
+            <p>Understanding density-dependent transmission helps explain why:</p>
+            <ul>
+                <li>Social distancing reduces transmission rates</li>
+                <li>Urban areas often experience more severe outbreaks</li>
+                <li>Some diseases cannot persist in small populations</li>
+                <li>Population density is a key risk factor for epidemic spread</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>Density-dependent transmission creates a fundamental trade-off: while higher population density increases contact rates and disease transmission, it may also support larger population sizes that can sustain endemic diseases.</p>
+            </div>
+        </section>
+
+        <section id="frequency-dependent" class="concept-card">
+            <h2>Frequency-Dependent Transmission</h2>
+            
+            <p>In frequency-dependent transmission, contact rates remain constant regardless of population density. This model is more appropriate for sexually transmitted diseases and vector-borne pathogens.</p>
+
+            <h3>Mathematical Framework</h3>
+            
+            <div class="equation-box">
+                <div class="equation">Transmission rate = c × (S/N) × I × a = βSI/N</div>
+                <div class="equation-description">
+                    Contact rate (c) is independent of population density
+                </div>
+            </div>
+
+            <h3>Key Differences from Density-Dependent</h3>
+            <ul>
+                <li>Contact rate doesn't increase with population size</li>
+                <li>Individuals have a fixed number of contacts regardless of crowd density</li>
+                <li>More realistic for behaviors with inherent limits (sexual partnerships, vector feeding)</li>
+            </ul>
+
+            <h3>No Threshold Population Size</h3>
+            <p>Unlike density-dependent transmission, frequency-dependent models predict no minimum population size for disease establishment:</p>
+            
+            <div class="equation-box">
+                <div class="equation">R₀ = β/γ</div>
+                <div class="equation-description">
+                    Population size (N) cancels out of the R₀ equation
+                </div>
+            </div>
+
+            <h3>Biological Examples</h3>
+            <ul>
+                <li><strong>HIV/AIDS:</strong> Limited by number of sexual partners, not population density</li>
+                <li><strong>Malaria:</strong> Limited by mosquito feeding behavior and lifecycle</li>
+                <li><strong>Lyme disease:</strong> Limited by tick feeding patterns</li>
+                <li><strong>Vector-borne diseases generally:</strong> Constrained by vector biology</li>
+            </ul>
+
+            <h3>Implications for Disease Control</h3>
+            <p>Frequency-dependent transmission suggests that:</p>
+            <ul>
+                <li>Population reduction alone won't eliminate disease</li>
+                <li>Interventions must target transmission probability or infectious period</li>
+                <li>Vector control is often more effective than host density reduction</li>
+                <li>Behavioral interventions can be highly effective</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>The type of transmission mechanism (density- vs frequency-dependent) fundamentally changes our predictions about disease persistence and the effectiveness of different control strategies.</p>
+            </div>
+        </section>
+
+        <section id="simulations" class="concept-card">
+            <h2>Interactive Disease Dynamics Simulations</h2>
+            
+            <div class="simulation-container">
+                <h3>SIR Model Simulation</h3>
+                <p>Explore how changes in transmission rate (β), recovery rate (γ), and initial conditions affect disease dynamics.</p>
+                
+                <div class="simulation-controls">
+                    <div class="control-group">
+                        <label for="beta-slider">Transmission Rate (β)</label>
+                        <input type="range" id="beta-slider" min="0.1" max="2" step="0.1" value="0.5">
+                        <span id="beta-value">0.5</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="gamma-slider">Recovery Rate (γ)</label>
+                        <input type="range" id="gamma-slider" min="0.1" max="1" step="0.05" value="0.2">
+                        <span id="gamma-value">0.2</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="population-slider">Population Size (N)</label>
+                        <input type="range" id="population-slider" min="100" max="1000" step="50" value="500">
+                        <span id="population-value">500</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="initial-infected">Initial Infected</label>
+                        <input type="range" id="initial-infected" min="1" max="20" step="1" value="5">
+                        <span id="infected-value">5</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="sir-chart"></canvas>
+                </div>
+                
+                <div id="r0-display" style="text-align: center; font-size: 1.2rem; margin-top: 1rem; color: #2c5530;">
+                    <strong>R₀ = <span id="r0-value">2.5</span></strong>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Threshold Population Size Exploration</h3>
+                <p>Investigate how transmission parameters affect the minimum population size needed for disease establishment (density-dependent transmission only).</p>
+                
+                <div class="simulation-controls">
+                    <div class="control-group">
+                        <label for="beta-threshold">Transmission Rate (β)</label>
+                        <input type="range" id="beta-threshold" min="0.01" max="1" step="0.01" value="0.1">
+                        <span id="beta-threshold-value">0.1</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="gamma-threshold">Recovery Rate (γ)</label>
+                        <input type="range" id="gamma-threshold" min="0.01" max="0.5" step="0.01" value="0.1">
+                        <span id="gamma-threshold-value">0.1</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="threshold-chart"></canvas>
+                </div>
+                
+                <div id="threshold-display" style="text-align: center; font-size: 1.2rem; margin-top: 1rem; color: #2c5530;">
+                    <strong>Threshold Population Size (N_T) = <span id="nt-value">1</span></strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>Evidence from Nature: Threshold Populations</h2>
+            
+            <p>Real-world evidence supports the theoretical predictions of threshold population sizes for density-dependent transmission. Several well-documented examples demonstrate how disease persistence depends on host population density.</p>
+
+            <h3>Case Study: Serengeti Lions and Viral Diseases</h3>
+            <p>Research by Packer et al. (1999) documented how feline distemper virus and parvovirus outbreaks in Serengeti lion populations coincided with periods of high lion density. The data showed clear relationships between population size and disease establishment, supporting density-dependent transmission models.</p>
+
+            <h3>Other Supporting Examples</h3>
+            <ul>
+                <li><strong>Fox rabies in Europe:</strong> Disease persistence requires minimum fox densities across landscapes</li>
+                <li><strong>Brucellosis in American bison:</strong> Small, isolated herds cannot maintain the infection</li>
+                <li><strong>Childhood diseases in island populations:</strong> Measles and other diseases repeatedly go extinct in small isolated communities</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>The existence of threshold populations has important conservation implications: very small endangered populations may actually be protected from some diseases simply by being too small to sustain transmission.</p>
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>COVID-19 Case Study: Applying Population Biology Principles</h2>
+            
+            <p>The COVID-19 pandemic provides a real-time example of how population biology principles apply to emerging infectious diseases. As disease ecologists, we can analyze several key questions about SARS-CoV-2.</p>
+
+            <h3>Key Epidemiological Questions</h3>
+            <ul>
+                <li><strong>Why was SARS-CoV-2 able to invade human populations?</strong> Novel pathogen with high R₀ in immunologically naive population</li>
+                <li><strong>Why did it spread so rapidly?</strong> Efficient respiratory transmission, pre-symptomatic transmission, global travel</li>
+                <li><strong>Why have we seen waves of infection?</strong> Seasonality, variant emergence, waning immunity, behavioral changes</li>
+                <li><strong>What effect have vaccinations had?</strong> Reduced effective reproduction number, shifted age structure of cases</li>
+                <li><strong>Will it persist endemically?</strong> Likely yes, due to immune escape, waning immunity, and animal reservoirs</li>
+            </ul>
+
+            <h3>Evolution of R₀ Values</h3>
+            <ul>
+                <li><strong>Original strain:</strong> R₀ ≈ 2-3</li>
+                <li><strong>Alpha variant:</strong> R₀ ≈ 4-5</li>
+                <li><strong>Delta variant:</strong> R₀ ≈ 5-6</li>
+                <li><strong>Omicron variant:</strong> R₀ ≈ 8-10</li>
+            </ul>
+
+            <h3>Phylogenetic Analysis and Origins</h3>
+            <p>Genetic sequencing revealed SARS-CoV-2's relationship to coronaviruses in bats and pangolins, demonstrating how population biology tools help trace disease origins and understand spillover events from wildlife to humans.</p>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>COVID-19 demonstrates how pathogen evolution can alter transmission parameters over time, requiring adaptive management strategies that account for changing R₀ values and transmission dynamics.</p>
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>Microparasites vs. Macroparasites: Fundamental Differences</h2>
+            
+            <p>Understanding the distinction between microparasites and macroparasites is crucial for applying appropriate modeling approaches and predicting disease dynamics.</p>
+
+            <h3>Comparative Characteristics</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                <thead>
+                    <tr style="background-color: #e8f5e8;">
+                        <th style="border: 1px solid #4a7c59; padding: 1rem; text-align: left; color: #2c5530;">Trait</th>
+                        <th style="border: 1px solid #4a7c59; padding: 1rem; text-align: left; color: #2c5530;">Microparasites</th>
+                        <th style="border: 1px solid #4a7c59; padding: 1rem; text-align: left; color: #2c5530;">Macroparasites</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;"><strong>Size</strong></td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Small (unicellular)</td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Large (multicellular)</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;"><strong>Generation Time</strong></td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Short (hours/days)</td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Long (days/months)</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;"><strong>Life Cycle</strong></td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Simple (direct transmission)</td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Complex (multiple hosts)</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;"><strong>Reproduction</strong></td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Within host, asexual, rapid</td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Outside primary host</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;"><strong>Parasite Load</strong></td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Extremely high</td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Countable, much lower</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;"><strong>Infection Duration</strong></td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Short (acute)</td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Long (chronic)</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;"><strong>Host Immunity</strong></td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Strong, often lifelong</td>
+                        <td style="border: 1px solid #4a7c59; padding: 0.8rem;">Weak, transient</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Modeling Implications</h3>
+            <p>These differences lead to fundamentally different modeling approaches:</p>
+            <ul>
+                <li><strong>Microparasites:</strong> Use compartmental models (SIR, SEIR) focusing on host states</li>
+                <li><strong>Macroparasites:</strong> Track parasite numbers per host, account for parasite aggregation</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>The biological characteristics of microparasites make them particularly suitable for compartmental modeling because their high replication rates mean that parasite load within hosts is less important than the infection status of the host.</p>
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>Summary and Synthesis</h2>
+            
+            <h3>Key Concepts Mastered</h3>
+            <ul>
+                <li><strong>Compartmental Models:</strong> Provide mathematical frameworks for understanding disease dynamics by classifying individuals and quantifying transition processes</li>
+                <li><strong>SIR Framework:</strong> Captures essential features of microparasite infections through susceptible, infected, and recovered compartments</li>
+                <li><strong>R₀ Concept:</strong> The basic reproductive number determines whether diseases can invade and establish in populations</li>
+                <li><strong>Transmission Types:</strong> Density-dependent vs. frequency-dependent transmission lead to different predictions about threshold populations</li>
+                <li><strong>Threshold Populations:</strong> Minimum population sizes required for disease establishment (density-dependent only)</li>
+            </ul>
+
+            <h3>Real-World Applications</h3>
+            <p>These concepts help us understand and predict:</p>
+            <ul>
+                <li>Whether emerging diseases will establish in new host populations</li>
+                <li>How population density affects disease transmission</li>
+                <li>Why some diseases persist while others die out</li>
+                <li>How to design effective intervention strategies</li>
+                <li>The relationship between host population structure and disease dynamics</li>
+            </ul>
+
+            <h3>Looking Forward</h3>
+            <p>In subsequent lectures, we will explore:</p>
+            <ul>
+                <li><strong>Persistence and Impacts:</strong> Why some pathogens become endemic while others disappear</li>
+                <li><strong>Interventions and Vaccination:</strong> How to calculate vaccination thresholds and assess control strategies</li>
+                <li><strong>Spatial Dynamics:</strong> How disease spreads across landscapes</li>
+                <li><strong>Evolution and Virulence:</strong> How pathogens evolve in response to host populations</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>Compartmental models provide a powerful lens for understanding infectious disease dynamics, but their predictions depend critically on accurately characterizing transmission mechanisms and population structure. The COVID-19 pandemic has provided unprecedented opportunities to test and refine these models in real-time.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let sirChart = null;
+        let thresholdChart = null;
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSIRSimulation();
+            initializeThresholdSimulation();
+        });
+
+        // SIR Model Simulation Functions
+        function initializeSIRSimulation() {
+            const ctx = document.getElementById('sir-chart').getContext('2d');
+            
+            sirChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Susceptible',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        fill: true
+                    }, {
+                        label: 'Infected',
+                        data: [],
+                        borderColor: '#dc143c',
+                        backgroundColor: 'rgba(220, 20, 60, 0.1)',
+                        fill: true
+                    }, {
+                        label: 'Recovered',
+                        data: [],
+                        borderColor: '#4682b4',
+                        backgroundColor: 'rgba(70, 130, 180, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'SIR Model Dynamics'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Individuals'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Add event listeners
+            document.getElementById('beta-slider').addEventListener('input', updateSIRSimulation);
+            document.getElementById('gamma-slider').addEventListener('input', updateSIRSimulation);
+            document.getElementById('population-slider').addEventListener('input', updateSIRSimulation);
+            document.getElementById('initial-infected').addEventListener('input', updateSIRSimulation);
+
+            updateSIRSimulation();
+        }
+
+        function updateSIRSimulation() {
+            const beta = parseFloat(document.getElementById('beta-slider').value);
+            const gamma = parseFloat(document.getElementById('gamma-slider').value);
+            const N = parseInt(document.getElementById('population-slider').value);
+            const I0 = parseInt(document.getElementById('initial-infected').value);
+
+            // Update display values
+            document.getElementById('beta-value').textContent = beta.toFixed(1);
+            document.getElementById('gamma-value').textContent = gamma.toFixed(2);
+            document.getElementById('population-value').textContent = N;
+            document.getElementById('infected-value').textContent = I0;
+
+            // Calculate R0
+            const R0 = (beta * N) / gamma;
+            document.getElementById('r0-value').textContent = R0.toFixed(2);
+
+            // Run SIR simulation
+            const result = runSIRModel(N - I0, I0, 0, beta, gamma, 100, 0.1);
+            
+            // Update chart
+            sirChart.data.labels = result.time;
+            sirChart.data.datasets[0].data = result.S;
+            sirChart.data.datasets[1].data = result.I;
+            sirChart.data.datasets[2].data = result.R;
+            sirChart.update('none');
+        }
+
+        function runSIRModel(S0, I0, R0, beta, gamma, maxTime, dt) {
+            const result = {
+                time: [0],
+                S: [S0],
+                I: [I0],
+                R: [R0]
+            };
+
+            let S = S0, I = I0, R = R0;
+            const N = S0 + I0 + R0;
+
+            for (let t = dt; t <= maxTime; t += dt) {
+                const dS = -beta * S * I / N;
+                const dI = beta * S * I / N - gamma * I;
+                const dR = gamma * I;
+
+                S += dS * dt;
+                I += dI * dt;
+                R += dR * dt;
+
+                if (t % 1 < dt) { // Store every unit of time
+                    result.time.push(Math.round(t));
+                    result.S.push(Math.max(0, S));
+                    result.I.push(Math.max(0, I));
+                    result.R.push(Math.max(0, R));
+                }
+
+                if (I < 0.1) break; // Stop when infection dies out
+            }
+
+            return result;
+        }
+
+        // Threshold Population Simulation Functions
+        function initializeThresholdSimulation() {
+            const ctx = document.getElementById('threshold-chart').getContext('2d');
+            
+            thresholdChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'R₀',
+                        data: [],
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        fill: false
+                    }, {
+                        label: 'R₀ = 1 (Threshold)',
+                        data: [],
+                        borderColor: '#dc143c',
+                        borderDash: [5, 5],
+                        backgroundColor: 'rgba(220, 20, 60, 0.1)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'R₀ vs Population Size (Density-Dependent Transmission)'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Population Size (N)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'R₀'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Add event listeners
+            document.getElementById('beta-threshold').addEventListener('input', updateThresholdSimulation);
+            document.getElementById('gamma-threshold').addEventListener('input', updateThresholdSimulation);
+
+            updateThresholdSimulation();
+        }
+
+        function updateThresholdSimulation() {
+            const beta = parseFloat(document.getElementById('beta-threshold').value);
+            const gamma = parseFloat(document.getElementById('gamma-threshold').value);
+
+            // Update display values
+            document.getElementById('beta-threshold-value').textContent = beta.toFixed(2);
+            document.getElementById('gamma-threshold-value').textContent = gamma.toFixed(2);
+
+            // Calculate threshold population size
+            const NT = gamma / beta;
+            document.getElementById('nt-value').textContent = Math.round(NT);
+
+            // Generate data for chart
+            const populations = [];
+            const r0Values = [];
+            const thresholdLine = [];
+
+            for (let N = 10; N <= 200; N += 5) {
+                populations.push(N);
+                r0Values.push((beta * N) / gamma);
+                thresholdLine.push(1);
+            }
+
+            // Update chart
+            thresholdChart.data.labels = populations;
+            thresholdChart.data.datasets[0].data = r0Values;
+            thresholdChart.data.datasets[1].data = thresholdLine;
+            thresholdChart.update('none');
+        }
+
+        // Make functions globally available
+        window.updateSIRSimulation = updateSIRSimulation;
+        window.updateThresholdSimulation = updateThresholdSimulation;
+    </script>
+</body>
+</html>
