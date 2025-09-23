@@ -566,10 +566,9 @@
             <h3>Key Components</h3>
             <ul>
                 <li><strong>c:</strong> Per-capita contact rate (contacts per individual per time)</li>
-                <li><strong>cN:</strong> Contant between individuals</li>
                 <li><strong>N:</strong> Total population size</li>
                 <li><strong>S/N:</strong> Probability that a random contact involves a susceptible</li>
-                <li><strong>a:</strong> Parasite needs to establish</li>
+                <li><strong>a:</strong> Probability of transmission given contact</li>
             </ul>
 
             <h3>Threshold Population Size</h3>
@@ -725,23 +724,128 @@
         </section>
 
         <section class="concept-card">
-            <h2>Evidence from Nature: Threshold Populations</h2>
+            <h2>Evidence from Nature: Threshold Populations and Disease Patterns</h2>
             
-            <p>Real-world evidence supports the theoretical predictions of threshold population sizes for density-dependent transmission. Several well-documented examples demonstrate how disease persistence depends on host population density.</p>
+            <p>Real-world evidence supports the theoretical predictions of threshold population sizes and different transmission patterns. Several well-documented case studies demonstrate how disease dynamics vary with population characteristics and transmission mechanisms.</p>
 
-            <h3>Case Study: Serengeti Lions and Viral Diseases</h3>
-            <p>Research by Packer et al. (1999) documented how feline distemper virus and parvovirus outbreaks in Serengeti lion populations coincided with periods of high lion density. The data showed clear relationships between population size and disease establishment, supporting density-dependent transmission models.</p>
-
-            <h3>Other Supporting Examples</h3>
+            <h3>Case Study 1: Poliomyelitis in the USA (1930-1980)</h3>
+            <p>Polio provides a classic example of a lone epidemic pattern that was eventually eliminated through vaccination.</p>
+            
+            <h4>Key Observations:</h4>
             <ul>
-                <li><strong>Fox rabies in Europe:</strong> Disease persistence requires minimum fox densities across landscapes</li>
-                <li><strong>Brucellosis in American bison:</strong> Small, isolated herds cannot maintain the infection</li>
-                <li><strong>Childhood diseases in island populations:</strong> Measles and other diseases repeatedly go extinct in small isolated communities</li>
+                <li>Major epidemic peaks in the 1940s-1950s with over 20,000 cases annually</li>
+                <li>Seasonal patterns with summer peaks due to increased social contact</li>
+                <li>Density-dependent transmission in urban areas</li>
+                <li>Successful elimination through mass vaccination campaigns</li>
+            </ul>
+            
+            <h4>Take-Home Messages:</h4>
+            <ul>
+                <li>High R₀ diseases (polio R₀ ≈ 5-7) can cause devastating epidemics in naive populations</li>
+                <li>Vaccination can drive diseases to local extinction when coverage exceeds critical thresholds</li>
+                <li>Dense urban populations facilitate rapid transmission of respiratory/fecal-oral diseases</li>
+            </ul>
+
+            <h3>Case Study 2: Canine Parvovirus in Minnesota Wolves (1973-1991)</h3>
+            <p>This study documented the invasion and impact of a novel pathogen in a wildlife population.</p>
+            
+            <h4>Key Observations:</h4>
+            <ul>
+                <li>Virus first appeared around 1979-1980</li>
+                <li>Caused dramatic population crash with up to 50% mortality</li>
+                <li>Single major epidemic wave followed by population recovery</li>
+                <li>No sustained transmission after initial outbreak</li>
+            </ul>
+            
+            <h4>Take-Home Messages:</h4>
+            <ul>
+                <li>Novel pathogens can have devastating effects on immunologically naive host populations</li>
+                <li>Small, dispersed populations may experience single epidemic waves rather than endemic persistence</li>
+                <li>Host population structure (pack-based social organization) affects transmission patterns</li>
+            </ul>
+
+            <h3>Case Study 3: Measles in England (1948-1968)</h3>
+            <p>Pre-vaccination measles data shows classic cyclical epidemic patterns in large populations.</p>
+            
+            <h4>Key Observations:</h4>
+            <ul>
+                <li>Regular epidemic cycles every 2-3 years</li>
+                <li>Seasonal peaks during school terms</li>
+                <li>Consistent pattern of build-up and decline in susceptible individuals</li>
+                <li>High transmission rate (R₀ ≈ 12-18) in dense populations</li>
+            </ul>
+            
+            <h4>Take-Home Messages:</h4>
+            <ul>
+                <li>Highly contagious diseases create predictable cyclical patterns in large populations</li>
+                <li>Epidemic cycles depend on birth rates replenishing susceptible populations</li>
+                <li>School-age children serve as major reservoirs and transmission pathways</li>
+                <li>Seasonal behavior changes (school attendance) strongly influence transmission timing</li>
+            </ul>
+
+            <h3>Case Study 4: Rabies in Red Foxes in France (1968-1982)</h3>
+            <p>This case demonstrates spatial spread patterns and the role of population density in disease persistence.</p>
+            
+            <h4>Key Observations:</h4>
+            <ul>
+                <li>Wave-like geographic spread across fox populations</li>
+                <li>Periodic local outbreaks followed by local extinctions</li>
+                <li>Strong correlation between fox density and outbreak probability</li>
+                <li>Successful control through oral vaccination programs</li>
+            </ul>
+            
+            <h4>Take-Home Messages:</h4>
+            <ul>
+                <li>Spatial heterogeneity in host density creates complex epidemic patterns</li>
+                <li>Local extinctions and recolonization events shape landscape-level dynamics</li>
+                <li>Innovative vaccination strategies (oral baits) can effectively control wildlife diseases</li>
+                <li>Threshold densities exist even for highly lethal diseases with long infectious periods</li>
+            </ul>
+
+            <h3>Case Study 5: Serengeti Lions - Canine Distemper and Parvovirus (1975-2006)</h3>
+            <p>Packer et al. (1999) provided quantitative evidence for density-dependent disease dynamics in a large carnivore.</p>
+            
+            <h4>Key Observations:</h4>
+            <ul>
+                <li>Viral outbreaks coincided with periods of high lion density (>150 susceptible individuals)</li>
+                <li>Disease-induced mortality caused population crashes</li>
+                <li>Multiple cycles of population growth, disease outbreak, and recovery</li>
+                <li>Clear threshold effects - no sustained transmission below critical densities</li>
+            </ul>
+            
+            <h4>Take-Home Messages:</h4>
+            <ul>
+                <li>Large carnivore populations can exhibit clear density-dependent disease dynamics</li>
+                <li>Threshold population sizes are not just theoretical - they exist in nature</li>
+                <li>Disease can be a major factor regulating wildlife population sizes</li>
+                <li>Conservation implications: very small populations may be "protected" by being too small for disease persistence</li>
+            </ul>
+
+            <h3>Case Study 6: Cowpox in Field Voles - Evidence for Intermediate Transmission</h3>
+            <p>Smith et al. (2009) demonstrated that real transmission often falls between density and frequency-dependent extremes.</p>
+            
+            <h4>Key Observations:</h4>
+            <ul>
+                <li>Transmission parameter (q) = 0.62, indicating intermediate behavior</li>
+                <li>Neither pure density nor frequency-dependent transmission fit the data</li>
+                <li>Population cycles influenced both disease dynamics and transmission patterns</li>
+                <li>Mathematical model: βSI/N^q where q determines transmission type</li>
+            </ul>
+            
+            <h4>Take-Home Messages:</h4>
+            <ul>
+                <li>Real-world transmission often involves elements of both density and frequency dependence</li>
+                <li>Simple models provide useful starting points, but biological reality is more complex</li>
+                <li>Careful empirical work is needed to determine actual transmission mechanisms</li>
+                <li>Population ecology and disease dynamics are intimately linked in natural systems</li>
             </ul>
 
             <div class="key-insight">
-                <h4>Key Insight</h4>
-                <p>The existence of threshold populations has important conservation implications: very small endangered populations may actually be protected from some diseases simply by being too small to sustain transmission.</p>
+                <h4>Synthesis: What These Case Studies Teach Us</h4>
+                <p><strong>Pattern Recognition:</strong> Different diseases show predictable patterns (lone epidemics, cycles, endemicity) that reflect underlying transmission mechanisms and population structure.</p>
+                <p><strong>Threshold Effects:</strong> Multiple studies confirm that threshold population sizes exist in nature and have real ecological consequences.</p>
+                <p><strong>Complexity:</strong> Real transmission mechanisms often combine elements of different theoretical models, requiring empirical determination.</p>
+                <p><strong>Management Applications:</strong> Understanding disease patterns enables targeted interventions, from vaccination campaigns to wildlife management strategies.</p>
             </div>
         </section>
 
