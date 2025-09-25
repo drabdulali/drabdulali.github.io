@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Biology of Microparasites: Persistence & Impacts</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background-color: #1a3d20;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav a:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border-left: 5px solid #4a7c59;
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .objectives ul {
+            list-style-position: inside;
+            color: #2c5530;
+        }
+
+        .objectives li {
+            margin-bottom: 0.5rem;
+            padding-left: 1rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 80px;
+        }
+
+        .section h2 {
+            color: #2c5530;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border-left: 5px solid #4a7c59;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 2px solid #4a7c59;
+            text-align: center;
+        }
+
+        .equation {
+            font-size: 1.4rem;
+            font-family: 'Times New Roman', serif;
+            color: #2c5530;
+            font-weight: bold;
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 5px solid #856404;
+            margin: 1rem 0;
+        }
+
+        .key-insight h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .simulation-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #2c5530;
+            font-size: 0.9rem;
+        }
+
+        .control-group input {
+            padding: 0.5rem;
+            border: 2px solid #4a7c59;
+            border-radius: 4px;
+            width: 120px;
+        }
+
+        .control-group input[type="range"] {
+            width: 150px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 2rem;
+            border-radius: 10px;
+            border-left: 5px solid #1976d2;
+            margin: 2rem 0;
+        }
+
+        .case-study h4 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .takeaway {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 5px solid #7b1fa2;
+            margin: 1rem 0;
+        }
+
+        .takeaway h5 {
+            color: #7b1fa2;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Population Biology of Microparasites, Part II</h1>
+        <p>Persistence & Impacts - Course 6150</p>
+    </header>
+
+    <nav class="nav">
+        <ul>
+            <li><a onclick="scrollToSection('objectives')">Objectives</a></li>
+            <li><a onclick="scrollToSection('endemic-epidemic')">Endemic vs Epidemic</a></li>
+            <li><a onclick="scrollToSection('sir-demography')">SIR with Demography</a></li>
+            <li><a onclick="scrollToSection('persistence')">Persistence Mechanisms</a></li>
+            <li><a onclick="scrollToSection('pdv-case')">PDV Case Study</a></li>
+            <li><a onclick="scrollToSection('regulation')">Host Regulation</a></li>
+            <li><a onclick="scrollToSection('virulence')">Virulence & Impact</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Distinguish between endemic and epidemic disease patterns and understand the transition mechanisms</li>
+                <li>Analyze how host demography (births and deaths) affects parasite persistence in populations</li>
+                <li>Apply equilibrium analysis to determine conditions for parasite persistence using modified SIR models</li>
+                <li>Evaluate different persistence mechanisms including host births, seasonality, migration, and reservoir hosts</li>
+                <li>Examine the Phocine Distemper Virus case study to understand real-world persistence challenges</li>
+                <li>Understand how pathogens can regulate host populations through density-dependent mortality</li>
+                <li>Analyze the relationship between virulence and R₀, including trade-offs in pathogen evolution</li>
+            </ul>
+        </section>
+
+        <section id="endemic-epidemic" class="section">
+            <h2>Endemic vs Epidemic Disease</h2>
+            
+            <div class="concept-card">
+                <h3>Understanding Disease Patterns</h3>
+                <p>The transition from pandemic to endemic represents a fundamental shift in disease dynamics. While COVID-19 began as a pandemic with explosive global spread, the question of whether it transitions to endemic status depends on persistence mechanisms.</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #2c5530;">Endemic Disease</h4>
+                        <p>Constantly present in a population or region, with relatively low spread. Requires persistence mechanisms like host births to continually replenish susceptibles.</p>
+                    </div>
+                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #856404;">Epidemic Disease</h4>
+                        <p>Sudden increase in cases spreading through a large population. Eventually runs out of susceptible hosts without persistence mechanisms.</p>
+                    </div>
+                    <div style="background: #f8d7da; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #721c24;">Pandemic Disease</h4>
+                        <p>Sudden increase in cases across several countries, continents, or worldwide. Represents the most extreme form of epidemic spread.</p>
+                    </div>
+                </div>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>SARS-CoV-2 will eventually run out of susceptible hosts to infect. Endemic disease requires persistence mechanisms such as host demography that continually replenishes the supply of susceptibles (S).</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="sir-demography" class="section">
+            <h2>SIR Model with Demography</h2>
+            
+            <div class="concept-card">
+                <h3>Adding Births and Deaths to SIR</h3>
+                <p>To understand parasite persistence, we must modify the basic SIR model to include host births and deaths. This captures the biological reality that populations are dynamic, with new susceptible individuals continuously entering the population.</p>
+
+                <div class="equation-box">
+                    <div class="equation">
+                        <div>dS/dt = bN - βSI - dS</div>
+                        <div style="margin: 0.5rem 0;">dI/dt = βSI - γI - dI</div>
+                        <div>dR/dt = γI - dR</div>
+                    </div>
+                </div>
+
+                <p>Where:</p>
+                <ul style="margin: 1rem 0; padding-left: 2rem;">
+                    <li><strong>b</strong> = birth rate (per capita births per unit time)</li>
+                    <li><strong>d</strong> = death rate (per capita deaths per unit time)</li>
+                    <li><strong>N</strong> = total population size (S + I + R)</li>
+                </ul>
+
+                <div class="key-insight">
+                    <h4>Population Dynamics</h4>
+                    <p>The total population size N follows: <strong>dN/dt = (b - d)N</strong>. This means the population will grow exponentially if b > d, decline if b < d, or remain constant if b = d.</p>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>SIR Model with Demographics Simulation</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="birthRate">Birth Rate (b)</label>
+                        <input type="range" id="birthRate" min="0" max="0.1" step="0.001" value="0.02">
+                        <span id="birthRateValue">0.02</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="deathRate">Death Rate (d)</label>
+                        <input type="range" id="deathRate" min="0" max="0.1" step="0.001" value="0.01">
+                        <span id="deathRateValue">0.01</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="transmissionRate">Transmission (β)</label>
+                        <input type="range" id="transmissionRate" min="0" max="1" step="0.01" value="0.3">
+                        <span id="transmissionRateValue">0.3</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="recoveryRate">Recovery (γ)</label>
+                        <input type="range" id="recoveryRate" min="0" max="1" step="0.01" value="0.1">
+                        <span id="recoveryRateValue">0.1</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="sirChart"></canvas>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Equilibrium Analysis</h3>
+                <p>We can determine conditions for parasite persistence by analyzing when dI/dt = 0. This occurs when gains to the infected class exactly balance losses.</p>
+
+                <div class="equation-box">
+                    <div class="equation">
+                        βSI - γI - dI = 0<br>
+                        S* = (γ + d)/β<br>
+                        S*/N = (γ + d)/(βN)
+                    </div>
+                </div>
+
+                <p>This gives us the critical relationship between R₀ and the fraction of susceptibles at equilibrium:</p>
+
+                <div class="equation-box">
+                    <div class="equation">
+                        R₀ = βN/(γ + d)<br>
+                        S*/N = 1/R₀
+                    </div>
+                </div>
+
+                <div class="key-insight">
+                    <h4>Critical Threshold</h4>
+                    <p>For persistence, R₀ > 1. The fraction of susceptibles at endemic equilibrium is 1/R₀. This relationship is fundamental for estimating R₀ from seroprevalence studies.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="persistence" class="section">
+            <h2>Persistence Mechanisms</h2>
+            
+            <div class="concept-card">
+                <h3>Critical Community Size and Population Effects</h3>
+                <p>The size of the host population critically affects parasite persistence. Small populations may experience epidemic fade-outs, while larger populations can maintain endemic transmission.</p>
+
+                <div class="case-study">
+                    <h4>Case Study: Measles in Human Populations</h4>
+                    <p>Measles provides a classic example of how population size affects persistence:</p>
+                    <ul>
+                        <li><strong>Iceland (~300k)</strong>: Frequent epidemic fade-outs with long intervals between outbreaks</li>
+                        <li><strong>Denmark (~5M)</strong>: Irregular epidemic cycles with some fade-out periods</li>
+                        <li><strong>UK (~60M)</strong>: Consistent endemic transmission with regular biennial cycles</li>
+                    </ul>
+                    <div class="takeaway">
+                        <h5>Take-home Message</h5>
+                        <p>The Critical Community Size for measles is approximately 300,000-500,000 people. Below this threshold, stochastic fade-outs become common due to insufficient births to maintain the supply of susceptibles between epidemics.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Additional Persistence Mechanisms</h3>
+                <p>Beyond host births and critical population size, several other mechanisms can promote parasite persistence:</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #2c5530;">Migration</h4>
+                        <p>Immigration of susceptible hosts from other regions can replenish the susceptible pool.</p>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #1976d2;">Loss of Immunity</h4>
+                        <p>Waning immunity returns recovered individuals to the susceptible class.</p>
+                    </div>
+                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #856404;">Pathogen Evolution</h4>
+                        <p>Antigenic drift allows pathogens to overcome existing immunity.</p>
+                    </div>
+                    <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #7b1fa2;">Reservoir Hosts</h4>
+                        <p>Alternative host species can maintain pathogens between epidemics in the primary host.</p>
+                    </div>
+                    <div style="background: #fce4ec; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #c2185b;">Seasonal Transmission</h4>
+                        <p>Temporal variation in contact rates can create oscillatory dynamics.</p>
+                    </div>
+                </div>
+
+                <div class="simulation-container">
+                    <h3>Population Size and Persistence</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="popSize">Population Size</label>
+                            <input type="range" id="popSize" min="1000" max="1000000" step="1000" value="100000">
+                            <span id="popSizeValue">100,000</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="r0Value">R₀</label>
+                            <input type="range" id="r0Value" min="1.1" max="20" step="0.1" value="15">
+                            <span id="r0ValueDisplay">15</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="persistenceChart"></canvas>
+                    </div>
+                    <p style="margin-top: 1rem; font-style: italic;">This simulation shows how larger populations maintain more stable infection levels, while smaller populations experience more stochastic fluctuations and potential fade-outs.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pdv-case" class="section">
+            <h2>Case Study: Phocine Distemper Virus (PDV)</h2>
+            
+            <div class="concept-card">
+                <h3>The 1988 North Sea Seal Epidemic</h3>
+                <p>The Phocine Distemper Virus outbreak in harbor seals provides a compelling case study in persistence challenges and the role of reservoir hosts.</p>
+
+                <div class="case-study">
+                    <h4>Timeline and Impact</h4>
+                    <ul>
+                        <li><strong>April 1988:</strong> First cases reported in Denmark's Wadden Sea</li>
+                        <li><strong>Summer 1988:</strong> Rapid spread throughout North Sea and Baltic Sea populations</li>
+                        <li><strong>Winter 1988:</strong> Epidemic subsides after killing ~60% of affected seal colonies</li>
+                        <li><strong>1988-2002:</strong> 14 years with no PDV mortality</li>
+                        <li><strong>2002:</strong> Second major outbreak with similar mortality patterns</li>
+                    </ul>
+
+                    <div class="takeaway">
+                        <h5>The Persistence Puzzle</h5>
+                        <p>A compartmental model predicted PDV should only persist in populations > 100 million seals. Yet the global harbor seal population is only ~1 million. How did PDV persist for 14 years and re-emerge?</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Pathogen Characteristics</h3>
+                <p>PDV is caused by a morbillivirus similar to measles and canine distemper, with specific characteristics that affect its epidemiology:</p>
+
+                <ul style="margin: 1rem 0; padding-left: 2rem;">
+                    <li><strong>Transmission:</strong> Respiratory aerosol spread</li>
+                    <li><strong>Symptoms:</strong> Severe pneumonia, eye discharge, lethargy</li>
+                    <li><strong>Pathology:</strong> Damaged lungs prevent diving, leading to starvation</li>
+                    <li><strong>Mortality:</strong> High (up to 60% in affected colonies)</li>
+                    <li><strong>Immunity:</strong> Recovered individuals develop lifelong immunity</li>
+                </ul>
+
+                <div class="key-insight">
+                    <h4>Seasonal Amplification</h4>
+                    <p>Seal aggregations during summer breeding seasons create ideal conditions for transmission. The combination of high density and close contact facilitates rapid epidemic spread.</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>The Reservoir Host Solution</h3>
+                <p>The persistence puzzle was solved through understanding reservoir host dynamics. Harp seals (Phoca groenlandica) serve as the reservoir host for PDV:</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #2c5530;">Harp Seals as Reservoirs</h4>
+                        <ul>
+                            <li>30-90% seropositive in Greenland</li>
+                            <li>Asymptomatic carriers</li>
+                            <li>Large population (~several million)</li>
+                            <li>Maintained PDV since before 1988</li>
+                        </ul>
+                    </div>
+                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #856404;">Spillover Events</h4>
+                        <ul>
+                            <li>Periodic contact with harbor seals</li>
+                            <li>Migration patterns bring species together</li>
+                            <li>Exploitation of Atlantic fisheries in 1988</li>
+                            <li>Climate-driven range shifts</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="takeaway">
+                    <h5>Take-home Message</h5>
+                    <p>Reservoir hosts can maintain pathogens in large, relatively resistant populations and periodically reintroduce them to smaller, more vulnerable populations. This mechanism explains how PDV persisted despite causing severe epidemics in harbor seals.</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Lessons from the PDV Case Study</h3>
+                <div style="background: #f3e5f5; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                    <h4 style="color: #7b1fa2; margin-bottom: 1rem;">Key Insights</h4>
+                    <ul>
+                        <li><strong>Invasion vs Persistence:</strong> A parasite's ability to invade does not guarantee persistence in a host population</li>
+                        <li><strong>Speed vs Persistence Trade-off:</strong> Rapidly spreading diseases may burn through susceptibles too quickly for demographic replacement</li>
+                        <li><strong>Reservoir Importance:</strong> Alternative host species provide crucial persistence mechanisms</li>
+                        <li><strong>Real-time Modeling:</strong> Mathematical models developed during epidemics provide critical insights into disease dynamics and management strategies</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="regulation" class="section">
+            <h2>Parasite Regulation of Host Populations</h2>
+            
+            <div class="concept-card">
+                <h3>Understanding Population Regulation</h3>
+                <p>Pathogens can regulate host populations through density-dependent effects on mortality or reproduction. This represents a fundamental ecological interaction where parasites act as a natural population control mechanism.</p>
+
+                <div class="equation-box">
+                    <div class="equation">
+                        Density Dependence: Birth or death rates change with population density
+                    </div>
+                </div>
+
+                <p>For pathogens to regulate hosts, they must create density-dependent mortality where the per capita death rate increases with host population size.</p>
+
+                <div class="key-insight">
+                    <h4>Regulation Mechanism</h4>
+                    <p>Higher host density → increased transmission (βSI term) → more infections → higher mortality rates → population regulation at equilibrium density N*</p>
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study: Mycoplasmal Conjunctivitis in House Finches</h4>
+                <p>House finches (Carpodacus mexicanus) experienced a novel disease emergence that provided clear evidence of pathogen regulation:</p>
+                
+                <div style="margin: 1rem 0;">
+                    <h5>Background:</h5>
+                    <ul>
+                        <li><strong>1940:</strong> Small founder population released in NYC</li>
+                        <li><strong>1960-1993:</strong> Rapid range expansion across eastern North America</li>
+                        <li><strong>Winter 1993:</strong> Mycoplasma gallisepticum conjunctivitis first observed</li>
+                        <li><strong>1994-1997:</strong> Disease spread rapidly following finch distribution</li>
+                    </ul>
+                </div>
+
+                <div class="takeaway">
+                    <h5>Evidence for Regulation</h5>
+                    <p><strong>1. Population Decline:</strong> ~50% reduction in host density following disease arrival<br>
+                    <strong>2. Threshold Stabilization:</strong> Populations stabilized around 40% of pre-epidemic levels<br>
+                    <strong>3. Density-Dependent Impact:</strong> Areas with higher initial density suffered greater relative losses</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Historical Examples of Pathogen Impacts</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div class="case-study">
+                        <h4>Black Death (1347-1351)</h4>
+                        <ul>
+                            <li>Killed 30% of Europeans (~25 million people)</li>
+                            <li>Population recovery took 200 years</li>
+                            <li>Fundamental demographic and social changes</li>
+                            <li>Altered European history and development</li>
+                        </ul>
+                    </div>
+                    <div class="case-study">
+                        <h4>Rinderpest in African Ungulates</h4>
+                        <ul>
+                            <li>Introduced to Africa in 1890s</li>
+                            <li>Massive mortality in cattle and wildlife</li>
+                            <li>Wildebeest recovery after vaccine development</li>
+                            <li>Population release from pathogen regulation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="key-insight">
+                    <h4>Regulation Through Density Dependence</h4>
+                    <p>Pathogens regulate populations by creating density-dependent mortality. Higher host density increases transmission rates (βSI), leading to more infections and deaths. This creates a negative feedback loop that stabilizes populations at lower densities than would occur without the pathogen.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="virulence" class="section">
+            <h2>Virulence and R₀</h2>
+            
+            <div class="concept-card">
+                <h3>The Virulence-Transmission Trade-off</h3>
+                <p>Virulence appears in the denominator of the R₀ equation, creating a fundamental trade-off for pathogen evolution. Understanding this relationship is crucial for predicting pathogen behavior and designing interventions.</p>
+
+                <div class="equation-box">
+                    <div class="equation">
+                        R₀ = βN/(γ + d + v)
+                    </div>
+                </div>
+
+                <p>Where <strong>v</strong> represents virulence (pathogen-induced mortality). This equation reveals that higher virulence can actually reduce R₀ and decrease invasion success.</p>
+
+                <div class="key-insight">
+                    <h4>The Virulence Trade-off</h4>
+                    <p><strong>Too virulent:</strong> Pathogen kills hosts too quickly, reducing transmission opportunities<br>
+                    <strong>Not virulent enough:</strong> May not effectively exploit host resources for reproduction<br>
+                    <strong>Optimal virulence:</strong> Intermediate levels often maximize R₀ and epidemic potential</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Population Impact vs Virulence</h3>
+                <p>The relationship between virulence and population impact is complex and depends on multiple factors. While the mathematical relationship shows virulence in the denominator of R₀, real-world dynamics involve trade-offs that create optimal intermediate virulence levels.</p>
+
+                <div style="background: linear-gradient(135deg, #e8f5e8, #f0f8f0); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                    <h4 style="color: #2c5530; margin-bottom: 1rem;">Realistic Virulence Relationships</h4>
+                    <ul>
+                        <li><strong>Low Virulence:</strong> R₀ ~ 2-4, persistent endemic infection, moderate population impact</li>
+                        <li><strong>Intermediate Virulence:</strong> R₀ ~ 4-8, potential for both persistence and significant regulation</li>
+                        <li><strong>High Virulence:</strong> R₀ ~ 1-3, may cause severe but short-lived epidemics (e.g., Ebola)</li>
+                        <li><strong>Extreme Virulence:</strong> R₀ < 1, cannot persist but may cause local outbreaks</li>
+                    </ul>
+                </div>
+
+                <div class="key-insight">
+                    <h4>The Trade-off Reality</h4>
+                    <p>In nature, very high virulence typically reduces transmission opportunities as hosts die too quickly or become immobilized. Most successful pathogens evolve toward intermediate virulence levels that balance transmission success with reproductive opportunities within the host.</p>
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study: SARS-CoV-2 Variant Evolution</h4>
+                <p>The evolution of SARS-CoV-2 variants demonstrates real-world virulence trade-offs:</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
+                        <h5 style="color: #856404;">Original SARS-CoV-2</h5>
+                        <ul>
+                            <li>R₀ ≈ 2-3</li>
+                            <li>Case fatality ≈ 3%</li>
+                            <li>Moderate transmissibility</li>
+                            <li>Higher virulence</li>
+                        </ul>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px;">
+                        <h5 style="color: #1976d2;">Omicron Variant</h5>
+                        <ul>
+                            <li>R₀ ≈ 7-10</li>
+                            <li>Lower case fatality</li>
+                            <li>Higher transmissibility</li>
+                            <li>Reduced virulence</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="takeaway">
+                    <h5>Evolutionary Trajectory</h5>
+                    <p>The evolution toward higher transmissibility and lower virulence in Omicron represents a classic example of the trade-off in action. Selection favors variants that can spread more effectively, often at the expense of virulence.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Summary and Integration</h2>
+            
+            <div class="concept-card">
+                <h3>Key Concepts Review</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div style="background: #e8f5e8; padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="color: #2c5530;">Model Modifications</h4>
+                        <p>SIR models can be enhanced by adding host births, deaths, and virulence to better capture realistic population dynamics and persistence mechanisms.</p>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="color: #1976d2;">Invasion vs Persistence</h4>
+                        <p>Parasite invasion and persistence are different phenomena. Pathogens can invade without persisting, and persistence requires specific mechanisms like demographic replacement.</p>
+                    </div>
+                    <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="color: #856404;">Persistence Mechanisms</h4>
+                        <p>Host births, loss of immunity, migration, reservoir hosts, and seasonal transmission can all promote parasite persistence in populations.</p>
+                    </div>
+                    <div style="background: #f3e5f5; padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="color: #7b1fa2;">Population Regulation</h4>
+                        <p>Virulent parasites can regulate host populations through density-dependent mortality, creating stable equilibria below carrying capacity.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Practical Applications</h3>
+                <p>Understanding parasite persistence and regulation has important implications for:</p>
+                
+                <ul style="margin: 1rem 0; padding-left: 2rem;">
+                    <li><strong>Public Health:</strong> Predicting disease emergence, persistence, and control requirements</li>
+                    <li><strong>Conservation:</strong> Understanding pathogen threats to endangered species</li>
+                    <li><strong>Agriculture:</strong> Managing crop and livestock diseases</li>
+                    <li><strong>Biological Control:</strong> Using pathogens for pest management</li>
+                    <li><strong>Evolution:</strong> Predicting pathogen evolutionary trajectories</li>
+                </ul>
+
+                <div class="key-insight">
+                    <h4>Integration with Broader Ecology</h4>
+                    <p>Parasite-host dynamics represent fundamental ecological interactions that influence community structure, evolutionary processes, and ecosystem function. These relationships demonstrate how mathematical models can provide crucial insights into complex biological phenomena.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let sirChart, persistenceChart;
+
+        // Smooth scrolling function
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // Initialize charts and event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSIRChart();
+            initializePersistenceChart();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // SIR Chart controls
+            ['birthRate', 'deathRate', 'transmissionRate', 'recoveryRate'].forEach(id => {
+                const slider = document.getElementById(id);
+                const valueSpan = document.getElementById(id + 'Value');
+                slider.addEventListener('input', function() {
+                    valueSpan.textContent = this.value;
+                    updateSIRChart();
+                });
+            });
+
+            // Persistence Chart controls
+            ['popSize', 'r0Value'].forEach(id => {
+                const slider = document.getElementById(id);
+                const valueSpan = document.getElementById(id.includes('popSize') ? 'popSizeValue' : 'r0ValueDisplay');
+                slider.addEventListener('input', function() {
+                    if (id === 'popSize') {
+                        valueSpan.textContent = parseInt(this.value).toLocaleString();
+                    } else {
+                        valueSpan.textContent = this.value;
+                    }
+                    updatePersistenceChart();
+                });
+            });
+        }
+
+        function initializeSIRChart() {
+            const ctx = document.getElementById('sirChart').getContext('2d');
+            sirChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Susceptible',
+                        data: [],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: false
+                    }, {
+                        label: 'Infected',
+                        data: [],
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        fill: false
+                    }, {
+                        label: 'Recovered',
+                        data: [],
+                        borderColor: '#16a34a',
+                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Population'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'SIR Model with Demographics'
+                        }
+                    }
+                }
+            });
+            updateSIRChart();
+        }
+
+        function updateSIRChart() {
+            const b = parseFloat(document.getElementById('birthRate').value);
+            const d = parseFloat(document.getElementById('deathRate').value);
+            const beta = parseFloat(document.getElementById('transmissionRate').value);
+            const gamma = parseFloat(document.getElementById('recoveryRate').value);
+            
+            // Simple numerical integration
+            let S = 950, I = 50, R = 0;
+            const dt = 0.1;
+            const timePoints = [];
+            const sData = [], iData = [], rData = [];
+            
+            for (let t = 0; t <= 50; t += dt) {
+                const N = S + I + R;
+                const dS = b * N - beta * S * I / N - d * S;
+                const dI = beta * S * I / N - gamma * I - d * I;
+                const dR = gamma * I - d * R;
+                
+                S += dS * dt;
+                I += dI * dt;
+                R += dR * dt;
+                
+                if (t % 1 === 0) {
+                    timePoints.push(Math.round(t));
+                    sData.push(Math.round(S));
+                    iData.push(Math.round(I));
+                    rData.push(Math.round(R));
+                }
+            }
+            
+            sirChart.data.labels = timePoints;
+            sirChart.data.datasets[0].data = sData;
+            sirChart.data.datasets[1].data = iData;
+            sirChart.data.datasets[2].data = rData;
+            sirChart.update();
+        }
+
+        function initializePersistenceChart() {
+            const ctx = document.getElementById('persistenceChart').getContext('2d');
+            persistenceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Infected Population',
+                        data: [],
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Infected Individuals'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Population Size Effects on Persistence'
+                        }
+                    }
+                }
+            });
+            updatePersistenceChart();
+        }
+
+        function updatePersistenceChart() {
+            const N = parseInt(document.getElementById('popSize').value);
+            const R0 = parseFloat(document.getElementById('r0Value').value);
+            
+            // Simulate stochastic dynamics
+            const timePoints = [];
+            const infectData = [];
+            let I = Math.max(1, Math.round(N * 0.001)); // Start with small infection
+            
+            for (let t = 0; t <= 100; t++) {
+                // Simple stochastic SIR with fade-out potential
+                const S = Math.round(N / R0); // Equilibrium susceptibles
+                const transmissionRate = R0 * 0.1; // Recovery rate = 0.1
+                
+                // Add noise - smaller populations have more stochasticity
+                const noise = Math.random() * Math.sqrt(1000 / N);
+                const growthRate = transmissionRate * S / N - 0.1 - 0.01; // transmission - recovery - death
+                
+                I = Math.max(0, I * (1 + (growthRate + noise) * 0.1));
+                
+                // Fade-out check for small populations
+                if (N < 50000 && I < 1 && Math.random() < 0.05) {
+                    I = 0;
+                }
+                
+                timePoints.push(t);
+                infectData.push(Math.round(I));
+            }
+            
+            persistenceChart.data.labels = timePoints;
+            persistenceChart.data.datasets[0].data = infectData;
+            persistenceChart.update();
+        }
+    </script>
+</body>
+</html>
