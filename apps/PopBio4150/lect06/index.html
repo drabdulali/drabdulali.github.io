@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microparasites III: Interventions - Population Biology Course 6150</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav-bar {
+            background: #1a3d20;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .objectives ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .objectives li {
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .objectives li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #4a7c59;
+            font-weight: bold;
+        }
+
+        .section {
+            margin: 3rem 0;
+        }
+
+        .section-title {
+            color: #2c5530;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .concept-title {
+            color: #2c5530;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .equation {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2c5530;
+            margin: 0.5rem 0;
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, #4a7c59, #2c5530);
+            color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .key-insight::before {
+            content: "💡";
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .key-insight h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .simulation-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #4a7c59;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #2c5530;
+        }
+
+        .control-group input {
+            padding: 0.5rem;
+            border: 2px solid #4a7c59;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border-left: 5px solid #4a7c59;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .case-study h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .takeaway {
+            background: #4a7c59;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .seir-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .compartment {
+            background: #4a7c59;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: #4a7c59;
+        }
+
+        .intervention-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .intervention-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #4a7c59;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .seir-flow {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Microparasites III: Interventions</h1>
+        <p>Population Biology of Infectious Diseases - Course 6150</p>
+    </div>
+
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="#overview" class="nav-item">Overview</a>
+            <a href="#seir-control" class="nav-item">SEIR Control Model</a>
+            <a href="#herd-immunity" class="nav-item">Herd Immunity</a>
+            <a href="#vaccination-threshold" class="nav-item">Vaccination Threshold</a>
+            <a href="#case-studies" class="nav-item">Case Studies</a>
+            <a href="#challenges" class="nav-item">Modern Challenges</a>
+            <a href="#simulations" class="nav-item">Simulations</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand how control strategies can be analyzed through the SEIR compartmental model</li>
+                <li>Master the concept of herd immunity and its mathematical foundation</li>
+                <li>Calculate critical vaccination thresholds for different pathogens</li>
+                <li>Analyze successful eradication campaigns (smallpox, rinderpest)</li>
+                <li>Evaluate challenges to achieving herd immunity in modern contexts</li>
+                <li>Apply population biology principles to assess intervention effectiveness</li>
+            </ul>
+        </div>
+
+        <section id="overview" class="section">
+            <h2 class="section-title">Overview: Disease Control Through Population Biology</h2>
+            
+            <div class="concept-card">
+                <h3 class="concept-title">The Three Pillars of Microparasite Study</h3>
+                <p><strong>1. Invasion & Spread:</strong> Understanding pathogen emergence and measuring R₀ - the basic reproductive number that determines if an outbreak will grow or fade.</p>
+                
+                <p><strong>2. Persistence & Impacts:</strong> Analyzing why some pathogens become endemic while others disappear, and quantifying their effects on host populations.</p>
+                
+                <p><strong>3. Interventions & Vaccination:</strong> Developing strategies to control pathogens and determining the critical vaccination coverage needed for population protection.</p>
+                
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>Current vaccination coverage for childhood diseases has reached historic highs (~93% for kindergarteners in 2022-2023), yet vaccine hesitancy threatens herd immunity. The CDC reports that populations generally need 95% immunity to protect against viral outbreaks - highlighting the critical importance of understanding vaccination thresholds.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="seir-control" class="section">
+            <h2 class="section-title">Control Strategies Through the SEIR Model</h2>
+            
+            <div class="concept-card">
+                <h3 class="concept-title">SEIR Framework for Disease Control</h3>
+                
+                <div class="seir-flow">
+                    <div class="compartment">S</div>
+                    <span class="arrow">→</span>
+                    <div class="compartment">E</div>
+                    <span class="arrow">→</span>
+                    <div class="compartment">I</div>
+                    <span class="arrow">→</span>
+                    <div class="compartment">R</div>
+                </div>
+                
+                <p>The SEIR model includes the <strong>Exposed (E)</strong> class because many control strategies target individuals after pathogen exposure but before they become infectious. This distinction became critically important during COVID-19 for contact tracing and quarantine decisions.</p>
+
+                <div class="equation-box">
+                    <div class="equation">Transmission Rate = a × c × S × I</div>
+                    <p>where: a = transmission probability per contact, c = contact rate, S = susceptible individuals, I = infectious individuals</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3 class="concept-title">Six Major Intervention Strategies</h3>
+                
+                <div class="intervention-list">
+                    <div class="intervention-item">
+                        <h4>1. Drug Treatment</h4>
+                        <p>Targets the I→R transition, reducing infectious period duration and severity. Examples: antivirals for influenza, antibiotics for bacterial infections.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>2. Isolation/Quarantine</h4>
+                        <p><strong>Isolation:</strong> Remove infected individuals (I compartment) from population contact. <strong>Quarantine:</strong> Remove exposed individuals (E compartment) before symptom development. Historical example: 40-day ship quarantines during plague outbreaks.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>3. Culling</h4>
+                        <p>Reduce population density below threshold NT to break transmission chains. Most effective for density-dependent transmission. Examples: livestock culls during foot-and-mouth disease, avian flu responses.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>4. Behavioral Changes</h4>
+                        <p>Modify contact rate (c) through social distancing, travel restrictions, school closures. Reduces the probability of S→E transitions.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>5. Physical Protection</h4>
+                        <p>Barriers like masks reduce transmission probability (a) by blocking pathogen transfer between individuals. Can affect both S→E and E→I transitions depending on pathogen characteristics.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>6. Vaccination</h4>
+                        <p>Moves individuals directly from S→R, bypassing infection entirely. Creates both individual immunity and population-level herd immunity effects.</p>
+                    </div>
+                </div>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>Modern disease control often combines multiple strategies simultaneously. During COVID-19, we saw coordinated use of behavioral changes (lockdowns), physical protection (masks), treatment (antivirals), and vaccination - demonstrating how population biology principles guide comprehensive public health responses.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="herd-immunity" class="section">
+            <h2 class="section-title">Herd Immunity: Population-Level Protection</h2>
+            
+            <div class="concept-card">
+                <h3 class="concept-title">Understanding Herd Immunity</h3>
+                
+                <p>Herd immunity represents the <strong>protection of an entire population achieved by immunizing only a subset</strong> of that population. When sufficient individuals are immune, transmission chains break down even among unvaccinated individuals.</p>
+
+                <div class="equation-box">
+                    <div class="equation">Effective R₀ = (1 - p) × R₀</div>
+                    <p>where p = proportion vaccinated</p>
+                    <div class="equation">For disease control: (1 - p) × R₀ < 1</div>
+                    <div class="equation">Therefore: p > 1 - 1/R₀</div>
+                </div>
+
+                <p>This mathematical relationship reveals why herd immunity thresholds vary dramatically between diseases. The higher the R₀, the greater the proportion of the population that must be immune to achieve protection.</p>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>Herd immunity protects vulnerable populations who cannot be vaccinated: newborns too young for vaccines, elderly individuals with compromised immune systems, and people with health conditions preventing vaccination. This creates a moral imperative for community-wide vaccination efforts.</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3 class="concept-title">The Mathematics of Population Protection</h3>
+                
+                <p>Consider a population where proportion p is vaccinated with a perfect vaccine (R₀_protected = 0):</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background: #4a7c59; color: white;">
+                            <th style="padding: 1rem; border: 1px solid #ccc;">Population Type</th>
+                            <th style="padding: 1rem; border: 1px solid #ccc;">Proportion</th>
+                            <th style="padding: 1rem; border: 1px solid #ccc;">Reproductive Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 1rem; border: 1px solid #ccc;">Protected (Vaccinated)</td>
+                            <td style="padding: 1rem; border: 1px solid #ccc;">p</td>
+                            <td style="padding: 1rem; border: 1px solid #ccc;">0</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 1rem; border: 1px solid #ccc;">Susceptible (Unvaccinated)</td>
+                            <td style="padding: 1rem; border: 1px solid #ccc;">1 - p</td>
+                            <td style="padding: 1rem; border: 1px solid #ccc;">R₀</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>The population-wide effective reproductive number becomes:</p>
+                <div class="equation-box">
+                    <div class="equation">R₀_effective = p × 0 + (1-p) × R₀ = (1-p) × R₀</div>
+                </div>
+
+                <p>Disease elimination occurs when R₀_effective < 1, requiring the critical vaccination proportion:</p>
+                <div class="equation-box">
+                    <div class="equation">p_c > 1 - 1/R₀</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="vaccination-threshold" class="section">
+            <h2 class="section-title">Critical Vaccination Thresholds</h2>
+            
+            <div class="concept-card">
+                <h3 class="concept-title">Disease-Specific Vaccination Requirements</h3>
+                
+                <div class="simulation-container">
+                    <h4>Interactive Vaccination Threshold Calculator</h4>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="r0-slider">Basic Reproductive Number (R₀):</label>
+                            <input type="range" id="r0-slider" min="1" max="20" step="0.1" value="5">
+                            <span id="r0-value">5.0</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="thresholdChart"></canvas>
+                    </div>
+                    <div id="threshold-info" style="text-align: center; font-size: 1.2rem; font-weight: bold; color: #2c5530;">
+                        For R₀ = 5.0, critical vaccination threshold = 80.0%
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h3>Real-World Vaccination Thresholds</h3>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li><strong>Measles (R₀ = 12-18):</strong> Requires 90-95% vaccination coverage</li>
+                        <li><strong>Smallpox/Rubella (R₀ = 5-7):</strong> Requires 80-85% vaccination coverage</li>
+                        <li><strong>Influenza (R₀ = 2-3):</strong> Requires 50-70% vaccination coverage</li>
+                        <li><strong>COVID-19 Original (R₀ = 2-3):</strong> Requires 50-70% vaccination coverage</li>
+                        <li><strong>COVID-19 Delta (R₀ = 4-6):</strong> Requires 75-85% vaccination coverage</li>
+                        <li><strong>COVID-19 Omicron (R₀ > 7):</strong> Requires 85-90% vaccination coverage</li>
+                    </ul>
+                    
+                    <div class="takeaway">
+                        <strong>Take-Home Message:</strong> As pathogens evolve higher transmissibility (higher R₀), the vaccination threshold increases exponentially. This evolutionary arms race explains why achieving herd immunity becomes progressively more challenging for rapidly-evolving pathogens like influenza and SARS-CoV-2.
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3 class="concept-title">Factors Affecting Vaccination Thresholds</h3>
+                
+                <p>The basic formula p_c > 1 - 1/R₀ assumes perfect vaccines (100% efficacy). In reality, several factors increase the required vaccination coverage:</p>
+
+                <div class="equation-box">
+                    <div class="equation">p_c = (1 - 1/R₀) / vaccine_efficacy</div>
+                    <p>For imperfect vaccines, divide by vaccine efficacy</p>
+                </div>
+
+                <ul style="margin: 1rem 0; line-height: 2;">
+                    <li><strong>Vaccine Efficacy:</strong> Real vaccines may be 70-95% effective, increasing required coverage</li>
+                    <li><strong>Waning Immunity:</strong> Declining protection over time requires booster campaigns</li>
+                    <li><strong>Population Heterogeneity:</strong> Age-structured mixing patterns affect transmission dynamics</li>
+                    <li><strong>Spatial Structure:</strong> Clustered susceptible populations create local outbreak risks</li>
+                    <li><strong>Pathogen Evolution:</strong> Antigenic drift/shift can reduce vaccine effectiveness</li>
+                </ul>
+
+                <div class="key-insight">
+                    <h4>Key Insight</h4>
+                    <p>These real-world complications explain why public health agencies often target vaccination coverage well above theoretical thresholds. The 95% childhood vaccination target provides a safety buffer against vaccine imperfections and population heterogeneity.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="case-studies" class="section">
+            <h2 class="section-title">Success Stories: Smallpox and Rinderpest Eradication</h2>
+            
+            <div class="concept-card">
+                <h3 class="concept-title">Smallpox: The First Disease Eradication</h3>
+                
+                <div class="case-study">
+                    <h3>Historical Context and Impact</h3>
+                    <ul>
+                        <li><strong>Timeline:</strong> Circulating for ~12,000 years, eradicated May 8, 1980</li>
+                        <li><strong>Pre-vaccine Impact:</strong> ~95% prevalence, 25% mortality rate, survivors often blind/disfigured</li>
+                        <li><strong>Pathogen Characteristics:</strong> Variola virus, large dsDNA virus, humans-only host</li>
+                        <li><strong>Early Interventions:</strong> Variolation (deliberate infection) reduced mortality from 25-30% to 2-3%</li>
+                    </ul>
+                    
+                    <div class="takeaway">
+                        <strong>Edward Jenner's Discovery (1796):</strong> Observation that milkmaids with cowpox immunity rarely contracted smallpox led to the first scientific vaccination. This represented the birth of immunology and demonstrated cross-species immunity transfer.
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h3>Factors Enabling Successful Eradication</h3>
+                    <ol style="line-height: 2;">
+                        <li><strong>Effective Vaccine:</strong> Cowpox-based vaccine provided sterilizing immunity after 2 doses</li>
+                        <li><strong>Humans-Only Host:</strong> No animal reservoir meant human vaccination could eliminate the pathogen entirely</li>
+                        <li><strong>Manageable R₀:</strong> Required ~75% vaccination coverage (achievable with coordinated campaigns)</li>
+                        <li><strong>Visible Disease:</strong> Characteristic pustular rash enabled rapid case identification</li>
+                        <li><strong>Global Coordination:</strong> WHO campaign (1966-1980) with ring vaccination strategy</li>
+                    </ol>
+                    
+                    <div class="takeaway">
+                        <strong>Take-Home Message:</strong> Smallpox eradication succeeded because it possessed ideal characteristics for elimination: single host species, effective vaccine, recognizable symptoms, and moderate transmissibility. These biological features made it uniquely suitable for the first disease eradication in human history.
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3 class="concept-title">Rinderpest: Livestock Disease Eradication</h3>
+                
+                <div class="case-study">
+                    <h3>Ecological Impact of Eradication</h3>
+                    <p>Rinderpest (cattle plague) was declared eradicated in 2011, becoming the second disease eliminated through vaccination. The graph from the Serengeti ecosystem shows dramatic ecological consequences:</p>
+                    
+                    <div class="equation-box">
+                        <div class="equation">dN/dt = (b - d)N - vI</div>
+                        <p>Host population growth with parasite-induced mortality (v) and infection level (I)</p>
+                    </div>
+
+                    <ul style="line-height: 2;">
+                        <li><strong>Wildebeest Population:</strong> Increased from ~300,000 to >1,400,000 after rinderpest eradication</li>
+                        <li><strong>Buffalo Population:</strong> Recovery from low levels to stable high density</li>
+                        <li><strong>Ecosystem Cascade:</strong> Changed grassland dynamics, predator-prey relationships, and nutrient cycling</li>
+                    </ul>
+                    
+                    <div class="takeaway">
+                        <strong>Take-Home Message:</strong> Rinderpest eradication demonstrates how pathogen elimination can trigger population releases from parasite regulation, fundamentally altering ecosystem dynamics. This case study illustrates the broader ecological importance of disease control in wildlife conservation.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="challenges" class="section">
+            <h2 class="section-title">Modern Challenges: Why Herd Immunity Is Difficult</h2>
+            
+            <div class="concept-card">
+                <h3 class="concept-title">Barriers to Disease Eradication</h3>
+                
+                <p>Despite smallpox and rinderpest successes, most diseases resist eradication due to biological and social challenges:</p>
+
+                <div class="intervention-list">
+                    <div class="intervention-item">
+                        <h4>Animal Reservoirs</h4>
+                        <p>Zoonotic pathogens persist in wildlife populations despite human vaccination. Examples: influenza (birds, swine), rabies (bats, carnivores), plague (rodents).</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>Rapid Genetic Change</h4>
+                        <p>RNA viruses evolve quickly, evading vaccine-induced immunity. Influenza requires annual vaccine updates; HIV shows extreme antigenic diversity.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>Waning Immunity</h4>
+                        <p>Both natural infection and vaccination immunity declines over time, requiring booster campaigns to maintain herd immunity thresholds.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>Imperfect Vaccines</h4>
+                        <p>Vaccines may prevent disease severity but not transmission, or provide incomplete protection against infection.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>Asymptomatic Transmission</h4>
+                        <p>Carriers without symptoms can spread infection undetected, complicating control efforts through case identification.</p>
+                    </div>
+                    
+                    <div class="intervention-item">
+                        <h4>Social Resistance</h4>
+                        <p>Vaccine hesitancy, cultural beliefs, and political factors can prevent achievement of vaccination thresholds.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3 class="concept-title">COVID-19 Case Study: Five Barriers to Herd Immunity</h3>
+                
+                <div class="case-study">
+                    <h3>1. Vaccine Efficacy Against Transmission</h3>
+                    <p>While mRNA vaccines (Moderna, Pfizer) significantly reduce transmission, effectiveness varies by:</p>
+                    <ul>
+                        <li>Vaccine type and technology platform</li>
+                        <li>Viral variant characteristics</li>
+                        <li>Time since vaccination</li>
+                        <li>Individual immune response variability</li>
+                    </ul>
+                    
+                    <div class="takeaway">
+                        <strong>Take-Home Message:</strong> Even highly effective vaccines may not completely block transmission, requiring higher vaccination coverage than theoretical calculations suggest.
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h3>2. Uneven Vaccine Distribution</h3>
+                    <p>Global vaccination inequality creates persistent reservoirs for variant emergence:</p>
+                    <ul>
+                        <li><strong>High-income countries:</strong> Multiple vaccine doses available</li>
+                        <li><strong>Low-income countries:</strong> Limited vaccine access creates susceptible populations</li>
+                        <li><strong>Consequence:</strong> Variants emerge in under-vaccinated regions and spread globally</li>
+                    </ul>
+                    
+                    <div class="takeaway">
+                        <strong>Take-Home Message:</strong> Infectious diseases recognize no borders. Local vaccination gaps become global threats through pathogen evolution and international travel.
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h3>3. Variant Evolution Changes Herd Immunity Equations</h3>
+                    <p>Each new variant potentially resets vaccination requirements:</p>
+                    <ul>
+                        <li><strong>Original SARS-CoV-2:</strong> R₀ = 2-3, requiring 50-70% vaccination</li>
+                        <li><strong>Delta variant:</strong> R₀ = 4-6, requiring 75-85% vaccination</li>
+                        <li><strong>Omicron variant:</strong> R₀ > 7, requiring 85-90% vaccination</li>
+                    </ul>
+                    
+                    <div class="equation-box">
+                        <div class="equation">As R₀ increases: p_c = 1 - 1/R₀ approaches 100%</div>
+                    </div>
+                    
+                    <div class="takeaway">
+                        <strong>Take-Home Message:</strong> Pathogen evolution toward higher transmissibility makes herd immunity thresholds increasingly difficult to achieve, especially when combined with immune escape mutations.
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h3>4. Immunity Duration and Waning Protection</h3>
+                    <p>Both vaccination and natural infection immunity decline over time:</p>
+                    <ul>
+                        <li><strong>Vaccine efficacy:</strong> Decreases 6-12 months post-vaccination</li>
+                        <li><strong>Natural immunity:</strong> Also wanes, with reinfection possible</li>
+                        <li><strong>Booster requirements:</strong> Periodic vaccination needed to maintain population immunity</li>
+                    </ul>
+                    
+                    <div class="takeaway">
+                        <strong>Take-Home Message:</strong> Sustainable herd immunity requires ongoing vaccination campaigns, not just initial coverage. This transforms disease control from a one-time achievement to a continuous public health effort.
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h3>5. Behavioral Changes and Risk Compensation</h3>
+                    <p>Vaccination can paradoxically increase transmission through behavioral changes:</p>
+                    <ul>
+                        <li><strong>Risk compensation:</strong> Vaccinated individuals may increase social contacts</li>
+                        <li><strong>Policy relaxation:</strong> Mask mandates and distancing requirements lifted</li>
+                        <li><strong>False security:</strong> Overestimation of vaccine protection levels</li>
+                    </ul>
+                    
+                    <div class="takeaway">
+                        <strong>Take-Home Message:</strong> Human behavioral responses to interventions can counteract their biological effectiveness, requiring integrated approaches that consider both epidemiological and social dynamics.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="simulations" class="section">
+            <h2 class="section-title">Interactive Simulations</h2>
+            
+            <div class="simulation-container">
+                <h3>Herd Immunity Threshold Explorer</h3>
+                <p>Explore how different R₀ values affect vaccination requirements:</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="disease-select">Select Disease:</label>
+                        <select id="disease-select" style="padding: 0.5rem; border: 2px solid #4a7c59; border-radius: 5px;">
+                            <option value="flu">Influenza (R₀ = 2.5)</option>
+                            <option value="covid-original">COVID-19 Original (R₀ = 3)</option>
+                            <option value="covid-delta">COVID-19 Delta (R₀ = 5)</option>
+                            <option value="smallpox">Smallpox (R₀ = 6)</option>
+                            <option value="covid-omicron">COVID-19 Omicron (R₀ = 8)</option>
+                            <option value="measles">Measles (R₀ = 15)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="vaccine-efficacy">Vaccine Efficacy (%):</label>
+                        <input type="range" id="vaccine-efficacy" min="50" max="100" step="5" value="95">
+                        <span id="efficacy-value">95%</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="herdImmunityChart"></canvas>
+                </div>
+                
+                <div id="herd-immunity-info" style="background: #e8f5e8; padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+                    <strong>Analysis:</strong> <span id="analysis-text">For Influenza with 95% vaccine efficacy, 47% vaccination coverage needed for herd immunity.</span>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Epidemic Curve with Intervention</h3>
+                <p>Visualize how vaccination coverage affects epidemic dynamics:</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="vaccination-coverage">Vaccination Coverage (%):</label>
+                        <input type="range" id="vaccination-coverage" min="0" max="100" step="5" value="60">
+                        <span id="coverage-value">60%</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="r0-epidemic">R₀ Value:</label>
+                        <input type="range" id="r0-epidemic" min="1" max="10" step="0.5" value="3">
+                        <span id="r0-epidemic-value">3.0</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="epidemicChart"></canvas>
+                </div>
+                
+                <div id="epidemic-info" style="background: #e8f5e8; padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+                    <strong>Effective R₀:</strong> <span id="effective-r0">1.2</span> | 
+                    <strong>Outbreak Status:</strong> <span id="outbreak-status">Epidemic will occur</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="concept-card">
+            <h2 class="section-title">Summary and Key Takeaways</h2>
+            
+            <div class="key-insight">
+                <h4>Major Insights from Microparasite Interventions</h4>
+                <ul style="line-height: 2; margin-top: 1rem;">
+                    <li><strong>SEIR Framework:</strong> Compartmental models provide systematic approaches to evaluate intervention strategies across different disease stages</li>
+                    <li><strong>Herd Immunity Mathematics:</strong> Critical vaccination threshold p_c = 1 - 1/R₀ shows why highly transmissible diseases require near-universal coverage</li>
+                    <li><strong>Eradication Success Factors:</strong> Smallpox and rinderpest succeeded due to single host species, effective vaccines, and coordinated global efforts</li>
+                    <li><strong>Modern Challenges:</strong> Pathogen evolution, waning immunity, and social factors make herd immunity increasingly difficult for diseases like influenza and COVID-19</li>
+                    <li><strong>Population-Level Thinking:</strong> Individual protection through vaccination creates community-wide benefits that protect vulnerable populations unable to be vaccinated</li>
+                </ul>
+            </div>
+
+            <div class="case-study">
+                <h3>Clinical Application</h3>
+                <p>Understanding these principles enables evidence-based public health decision-making:</p>
+                <ul>
+                    <li><strong>Vaccination Policy:</strong> Set coverage targets based on pathogen R₀ and vaccine characteristics</li>
+                    <li><strong>Outbreak Response:</strong> Combine multiple interventions when single strategies prove insufficient</li>
+                    <li><strong>Resource Allocation:</strong> Prioritize interventions based on epidemiological models and cost-effectiveness</li>
+                    <li><strong>Communication:</strong> Explain community benefits of vaccination to address individual hesitancy</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Future Directions:</strong> As pathogens continue evolving and social dynamics change, population biology principles will remain essential for developing adaptive, science-based intervention strategies. The COVID-19 pandemic demonstrated both the power and limitations of these approaches in real-world applications.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let thresholdChart, herdImmunityChart, epidemicChart;
+        
+        // Disease parameters
+        const diseases = {
+            'flu': { name: 'Influenza', r0: 2.5 },
+            'covid-original': { name: 'COVID-19 Original', r0: 3 },
+            'covid-delta': { name: 'COVID-19 Delta', r0: 5 },
+            'smallpox': { name: 'Smallpox', r0: 6 },
+            'covid-omicron': { name: 'COVID-19 Omicron', r0: 8 },
+            'measles': { name: 'Measles', r0: 15 }
+        };
+
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            setupEventListeners();
+            updateAllCharts();
+        });
+
+        function initializeCharts() {
+            // Threshold Chart
+            const thresholdCtx = document.getElementById('thresholdChart').getContext('2d');
+            thresholdChart = new Chart(thresholdCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Critical Vaccination Threshold (%)',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Basic Reproductive Number (R₀)' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Critical Vaccination Proportion (%)' },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Herd Immunity Chart
+            const herdCtx = document.getElementById('herdImmunityChart').getContext('2d');
+            herdImmunityChart = new Chart(herdCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Required Vaccination Coverage (%)',
+                        data: [],
+                        backgroundColor: '#4a7c59',
+                        borderColor: '#2c5530',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Vaccination Coverage Required (%)' },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Epidemic Chart
+            const epidemicCtx = document.getElementById('epidemicChart').getContext('2d');
+            epidemicChart = new Chart(epidemicCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Infected Population (%)',
+                        data: [],
+                        borderColor: '#d32f2f',
+                        backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Time (days)' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Infected Population (%)' },
+                            min: 0
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // R0 slider for threshold chart
+            const r0Slider = document.getElementById('r0-slider');
+            const r0Value = document.getElementById('r0-value');
+            const thresholdInfo = document.getElementById('threshold-info');
+
+            r0Slider.addEventListener('input', function() {
+                const r0 = parseFloat(this.value);
+                r0Value.textContent = r0.toFixed(1);
+                const threshold = ((1 - 1/r0) * 100).toFixed(1);
+                thresholdInfo.textContent = `For R₀ = ${r0.toFixed(1)}, critical vaccination threshold = ${threshold}%`;
+                updateThresholdChart();
+            });
+
+            // Disease selection and efficacy for herd immunity chart
+            document.getElementById('disease-select').addEventListener('change', updateHerdImmunityChart);
+            document.getElementById('vaccine-efficacy').addEventListener('input', function() {
+                document.getElementById('efficacy-value').textContent = this.value + '%';
+                updateHerdImmunityChart();
+            });
+
+            // Epidemic simulation controls
+            document.getElementById('vaccination-coverage').addEventListener('input', function() {
+                document.getElementById('coverage-value').textContent = this.value + '%';
+                updateEpidemicChart();
+            });
+
+            document.getElementById('r0-epidemic').addEventListener('input', function() {
+                document.getElementById('r0-epidemic-value').textContent = this.value;
+                updateEpidemicChart();
+            });
+        }
+
+        function updateAllCharts() {
+            updateThresholdChart();
+            updateHerdImmunityChart();
+            updateEpidemicChart();
+        }
+
+        function updateThresholdChart() {
+            const labels = [];
+            const data = [];
+            
+            for (let r0 = 1.1; r0 <= 20; r0 += 0.2) {
+                labels.push(r0.toFixed(1));
+                const threshold = (1 - 1/r0) * 100;
+                data.push(threshold.toFixed(1));
+            }
+            
+            thresholdChart.data.labels = labels;
+            thresholdChart.data.datasets[0].data = data;
+            thresholdChart.update();
+        }
+
+        function updateHerdImmunityChart() {
+            const selectedDisease = document.getElementById('disease-select').value;
+            const efficacy = parseInt(document.getElementById('vaccine-efficacy').value);
+            
+            const labels = [];
+            const data = [];
+            const analysisTexts = [];
+            
+            Object.keys(diseases).forEach(key => {
+                const disease = diseases[key];
+                labels.push(disease.name);
+                const basicThreshold = (1 - 1/disease.r0) * 100;
+                const adjustedThreshold = Math.min(100, basicThreshold / (efficacy/100));
+                data.push(adjustedThreshold.toFixed(1));
+                
+                if (key === selectedDisease) {
+                    document.getElementById('analysis-text').textContent = 
+                        `For ${disease.name} with ${efficacy}% vaccine efficacy, ${adjustedThreshold.toFixed(0)}% vaccination coverage needed for herd immunity.`;
+                }
+            });
+            
+            herdImmunityChart.data.labels = labels;
+            herdImmunityChart.data.datasets[0].data = data;
+            herdImmunityChart.update();
+        }
+
+        function updateEpidemicChart() {
+            const coverage = parseInt(document.getElementById('vaccination-coverage').value);
+            const r0 = parseFloat(document.getElementById('r0-epidemic').value);
+            
+            const effectiveR0 = r0 * (1 - coverage/100);
+            document.getElementById('effective-r0').textContent = effectiveR0.toFixed(2);
+            document.getElementById('outbreak-status').textContent = 
+                effectiveR0 > 1 ? 'Epidemic will occur' : 'Disease will be controlled';
+            
+            // Simple SIR simulation
+            const days = 200;
+            const labels = [];
+            const infected = [];
+            
+            let S = 100 - coverage; // Susceptible (unvaccinated)
+            let I = 1; // Initial infected
+            let R = coverage; // Initially immune (vaccinated)
+            
+            const beta = effectiveR0 / 10; // Transmission rate
+            const gamma = 0.1; // Recovery rate
+            
+            for (let day = 0; day < days; day++) {
+                labels.push(day);
+                infected.push(I);
+                
+                if (day < days - 1) {
+                    const newInfections = Math.min(beta * S * I / 100, S);
+                    const newRecoveries = gamma * I;
+                    
+                    S -= newInfections;
+                    I += newInfections - newRecoveries;
+                    R += newRecoveries;
+                    
+                    if (I < 0.01) I = 0; // Prevent negative values
+                }
+            }
+            
+            epidemicChart.data.labels = labels;
+            epidemicChart.data.datasets[0].data = infected;
+            epidemicChart.update();
+        }
+
+        // Make functions available globally
+        window.updateThresholdChart = updateThresholdChart;
+        window.updateHerdImmunityChart = updateHerdImmunityChart;
+        window.updateEpidemicChart = updateEpidemicChart;
+    </script>
+</body>
+</html>
