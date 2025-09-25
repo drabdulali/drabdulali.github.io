@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Population Biology of Microparasites: Persistence & Impacts</title>
+    <title>Population Biology of Macroparasites I</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -11,959 +11,976 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            background-color: #f8f9fa;
             color: #333;
+            background-color: #f8f9fa;
         }
-
+        
         .header {
             background: linear-gradient(135deg, #2c5530, #4a7c59);
             color: white;
             padding: 2rem 0;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
+        
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
         }
-
+        
         .header p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.9;
         }
-
-        .nav {
-            background-color: #1a3d20;
+        
+        .nav-bar {
+            background: #1a3d20;
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
-        .nav ul {
-            list-style: none;
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .nav-links {
             display: flex;
-            justify-content: center;
             flex-wrap: wrap;
-            gap: 2rem;
-            padding: 0 2rem;
+            gap: 1rem;
+            justify-content: center;
         }
-
-        .nav a {
+        
+        .nav-links a {
             color: white;
             text-decoration: none;
             padding: 0.5rem 1rem;
-            border-radius: 4px;
+            border-radius: 5px;
             transition: background-color 0.3s;
-            font-weight: 500;
-            cursor: pointer;
         }
-
-        .nav a:hover {
+        
+        .nav-links a:hover {
             background-color: #4a7c59;
         }
-
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 2rem 1rem;
         }
-
+        
         .objectives {
             background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
-            padding: 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
             border-left: 5px solid #4a7c59;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
+        
         .objectives h2 {
             color: #2c5530;
             margin-bottom: 1rem;
-            font-size: 1.8rem;
         }
-
-        .objectives ul {
-            list-style-position: inside;
-            color: #2c5530;
-        }
-
-        .objectives li {
-            margin-bottom: 0.5rem;
-            padding-left: 1rem;
-        }
-
-        .section {
-            margin-bottom: 3rem;
-            scroll-margin-top: 80px;
-        }
-
-        .section h2 {
-            color: #2c5530;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 3px solid #4a7c59;
-            padding-bottom: 0.5rem;
-        }
-
+        
         .concept-card {
             background: white;
-            padding: 2rem;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             border-left: 5px solid #4a7c59;
         }
-
-        .concept-card h3 {
+        
+        .concept-card h2 {
             color: #2c5530;
             margin-bottom: 1rem;
-            font-size: 1.5rem;
+            border-bottom: 2px solid #e8f5e8;
+            padding-bottom: 0.5rem;
         }
-
+        
         .equation-box {
             background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 1rem 0;
             border: 2px solid #4a7c59;
-            text-align: center;
-        }
-
-        .equation {
-            font-size: 1.4rem;
-            font-family: 'Times New Roman', serif;
-            color: #2c5530;
-            font-weight: bold;
-        }
-
-        .key-insight {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-radius: 10px;
             padding: 1.5rem;
-            border-radius: 8px;
-            border-left: 5px solid #856404;
-            margin: 1rem 0;
-        }
-
-        .key-insight h4 {
-            color: #856404;
-            margin-bottom: 0.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
             font-size: 1.2rem;
         }
-
+        
+        .equation-box .equation {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .key-insight {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid #f39c12;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 10px;
+        }
+        
+        .key-insight h3 {
+            color: #d68910;
+            margin-bottom: 0.5rem;
+        }
+        
+        .case-study {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 5px solid #28a745;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 10px;
+        }
+        
+        .case-study h3 {
+            color: #155724;
+            margin-bottom: 1rem;
+        }
+        
         .simulation-container {
             background: white;
-            padding: 2rem;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 2rem;
             margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
+        
         .controls {
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             align-items: center;
         }
-
+        
         .control-group {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.5rem;
         }
-
+        
         .control-group label {
             font-weight: bold;
             color: #2c5530;
-            font-size: 0.9rem;
         }
-
+        
         .control-group input {
             padding: 0.5rem;
             border: 2px solid #4a7c59;
-            border-radius: 4px;
+            border-radius: 5px;
             width: 120px;
         }
-
-        .control-group input[type="range"] {
-            width: 150px;
-        }
-
+        
         .chart-container {
             position: relative;
             height: 400px;
-            margin-top: 1rem;
-        }
-
-        .case-study {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            padding: 2rem;
-            border-radius: 10px;
-            border-left: 5px solid #1976d2;
-            margin: 2rem 0;
-        }
-
-        .case-study h4 {
-            color: #1976d2;
-            margin-bottom: 1rem;
-            font-size: 1.4rem;
-        }
-
-        .takeaway {
-            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border-left: 5px solid #7b1fa2;
             margin: 1rem 0;
         }
-
-        .takeaway h5 {
-            color: #7b1fa2;
+        
+        .distribution-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .distribution-type {
+            background: #f8f9fa;
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .distribution-type h4 {
+            color: #2c5530;
             margin-bottom: 0.5rem;
+        }
+        
+        .highlight {
+            background-color: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
             font-weight: bold;
         }
-
+        
+        .stats-formula {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 0.5rem;
             }
             
             .header h1 {
                 font-size: 2rem;
             }
-            
-            .nav ul {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <h1>Population Biology of Microparasites, Part II</h1>
-        <p>Persistence & Impacts - Course 6150</p>
-    </header>
-
-    <nav class="nav">
-        <ul>
-            <li><a onclick="scrollToSection('objectives')">Objectives</a></li>
-            <li><a onclick="scrollToSection('endemic-epidemic')">Endemic vs Epidemic</a></li>
-            <li><a onclick="scrollToSection('sir-demography')">SIR with Demography</a></li>
-            <li><a onclick="scrollToSection('persistence')">Persistence Mechanisms</a></li>
-            <li><a onclick="scrollToSection('pdv-case')">PDV Case Study</a></li>
-            <li><a onclick="scrollToSection('regulation')">Host Regulation</a></li>
-            <li><a onclick="scrollToSection('virulence')">Virulence & Impact</a></li>
-        </ul>
+    <div class="header">
+        <h1>The Population Biology of Macroparasites I</h1>
+        <p>Population Biology of Infectious Diseases - Course 6150</p>
+    </div>
+    
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="#objectives">Objectives</a>
+                <a href="#introduction">Introduction</a>
+                <a href="#characteristics">Characteristics</a>
+                <a href="#measurement">Measurement</a>
+                <a href="#distributions">Distributions</a>
+                <a href="#aggregation-causes">Causes of Aggregation</a>
+                <a href="#case-studies">Case Studies</a>
+                <a href="#simulations">Simulations</a>
+            </div>
+        </div>
     </nav>
-
+    
     <div class="container">
         <section id="objectives" class="objectives">
             <h2>Learning Objectives</h2>
+            <p>By the end of this lecture, students should be able to:</p>
             <ul>
-                <li>Distinguish between endemic and epidemic disease patterns and understand the transition mechanisms</li>
-                <li>Analyze how host demography (births and deaths) affects parasite persistence in populations</li>
-                <li>Apply equilibrium analysis to determine conditions for parasite persistence using modified SIR models</li>
-                <li>Evaluate different persistence mechanisms including host births, seasonality, migration, and reservoir hosts</li>
-                <li>Examine the Phocine Distemper Virus case study to understand real-world persistence challenges</li>
-                <li>Understand how pathogens can regulate host populations through density-dependent mortality</li>
-                <li>Analyze the relationship between virulence and R₀, including trade-offs in pathogen evolution</li>
+                <li><strong>Define macroparasites</strong> and distinguish them from microparasites based on size, life cycle complexity, and transmission patterns</li>
+                <li><strong>Explain the concept of aggregation</strong> in parasite distributions and why it's fundamental to macroparasite population biology</li>
+                <li><strong>Calculate and interpret</strong> prevalence, intensity, and abundance measures for parasite infections</li>
+                <li><strong>Apply statistical methods</strong> including variance-to-mean ratios and negative binomial distributions to describe parasite aggregation</li>
+                <li><strong>Identify major causes of aggregation</strong> including differential exposure and susceptibility factors</li>
+                <li><strong>Analyze real-world case studies</strong> of macroparasite infections and their population-level impacts</li>
+                <li><strong>Understand the 20/80 rule</strong> and its implications for parasite control strategies</li>
             </ul>
         </section>
-
-        <section id="endemic-epidemic" class="section">
-            <h2>Endemic vs Epidemic Disease</h2>
+        
+        <section id="introduction" class="concept-card">
+            <h2>Introduction to Macroparasites</h2>
+            <p>Macroparasites represent one of the most significant infectious disease challenges facing human and animal populations worldwide. Unlike microparasites such as viruses and bacteria, macroparasites are large, multicellular organisms that have profound impacts on host populations through their unique biological characteristics.</p>
             
-            <div class="concept-card">
-                <h3>Understanding Disease Patterns</h3>
-                <p>The transition from pandemic to endemic represents a fundamental shift in disease dynamics. While COVID-19 began as a pandemic with explosive global spread, the question of whether it transitions to endemic status depends on persistence mechanisms.</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
-                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #2c5530;">Endemic Disease</h4>
-                        <p>Constantly present in a population or region, with relatively low spread. Requires persistence mechanisms like host births to continually replenish susceptibles.</p>
-                    </div>
-                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #856404;">Epidemic Disease</h4>
-                        <p>Sudden increase in cases spreading through a large population. Eventually runs out of susceptible hosts without persistence mechanisms.</p>
-                    </div>
-                    <div style="background: #f8d7da; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #721c24;">Pandemic Disease</h4>
-                        <p>Sudden increase in cases across several countries, continents, or worldwide. Represents the most extreme form of epidemic spread.</p>
-                    </div>
+            <div class="key-insight">
+                <h3>Key Insight: Global Impact</h3>
+                <p>Macroparasites affect <strong>billions</strong> of people globally. For example, Ascaris lumbricoides alone infects over 1 billion people worldwide - that's approximately 1 in 6 people on Earth!</p>
+            </div>
+            
+            <p>This lecture series will explore three fundamental aspects of macroparasite population biology:</p>
+            <ol>
+                <li><strong>Distribution and Aggregation (Lecture 1):</strong> How macroparasites are distributed throughout host populations and what causes this aggregated pattern</li>
+                <li><strong>Transmission Dynamics and Cycling (Lecture 2):</strong> Mathematical models that describe how macroparasite populations change over time</li>
+                <li><strong>Population Regulation (Lecture 3):</strong> How macroparasites impact individual hosts and regulate host population dynamics</li>
+            </ol>
+        </section>
+        
+        <section id="characteristics" class="concept-card">
+            <h2>What Are Macroparasites?</h2>
+            <p>Macroparasites are distinguished from microparasites by several key biological characteristics that fundamentally alter their population dynamics and epidemiological patterns.</p>
+            
+            <div class="distribution-types">
+                <div class="distribution-type">
+                    <h4>Size</h4>
+                    <p>Much larger than microparasites - visible to naked eye</p>
                 </div>
-
-                <div class="key-insight">
-                    <h4>Key Insight</h4>
-                    <p>SARS-CoV-2 will eventually run out of susceptible hosts to infect. Endemic disease requires persistence mechanisms such as host demography that continually replenishes the supply of susceptibles (S).</p>
+                <div class="distribution-type">
+                    <h4>Generation Time</h4>
+                    <p>Longer life cycles (weeks to years vs. hours to days)</p>
+                </div>
+                <div class="distribution-type">
+                    <h4>Transmission</h4>
+                    <p>Release infective stages outside host body</p>
+                </div>
+                <div class="distribution-type">
+                    <h4>Infection Type</h4>
+                    <p>Persistent, chronic infections</p>
+                </div>
+                <div class="distribution-type">
+                    <h4>Immunity</h4>
+                    <p>Low acquired immunity - reinfection common</p>
+                </div>
+                <div class="distribution-type">
+                    <h4>Effects</h4>
+                    <p>Cumulative, sub-lethal impacts on hosts</p>
+                </div>
+            </div>
+            
+            <div class="key-insight">
+                <h3>Key Insight: Why These Differences Matter</h3>
+                <p>These characteristics mean that for macroparasites, we must track the <strong>number of parasites per host</strong>, not just whether a host is infected or not. This fundamental difference shapes all aspects of macroparasite epidemiology.</p>
+            </div>
+        </section>
+        
+        <section id="measurement" class="concept-card">
+            <h2>How We Measure Macroparasite Infections</h2>
+            <p>Because individual hosts can harbor multiple parasites, we need specific metrics to quantify infection patterns in populations.</p>
+            
+            <div class="equation-box">
+                <p><strong>Prevalence:</strong> Proportion of population that is infected</p>
+                <div class="equation">Prevalence = (Number of infected hosts) / (Total number of hosts)</div>
+            </div>
+            
+            <div class="equation-box">
+                <p><strong>Intensity:</strong> Number of parasites per infected host</p>
+                <div class="equation">Intensity = (Total parasites) / (Number of infected hosts)</div>
+            </div>
+            
+            <div class="equation-box">
+                <p><strong>Abundance:</strong> Average number of parasites across all hosts</p>
+                <div class="equation">Abundance = Intensity × Prevalence</div>
+                <div class="equation">Abundance = (Total parasites) / (Total hosts)</div>
+            </div>
+            
+            <div class="key-insight">
+                <h3>Key Insight: Why Parasite Load Matters</h3>
+                <p>The number of parasites in a given host shapes four critical characteristics:</p>
+                <ul>
+                    <li><strong>Parasite fecundity (egg output)</strong> - affects transmission</li>
+                    <li><strong>Pathogenic effects on host</strong> - determines virulence</li>
+                    <li><strong>Host immune responses</strong> - influences recovery</li>
+                    <li><strong>Parasite death rates</strong> - affects persistence</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="distributions" class="concept-card">
+            <h2>Parasite Distributions and Aggregation</h2>
+            <p>One of the most fundamental characteristics of macroparasite infections is their <strong>aggregated distribution</strong> throughout host populations.</p>
+            
+            <div class="case-study">
+                <h3>The 20/80 Rule</h3>
+                <p>As a general rule, approximately <strong>20% of hosts harbor 80% of the parasite population</strong>. This means most individuals have few or no parasites, while a small proportion of "superspreaders" carry heavy parasite loads.</p>
+            </div>
+            
+            <h3>Statistical Description of Distributions</h3>
+            <p>We can mathematically describe parasite distributions using mean and variance:</p>
+            
+            <div class="equation-box">
+                <p><strong>Mean (μ):</strong> Arithmetic average</p>
+                <div class="equation">μ = (1/N) × Σx<sub>i</sub></div>
+            </div>
+            
+            <div class="equation-box">
+                <p><strong>Variance (σ²):</strong> Amount of variation</p>
+                <div class="equation">σ² = (1/N) × Σ[x<sub>i</sub> - μ]²</div>
+            </div>
+            
+            <div class="distribution-types">
+                <div class="distribution-type">
+                    <h4>Even Distribution</h4>
+                    <p>σ² &lt; μ</p>
+                    <p>All hosts have similar parasite loads</p>
+                </div>
+                <div class="distribution-type">
+                    <h4>Random Distribution</h4>
+                    <p>σ² = μ</p>
+                    <p>Poisson distribution</p>
+                </div>
+                <div class="distribution-type">
+                    <h4>Aggregated Distribution</h4>
+                    <p>σ² &gt; μ</p>
+                    <p>Few hosts with heavy infections</p>
+                </div>
+            </div>
+            
+            <h3>The Negative Binomial Distribution</h3>
+            <p>Most macroparasite distributions follow a negative binomial distribution, characterized by the relationship:</p>
+            
+            <div class="equation-box">
+                <div class="equation">σ² = μ + μ²/k</div>
+                <p>Where <strong>k</strong> is the aggregation parameter:</p>
+                <ul style="text-align: left; margin-top: 1rem;">
+                    <li>Large k (>20): Approaches random (Poisson) distribution</li>
+                    <li>Small k (<1): Highly aggregated distribution</li>
+                </ul>
+            </div>
+            
+            <div class="key-insight">
+                <h3>Key Insight: Why Aggregation Matters</h3>
+                <p>Understanding parasite aggregation is crucial for three reasons:</p>
+                <ol>
+                    <li><strong>Epidemiological studies:</strong> Variation in parasite loads affects accurate abundance estimates</li>
+                    <li><strong>Evolutionary dynamics:</strong> Aggregated parasites may be stronger selective pressures</li>
+                    <li><strong>Control strategies:</strong> If parasites are clumped, targeting few individuals may be highly effective</li>
+                </ol>
+            </div>
+        </section>
+        
+        <section id="aggregation-causes" class="concept-card">
+            <h2>Major Causes of Parasite Aggregation</h2>
+            <p>Aggregation in parasite distributions arises from variation in two fundamental factors:</p>
+            
+            <h3>1. Variation in Exposure</h3>
+            <ul>
+                <li><strong>Density of infective stages:</strong> Spatial heterogeneity in parasite eggs/larvae</li>
+                <li><strong>Density of hosts:</strong> Crowding increases transmission opportunities</li>
+                <li><strong>Behavior (encounters):</strong> Host behavior affects contact with parasites</li>
+            </ul>
+            
+            <h3>2. Variation in Susceptibility</h3>
+            <ul>
+                <li><strong>Innate resistance:</strong> Genetic variation in immune responses</li>
+                <li><strong>Acquired resistance:</strong> Previous infection history</li>
+                <li><strong>Behavior (defense):</strong> Grooming and avoidance behaviors</li>
+            </ul>
+            
+            <div class="case-study">
+                <h3>Male-Biased Parasitism</h3>
+                <p>A consistent pattern across many species is that <strong>males tend to harbor more macroparasites than females</strong>. This occurs due to:</p>
+                
+                <h4>Ecological Factors (Differential Exposure):</h4>
+                <ul>
+                    <li><strong>Behavioral differences:</strong> Males often engage in riskier behaviors (territorial disputes, extended foraging)</li>
+                    <li><strong>Body size:</strong> Larger males provide more space and resources for parasites</li>
+                    <li><strong>Diet differences:</strong> Males may consume different prey types</li>
+                </ul>
+                
+                <h4>Physiological Factors (Differential Susceptibility):</h4>
+                <ul>
+                    <li><strong>Hormonal effects:</strong> Testosterone suppresses immune function</li>
+                    <li><strong>Behavioral immunity:</strong> Differences in grooming patterns</li>
+                    <li><strong>Genetic factors:</strong> Sex-linked differences in immune investment</li>
+                </ul>
+            </div>
+            
+            <h3>Age-Related Patterns</h3>
+            <p>Host age significantly influences parasite intensity patterns, typically following one of three types:</p>
+            
+            <div class="distribution-types">
+                <div class="distribution-type">
+                    <h4>Type I: Linear Increase</h4>
+                    <p>Constant infection rate, no mortality or immunity</p>
+                </div>
+                <div class="distribution-type">
+                    <h4>Type II: Asymptotic</h4>
+                    <p>Parasite accumulation reaches threshold due to mortality or immunity</p>
+                </div>
+                <div class="distribution-type">
+                    <h4>Type III: Peak and Decline</h4>
+                    <p>Host acquires immunity, causing parasite loads to decrease in older individuals</p>
                 </div>
             </div>
         </section>
-
-        <section id="sir-demography" class="section">
-            <h2>SIR Model with Demography</h2>
+        
+        <section id="case-studies" class="concept-card">
+            <h2>Case Studies in Macroparasite Biology</h2>
             
-            <div class="concept-card">
-                <h3>Adding Births and Deaths to SIR</h3>
-                <p>To understand parasite persistence, we must modify the basic SIR model to include host births and deaths. This captures the biological reality that populations are dynamic, with new susceptible individuals continuously entering the population.</p>
-
-                <div class="equation-box">
-                    <div class="equation">
-                        <div>dS/dt = bN - βSI - dS</div>
-                        <div style="margin: 0.5rem 0;">dI/dt = βSI - γI - dI</div>
-                        <div>dR/dt = γI - dR</div>
-                    </div>
-                </div>
-
-                <p>Where:</p>
-                <ul style="margin: 1rem 0; padding-left: 2rem;">
-                    <li><strong>b</strong> = birth rate (per capita births per unit time)</li>
-                    <li><strong>d</strong> = death rate (per capita deaths per unit time)</li>
-                    <li><strong>N</strong> = total population size (S + I + R)</li>
+            <div class="case-study">
+                <h3>Case Study 1: Ascaris lumbricoides - The Giant Roundworm</h3>
+                <h4>Background:</h4>
+                <ul>
+                    <li>Most common macroparasite of humans globally</li>
+                    <li>Infects >1 billion people worldwide</li>
+                    <li>Adult worms can live 1-2 years</li>
+                    <li>Females produce ~200,000 eggs per day</li>
                 </ul>
-
-                <div class="key-insight">
-                    <h4>Population Dynamics</h4>
-                    <p>The total population size N follows: <strong>dN/dt = (b - d)N</strong>. This means the population will grow exponentially if b > d, decline if b < d, or remain constant if b = d.</p>
-                </div>
+                
+                <h4>Life Cycle:</h4>
+                <p>Direct life cycle taking 2-3 months from infection to adult reproduction. Humans become infected by ingesting embryonated eggs from contaminated soil, food, or water.</p>
+                
+                <h4>Population Impact:</h4>
+                <ul>
+                    <li>65% of school children infected in some regions</li>
+                    <li>75% prevalence in highly endemic areas</li>
+                    <li>Causes anemia, lethargy, and reduced productivity</li>
+                    <li>Particularly severe impacts on children's growth and cognitive development</li>
+                </ul>
+                
+                <h4>Key Insights:</h4>
+                <p>This case illustrates how macroparasites can have massive population-level impacts through chronic, sub-lethal effects rather than acute mortality. The high reproductive output (200,000 eggs/day) combined with environmental persistence allows for efficient transmission and maintenance in human populations.</p>
             </div>
-
+            
+            <div class="case-study">
+                <h3>Case Study 2: Schistosoma species - Blood Flukes</h3>
+                <h4>Background:</h4>
+                <ul>
+                    <li>Complex indirect life cycle involving snail intermediate hosts</li>
+                    <li>Affects hundreds of millions globally</li>
+                    <li>Larvae penetrate human skin during water contact</li>
+                    <li>Adult worms live in blood vessels</li>
+                </ul>
+                
+                <h4>Unique Biology:</h4>
+                <p>Schistosomes exhibit a fascinating reproductive strategy where female worms live in a groove on the male's body, illustrating the complex evolutionary adaptations of macroparasites.</p>
+                
+                <h4>Key Insights:</h4>
+                <p>This case demonstrates how complex life cycles involving intermediate hosts create additional opportunities for population regulation and control. The requirement for specific snail hosts means that environmental management can be an effective control strategy.</p>
+            </div>
+            
+            <div class="case-study">
+                <h3>Case Study 3: Toxocara species in the United States</h3>
+                <h4>Background:</h4>
+                <ul>
+                    <li>16 million Americans exposed to these roundworms</li>
+                    <li>Transmitted from dogs and cats to humans</li>
+                    <li>Most doctors unaware of this parasite</li>
+                    <li>Up to 10% seroprevalence in some populations</li>
+                </ul>
+                
+                <h4>Social Factors:</h4>
+                <p>Infection rates are higher in economically disadvantaged communities, illustrating how socioeconomic factors influence parasite distribution patterns.</p>
+                
+                <h4>Key Insights:</h4>
+                <p>This case shows how macroparasites persist even in developed countries and highlights the importance of understanding zoonotic transmission dynamics. It also demonstrates how social inequality can drive aggregated infection patterns.</p>
+            </div>
+            
+            <div class="case-study">
+                <h3>Case Study 4: Spadefoot Toads and Differential Exposure</h3>
+                <h4>Background:</h4>
+                <p>In Arizona's Sonoran Desert, spadefoot toads infected with Pseudodiplorchis americanus show clear sex-biased infection patterns.</p>
+                
+                <h4>Behavioral Ecology:</h4>
+                <ul>
+                    <li>Toads spend 10 months buried 3 feet underground</li>
+                    <li>Mating occurs during brief summer rainfall events</li>
+                    <li>Males remain in breeding pools for extended periods</li>
+                    <li>Females enter pools only briefly for reproduction</li>
+                </ul>
+                
+                <h4>Results:</h4>
+                <ul>
+                    <li>Male prevalence: 48%</li>
+                    <li>Female prevalence: 26%</li>
+                    <li>Clear aggregation in males due to extended exposure</li>
+                </ul>
+                
+                <h4>Key Insights:</h4>
+                <p>This natural experiment demonstrates how behavioral differences between sexes can create differential exposure patterns, leading to aggregated parasite distributions. It shows the trade-off between reproductive success and parasite risk.</p>
+            </div>
+        </section>
+        
+        <section id="simulations" class="concept-card">
+            <h2>Interactive Simulations</h2>
+            
             <div class="simulation-container">
-                <h3>SIR Model with Demographics Simulation</h3>
+                <h3>Distribution Pattern Explorer</h3>
+                <p>Explore how different variance-to-mean ratios create different distribution patterns:</p>
+                
                 <div class="controls">
                     <div class="control-group">
-                        <label for="birthRate">Birth Rate (b)</label>
-                        <input type="range" id="birthRate" min="0" max="0.1" step="0.001" value="0.02">
-                        <span id="birthRateValue">0.02</span>
+                        <label for="mean-slider">Mean (μ):</label>
+                        <input type="range" id="mean-slider" min="1" max="20" value="5" step="0.5">
+                        <span id="mean-value">5.0</span>
                     </div>
                     <div class="control-group">
-                        <label for="deathRate">Death Rate (d)</label>
-                        <input type="range" id="deathRate" min="0" max="0.1" step="0.001" value="0.01">
-                        <span id="deathRateValue">0.01</span>
+                        <label for="k-slider">k parameter:</label>
+                        <input type="range" id="k-slider" min="0.1" max="20" value="2" step="0.1">
+                        <span id="k-value">2.0</span>
                     </div>
                     <div class="control-group">
-                        <label for="transmissionRate">Transmission (β)</label>
-                        <input type="range" id="transmissionRate" min="0" max="1" step="0.01" value="0.3">
-                        <span id="transmissionRateValue">0.3</span>
+                        <label>σ²/μ ratio:</label>
+                        <span id="ratio-display">2.5</span>
                     </div>
                     <div class="control-group">
-                        <label for="recoveryRate">Recovery (γ)</label>
-                        <input type="range" id="recoveryRate" min="0" max="1" step="0.01" value="0.1">
-                        <span id="recoveryRateValue">0.1</span>
+                        <label>Distribution Type:</label>
+                        <span id="distribution-type">Aggregated</span>
                     </div>
                 </div>
+                
                 <div class="chart-container">
-                    <canvas id="sirChart"></canvas>
+                    <canvas id="distributionChart"></canvas>
                 </div>
             </div>
-
-            <div class="concept-card">
-                <h3>Equilibrium Analysis</h3>
-                <p>We can determine conditions for parasite persistence by analyzing when dI/dt = 0. This occurs when gains to the infected class exactly balance losses.</p>
-
-                <div class="equation-box">
-                    <div class="equation">
-                        βSI - γI - dI = 0<br>
-                        S* = (γ + d)/β<br>
-                        S*/N = (γ + d)/(βN)
+            
+            <div class="simulation-container">
+                <h3>Aggregation Impact Simulator</h3>
+                <p>Explore how the 20/80 rule affects parasite control strategies:</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="pop-size">Population Size:</label>
+                        <input type="range" id="pop-size" min="100" max="1000" value="500" step="50">
+                        <span id="pop-size-value">500</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="agg-level">Aggregation Level:</label>
+                        <input type="range" id="agg-level" min="0.1" max="5" value="1" step="0.1">
+                        <span id="agg-value">1.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Top 20% hosts carry:</label>
+                        <span id="top-twenty-parasites">80%</span> of parasites
                     </div>
                 </div>
-
-                <p>This gives us the critical relationship between R₀ and the fraction of susceptibles at equilibrium:</p>
-
-                <div class="equation-box">
-                    <div class="equation">
-                        R₀ = βN/(γ + d)<br>
-                        S*/N = 1/R₀
-                    </div>
+                
+                <div class="chart-container">
+                    <canvas id="aggregationChart"></canvas>
                 </div>
-
+                
                 <div class="key-insight">
-                    <h4>Critical Threshold</h4>
-                    <p>For persistence, R₀ > 1. The fraction of susceptibles at endemic equilibrium is 1/R₀. This relationship is fundamental for estimating R₀ from seroprevalence studies.</p>
+                    <h3>Control Strategy Implications</h3>
+                    <p id="control-insight">By treating the top 20% of most infected hosts, you could eliminate 80% of the parasite population!</p>
                 </div>
             </div>
         </section>
-
-        <section id="persistence" class="section">
-            <h2>Persistence Mechanisms</h2>
-            
-            <div class="concept-card">
-                <h3>Critical Community Size and Population Effects</h3>
-                <p>The size of the host population critically affects parasite persistence. Small populations may experience epidemic fade-outs, while larger populations can maintain endemic transmission.</p>
-
-                <div class="case-study">
-                    <h4>Case Study: Measles in Human Populations</h4>
-                    <p>Measles provides a classic example of how population size affects persistence:</p>
-                    <ul>
-                        <li><strong>Iceland (~300k)</strong>: Frequent epidemic fade-outs with long intervals between outbreaks</li>
-                        <li><strong>Denmark (~5M)</strong>: Irregular epidemic cycles with some fade-out periods</li>
-                        <li><strong>UK (~60M)</strong>: Consistent endemic transmission with regular biennial cycles</li>
-                    </ul>
-                    <div class="takeaway">
-                        <h5>Take-home Message</h5>
-                        <p>The Critical Community Size for measles is approximately 300,000-500,000 people. Below this threshold, stochastic fade-outs become common due to insufficient births to maintain the supply of susceptibles between epidemics.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="concept-card">
-                <h3>Additional Persistence Mechanisms</h3>
-                <p>Beyond host births and critical population size, several other mechanisms can promote parasite persistence:</p>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
-                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #2c5530;">Migration</h4>
-                        <p>Immigration of susceptible hosts from other regions can replenish the susceptible pool.</p>
-                    </div>
-                    <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #1976d2;">Loss of Immunity</h4>
-                        <p>Waning immunity returns recovered individuals to the susceptible class.</p>
-                    </div>
-                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #856404;">Pathogen Evolution</h4>
-                        <p>Antigenic drift allows pathogens to overcome existing immunity.</p>
-                    </div>
-                    <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #7b1fa2;">Reservoir Hosts</h4>
-                        <p>Alternative host species can maintain pathogens between epidemics in the primary host.</p>
-                    </div>
-                    <div style="background: #fce4ec; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #c2185b;">Seasonal Transmission</h4>
-                        <p>Temporal variation in contact rates can create oscillatory dynamics.</p>
-                    </div>
-                </div>
-
-                <div class="simulation-container">
-                    <h3>Population Size and Persistence</h3>
-                    <div class="controls">
-                        <div class="control-group">
-                            <label for="popSize">Population Size</label>
-                            <input type="range" id="popSize" min="1000" max="1000000" step="1000" value="100000">
-                            <span id="popSizeValue">100,000</span>
-                        </div>
-                        <div class="control-group">
-                            <label for="r0Value">R₀</label>
-                            <input type="range" id="r0Value" min="1.1" max="20" step="0.1" value="15">
-                            <span id="r0ValueDisplay">15</span>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="persistenceChart"></canvas>
-                    </div>
-                    <p style="margin-top: 1rem; font-style: italic;">This simulation shows how larger populations maintain more stable infection levels, while smaller populations experience more stochastic fluctuations and potential fade-outs.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="pdv-case" class="section">
-            <h2>Case Study: Phocine Distemper Virus (PDV)</h2>
-            
-            <div class="concept-card">
-                <h3>The 1988 North Sea Seal Epidemic</h3>
-                <p>The Phocine Distemper Virus outbreak in harbor seals provides a compelling case study in persistence challenges and the role of reservoir hosts.</p>
-
-                <div class="case-study">
-                    <h4>Timeline and Impact</h4>
-                    <ul>
-                        <li><strong>April 1988:</strong> First cases reported in Denmark's Wadden Sea</li>
-                        <li><strong>Summer 1988:</strong> Rapid spread throughout North Sea and Baltic Sea populations</li>
-                        <li><strong>Winter 1988:</strong> Epidemic subsides after killing ~60% of affected seal colonies</li>
-                        <li><strong>1988-2002:</strong> 14 years with no PDV mortality</li>
-                        <li><strong>2002:</strong> Second major outbreak with similar mortality patterns</li>
-                    </ul>
-
-                    <div class="takeaway">
-                        <h5>The Persistence Puzzle</h5>
-                        <p>A compartmental model predicted PDV should only persist in populations > 100 million seals. Yet the global harbor seal population is only ~1 million. How did PDV persist for 14 years and re-emerge?</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="concept-card">
-                <h3>Pathogen Characteristics</h3>
-                <p>PDV is caused by a morbillivirus similar to measles and canine distemper, with specific characteristics that affect its epidemiology:</p>
-
-                <ul style="margin: 1rem 0; padding-left: 2rem;">
-                    <li><strong>Transmission:</strong> Respiratory aerosol spread</li>
-                    <li><strong>Symptoms:</strong> Severe pneumonia, eye discharge, lethargy</li>
-                    <li><strong>Pathology:</strong> Damaged lungs prevent diving, leading to starvation</li>
-                    <li><strong>Mortality:</strong> High (up to 60% in affected colonies)</li>
-                    <li><strong>Immunity:</strong> Recovered individuals develop lifelong immunity</li>
+        
+        <div class="concept-card">
+            <h2>Summary and Key Takeaways</h2>
+            <div class="key-insight">
+                <h3>Major Concepts Covered:</h3>
+                <ul>
+                    <li><strong>Macroparasites are fundamentally different from microparasites</strong> due to their size, life cycles, and transmission patterns</li>
+                    <li><strong>Aggregated distributions are the norm</strong> for macroparasites, following negative binomial patterns</li>
+                    <li><strong>The 20/80 rule</strong> has profound implications for understanding disease dynamics and control strategies</li>
+                    <li><strong>Multiple factors create aggregation</strong> including differential exposure and susceptibility</li>
+                    <li><strong>Sex and age patterns</strong> reveal important insights about host-parasite interactions</li>
+                    <li><strong>Mathematical frameworks</strong> help us quantify and predict parasite distribution patterns</li>
                 </ul>
-
-                <div class="key-insight">
-                    <h4>Seasonal Amplification</h4>
-                    <p>Seal aggregations during summer breeding seasons create ideal conditions for transmission. The combination of high density and close contact facilitates rapid epidemic spread.</p>
-                </div>
             </div>
-
-            <div class="concept-card">
-                <h3>The Reservoir Host Solution</h3>
-                <p>The persistence puzzle was solved through understanding reservoir host dynamics. Harp seals (Phoca groenlandica) serve as the reservoir host for PDV:</p>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
-                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #2c5530;">Harp Seals as Reservoirs</h4>
-                        <ul>
-                            <li>30-90% seropositive in Greenland</li>
-                            <li>Asymptomatic carriers</li>
-                            <li>Large population (~several million)</li>
-                            <li>Maintained PDV since before 1988</li>
-                        </ul>
-                    </div>
-                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
-                        <h4 style="color: #856404;">Spillover Events</h4>
-                        <ul>
-                            <li>Periodic contact with harbor seals</li>
-                            <li>Migration patterns bring species together</li>
-                            <li>Exploitation of Atlantic fisheries in 1988</li>
-                            <li>Climate-driven range shifts</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="takeaway">
-                    <h5>Take-home Message</h5>
-                    <p>Reservoir hosts can maintain pathogens in large, relatively resistant populations and periodically reintroduce them to smaller, more vulnerable populations. This mechanism explains how PDV persisted despite causing severe epidemics in harbor seals.</p>
-                </div>
-            </div>
-
-            <div class="concept-card">
-                <h3>Lessons from the PDV Case Study</h3>
-                <div style="background: #f3e5f5; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
-                    <h4 style="color: #7b1fa2; margin-bottom: 1rem;">Key Insights</h4>
-                    <ul>
-                        <li><strong>Invasion vs Persistence:</strong> A parasite's ability to invade does not guarantee persistence in a host population</li>
-                        <li><strong>Speed vs Persistence Trade-off:</strong> Rapidly spreading diseases may burn through susceptibles too quickly for demographic replacement</li>
-                        <li><strong>Reservoir Importance:</strong> Alternative host species provide crucial persistence mechanisms</li>
-                        <li><strong>Real-time Modeling:</strong> Mathematical models developed during epidemics provide critical insights into disease dynamics and management strategies</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <section id="regulation" class="section">
-            <h2>Parasite Regulation of Host Populations</h2>
             
-            <div class="concept-card">
-                <h3>Understanding Population Regulation</h3>
-                <p>Pathogens can regulate host populations through density-dependent effects on mortality or reproduction. This represents a fundamental ecological interaction where parasites act as a natural population control mechanism.</p>
-
-                <div class="equation-box">
-                    <div class="equation">
-                        Density Dependence: Birth or death rates change with population density
-                    </div>
-                </div>
-
-                <p>For pathogens to regulate hosts, they must create density-dependent mortality where the per capita death rate increases with host population size.</p>
-
-                <div class="key-insight">
-                    <h4>Regulation Mechanism</h4>
-                    <p>Higher host density → increased transmission (βSI term) → more infections → higher mortality rates → population regulation at equilibrium density N*</p>
-                </div>
-            </div>
-
-            <div class="case-study">
-                <h4>Case Study: Mycoplasmal Conjunctivitis in House Finches</h4>
-                <p>House finches (Carpodacus mexicanus) experienced a novel disease emergence that provided clear evidence of pathogen regulation:</p>
-                
-                <div style="margin: 1rem 0;">
-                    <h5>Background:</h5>
-                    <ul>
-                        <li><strong>1940:</strong> Small founder population released in NYC</li>
-                        <li><strong>1960-1993:</strong> Rapid range expansion across eastern North America</li>
-                        <li><strong>Winter 1993:</strong> Mycoplasma gallisepticum conjunctivitis first observed</li>
-                        <li><strong>1994-1997:</strong> Disease spread rapidly following finch distribution</li>
-                    </ul>
-                </div>
-
-                <div class="takeaway">
-                    <h5>Evidence for Regulation</h5>
-                    <p><strong>1. Population Decline:</strong> ~50% reduction in host density following disease arrival<br>
-                    <strong>2. Threshold Stabilization:</strong> Populations stabilized around 40% of pre-epidemic levels<br>
-                    <strong>3. Density-Dependent Impact:</strong> Areas with higher initial density suffered greater relative losses</p>
-                </div>
-            </div>
-
-            <div class="concept-card">
-                <h3>Historical Examples of Pathogen Impacts</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 0;">
-                    <div class="case-study">
-                        <h4>Black Death (1347-1351)</h4>
-                        <ul>
-                            <li>Killed 30% of Europeans (~25 million people)</li>
-                            <li>Population recovery took 200 years</li>
-                            <li>Fundamental demographic and social changes</li>
-                            <li>Altered European history and development</li>
-                        </ul>
-                    </div>
-                    <div class="case-study">
-                        <h4>Rinderpest in African Ungulates</h4>
-                        <ul>
-                            <li>Introduced to Africa in 1890s</li>
-                            <li>Massive mortality in cattle and wildlife</li>
-                            <li>Wildebeest recovery after vaccine development</li>
-                            <li>Population release from pathogen regulation</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="key-insight">
-                    <h4>Regulation Through Density Dependence</h4>
-                    <p>Pathogens regulate populations by creating density-dependent mortality. Higher host density increases transmission rates (βSI), leading to more infections and deaths. This creates a negative feedback loop that stabilizes populations at lower densities than would occur without the pathogen.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="virulence" class="section">
-            <h2>Virulence and R₀</h2>
-            
-            <div class="concept-card">
-                <h3>The Virulence-Transmission Trade-off</h3>
-                <p>Virulence appears in the denominator of the R₀ equation, creating a fundamental trade-off for pathogen evolution. Understanding this relationship is crucial for predicting pathogen behavior and designing interventions.</p>
-
-                <div class="equation-box">
-                    <div class="equation">
-                        R₀ = βN/(γ + d + v)
-                    </div>
-                </div>
-
-                <p>Where <strong>v</strong> represents virulence (pathogen-induced mortality). This equation reveals that higher virulence can actually reduce R₀ and decrease invasion success.</p>
-
-                <div class="key-insight">
-                    <h4>The Virulence Trade-off</h4>
-                    <p><strong>Too virulent:</strong> Pathogen kills hosts too quickly, reducing transmission opportunities<br>
-                    <strong>Not virulent enough:</strong> May not effectively exploit host resources for reproduction<br>
-                    <strong>Optimal virulence:</strong> Intermediate levels often maximize R₀ and epidemic potential</p>
-                </div>
-            </div>
-
-            <div class="concept-card">
-                <h3>Population Impact vs Virulence</h3>
-                <p>The relationship between virulence and population impact is complex and depends on multiple factors. While the mathematical relationship shows virulence in the denominator of R₀, real-world dynamics involve trade-offs that create optimal intermediate virulence levels.</p>
-
-                <div style="background: linear-gradient(135deg, #e8f5e8, #f0f8f0); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
-                    <h4 style="color: #2c5530; margin-bottom: 1rem;">Realistic Virulence Relationships</h4>
-                    <ul>
-                        <li><strong>Low Virulence:</strong> R₀ ~ 2-4, persistent endemic infection, moderate population impact</li>
-                        <li><strong>Intermediate Virulence:</strong> R₀ ~ 4-8, potential for both persistence and significant regulation</li>
-                        <li><strong>High Virulence:</strong> R₀ ~ 1-3, may cause severe but short-lived epidemics (e.g., Ebola)</li>
-                        <li><strong>Extreme Virulence:</strong> R₀ < 1, cannot persist but may cause local outbreaks</li>
-                    </ul>
-                </div>
-
-                <div class="key-insight">
-                    <h4>The Trade-off Reality</h4>
-                    <p>In nature, very high virulence typically reduces transmission opportunities as hosts die too quickly or become immobilized. Most successful pathogens evolve toward intermediate virulence levels that balance transmission success with reproductive opportunities within the host.</p>
-                </div>
-            </div>
-
-            <div class="case-study">
-                <h4>Case Study: SARS-CoV-2 Variant Evolution</h4>
-                <p>The evolution of SARS-CoV-2 variants demonstrates real-world virulence trade-offs:</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
-                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px;">
-                        <h5 style="color: #856404;">Original SARS-CoV-2</h5>
-                        <ul>
-                            <li>R₀ ≈ 2-3</li>
-                            <li>Case fatality ≈ 3%</li>
-                            <li>Moderate transmissibility</li>
-                            <li>Higher virulence</li>
-                        </ul>
-                    </div>
-                    <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px;">
-                        <h5 style="color: #1976d2;">Omicron Variant</h5>
-                        <ul>
-                            <li>R₀ ≈ 7-10</li>
-                            <li>Lower case fatality</li>
-                            <li>Higher transmissibility</li>
-                            <li>Reduced virulence</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="takeaway">
-                    <h5>Evolutionary Trajectory</h5>
-                    <p>The evolution toward higher transmissibility and lower virulence in Omicron represents a classic example of the trade-off in action. Selection favors variants that can spread more effectively, often at the expense of virulence.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <h2>Summary and Integration</h2>
-            
-            <div class="concept-card">
-                <h3>Key Concepts Review</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 0;">
-                    <div style="background: #e8f5e8; padding: 1.5rem; border-radius: 8px;">
-                        <h4 style="color: #2c5530;">Model Modifications</h4>
-                        <p>SIR models can be enhanced by adding host births, deaths, and virulence to better capture realistic population dynamics and persistence mechanisms.</p>
-                    </div>
-                    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px;">
-                        <h4 style="color: #1976d2;">Invasion vs Persistence</h4>
-                        <p>Parasite invasion and persistence are different phenomena. Pathogens can invade without persisting, and persistence requires specific mechanisms like demographic replacement.</p>
-                    </div>
-                    <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px;">
-                        <h4 style="color: #856404;">Persistence Mechanisms</h4>
-                        <p>Host births, loss of immunity, migration, reservoir hosts, and seasonal transmission can all promote parasite persistence in populations.</p>
-                    </div>
-                    <div style="background: #f3e5f5; padding: 1.5rem; border-radius: 8px;">
-                        <h4 style="color: #7b1fa2;">Population Regulation</h4>
-                        <p>Virulent parasites can regulate host populations through density-dependent mortality, creating stable equilibria below carrying capacity.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="concept-card">
-                <h3>Practical Applications</h3>
-                <p>Understanding parasite persistence and regulation has important implications for:</p>
-                
-                <ul style="margin: 1rem 0; padding-left: 2rem;">
-                    <li><strong>Public Health:</strong> Predicting disease emergence, persistence, and control requirements</li>
-                    <li><strong>Conservation:</strong> Understanding pathogen threats to endangered species</li>
-                    <li><strong>Agriculture:</strong> Managing crop and livestock diseases</li>
-                    <li><strong>Biological Control:</strong> Using pathogens for pest management</li>
-                    <li><strong>Evolution:</strong> Predicting pathogen evolutionary trajectories</li>
-                </ul>
-
-                <div class="key-insight">
-                    <h4>Integration with Broader Ecology</h4>
-                    <p>Parasite-host dynamics represent fundamental ecological interactions that influence community structure, evolutionary processes, and ecosystem function. These relationships demonstrate how mathematical models can provide crucial insights into complex biological phenomena.</p>
-                </div>
-            </div>
-        </section>
+            <p><strong>Next Lecture Preview:</strong> In Lecture 2, we'll explore how to model macroparasite transmission dynamics mathematically, focusing on the cycling patterns that emerge from the aggregated distributions we've studied today.</p>
+        </div>
     </div>
-
+    
     <script>
-        // Global variables for charts
-        let sirChart, persistenceChart;
-
-        // Smooth scrolling function
-        function scrollToSection(sectionId) {
-            const element = document.getElementById(sectionId);
-            if (element) {
-                element.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        }
-
-        // Initialize charts and event listeners
+        // Initialize variables
+        let distributionChart, aggregationChart;
+        
+        // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', function() {
-            initializeSIRChart();
-            initializePersistenceChart();
+            initializeCharts();
             setupEventListeners();
         });
-
+        
+        function initializeCharts() {
+            // Distribution Pattern Chart
+            const ctx1 = document.getElementById('distributionChart').getContext('2d');
+            distributionChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Frequency',
+                        data: [],
+                        backgroundColor: 'rgba(74, 124, 89, 0.7)',
+                        borderColor: 'rgba(74, 124, 89, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Parasite Distribution Pattern'
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Hosts'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Number of Parasites per Host'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Aggregation Chart
+            const ctx2 = document.getElementById('aggregationChart').getContext('2d');
+            aggregationChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Parasites per Host',
+                        data: [],
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Parasite Aggregation in Host Population'
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Parasites'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Host Rank (sorted by infection level)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            updateDistributionChart();
+            updateAggregationChart();
+        }
+        
         function setupEventListeners() {
-            // SIR Chart controls
-            ['birthRate', 'deathRate', 'transmissionRate', 'recoveryRate'].forEach(id => {
-                const slider = document.getElementById(id);
-                const valueSpan = document.getElementById(id + 'Value');
-                slider.addEventListener('input', function() {
-                    valueSpan.textContent = this.value;
-                    updateSIRChart();
-                });
-            });
-
-            // Persistence Chart controls
-            ['popSize', 'r0Value'].forEach(id => {
-                const slider = document.getElementById(id);
-                const valueSpan = document.getElementById(id.includes('popSize') ? 'popSizeValue' : 'r0ValueDisplay');
-                slider.addEventListener('input', function() {
-                    if (id === 'popSize') {
-                        valueSpan.textContent = parseInt(this.value).toLocaleString();
-                    } else {
-                        valueSpan.textContent = this.value;
-                    }
-                    updatePersistenceChart();
-                });
-            });
-        }
-
-        function initializeSIRChart() {
-            const ctx = document.getElementById('sirChart').getContext('2d');
-            sirChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Susceptible',
-                        data: [],
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        fill: false
-                    }, {
-                        label: 'Infected',
-                        data: [],
-                        borderColor: '#dc2626',
-                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                        fill: false
-                    }, {
-                        label: 'Recovered',
-                        data: [],
-                        borderColor: '#16a34a',
-                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Population'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Time'
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'SIR Model with Demographics'
-                        }
-                    }
-                }
-            });
-            updateSIRChart();
-        }
-
-        function updateSIRChart() {
-            const b = parseFloat(document.getElementById('birthRate').value);
-            const d = parseFloat(document.getElementById('deathRate').value);
-            const beta = parseFloat(document.getElementById('transmissionRate').value);
-            const gamma = parseFloat(document.getElementById('recoveryRate').value);
+            // Distribution chart controls
+            document.getElementById('mean-slider').addEventListener('input', updateDistributionChart);
+            document.getElementById('k-slider').addEventListener('input', updateDistributionChart);
             
-            // Simple numerical integration
-            let S = 950, I = 50, R = 0;
-            const dt = 0.1;
-            const timePoints = [];
-            const sData = [], iData = [], rData = [];
+            // Aggregation chart controls
+            document.getElementById('pop-size').addEventListener('input', updateAggregationChart);
+            document.getElementById('agg-level').addEventListener('input', updateAggregationChart);
+        }
+        
+        function updateDistributionChart() {
+            const mean = parseFloat(document.getElementById('mean-slider').value);
+            const k = parseFloat(document.getElementById('k-slider').value);
             
-            for (let t = 0; t <= 50; t += dt) {
-                const N = S + I + R;
-                const dS = b * N - beta * S * I / N - d * S;
-                const dI = beta * S * I / N - gamma * I - d * I;
-                const dR = gamma * I - d * R;
-                
-                S += dS * dt;
-                I += dI * dt;
-                R += dR * dt;
-                
-                if (t % 1 === 0) {
-                    timePoints.push(Math.round(t));
-                    sData.push(Math.round(S));
-                    iData.push(Math.round(I));
-                    rData.push(Math.round(R));
-                }
+            // Update display values
+            document.getElementById('mean-value').textContent = mean.toFixed(1);
+            document.getElementById('k-value').textContent = k.toFixed(1);
+            
+            // Calculate variance and ratio
+            const variance = mean + (mean * mean) / k;
+            const ratio = variance / mean;
+            document.getElementById('ratio-display').textContent = ratio.toFixed(2);
+            
+            // Determine distribution type
+            let distributionType;
+            if (ratio < 1.1) {
+                distributionType = 'Random (Poisson-like)';
+            } else if (ratio < 3) {
+                distributionType = 'Moderately Aggregated';
+            } else {
+                distributionType = 'Highly Aggregated';
+            }
+            document.getElementById('distribution-type').textContent = distributionType;
+            
+            // Generate negative binomial distribution data
+            const maxParasites = Math.min(30, Math.round(mean + 4 * Math.sqrt(variance)));
+            const labels = [];
+            const data = [];
+            
+            for (let x = 0; x <= maxParasites; x++) {
+                labels.push(x.toString());
+                // Negative binomial probability mass function
+                const prob = nbinom_pmf(x, k, mean);
+                data.push(prob * 1000); // Scale for better visualization
             }
             
-            sirChart.data.labels = timePoints;
-            sirChart.data.datasets[0].data = sData;
-            sirChart.data.datasets[1].data = iData;
-            sirChart.data.datasets[2].data = rData;
-            sirChart.update();
+            distributionChart.data.labels = labels;
+            distributionChart.data.datasets[0].data = data;
+            distributionChart.update();
         }
-
-        function initializePersistenceChart() {
-            const ctx = document.getElementById('persistenceChart').getContext('2d');
-            persistenceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Infected Population',
-                        data: [],
-                        borderColor: '#dc2626',
-                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Infected Individuals'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Time'
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Population Size Effects on Persistence'
-                        }
-                    }
-                }
-            });
-            updatePersistenceChart();
-        }
-
-        function updatePersistenceChart() {
-            const N = parseInt(document.getElementById('popSize').value);
-            const R0 = parseFloat(document.getElementById('r0Value').value);
+        
+        function updateAggregationChart() {
+            const popSize = parseInt(document.getElementById('pop-size').value);
+            const aggLevel = parseFloat(document.getElementById('agg-level').value);
             
-            // Simulate stochastic dynamics
-            const timePoints = [];
-            const infectData = [];
-            let I = Math.max(1, Math.round(N * 0.001)); // Start with small infection
+            // Update display values
+            document.getElementById('pop-size-value').textContent = popSize.toString();
+            document.getElementById('agg-value').textContent = aggLevel.toFixed(1);
             
-            for (let t = 0; t <= 100; t++) {
-                // Simple stochastic SIR with fade-out potential
-                const S = Math.round(N / R0); // Equilibrium susceptibles
-                const transmissionRate = R0 * 0.1; // Recovery rate = 0.1
-                
-                // Add noise - smaller populations have more stochasticity
-                const noise = Math.random() * Math.sqrt(1000 / N);
-                const growthRate = transmissionRate * S / N - 0.1 - 0.01; // transmission - recovery - death
-                
-                I = Math.max(0, I * (1 + (growthRate + noise) * 0.1));
-                
-                // Fade-out check for small populations
-                if (N < 50000 && I < 1 && Math.random() < 0.05) {
-                    I = 0;
-                }
-                
-                timePoints.push(t);
-                infectData.push(Math.round(I));
+            // Generate aggregated parasite distribution using negative binomial approach
+            const hosts = [];
+            const meanParasites = 5; // Average parasites per host
+            const k = aggLevel; // Use aggregation level as k parameter
+            
+            // Generate parasite loads for each host using negative binomial distribution
+            for (let i = 0; i < popSize; i++) {
+                const parasites = generateNegativeBinomial(k, meanParasites);
+                hosts.push(Math.max(0, parasites)); // Ensure non-negative
             }
             
-            persistenceChart.data.labels = timePoints;
-            persistenceChart.data.datasets[0].data = infectData;
-            persistenceChart.update();
+            // Sort hosts by parasite load (descending)
+            hosts.sort((a, b) => b - a);
+            
+            // Calculate what percentage of parasites the top 20% of hosts carry
+            const top20Index = Math.floor(popSize * 0.2);
+            const top20Parasites = hosts.slice(0, top20Index).reduce((sum, p) => sum + p, 0);
+            const totalParasitesActual = hosts.reduce((sum, p) => sum + p, 0);
+            
+            let percentage = 0;
+            if (totalParasitesActual > 0) {
+                percentage = Math.round((top20Parasites / totalParasitesActual) * 100);
+            }
+            
+            // Ensure we have a meaningful result
+            if (percentage === 0 && totalParasitesActual > 0) {
+                percentage = Math.round((top20Parasites / totalParasitesActual) * 100 * 10) / 10;
+            }
+            
+            document.getElementById('top-twenty-parasites').textContent = percentage + '%';
+            
+            // Update control insight
+            const controlInsight = document.getElementById('control-insight');
+            if (percentage > 70) {
+                controlInsight.textContent = `By treating the top 20% of most infected hosts, you could eliminate ${percentage}% of the parasite population! This shows strong aggregation.`;
+            } else if (percentage > 40) {
+                controlInsight.textContent = `The top 20% of hosts carry ${percentage}% of parasites. This shows moderate aggregation - still useful for targeted control.`;
+            } else {
+                controlInsight.textContent = `The top 20% of hosts carry only ${percentage}% of parasites. This suggests a more even distribution, making targeted control less effective.`;
+            }
+            
+            // Prepare chart data - show only first 100 hosts for clarity
+            const showHosts = Math.min(100, popSize);
+            const labels = [];
+            const data = hosts.slice(0, showHosts);
+            
+            for (let i = 0; i < showHosts; i++) {
+                labels.push((i + 1).toString());
+            }
+            
+            // Ensure chart exists before updating
+            if (aggregationChart && aggregationChart.data) {
+                aggregationChart.data.labels = labels;
+                aggregationChart.data.datasets[0].data = data;
+                aggregationChart.update('none'); // Update without animation for better performance
+            }
         }
+        
+        // Generate random number from negative binomial distribution
+        function generateNegativeBinomial(k, mu) {
+            if (k > 50) {
+                // For large k, approximate with normal distribution
+                const mean = mu;
+                const variance = mu + (mu * mu) / k;
+                return Math.round(generateNormal(mean, Math.sqrt(variance)));
+            }
+            
+            // For small k, use gamma-Poisson mixture
+            const p = k / (k + mu);
+            const lambda = generateGamma(k, (1-p)/p);
+            return generatePoisson(lambda);
+        }
+        
+        // Generate random number from Poisson distribution
+        function generatePoisson(lambda) {
+            if (lambda < 30) {
+                let L = Math.exp(-lambda);
+                let k = 0;
+                let p = 1;
+                do {
+                    k++;
+                    p *= Math.random();
+                } while (p > L);
+                return k - 1;
+            } else {
+                // Normal approximation for large lambda
+                return Math.round(generateNormal(lambda, Math.sqrt(lambda)));
+            }
+        }
+        
+        // Generate random number from Gamma distribution (simple approximation)
+        function generateGamma(shape, scale) {
+            if (shape < 1) {
+                return generateGamma(shape + 1, scale) * Math.pow(Math.random(), 1/shape);
+            }
+            
+            // Marsaglia and Tsang's method for shape >= 1
+            const d = shape - 1/3;
+            const c = 1 / Math.sqrt(9 * d);
+            
+            while (true) {
+                let x, v;
+                do {
+                    x = generateNormal(0, 1);
+                    v = 1 + c * x;
+                } while (v <= 0);
+                
+                v = v * v * v;
+                const u = Math.random();
+                
+                if (u < 1 - 0.0331 * x * x * x * x) {
+                    return d * v * scale;
+                }
+                
+                if (Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) {
+                    return d * v * scale;
+                }
+            }
+        }
+        
+        // Generate random number from normal distribution (Box-Muller transform)
+        function generateNormal(mean = 0, stdDev = 1) {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random(); // Converting [0,1) to (0,1)
+            while(v === 0) v = Math.random();
+            
+            const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+            return z * stdDev + mean;
+        }
+        
+        // Negative binomial probability mass function
+        function nbinom_pmf(k, r, mu) {
+            const p = r / (r + mu);
+            const logProb = gammaLn(k + r) - gammaLn(k + 1) - gammaLn(r) + 
+                           r * Math.log(p) + k * Math.log(1 - p);
+            return Math.exp(logProb);
+        }
+        
+        // Log gamma function approximation
+        function gammaLn(x) {
+            if (x === 1) return 0;
+            if (x === 2) return 0;
+            if (x < 1) return gammaLn(x + 1) - Math.log(x);
+            
+            // Stirling's approximation for larger values
+            return (x - 0.5) * Math.log(x) - x + 0.5 * Math.log(2 * Math.PI) + 
+                   1 / (12 * x) - 1 / (360 * x * x * x);
+        }
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Function to update chart responsively
+        window.addEventListener('resize', function() {
+            if (distributionChart) distributionChart.resize();
+            if (aggregationChart) aggregationChart.resize();
+        });
     </script>
 </body>
 </html>
