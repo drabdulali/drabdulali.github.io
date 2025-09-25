@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>L5 – Microparasites II: Persistence & Impacts (PBID 6150)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Chart.js + MathJax -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'],['\\[','\\]']] } };
+  </script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    /* ======= Base + Color System (exact as requested) ======= */
+    :root{
+      --header-grad: linear-gradient(135deg, #2c5530, #4a7c59);
+      --nav-bg: #1a3d20;
+      --accent: #4a7c59;
+      --heading: #2c5530;
+      --page: #f8f9fa;
+      --card-grad: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;line-height:1.6;background:var(--page);color:#333}
+    .header{background:var(--header-grad);color:#fff;padding:2rem 1rem;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+    .header h1{font-size:2.25rem;margin:.25rem 0}
+    .header p{opacity:.95}
+
+    .navigation{position:sticky;top:0;z-index:99;background:var(--nav-bg);border-bottom:3px solid #2c5530}
+    .nav-wrap{max-width:1200px;margin:0 auto;padding:.5rem 1rem;display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center}
+    .nav-wrap a{color:#fff;text-decoration:none;padding:.4rem .75rem;border-radius:6px}
+    .nav-wrap a:hover{background:rgba(255,255,255,.1)}
+
+    .container{max-width:1200px;margin:0 auto;padding:2rem 1rem}
+    section.section{background:#fff;margin:1.25rem 0;padding:1.5rem;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.06);border-left:6px solid var(--accent)}
+    h2{color:var(--heading);font-size:1.8rem;margin-bottom:1rem}
+    h3{color:#2f6242;font-size:1.25rem;margin:1rem 0 .5rem}
+    .subtle{opacity:.8}
+    .concept-card{background:var(--card-grad);padding:1rem;border:1px solid var(--accent);border-radius:10px;margin:.75rem 0}
+    .equation{background:#1a3d20;color:#fff;padding:1rem;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;margin:.75rem 0}
+    .key{background:linear-gradient(135deg,#4a7c59,#2c5530);color:#fff;padding:.8rem 1rem;border-radius:10px;margin:.75rem 0;border-left:4px solid #fff}
+    .pill{display:inline-block;padding:.15rem .5rem;border-radius:999px;background:#e8f5e8;border:1px solid var(--accent);color:#2c5530;font-size:.85rem}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+    .controls{display:flex;flex-wrap:wrap;gap:.75rem;margin:.5rem 0 1rem}
+    .control{display:flex;flex-direction:column;min-width:160px}
+    .control label{font-weight:600;color:var(--heading);margin-bottom:.25rem}
+    .control input[type=number], .control input[type=range]{padding:.45rem;border:2px solid var(--accent);border-radius:8px;background:#fff}
+    .btn{background:#2c5530;color:#fff;border:none;border-radius:8px;padding:.6rem 1rem;cursor:pointer}
+    .btn:hover{background:#1a3d20}
+    .chart-wrap{position:relative;height:380px;background:#fff;border-radius:10px;border:1px solid #e6efe8;padding:1rem}
+    .muted{opacity:.7}
+    .note{font-size:.95rem}
+    @media (max-width:700px){.control{min-width:120px}}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>L5 – Microparasites II: Persistence & Impacts</h1>
+    <p>Population Biology of Infectious Diseases (PBID 6150)</p>
+  </header>
+
+  <nav class="navigation">
+    <div class="nav-wrap">
+      <a href="#objectives">Objectives</a>
+      <a href="#endemic-epidemic">Endemic vs. Epidemic</a>
+      <a href="#sir-demography">SIR with Demography & Virulence</a>
+      <a href="#r0-serology">Estimating \(R_0\) from Serology</a>
+      <a href="#persistence-ccs">Persistence, CCS & Seasonality</a>
+      <a href="#case-pdv">Case Study: PDV in Seals</a>
+      <a href="#regulation">Pathogen Impacts & Regulation</a>
+      <a href="#case-finch">Case Study: House Finch</a>
+      <a href="#summary">Summary</a>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <!-- Objectives -->
+    <section id="objectives" class="section">
+      <h2>Objectives</h2>
+      <div class="grid">
+        <div class="concept-card">
+          <h3>By the end of this lecture, you will be able to:</h3>
+          <ul>
+            <li>Distinguish <strong>endemic</strong> vs. <strong>epidemic</strong> dynamics and articulate what mechanisms sustain endemicity.</li>
+            <li>Extend the classic SIR model to include <strong>host demography</strong> (births, deaths) and <strong>virulence</strong>, and interpret the impacts on \(N(t)\).</li>
+            <li>Use the relationship \(S^*/N = 1/R_0\) to estimate \(R_0\) from serological data and parameterize \(\beta\).</li>
+            <li>Explain <strong>critical community size (CCS)</strong>, seasonal forcing, and migration as persistence mechanisms; diagnose fade-outs.</li>
+            <li>Analyze real-world case studies (PDV; House Finch) to connect theory to data and derive <em>population-level</em> take-aways.</li>
+          </ul>
+        </div>
+        <div class="key"><strong>Key Insight:</strong> Endemic persistence typically requires a process that continually replenishes susceptibles (demography, loss of immunity, migration, seasonality, or reintroduction from reservoirs).</div>
+      </div>
+    </section>
+
+    <!-- Endemic vs Epidemic -->
+    <section id="endemic-epidemic" class="section">
+      <h2>Endemic vs. Epidemic Disease</h2>
+      <div class="concept-card">
+        <p><span class="pill">Definitions</span> An <strong>epidemic</strong> is a transient surge of cases; an <strong>endemic</strong> disease maintains a non-zero equilibrium prevalence over time. A pathogen that invades does <em>not</em> necessarily persist—persistence requires that the influx of susceptibles balances removal (recovery, death, immunity).</p>
+      </div>
+      <div class="equation">
+        <p><strong>At endemic equilibrium (SIR with demography):</strong></p>
+        <p>$$\frac{dI}{dt}=0 \Rightarrow \beta S^* I^* - (\gamma + d)I^* = 0 \;\;\Rightarrow\;\; \frac{S^*}{N} = \frac{1}{R_0},\quad R_0=\frac{\beta N}{\gamma+d}.$$</p>
+      </div>
+      <div class="key"><strong>Take-home:</strong> If \(S^*/N &lt; 1/R_0\), transmission cannot sustain itself and prevalence decays; if \(S^*/N = 1/R_0\), endemic equilibrium is possible.</div>
+    </section>
+
+    <!-- SIR with Demography & Virulence -->
+    <section id="sir-demography" class="section">
+      <h2>SIR with Demography & Virulence</h2>
+
+      <div class="concept-card">
+        <h3>Model with births and deaths</h3>
+        <p>We add per-capita birth \(b\) and natural death \(d\) to the classic SIR, tracking total population \(N=S+I+R\):</p>
+        <div class="equation">
+          $$\begin{aligned}
+          \frac{dS}{dt}&= bN - \beta SI - dS,\\
+          \frac{dI}{dt}&= \beta SI - \gamma I - dI,\\
+          \frac{dR}{dt}&= \gamma I - dR.
+          \end{aligned}$$
+        </div>
+        <p>With no virulence, population size follows \(\frac{dN}{dt} = (b-d)N\), i.e., exponential growth/decline unless \(b=d\).</p>
+      </div>
+
+      <div class="concept-card">
+        <h3>Adding pathogen-induced mortality (virulence)</h3>
+        <p>Let \(v\) be the additional per-capita mortality in infecteds:</p>
+        <div class="equation">
+          $$\frac{dI}{dt}=\beta SI-(\gamma+d+v)I,\qquad
+            R_0=\frac{\beta N}{\gamma+d+v}.$$
+        </div>
+        <p>Virulence moves to the denominator: more virulent pathogens are <em>harder</em> to invade/persist, all else equal.</p>
+      </div>
+
+      <!-- Simulation 1: SIR + Demography -->
+      <h3>Interactive Simulation: SIR with Demography (and optional Virulence)</h3>
+      <div class="controls">
+        <div class="control"><label>\(\beta\) (transmission)</label><input id="sir_beta" type="number" step="0.0001" value="0.0008"></div>
+        <div class="control"><label>\(\gamma\) (recovery)</label><input id="sir_gamma" type="number" step="0.01" value="0.2"></div>
+        <div class="control"><label>\(b\) (births)</label><input id="sir_b" type="number" step="0.001" value="0.02"></div>
+        <div class="control"><label>\(d\) (natural death)</label><input id="sir_d" type="number" step="0.001" value="0.02"></div>
+        <div class="control"><label>\(v\) (virulence)</label><input id="sir_v" type="number" step="0.001" value="0.0"></div>
+        <div class="control"><label>Initial \(N\)</label><input id="sir_N0" type="number" step="10" value="10000"></div>
+        <div class="control"><label>Initial \(I_0\)</label><input id="sir_I0" type="number" step="1" value="10"></div>
+        <button class="btn" onclick="window.runSIR()">Run</button>
+      </div>
+      <div class="chart-wrap"><canvas id="sir_chart"></canvas></div>
+      <p class="note muted" id="sir_readout"></p>
+
+      <div class="key"><strong>Key Insight:</strong> Demography replenishes \(S\) and can sustain endemicity; virulence (\(v\)) reduces \(R_0\) and can prevent invasion or regulate \(N\) by increasing deaths in \(I\).</div>
+    </section>
+
+    <!-- R0 from Serology -->
+    <section id="r0-serology" class="section">
+      <h2>Estimating \(R_0\) from Serology (Using \(S^*/N = 1/R_0\))</h2>
+      <div class="concept-card">
+        <p>At endemic equilibrium in SIR with demography, the susceptible fraction equals the inverse of \(R_0\): \(S^*/N=1/R_0\). If we can estimate the susceptible fraction from seroprevalence (\(\text{Immune}=1-S^*/N\)), we can back-calculate \(R_0\) and \(\beta\).</p>
+        <div class="equation">
+          $$R_0 = \frac{1}{S^*/N},\qquad
+            \beta = \frac{R_0(\gamma + d)}{N}.$$
+        </div>
+      </div>
+
+      <!-- Simulation 2: R0 from S*/N -->
+      <h3>Interactive Calculator</h3>
+      <div class="controls">
+        <div class="control"><label>Susceptible fraction \(S^*/N\)</label><input id="sero_Sfrac" type="number" step="0.01" value="0.33"></div>
+        <div class="control"><label>\(\gamma\)</label><input id="sero_gamma" type="number" step="0.01" value="0.2"></div>
+        <div class="control"><label>\(d\)</label><input id="sero_d" type="number" step="0.001" value="0.02"></div>
+        <div class="control"><label>\(N\)</label><input id="sero_N" type="number" step="100" value="100000"></div>
+        <button class="btn" onclick="window.updateR0()">Estimate \(R_0\) & \(\beta\)</button>
+      </div>
+      <div class="concept-card" id="sero_readout">Enter values and click “Estimate”.</div>
+      <div class="key"><strong>Key Insight:</strong> Serology can tightly constrain \(R_0\) when demography is known; this is widely used for endemic infections.</div>
+    </section>
+
+    <!-- Persistence, CCS & Seasonality -->
+    <section id="persistence-ccs" class="section">
+      <h2>Persistence Mechanisms, CCS & Seasonality</h2>
+      <div class="grid">
+        <div class="concept-card">
+          <h3>Critical Community Size (CCS)</h3>
+          <p>CCS is the smallest population that can sustain transmission without frequent stochastic fade-outs. Small populations fall below \(S^*\) for longer after epidemics (few births), promoting extinction of infection; large populations replenish \(S\) rapidly and remain above CCS.</p>
+        </div>
+        <div class="concept-card">
+          <h3>Seasonal Forcing</h3>
+          <p>Seasonal contact patterns (e.g., school terms; rural–urban movements) produce multi-annual cycles. We model this by \(\beta(t)=\beta_0\,[1+a\cos(2\pi t/T)]\).</p>
+        </div>
+      </div>
+
+      <!-- Simulation 3: Seasonally forced SIR -->
+      <h3>Interactive Simulation: Seasonal Forcing</h3>
+      <div class="controls">
+        <div class="control"><label>\(\beta_0\)</label><input id="sea_beta0" type="number" step="0.0001" value="0.0007"></div>
+        <div class="control"><label>Amplitude \(a\) (0–1)</label><input id="sea_amp" type="number" step="0.05" value="0.4"></div>
+        <div class="control"><label>Period \(T\) (years)</label><input id="sea_T" type="number" step="0.1" value="1.0"></div>
+        <div class="control"><label>\(\gamma\)</label><input id="sea_gamma" type="number" step="0.01" value="0.2"></div>
+        <div class="control"><label>\(b\)</label><input id="sea_b" type="number" step="0.001" value="0.02"></div>
+        <div class="control"><label>\(d\)</label><input id="sea_d" type="number" step="0.001" value="0.02"></div>
+        <div class="control"><label>Initial \(N\)</label><input id="sea_N0" type="number" step="100" value="200000"></div>
+        <div class="control"><label>Initial \(I_0\)</label><input id="sea_I0" type="number" step="1" value="50"></div>
+        <button class="btn" onclick="window.runSeasonal()">Run</button>
+      </div>
+      <div class="chart-wrap"><canvas id="sea_chart"></canvas></div>
+      <p class="note muted">Look for biennial or multi-year pulses as \(a\) grows or \(T\) changes.</p>
+
+      <!-- Simulation 4: CCS & fade-outs -->
+      <h3>Interactive Simulation: CCS & Epidemic Fade-Outs (stochastic SIR)</h3>
+      <div class="controls">
+        <div class="control"><label>Population \(N\)</label><input id="ccs_N" type="number" step="10000" value="100000"></div>
+        <div class="control"><label>\(\beta\)</label><input id="ccs_beta" type="number" step="0.0001" value="0.00075"></div>
+        <div class="control"><label>\(\gamma\)</label><input id="ccs_gamma" type="number" step="0.01" value="0.2"></div>
+        <div class="control"><label>\(b\)</label><input id="ccs_b" type="number" step="0.001" value="0.02"></div>
+        <div class="control"><label>\(d\)</label><input id="ccs_d" type="number" step="0.001" value="0.02"></div>
+        <div class="control"><label>Replicates</label><input id="ccs_reps" type="number" step="1" value="20"></div>
+        <button class="btn" onclick="window.runCCS()">Simulate</button>
+      </div>
+      <div class="chart-wrap"><canvas id="ccs_chart"></canvas></div>
+      <div class="concept-card" id="ccs_readout">Click “Simulate” to estimate the fraction of time extinct across replicates and visualize one trajectory of \(I(t)\).</div>
+
+      <div class="key"><strong>Take-home:</strong> Persistence increases with \(N\) and with stronger seasonal “pulses” of contacts; small populations often experience recurrent fade-outs between school-term–like surges.</div>
+    </section>
+
+    <!-- PDV case -->
+    <section id="case-pdv" class="section">
+      <h2>Case Study: Phocine Distemper Virus (PDV) in Seals</h2>
+      <div class="concept-card">
+        <p><em>Observation.</em> The 1988 North Sea PDV epidemic spread rapidly among harbor seals, with location-specific epidemics and a surprisingly long overall duration. Simple compartmental models predicted unrealistically large host numbers would be required for persistence (CCS \(\gtrsim 10^8\)), far greater than the global seal population (\(\sim 10^6\)).</p>
+        <div class="key"><strong>Take-home:</strong> Spatial structure (patchy outbreaks) and <em>reintroduction from a reservoir</em> (e.g., harp seals) are plausible mechanisms extending apparent persistence, even when single-population CCS arguments say “no.”</div>
+      </div>
+    </section>
+
+    <!-- Regulation -->
+    <section id="regulation" class="section">
+      <h2>Pathogen Impacts & Regulation of Hosts</h2>
+      <div class="grid">
+        <div class="concept-card">
+          <h3>Mechanisms</h3>
+          <ul>
+            <li>Increase mortality in \(I\) (virulence \(v\)), reducing \(N\) and growth rate \(r=b-d-v I/N\).</li>
+            <li>Reduce births indirectly (morbidity) or via density-dependent feedbacks as disease increases.</li>
+            <li>Regulate hosts: populations recover when small but are held in check when large.</li>
+          </ul>
+        </div>
+        <div class="equation">
+          <p><strong>With virulence:</strong> \(\frac{dN}{dt}=(b-d)N - vI.\) If \(vI\) offsets \((b-d)N\), exponential growth is curtailed—disease acts as a regulating force.</p>
+        </div>
+      </div>
+      <div class="key"><strong>Take-home:</strong> The same processes that sustain infection can feed back to limit host abundance—regulation is a population-level outcome of pathogen transmission.</div>
+    </section>
+
+    <!-- House Finch case -->
+    <section id="case-finch" class="section">
+      <h2>Case Study: House Finch Conjunctivitis (Mycoplasma gallisepticum)</h2>
+      <div class="concept-card">
+        <p><em>Observation.</em> A novel strain spilled over to house finches in the early 1990s, spreading rapidly with clear clinical signs and environmental/direct transmission. Three lines of evidence indicate <strong>host regulation</strong>: (1) ~50% density reduction, (2) stabilization to a threshold population size, and (3) greater losses where initial density was higher.</p>
+        <div class="key"><strong>Take-home:</strong> Pathogen invasion led to a new regulated equilibrium: when finch numbers were low, they increased; when high, disease limited further growth—textbook density-dependent regulation via infection.</div>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <section id="summary" class="section">
+      <h2>Summary & Key Insights</h2>
+      <div class="grid">
+        <div class="concept-card">
+          <ul>
+            <li><strong>Endemicity</strong> requires replenishing susceptibles (demography, loss of immunity), connectivity (migration), or periodic boosts (seasonality) and may involve reservoirs.</li>
+            <li><strong>SIR+Demography</strong> yields \(S^*/N=1/R_0\); virulence lowers \(R_0\) and can regulate host \(N\).</li>
+            <li><strong>CCS</strong> explains why small populations show fade-outs; large populations show regular cycles with seasonality.</li>
+            <li><strong>PDV</strong> underscores the role of space and reservoirs in persistence when single-population CCS says “no.”</li>
+            <li><strong>House Finch</strong> demonstrates disease-driven regulation at landscape scale.</li>
+          </ul>
+        </div>
+        <div class="key"><strong>For PBID 6150:</strong> Connect model structure to measurable quantities (\(R_0\), \(S^*/N\)), and use case studies to infer which persistence mechanisms are operating.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  /* ============ Utilities ============ */
+  function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
+  function e(id){ return document.getElementById(id); }
+
+  /* ============ Simulation 1: SIR with demography & virulence ============ */
+  let sirChart;
+  function runSIR(){
+    const beta  = clamp(parseFloat(e('sir_beta').value)||0, 0, 1e6);
+    const gamma = clamp(parseFloat(e('sir_gamma').value)||0, 0, 10);
+    const b     = clamp(parseFloat(e('sir_b').value)||0, 0, 10);
+    const d     = clamp(parseFloat(e('sir_d').value)||0, 0, 10);
+    const v     = clamp(parseFloat(e('sir_v').value)||0, 0, 10);
+    const N0    = clamp(parseFloat(e('sir_N0').value)||0, 1, 1e12);
+    const I0    = clamp(parseFloat(e('sir_I0').value)||0, 1, N0-1);
+    let S = N0 - I0, I = I0, R = 0;
+
+    const years = 10, dt = 1/365, steps = Math.floor(years/dt);
+    const T=[], Sarr=[], Iarr=[], Rarr=[], Narr=[];
+
+    for(let k=0;k<=steps;k++){
+      if(k%20===0){
+        T.push(k*dt); Sarr.push(S); Iarr.push(I); Rarr.push(R); Narr.push(S+I+R);
+      }
+      const N = S + I + R;
+      const newInf = beta * S * I / Math.max(N,1e-9);
+      const dS = b*N - newInf - d*S;
+      const dI = newInf - (gamma + d + v)*I;
+      const dR = gamma*I - d*R;
+
+      S = Math.max(0, S + dS*dt);
+      I = Math.max(0, I + dI*dt);
+      R = Math.max(0, R + dR*dt);
+    }
+
+    const R0 = (beta*(Sarr[0]+Iarr[0]+Rarr[0]))/(gamma+d+v);
+    const ctx = e('sir_chart').getContext('2d');
+    if(sirChart) sirChart.destroy();
+    sirChart = new Chart(ctx,{
+      type:'line',
+      data:{
+        labels:T,
+        datasets:[
+          {label:'S', data:Sarr, borderColor:'#1a3d20', backgroundColor:'transparent', tension:.35},
+          {label:'I', data:Iarr, borderColor:'#4a7c59', backgroundColor:'transparent', tension:.35},
+          {label:'R', data:Rarr, borderColor:'#2c5530', backgroundColor:'transparent', tension:.35},
+          {label:'N', data:Narr, borderColor:'#999', backgroundColor:'transparent', borderDash:[6,4], tension:.35}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        scales:{x:{title:{display:true,text:'Time (years)'}}, y:{beginAtZero:true}}
+      }
+    });
+    e('sir_readout').innerHTML =
+      `Estimated <strong>R₀ = ${(R0).toFixed(2)}</strong> (includes virulence in denominator).`;
+  }
+  window.runSIR = runSIR;
+
+  /* ============ Simulation 2: R0 from serology ============ */
+  function updateR0(){
+    const Sfrac = clamp(parseFloat(e('sero_Sfrac').value)||0, 1e-6, 0.999999);
+    const gamma = clamp(parseFloat(e('sero_gamma').value)||0, 0, 10);
+    const d     = clamp(parseFloat(e('sero_d').value)||0, 0, 10);
+    const N     = clamp(parseFloat(e('sero_N').value)||0, 1, 1e12);
+    const R0    = 1 / Sfrac;
+    const beta  = (R0*(gamma + d))/N;
+    e('sero_readout').innerHTML =
+      `Given \(S^*/N=${Sfrac.toFixed(3)}\), <strong>R₀ = ${R0.toFixed(2)}</strong>.
+       With \(\gamma=${gamma}\) and \(d=${d}\), \(\beta = ${beta.toExponential(3)}\) (per host·time).`;
+    MathJax.typeset();
+  }
+  window.updateR0 = updateR0;
+
+  /* ============ Simulation 3: Seasonal forcing ============ */
+  let seaChart;
+  function runSeasonal(){
+    const beta0 = clamp(parseFloat(e('sea_beta0').value)||0, 0, 1e6);
+    const a     = clamp(parseFloat(e('sea_amp').value)||0, 0, 0.99);
+    const Tper  = clamp(parseFloat(e('sea_T').value)||0.1, 0.05, 20);
+    const gamma = clamp(parseFloat(e('sea_gamma').value)||0, 0, 10);
+    const b     = clamp(parseFloat(e('sea_b').value)||0, 0, 10);
+    const d     = clamp(parseFloat(e('sea_d').value)||0, 0, 10);
+    const N0    = clamp(parseFloat(e('sea_N0').value)||0, 1, 1e12);
+    const I0    = clamp(parseFloat(e('sea_I0').value)||0, 1, N0-1);
+    let S = N0 - I0, I = I0, R = 0;
+
+    const years = 12, dt = 1/365, steps = Math.floor(years/dt);
+    const T=[], Iarr=[];
+    for(let k=0;k<=steps;k++){
+      if(k%20===0){ T.push(k*dt); Iarr.push(I); }
+      const t = k*dt;
+      const beta = beta0*(1 + a*Math.cos(2*Math.PI*t/Tper));
+      const N = S + I + R;
+      const newInf = beta * S * I / Math.max(N,1e-9);
+
+      const dS = b*N - newInf - d*S;
+      const dI = newInf - (gamma + d)*I;
+      const dR = gamma*I - d*R;
+
+      S = Math.max(0, S + dS*dt);
+      I = Math.max(0, I + dI*dt);
+      R = Math.max(0, R + dR*dt);
+    }
+    const ctx = e('sea_chart').getContext('2d');
+    if(seaChart) seaChart.destroy();
+    seaChart = new Chart(ctx,{
+      type:'line',
+      data:{labels:T, datasets:[{label:'I(t)', data:Iarr, borderColor:'#4a7c59', backgroundColor:'transparent', tension:.35}]},
+      options:{responsive:true, maintainAspectRatio:false,
+        scales:{x:{title:{display:true,text:'Time (years)'}}, y:{beginAtZero:true}}}
+    });
+  }
+  window.runSeasonal = runSeasonal;
+
+  /* ============ Simulation 4: CCS & fade-outs (stochastic) ============ */
+  let ccsChart;
+  function runCCS(){
+    const N0 = clamp(parseFloat(e('ccs_N').value)||0, 1000, 1e12);
+    const beta = clamp(parseFloat(e('ccs_beta').value)||0, 0, 1e6);
+    const gamma = clamp(parseFloat(e('ccs_gamma').value)||0, 0, 10);
+    const b = clamp(parseFloat(e('ccs_b').value)||0, 0, 10);
+    const d = clamp(parseFloat(e('ccs_d').value)||0, 0, 10);
+    const reps = clamp(parseInt(e('ccs_reps').value)||10, 1, 200);
+
+    // stochastic weekly steps over 10 years
+    const dt = 1/52, Tyears = 10, steps = Math.floor(Tyears/dt);
+    let extinctTimeFrac = 0, exampleI = [], exampleT = [];
+
+    for(let r=0;r<reps;r++){
+      let S = Math.floor(0.99*N0), I = Math.max(1, Math.floor(0.01*N0)), R = 0;
+      let extinctSteps = 0;
+      for(let k=0;k<=steps;k++){
+        // record example trajectory for first replicate
+        if(r===0 && k%2===0){ exampleT.push(k*dt); exampleI.push(I); }
+
+        const N = S+I+R;
+        // hazard-based binomial approximations
+        const pInf = 1 - Math.exp(-beta*I*dt/Math.max(N,1e-9));
+        const newInf = Math.min(S, binom(S, pInf));
+
+        const pRec = 1 - Math.exp(-gamma*dt);
+        const rec = Math.min(I, binom(I, pRec));
+
+        const births = Math.max(0, Math.round(b*N*dt));
+        const pDeath = 1 - Math.exp(-d*dt);
+        const dS = binom(S, pDeath), dI = binom(I, pDeath), dR = binom(R, pDeath);
+
+        S = S + births - newInf - dS;
+        I = I + newInf - rec - dI;
+        R = R + rec - dR;
+
+        if(I<=0){ extinctSteps++; I=0; }
+      }
+      extinctTimeFrac += extinctSteps/steps;
+    }
+    extinctTimeFrac /= reps;
+
+    const ctx = e('ccs_chart').getContext('2d');
+    if(ccsChart) ccsChart.destroy();
+    ccsChart = new Chart(ctx,{
+      type:'line',
+      data:{labels:exampleT, datasets:[{label:'Example I(t)', data:exampleI, borderColor:'#2c5530', backgroundColor:'transparent', tension:.35}]},
+      options:{responsive:true, maintainAspectRatio:false,
+        scales:{x:{title:{display:true,text:'Time (years)'}}, y:{beginAtZero:true}}}
+    });
+    e('ccs_readout').innerHTML =
+      `Across ${reps} replicates, infection was extinct for <strong>${(100*extinctTimeFrac).toFixed(1)}%</strong> of weeks. ` +
+      `Larger N (and higher births) generally reduce fade-outs; small N increases them (CCS concept).`;
+    MathJax.typeset();
+  }
+  function binom(n, p){
+    // Poisson approx when n large and p small; else sample directly
+    n = Math.max(0, Math.floor(n)); p = clamp(p, 0, 1);
+    const mean = n*p;
+    if(n>2000 && p<0.01){ // Poisson approx
+      return poisson(mean);
+    }
+    let k=0;
+    for(let i=0;i<n;i++) if(Math.random()<p) k++;
+    return k;
+  }
+  function poisson(mu){
+    // Knuth
+    let L=Math.exp(-mu), k=0, prod=1;
+    do{ k++; prod*=Math.random(); } while(prod>L);
+    return k-1;
+  }
+  window.runCCS = runCCS;
+
+  /* ============ Initialize on load ============ */
+  document.addEventListener('DOMContentLoaded', ()=>{
+    runSIR();
+    updateR0();
+    runSeasonal();
+    runCCS();
+  });
+  </script>
+</body>
+</html>
