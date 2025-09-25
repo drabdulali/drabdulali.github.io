@@ -265,7 +265,7 @@
             <li><a onclick="scrollToSection('persistence')">Persistence Mechanisms</a></li>
             <li><a onclick="scrollToSection('pdv-case')">PDV Case Study</a></li>
             <li><a onclick="scrollToSection('regulation')">Host Regulation</a></li>
-            <li><a onclick="scrollToSection('virulence')">Virulence & R₀</a></li>
+            <li><a onclick="scrollToSection('virulence')">Virulence & Impact</a></li>
         </ul>
     </nav>
 
@@ -651,43 +651,23 @@
                 </div>
             </div>
 
-            <div class="simulation-container">
-                <h3>Virulence-R₀ Relationship</h3>
-                <div class="controls">
-                    <div class="control-group">
-                        <label for="maxTransmission">Max Transmission (β)</label>
-                        <input type="range" id="maxTransmission" min="0.1" max="2" step="0.1" value="1">
-                        <span id="maxTransmissionValue">1</span>
-                    </div>
-                    <div class="control-group">
-                        <label for="recoveryBase">Base Recovery (γ)</label>
-                        <input type="range" id="recoveryBase" min="0.05" max="0.5" step="0.01" value="0.1">
-                        <span id="recoveryBaseValue">0.1</span>
-                    </div>
-                    <div class="control-group">
-                        <label for="deathBase">Base Mortality (d)</label>
-                        <input type="range" id="deathBase" min="0.01" max="0.1" step="0.001" value="0.02">
-                        <span id="deathBaseValue">0.02</span>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="virulenceChart"></canvas>
-                </div>
-                <p style="margin-top: 1rem; font-style: italic;">This graph shows how R₀ varies with virulence level. Notice the peak at intermediate virulence levels - this represents the evolutionary optimum for pathogen fitness.</p>
-            </div>
-
             <div class="concept-card">
                 <h3>Population Impact vs Virulence</h3>
-                <p>While highly virulent pathogens may have lower R₀, they can still cause significant population regulation effects. The relationship between virulence and population impact is complex and non-linear.</p>
+                <p>The relationship between virulence and population impact is complex and depends on multiple factors. While the mathematical relationship shows virulence in the denominator of R₀, real-world dynamics involve trade-offs that create optimal intermediate virulence levels.</p>
 
                 <div style="background: linear-gradient(135deg, #e8f5e8, #f0f8f0); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
-                    <h4 style="color: #2c5530; margin-bottom: 1rem;">Key Relationships</h4>
+                    <h4 style="color: #2c5530; margin-bottom: 1rem;">Realistic Virulence Relationships</h4>
                     <ul>
-                        <li><strong>Low Virulence:</strong> High R₀, persistent endemic infection, moderate population impact</li>
-                        <li><strong>Intermediate Virulence:</strong> Optimal R₀, maximum population regulation potential</li>
-                        <li><strong>High Virulence:</strong> Lower R₀, may cause severe but short-lived epidemics</li>
-                        <li><strong>Extreme Virulence:</strong> Cannot persist (R₀ < 1), but can cause local extinctions</li>
+                        <li><strong>Low Virulence:</strong> R₀ ~ 2-4, persistent endemic infection, moderate population impact</li>
+                        <li><strong>Intermediate Virulence:</strong> R₀ ~ 4-8, potential for both persistence and significant regulation</li>
+                        <li><strong>High Virulence:</strong> R₀ ~ 1-3, may cause severe but short-lived epidemics (e.g., Ebola)</li>
+                        <li><strong>Extreme Virulence:</strong> R₀ < 1, cannot persist but may cause local outbreaks</li>
                     </ul>
+                </div>
+
+                <div class="key-insight">
+                    <h4>The Trade-off Reality</h4>
+                    <p>In nature, very high virulence typically reduces transmission opportunities as hosts die too quickly or become immobilized. Most successful pathogens evolve toward intermediate virulence levels that balance transmission success with reproductive opportunities within the host.</p>
                 </div>
             </div>
 
@@ -770,7 +750,7 @@
 
     <script>
         // Global variables for charts
-        let sirChart, persistenceChart, virulenceChart;
+        let sirChart, persistenceChart;
 
         // Smooth scrolling function
         function scrollToSection(sectionId) {
@@ -787,7 +767,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             initializeSIRChart();
             initializePersistenceChart();
-            initializeVirulenceChart();
             setupEventListeners();
         });
 
@@ -813,16 +792,6 @@
                         valueSpan.textContent = this.value;
                     }
                     updatePersistenceChart();
-                });
-            });
-
-            // Virulence Chart controls
-            ['maxTransmission', 'recoveryBase', 'deathBase'].forEach(id => {
-                const slider = document.getElementById(id);
-                const valueSpan = document.getElementById(id + 'Value');
-                slider.addEventListener('input', function() {
-                    valueSpan.textContent = this.value;
-                    updateVirulenceChart();
                 });
             });
         }
@@ -994,110 +963,6 @@
             persistenceChart.data.labels = timePoints;
             persistenceChart.data.datasets[0].data = infectData;
             persistenceChart.update();
-        }
-
-        function initializeVirulenceChart() {
-            const ctx = document.getElementById('virulenceChart').getContext('2d');
-            virulenceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'R₀',
-                        data: [],
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        fill: false,
-                        yAxisID: 'y'
-                    }, {
-                        label: 'Population Impact',
-                        data: [],
-                        borderColor: '#dc2626',
-                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                        fill: false,
-                        yAxisID: 'y1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Virulence (v)'
-                            }
-                        },
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'R₀'
-                            },
-                            beginAtZero: true
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Population Impact'
-                            },
-                            grid: {
-                                drawOnChartArea: false,
-                            },
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Virulence vs R₀ and Population Impact'
-                        }
-                    }
-                }
-            });
-            updateVirulenceChart();
-        }
-
-        function updateVirulenceChart() {
-            const maxBeta = parseFloat(document.getElementById('maxTransmission').value);
-            const gamma = parseFloat(document.getElementById('recoveryBase').value);
-            const d = parseFloat(document.getElementById('deathBase').value);
-            
-            const virulenceLevels = [];
-            const r0Values = [];
-            const populationImpact = [];
-            const N = 1000; // Fixed population size
-            
-            for (let v = 0; v <= 1; v += 0.01) {
-                // Assume transmission decreases with very high virulence (hosts die too fast)
-                const beta = maxBeta * Math.exp(-v * 2);
-                const r0 = (beta * N) / (gamma + d + v);
-                
-                // Population impact - combination of infection prevalence and mortality
-                let impact = 0;
-                if (r0 > 1) {
-                    const equilibriumInfected = N * (1 - 1/r0) * (gamma + d) / (gamma + d + v);
-                    impact = equilibriumInfected * v * 100; // Scale for visibility
-                }
-                
-                virulenceLevels.push(v.toFixed(2));
-                r0Values.push(Math.max(0, r0));
-                populationImpact.push(Math.max(0, impact));
-            }
-            
-            virulenceChart.data.labels = virulenceLevels;
-            virulenceChart.data.datasets[0].data = r0Values;
-            virulenceChart.data.datasets[1].data = populationImpact;
-            virulenceChart.update();
         }
     </script>
 </body>
