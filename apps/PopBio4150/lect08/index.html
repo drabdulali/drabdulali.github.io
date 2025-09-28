@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Biology of Infectious Diseases: Macroparasite Aggregation & Dynamics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #2c5530;
+            background-color: #f8f9fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .navigation {
+            background-color: #1a3d20;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .objectives-box {
+            background: linear-gradient(45deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .objectives-box h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .objectives-list li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .objectives-list li::before {
+            content: "🎯";
+            position: absolute;
+            left: 0;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section h2 {
+            color: #2c5530;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #4a7c59;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2rem;
+        }
+
+        .equation-box .equation {
+            font-size: 1.4rem;
+            margin: 0.5rem 0;
+            color: #2c5530;
+        }
+
+        .key-insight {
+            background: linear-gradient(45deg, #4a7c59, #2c5530);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 5px solid #1a3d20;
+        }
+
+        .key-insight h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .case-study {
+            background: linear-gradient(45deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .case-study h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .simulation-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #4a7c59;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .control-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #4a7c59;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .control-group .value-display {
+            font-size: 0.9rem;
+            color: #4a7c59;
+            margin-top: 0.25rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 1rem 0;
+        }
+
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .parameter-table th,
+        .parameter-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e8f5e8;
+        }
+
+        .parameter-table th {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            font-weight: bold;
+        }
+
+        .parameter-table tr:hover {
+            background-color: #f0f8f0;
+        }
+
+        .mathematical-expression {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: #2c5530;
+        }
+
+        .highlight-box {
+            background: linear-gradient(45deg, #fff3cd, #ffeeba);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .quiz-section {
+            background: linear-gradient(45deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .quiz-question {
+            margin-bottom: 1rem;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .quiz-options {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .quiz-options li {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .quiz-options li:hover {
+            background-color: #e3f2fd;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Population Biology of Infectious Diseases</h1>
+        <p>Course 6150: Macroparasite Aggregation & Population Dynamics</p>
+    </div>
+
+    <nav class="navigation">
+        <div class="nav-links">
+            <a href="#objectives">Learning Objectives</a>
+            <a href="#aggregation">Parasite Aggregation</a>
+            <a href="#causes">Causes of Aggregation</a>
+            <a href="#models">Mathematical Models</a>
+            <a href="#dynamics">Population Dynamics</a>
+            <a href="#case-studies">Case Studies</a>
+            <a href="#simulations">Interactive Simulations</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section id="objectives" class="objectives-box">
+            <h2>Learning Objectives</h2>
+            <ul class="objectives-list">
+                <li>Understand the fundamental differences between macroparasites and microparasites in population biology</li>
+                <li>Explain the concept of parasite aggregation and its measurement using variance-to-mean ratios and the k parameter</li>
+                <li>Analyze the causes of parasite aggregation including differential exposure and susceptibility</li>
+                <li>Apply mathematical models to predict macroparasite transmission dynamics and population cycles</li>
+                <li>Evaluate real-world case studies demonstrating macroparasite effects on host populations</li>
+                <li>Calculate and interpret R₀ for macroparasite systems</li>
+            </ul>
+        </section>
+
+        <section id="aggregation" class="section">
+            <h2>Understanding Parasite Aggregation</h2>
+            
+            <div class="concept-card">
+                <h3>What is Parasite Aggregation?</h3>
+                <p>Parasite aggregation refers to the non-random distribution of parasites among host individuals, where most hosts harbor few or no parasites while a small proportion carry heavy parasite burdens. This phenomenon is fundamental to macroparasite ecology and has profound implications for disease transmission and host population dynamics.</p>
+                
+                <div class="equation-box">
+                    <div class="equation">The 20/80 Rule: 20% of hosts harbor 80% of parasites</div>
+                    <p>This empirical rule demonstrates the highly skewed distribution typical of macroparasites</p>
+                </div>
+                
+                <div class="key-insight">
+                    <h4> Key Insight</h4>
+                    <p>Aggregation is the norm for macroparasites, not the exception. This pattern emerges from fundamental biological processes and has critical consequences for parasite transmission, host regulation, and population cycling.</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Measuring Aggregation</h3>
+                <p>Two primary metrics quantify the degree of parasite aggregation:</p>
+                
+                <div class="equation-box">
+                    <div class="equation">Variance-to-Mean Ratio = s² / m</div>
+                    <p>Where s² = variance in parasite intensity, m = mean parasite intensity</p>
+                    <br>
+                    <div class="equation">k parameter of negative binomial distribution</div>
+                    <p>Lower k values indicate higher aggregation</p>
+                </div>
+
+                <div class="parameter-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Distribution Type</th>
+                                <th>s²/m Ratio</th>
+                                <th>k Value</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Random (Poisson)</td>
+                                <td>= 1</td>
+                                <td>∞</td>
+                                <td>No aggregation</td>
+                            </tr>
+                            <tr>
+                                <td>Aggregated</td>
+                                <td>> 1</td>
+                                <td>Low (0.1-2)</td>
+                                <td>High aggregation</td>
+                            </tr>
+                            <tr>
+                                <td>Uniform</td>
+                                <td>< 1</td>
+                                <td>Very high</td>
+                                <td>Even distribution</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="causes" class="section">
+            <h2>Causes of Parasite Aggregation</h2>
+            
+            <div class="concept-card">
+                <h3>Variation in Exposure</h3>
+                <p>Differential exposure to parasites creates aggregation through several mechanisms:</p>
+                
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>Density of infective stages:</strong> Spatial heterogeneity in parasite distribution</li>
+                    <li><strong>Host density:</strong> Crowding effects on transmission rates</li>
+                    <li><strong>Behavioral encounters:</strong> Differences in host foraging or habitat use</li>
+                </ul>
+
+                <div class="case-study">
+                    <h4>Case Study: Keymer & Anderson (1978) - Beetles and Tapeworms</h4>
+                    <p><strong>System:</strong> <em>Hymenolepis diminuta</em> (tapeworm) and <em>Tribolium confusum</em> (flour beetle)</p>
+                    <p><strong>Experimental Design:</strong> Tapeworm eggs distributed at 15 per cm² in different spatial patterns (even to highly aggregated)</p>
+                    <p><strong>Key Finding:</strong> Even when parasite eggs were distributed evenly, the resulting parasite distribution in beetles was still aggregated. More aggregated egg distributions led to greater aggregation in hosts.</p>
+                    
+                    <div class="key-insight">
+                        <h4> Take-Home Message</h4>
+                        <p>Aggregation emerges naturally from the infection process itself, even with uniform exposure. This demonstrates that aggregation is an intrinsic property of host-parasite systems.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Sex-Biased Parasitism</h3>
+                <p>Males typically show higher parasite prevalence and intensity across many host species. This pattern results from both ecological and physiological differences between sexes.</p>
+
+                <div class="parameter-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Factor Type</th>
+                                <th>Mechanism</th>
+                                <th>Effect on Males</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ecological - Behavior</td>
+                                <td>Mating behavior, dispersal, foraging</td>
+                                <td>Increased exposure</td>
+                            </tr>
+                            <tr>
+                                <td>Ecological - Body Size</td>
+                                <td>Larger size, higher resource consumption</td>
+                                <td>More parasite habitat</td>
+                            </tr>
+                            <tr>
+                                <td>Physiological - Hormones</td>
+                                <td>Testosterone suppresses immunity</td>
+                                <td>Reduced resistance</td>
+                            </tr>
+                            <tr>
+                                <td>Physiological - Genetics</td>
+                                <td>Sex-linked immune investment</td>
+                                <td>Lower immune response</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="case-study">
+                    <h4>Case Study: Spadefoot Toads and <em>Pseudodiplorchis americanus</em></h4>
+                    <p><strong>System:</strong> Desert toads in Arizona with monogenean trematode parasites</p>
+                    <p><strong>Life History:</strong> Toads spend 10 months buried underground, emerging only for brief breeding periods in temporary pools</p>
+                    <p><strong>Sex Differences:</strong></p>
+                    <ul style="margin-left: 2rem;">
+                        <li>Males: 48% prevalence, spend extended time in breeding pools</li>
+                        <li>Females: 26% prevalence, enter pools briefly for mating only</li>
+                    </ul>
+                    
+                    <div class="key-insight">
+                        <h4> Take-Home Message</h4>
+                        <p>Males risk greater infection to achieve higher mating success, demonstrating the trade-off between reproduction and parasite exposure. This pattern is consistent across many vertebrate species.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Age-Related Infection Patterns</h3>
+                <p>Parasite intensity changes with host age, creating three distinct patterns:</p>
+
+                <div class="parameter-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pattern Type</th>
+                                <th>Age-Intensity Relationship</th>
+                                <th>Biological Mechanism</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Type I</td>
+                                <td>Constant increase with age</td>
+                                <td>Continuous infection, no mortality</td>
+                            </tr>
+                            <tr>
+                                <td>Type II</td>
+                                <td>Asymptotic increase</td>
+                                <td>Parasite accumulation with mortality threshold</td>
+                            </tr>
+                            <tr>
+                                <td>Type III</td>
+                                <td>Peak then decline</td>
+                                <td>Host acquired immunity</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="case-study">
+                    <h4>Case Study: European Rabbits and Nematode Parasites</h4>
+                    <p><strong>Species:</strong> <em>Trichostrongylus retortaeformis</em> and <em>Graphidium strigosum</em> in Scottish rabbit populations</p>
+                    <p><strong>Long-term Study:</strong> 30+ years of monitoring (Boag et al. 2001, Cattadori et al. 2008)</p>
+                    <p><strong>Findings:</strong></p>
+                    <ul style="margin-left: 2rem;">
+                        <li><em>T. retortaeformis</em>: Type III pattern with immunity development</li>
+                        <li><em>G. strigosum</em>: Type II pattern with accumulation and threshold</li>
+                        <li>Sex differences persist across age classes</li>
+                    </ul>
+                    
+                    <div class="key-insight">
+                        <h4> Take-Home Message</h4>
+                        <p>Different parasite species show distinct age-intensity patterns even within the same host population, reflecting species-specific immune interactions and pathogenicity.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="models" class="section">
+            <h2>Mathematical Models of Macroparasite Dynamics</h2>
+            
+            <div class="concept-card">
+                <h3>Basic Macroparasite Model Structure</h3>
+                <p>Unlike microparasite models that track infected vs. uninfected hosts, macroparasite models must account for the number of parasites per host and their distribution.</p>
+
+                <div class="equation-box">
+                    <div class="equation">Host Dynamics:</div>
+                    <div class="equation mathematical-expression">dH/dt = (b - d)H - (α + δ)P</div>
+                    <br>
+                    <div class="equation">Adult Parasite Dynamics:</div>
+                    <div class="equation mathematical-expression">dP/dt = βWH - μP - dP - αP(P/H · k+1/k + 1)</div>
+                    <br>
+                    <div class="equation">Free-living Stage Dynamics:</div>
+                    <div class="equation mathematical-expression">dW/dt = λP - γW - βWH</div>
+                </div>
+
+                <div class="parameter-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Symbol</th>
+                                <th>Biological Meaning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Host birth rate</td>
+                                <td>b</td>
+                                <td>Per capita host reproduction</td>
+                            </tr>
+                            <tr>
+                                <td>Host death rate</td>
+                                <td>d</td>
+                                <td>Natural host mortality</td>
+                            </tr>
+                            <tr>
+                                <td>Parasite virulence</td>
+                                <td>α</td>
+                                <td>Parasite-induced host mortality</td>
+                            </tr>
+                            <tr>
+                                <td>Fecundity reduction</td>
+                                <td>δ</td>
+                                <td>Parasite effect on host reproduction</td>
+                            </tr>
+                            <tr>
+                                <td>Transmission rate</td>
+                                <td>β</td>
+                                <td>Rate of parasite establishment</td>
+                            </tr>
+                            <tr>
+                                <td>Parasite mortality</td>
+                                <td>μ</td>
+                                <td>Adult parasite death rate</td>
+                            </tr>
+                            <tr>
+                                <td>Egg production</td>
+                                <td>λ</td>
+                                <td>Rate of free-living stage production</td>
+                            </tr>
+                            <tr>
+                                <td>Larval mortality</td>
+                                <td>γ</td>
+                                <td>Free-living stage death rate</td>
+                            </tr>
+                            <tr>
+                                <td>Aggregation parameter</td>
+                                <td>k</td>
+                                <td>Degree of parasite clustering</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Basic Reproductive Number (R₀) for Macroparasites</h3>
+                <p>R₀ represents the number of adult female parasites produced by a single adult female parasite during its entire lifespan in a population of uninfected hosts.</p>
+
+                <div class="equation-box">
+                    <div class="equation mathematical-expression">R₀ = (λ × βH) / ((μ + d + α) × (γ + βH))</div>
+                    <br>
+                    <p>Where the numerator represents parasite reproduction and the denominator represents parasite mortality</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Critical Thresholds</h4>
+                    <ul>
+                        <li><strong>R₀ > 1:</strong> Parasite can invade and establish in host population</li>
+                        <li><strong>R₀ < 1:</strong> Parasite will go extinct</li>
+                        <li><strong>R₀ = 1:</strong> Threshold for parasite establishment</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Why Aggregation Matters for Population Dynamics</h3>
+                <p>The degree of parasite aggregation (k parameter) fundamentally affects the ability of parasites to regulate host populations and cause population cycles.</p>
+
+                <div class="key-insight">
+                    <h4> Key Insight</h4>
+                    <p>If parasites are too aggregated (very low k), most hosts experience little impact, reducing the regulatory effect on the host population. Moderate aggregation optimizes the balance between transmission efficiency and population regulation.</p>
+                </div>
+
+                <div class="parameter-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aggregation Level</th>
+                                <th>k Value</th>
+                                <th>Population Effect</th>
+                                <th>Cycling Potential</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Very High</td>
+                                <td>< 0.5</td>
+                                <td>Minimal regulation</td>
+                                <td>Low</td>
+                            </tr>
+                            <tr>
+                                <td>High</td>
+                                <td>0.5 - 1.0</td>
+                                <td>Weak regulation</td>
+                                <td>Moderate</td>
+                            </tr>
+                            <tr>
+                                <td>Moderate</td>
+                                <td>1.0 - 5.0</td>
+                                <td>Strong regulation</td>
+                                <td>High</td>
+                            </tr>
+                            <tr>
+                                <td>Low</td>
+                                <td>> 5.0</td>
+                                <td>Very strong regulation</td>
+                                <td>Variable</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="dynamics" class="section">
+            <h2>Population Dynamics and Cycling</h2>
+            
+            <div class="concept-card">
+                <h3>Conditions for Host-Parasite Cycles</h3>
+                <p>Mathematical models predict that macroparasites can cause regular population cycles in their hosts under specific conditions:</p>
+
+                <div class="parameter-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Condition</th>
+                                <th>Requirement</th>
+                                <th>Biological Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Fecundity effects</td>
+                                <td>δ > α</td>
+                                <td>Parasites reduce reproduction more than causing death</td>
+                            </tr>
+                            <tr>
+                                <td>Moderate aggregation</td>
+                                <td>k = 1-5</td>
+                                <td>Balanced distribution for regulation</td>
+                            </tr>
+                            <tr>
+                                <td>High transmission</td>
+                                <td>β sufficient for R₀ > 1</td>
+                                <td>Parasites can establish and persist</td>
+                            </tr>
+                            <tr>
+                                <td>Time delays</td>
+                                <td>Development time</td>
+                                <td>Lag between infection and impact</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="key-insight">
+                    <h4> Key Insight</h4>
+                    <p>Population cycles emerge from the time-delayed negative feedback between host density and parasite burden. As host density increases, parasite transmission intensifies, eventually reducing host reproduction and survival, leading to population crashes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="case-studies" class="section">
+            <h2>Case Studies</h2>
+            
+            <div class="concept-card">
+                <h3>Soay Sheep on Hirta Island</h3>
+                <div class="case-study">
+                    <h4>System Overview</h4>
+                    <p><strong>Location:</strong> St. Kilda archipelago, Scotland</p>
+                    <p><strong>Host:</strong> Feral Soay sheep (<em>Ovis aries</em>)</p>
+                    <p><strong>Parasite:</strong> <em>Teladorsagia circumcincta</em> (stomach nematode)</p>
+                    <p><strong>Study Duration:</strong> 1955-present (70+ years of data)</p>
+                    
+                    <h4>Key Findings</h4>
+                    <ul style="margin-left: 2rem;">
+                        <li>Regular population crashes every 3-4 years</li>
+                        <li>Population ranges from ~600 to 1800 individuals</li>
+                        <li>Parasites cause malnutrition and poor body condition</li>
+                        <li>Male-biased parasitism due to behavioral and physiological differences</li>
+                        <li>Genetic heterozygosity correlates with parasite resistance</li>
+                    </ul>
+                    
+                    <div class="key-insight">
+                        <h4> Take-Home Message</h4>
+                        <p>This system demonstrates how macroparasites can be the primary driver of host population dynamics in natural systems, overriding traditional density-dependent factors like food limitation.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Red Grouse Population Cycles</h3>
+                <div class="case-study">
+                    <h4>System Overview</h4>
+                    <p><strong>Host:</strong> Red grouse (<em>Lagopus lagopus scoticus</em>)</p>
+                    <p><strong>Parasite:</strong> <em>Trichostrongylus tenuis</em> (cecal nematode)</p>
+                    <p><strong>Location:</strong> Scottish moorlands</p>
+                    <p><strong>Economic Importance:</strong> Primary hunting species since 1800s</p>
+                    
+                    <h4>Population Patterns</h4>
+                    <ul style="margin-left: 2rem;">
+                        <li>77% of grouse populations show regular cycles</li>
+                        <li>Cycle periodicity: 4-8 years</li>
+                        <li>50+ years of study initially failed to identify the cause</li>
+                        <li>Traditional explanations (territoriality, predation) were insufficient</li>
+                    </ul>
+                    
+                    <h4>Parasite Role Discovery</h4>
+                    <ul style="margin-left: 2rem;">
+                        <li>Direct life cycle with no intermediate host</li>
+                        <li>Parasites reduce host fecundity more than causing mortality (δ > α)</li>
+                        <li>Moderate aggregation (k ≈ 1-3) allows population regulation</li>
+                        <li>Time delays in parasite development create cycling dynamics</li>
+                    </ul>
+                    
+                    <div class="key-insight">
+                        <h4>Take-Home Message</h4>
+                        <p>The grouse-nematode system provided the first clear experimental evidence that macroparasites can be the primary driver of regular population cycles in wild vertebrates. This revolutionized understanding of population regulation mechanisms.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="simulations" class="section">
+            <h2>Interactive Simulations</h2>
+            
+            <div class="simulation-container">
+                <h3>Parasite Aggregation Explorer</h3>
+                <p>Explore how different factors affect parasite distribution patterns in host populations.</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="meanParasites">Mean Parasites per Host</label>
+                        <input type="range" id="meanParasites" min="0.5" max="10" step="0.5" value="3">
+                        <div class="value-display" id="meanDisplay">3.0</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="kParameter">k Parameter (Aggregation)</label>
+                        <input type="range" id="kParameter" min="0.1" max="5" step="0.1" value="1">
+                        <div class="value-display" id="kDisplay">1.0</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="hostPopulation">Host Population Size</label>
+                        <input type="range" id="hostPopulation" min="50" max="500" step="25" value="200">
+                        <div class="value-display" id="hostPopDisplay">200</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="aggregationChart"></canvas>
+                </div>
+                
+                <div class="equation-box">
+                    <div class="equation">Current Statistics:</div>
+                    <div id="statsDisplay">
+                        Variance-to-Mean Ratio: <span id="vmRatio">--</span><br>
+                        % Hosts with 80% of Parasites: <span id="eightyPercent">--</span><br>
+                        Maximum Parasites per Host: <span id="maxParasites">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <h3>Macroparasite Population Dynamics</h3>
+                <p>Simulate host-parasite population dynamics and observe cycling behavior.</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="birthRate">Host Birth Rate (b)</label>
+                        <input type="range" id="birthRate" min="0.1" max="1.0" step="0.05" value="0.5">
+                        <div class="value-display" id="birthDisplay">0.50</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="deathRate">Host Death Rate (d)</label>
+                        <input type="range" id="deathRate" min="0.05" max="0.5" step="0.025" value="0.2">
+                        <div class="value-display" id="deathDisplay">0.20</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="virulence">Parasite Virulence (α)</label>
+                        <input type="range" id="virulence" min="0" max="0.01" step="0.001" value="0.002">
+                        <div class="value-display" id="virulenceDisplay">0.002</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="fecundityEffect">Fecundity Effect (δ)</label>
+                        <input type="range" id="fecundityEffect" min="0" max="0.02" step="0.002" value="0.008">
+                        <div class="value-display" id="fecundityDisplay">0.008</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="transmission">Transmission Rate (β)</label>
+                        <input type="range" id="transmission" min="0.0001" max="0.01" step="0.0005" value="0.003">
+                        <div class="value-display" id="transmissionDisplay">0.003</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="kDynamics">k Parameter</label>
+                        <input type="range" id="kDynamics" min="0.1" max="5" step="0.1" value="1.5">
+                        <div class="value-display" id="kDynamicsDisplay">1.5</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="dynamicsChart"></canvas>
+                </div>
+                
+                <div class="equation-box">
+                    <div class="equation">R₀ = <span id="r0Value">--</span></div>
+                    <div id="dynamicsStatus">Status: <span id="systemStatus">--</span></div>
+                </div>
+                
+                <button onclick="runSimulation()" style="background: #4a7c59; color: white; padding: 1rem 2rem; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; margin: 1rem 0;">Run Simulation</button>
+            </div>
+        </section>
+
+        <section class="quiz-section">
+            <h2>Knowledge Check</h2>
+            
+            <div class="quiz-question">
+                1. The 20/80 rule refers to:
+            </div>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">A) 20% of hosts having 80% of males</li>
+                <li onclick="checkAnswer(this, true)">B) 20% of hosts having 80% of parasites</li>
+                <li onclick="checkAnswer(this, false)">C) 20% of space having 80% of hosts</li>
+                <li onclick="checkAnswer(this, false)">D) 20% of time having 80% of transmission</li>
+            </ul>
+            
+            <div class="quiz-question">
+                2. If the average number of parasites per host is m, and the variance is s², then parasite aggregation is typified by:
+            </div>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, true)">A) m < s²</li>
+                <li onclick="checkAnswer(this, false)">B) m = s²</li>
+                <li onclick="checkAnswer(this, false)">C) m > s²</li>
+                <li onclick="checkAnswer(this, false)">D) m and s² are unrelated</li>
+            </ul>
+            
+            <div class="quiz-question">
+                3. Population cycles are most likely when:
+            </div>
+            <ul class="quiz-options">
+                <li onclick="checkAnswer(this, false)">A) k is very low (high aggregation)</li>
+                <li onclick="checkAnswer(this, true)">B) k is moderate and δ > α</li>
+                <li onclick="checkAnswer(this, false)">C) k is very high (low aggregation)</li>
+                <li onclick="checkAnswer(this, false)">D) α > δ regardless of k</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Summary and Key Takeaways</h2>
+            
+            <div class="concept-card">
+                <h3>Fundamental Concepts</h3>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Aggregation is the norm:</strong> Most macroparasites show highly skewed distributions among hosts</li>
+                    <li><strong>Multiple causes:</strong> Differential exposure, susceptibility, sex, age, and genetics all contribute to aggregation</li>
+                    <li><strong>Mathematical framework:</strong> Variance-to-mean ratios and k parameters quantify aggregation patterns</li>
+                    <li><strong>Population consequences:</strong> Aggregation determines the potential for host regulation and cycling</li>
+                </ul>
+            </div>
+            
+            <div class="concept-card">
+                <h3>Modeling Insights</h3>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Complex dynamics:</strong> Models must track hosts, adult parasites, and free-living stages</li>
+                    <li><strong>R₀ calculation:</strong> Depends on parasite reproduction and mortality at multiple life stages</li>
+                    <li><strong>Cycling conditions:</strong> Require moderate aggregation and fecundity effects exceeding mortality</li>
+                    <li><strong>Time delays:</strong> Development lags create the feedback loops necessary for population cycles</li>
+                </ul>
+            </div>
+            
+            <div class="concept-card">
+                <h3>Real-world Applications</h3>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Wildlife management:</strong> Understanding population crashes in harvested species</li>
+                    <li><strong>Conservation biology:</strong> Predicting parasite impacts on endangered populations</li>
+                    <li><strong>Livestock health:</strong> Optimizing treatment strategies based on aggregation patterns</li>
+                    <li><strong>Disease ecology:</strong> Identifying superspreaders and transmission hotspots</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let aggregationChart = null;
+        let dynamicsChart = null;
+
+        function initializeCharts() {
+            // Initialize aggregation chart
+            const aggCtx = document.getElementById('aggregationChart').getContext('2d');
+            aggregationChart = new Chart(aggCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Number of Hosts',
+                        data: [],
+                        backgroundColor: 'rgba(74, 124, 89, 0.7)',
+                        borderColor: 'rgba(44, 85, 48, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Number of Parasites per Host'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Hosts'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Initialize dynamics chart
+            const dynCtx = document.getElementById('dynamicsChart').getContext('2d');
+            dynamicsChart = new Chart(dynCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Hosts',
+                            data: [],
+                            borderColor: 'rgba(44, 85, 48, 1)',
+                            backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Adult Parasites',
+                            data: [],
+                            borderColor: 'rgba(220, 20, 60, 1)',
+                            backgroundColor: 'rgba(220, 20, 60, 0.1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Free-living Stages',
+                            data: [],
+                            borderColor: 'rgba(30, 144, 255, 1)',
+                            backgroundColor: 'rgba(30, 144, 255, 0.1)',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Size'
+                            },
+                            type: 'logarithmic'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateNegativeBinomial(n, mean, k) {
+            const distribution = [];
+            const p = k / (k + mean);
+            
+            for (let i = 0; i < n; i++) {
+                // Simple approximation of negative binomial
+                let count = 0;
+                for (let j = 0; j < 50; j++) {
+                    if (Math.random() < (1 - p)) count++;
+                }
+                distribution.push(Math.round(count * mean / (1 - p)));
+            }
+            return distribution;
+        }
+
+        function updateAggregationChart() {
+            const mean = parseFloat(document.getElementById('meanParasites').value);
+            const k = parseFloat(document.getElementById('kParameter').value);
+            const n = parseInt(document.getElementById('hostPopulation').value);
+            
+            document.getElementById('meanDisplay').textContent = mean.toFixed(1);
+            document.getElementById('kDisplay').textContent = k.toFixed(1);
+            document.getElementById('hostPopDisplay').textContent = n.toString();
+            
+            const distribution = generateNegativeBinomial(n, mean, k);
+            const maxParasites = Math.max(...distribution);
+            const variance = distribution.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / n;
+            const vmRatio = variance / mean;
+            
+            // Calculate frequency distribution
+            const frequencies = {};
+            for (let i = 0; i <= maxParasites; i++) {
+                frequencies[i] = 0;
+            }
+            distribution.forEach(count => {
+                frequencies[count] = (frequencies[count] || 0) + 1;
+            });
+            
+            // Calculate 80% rule
+            const sortedDist = [...distribution].sort((a, b) => b - a);
+            const totalParasites = distribution.reduce((sum, x) => sum + x, 0);
+            let cumulativeParasites = 0;
+            let hostsWith80Percent = 0;
+            
+            for (let i = 0; i < sortedDist.length; i++) {
+                cumulativeParasites += sortedDist[i];
+                hostsWith80Percent++;
+                if (cumulativeParasites >= totalParasites * 0.8) break;
+            }
+            
+            const percentWith80 = (hostsWith80Percent / n * 100).toFixed(1);
+            
+            // Update chart
+            aggregationChart.data.labels = Object.keys(frequencies);
+            aggregationChart.data.datasets[0].data = Object.values(frequencies);
+            aggregationChart.update();
+            
+            // Update statistics
+            document.getElementById('vmRatio').textContent = vmRatio.toFixed(2);
+            document.getElementById('eightyPercent').textContent = percentWith80 + '%';
+            document.getElementById('maxParasites').textContent = maxParasites.toString();
+        }
+
+        function updateDynamicsParameters() {
+            const b = parseFloat(document.getElementById('birthRate').value);
+            const d = parseFloat(document.getElementById('deathRate').value);
+            const alpha = parseFloat(document.getElementById('virulence').value);
+            const delta = parseFloat(document.getElementById('fecundityEffect').value);
+            const beta = parseFloat(document.getElementById('transmission').value);
+            const k = parseFloat(document.getElementById('kDynamics').value);
+            
+            document.getElementById('birthDisplay').textContent = b.toFixed(2);
+            document.getElementById('deathDisplay').textContent = d.toFixed(2);
+            document.getElementById('virulenceDisplay').textContent = alpha.toFixed(3);
+            document.getElementById('fecundityDisplay').textContent = delta.toFixed(3);
+            document.getElementById('transmissionDisplay').textContent = beta.toFixed(3);
+            document.getElementById('kDynamicsDisplay').textContent = k.toFixed(1);
+            
+            // Calculate R0 (simplified)
+            const lambda = 1000; // egg production rate
+            const mu = 0.1; // parasite mortality
+            const gamma = 0.5; // larval mortality
+            const H = 1000; // host population
+            
+            const r0 = (lambda * beta * H) / ((mu + d + alpha) * (gamma + beta * H));
+            
+            document.getElementById('r0Value').textContent = r0.toFixed(2);
+            
+            let status = '';
+            if (r0 < 1) {
+                status = 'Parasite extinction';
+            } else if (r0 < 2) {
+                status = 'Stable coexistence';
+            } else if (delta > alpha && k > 0.5 && k < 3) {
+                status = 'Potential for cycles';
+            } else {
+                status = 'Stable regulation';
+            }
+            
+            document.getElementById('systemStatus').textContent = status;
+        }
+
+        function runSimulation() {
+            const b = parseFloat(document.getElementById('birthRate').value);
+            const d = parseFloat(document.getElementById('deathRate').value);
+            const alpha = parseFloat(document.getElementById('virulence').value);
+            const delta = parseFloat(document.getElementById('fecundityEffect').value);
+            const beta = parseFloat(document.getElementById('transmission').value);
+            
+            // Simple simulation
+            let H = 1000; // hosts
+            let P = 100;  // parasites
+            let W = 500;  // free-living stages
+            
+            const timePoints = [];
+            const hostData = [];
+            const parasiteData = [];
+            const larvaeData = [];
+            
+            const dt = 0.1;
+            const steps = 500;
+            
+            for (let i = 0; i < steps; i++) {
+                const t = i * dt;
+                
+                // Simple Euler integration
+                const dH_dt = (b - d) * H - (alpha + delta) * P;
+                const dP_dt = beta * W * H - 0.1 * P - d * P;
+                const dW_dt = 1000 * P - 0.5 * W - beta * W * H;
+                
+                H += dH_dt * dt;
+                P += dP_dt * dt;
+                W += dW_dt * dt;
+                
+                // Prevent negative populations
+                H = Math.max(H, 1);
+                P = Math.max(P, 0);
+                W = Math.max(W, 0);
+                
+                if (i % 5 === 0) { // Record every 5th point
+                    timePoints.push(t.toFixed(1));
+                    hostData.push(H);
+                    parasiteData.push(P);
+                    larvaeData.push(W);
+                }
+            }
+            
+            // Update chart
+            dynamicsChart.data.labels = timePoints;
+            dynamicsChart.data.datasets[0].data = hostData;
+            dynamicsChart.data.datasets[1].data = parasiteData;
+            dynamicsChart.data.datasets[2].data = larvaeData;
+            dynamicsChart.update();
+        }
+
+        function checkAnswer(element, isCorrect) {
+            // Remove previous answer styling
+            const options = element.parentElement.children;
+            for (let option of options) {
+                option.style.backgroundColor = '';
+                option.style.color = '';
+            }
+            
+            // Style the selected answer
+            if (isCorrect) {
+                element.style.backgroundColor = '#4a7c59';
+                element.style.color = 'white';
+            } else {
+                element.style.backgroundColor = '#dc3545';
+                element.style.color = 'white';
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            
+            // Aggregation chart controls
+            document.getElementById('meanParasites').addEventListener('input', updateAggregationChart);
+            document.getElementById('kParameter').addEventListener('input', updateAggregationChart);
+            document.getElementById('hostPopulation').addEventListener('input', updateAggregationChart);
+            
+            // Dynamics chart controls
+            document.getElementById('birthRate').addEventListener('input', updateDynamicsParameters);
+            document.getElementById('deathRate').addEventListener('input', updateDynamicsParameters);
+            document.getElementById('virulence').addEventListener('input', updateDynamicsParameters);
+            document.getElementById('fecundityEffect').addEventListener('input', updateDynamicsParameters);
+            document.getElementById('transmission').addEventListener('input', updateDynamicsParameters);
+            document.getElementById('kDynamics').addEventListener('input', updateDynamicsParameters);
+            
+            // Initialize both simulations
+            updateAggregationChart();
+            updateDynamicsParameters();
+        });
+
+        // Make functions globally available
+        window.runSimulation = runSimulation;
+        window.checkAnswer = checkAnswer;
+        window.updateAggregationChart = updateAggregationChart;
+        window.updateDynamicsParameters = updateDynamicsParameters;
+    </script>
+</body>
+</html>
