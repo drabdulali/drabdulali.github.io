@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behavioral and Immune Defenses - Population Biology of Infectious Diseases</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-top: 0;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .concept-card h2 {
+            color: #2c5530;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+
+        .key-insight::before {
+            content: "💡 Key Insight: ";
+            font-weight: 700;
+        }
+
+        .simulation-container {
+            background: #f8f9fa;
+            border: 2px solid #4a7c59;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .simulation-explanation {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #4a7c59;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #2c5530;
+            margin-bottom: 0.25rem;
+        }
+
+        .control-group input {
+            padding: 0.5rem;
+            border: 2px solid #4a7c59;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border: 1px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .case-study h4 {
+            color: #2c5530;
+            margin-top: 0;
+            border-bottom: 2px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+
+        .defense-framework {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .defense-level {
+            background: white;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .defense-level h3 {
+            color: #2c5530;
+            margin-top: 0;
+        }
+
+        .defense-level.first-line {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+        }
+
+        .defense-level.second-line {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #fff9e6, #fffaf0);
+        }
+
+        .defense-level.third-line {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #ffe6e6, #fff0f0);
+        }
+
+        .mathematical {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .grooming-efficiency-container {
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Behavioral and Immune Defenses</h1>
+        <div class="subtitle">Population Biology of Infectious Diseases - Course 6150</div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#framework" class="nav-link">Defense Framework</a>
+            <a href="#behavioral" class="nav-link">Behavioral Defenses</a>
+            <a href="#grooming" class="nav-link">Grooming Behavior</a>
+            <a href="#medicinal" class="nav-link">Medicinal Plants</a>
+            <a href="#physical" class="nav-link">Physical Barriers</a>
+            <a href="#innate" class="nav-link">Innate Immunity</a>
+            <a href="#invertebrate" class="nav-link">Invertebrate Defenses</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the three-tiered framework of host defenses against infectious diseases</li>
+                <li>Analyze behavioral strategies hosts use to avoid or reduce parasite infection</li>
+                <li>Evaluate the costs and benefits of different defense mechanisms</li>
+                <li>Compare innate immune responses between vertebrates and invertebrates</li>
+                <li>Assess how environmental factors influence host defense effectiveness</li>
+                <li>Apply mathematical models to understand grooming efficiency and defense trade-offs</li>
+            </ul>
+        </section>
+
+        <section id="framework" class="concept-card">
+            <h2>Framework for Host Defenses</h2>
+            <p>Host defenses against infectious diseases can be conceptualized as a three-tiered system, each representing a different line of defense with distinct characteristics and functions.</p>
+            
+            <div class="defense-framework">
+                <div class="defense-level first-line">
+                    <h3>1st Line: Behavioral & Physical Barriers</h3>
+                    <p><strong>Preventive Defense</strong></p>
+                    <p>Acts before infection occurs through avoidance behaviors, grooming, physical barriers like skin and mucus</p>
+                </div>
+                <div class="defense-level second-line">
+                    <h3>2nd Line: Innate Immunity</h3>
+                    <p><strong>Non-specific Defense</strong></p>
+                    <p>Immediate response to infection through inflammation, phagocytes, and antimicrobial compounds</p>
+                </div>
+                <div class="defense-level third-line">
+                    <h3>3rd Line: Adaptive Immunity</h3>
+                    <p><strong>Specific Defense</strong></p>
+                    <p>Targeted response with memory formation through antibodies and T-cell responses</p>
+                </div>
+            </div>
+
+            <div class="key-insight">
+                This hierarchical system reflects evolutionary optimization where earlier defenses are less costly but less specific, while later defenses are more costly but highly targeted.
+            </div>
+
+            <h3>Critical Considerations</h3>
+            <div class="case-study">
+                <h4>Cost-Benefit Trade-offs</h4>
+                <p><strong>Energy costs:</strong> Host defenses require significant energy expenditure, creating trade-offs with growth, reproduction, and other life history traits.</p>
+                <p><strong>Environmental dependency:</strong> Defense effectiveness varies with body condition, stress levels, food availability, temperature, and parasite exposure levels.</p>
+                <p><strong>Research limitations:</strong> Most knowledge comes from laboratory or artificial systems, which may not reflect natural defense dynamics.</p>
+            </div>
+        </section>
+
+        <section id="behavioral" class="concept-card">
+            <h2>Behavioral Defenses</h2>
+            <p>Behavioral defenses represent the first line of protection against parasites and pathogens. These strategies evolved to either prevent initial infection or reduce parasite loads after exposure.</p>
+
+            <h3>Categories of Behavioral Defense</h3>
+            
+            <div class="case-study">
+                <h4>Parasite Removal Behaviors</h4>
+                <ul>
+                    <li><strong>Grooming:</strong> Self-grooming and allogrooming to remove ectoparasites</li>
+                    <li><strong>Medicinal plant use:</strong> Consumption of plants with antiparasitic properties</li>
+                    <li><strong>Behavioral fever:</strong> Seeking warmer environments to inhibit pathogen growth</li>
+                </ul>
+            </div>
+
+            <div class="case-study">
+                <h4>Behavioral Avoidance</h4>
+                <ul>
+                    <li><strong>Habitat selection:</strong> Avoiding high-risk environments</li>
+                    <li><strong>Social avoidance:</strong> Avoiding infected conspecifics</li>
+                    <li><strong>Temporal avoidance:</strong> Timing activities to avoid peak parasite activity</li>
+                </ul>
+            </div>
+
+            <div class="key-insight">
+                Behavioral defenses are often the most cost-effective first line of defense, as they prevent infection rather than fighting it after establishment.
+            </div>
+        </section>
+
+        <section id="grooming" class="concept-card">
+            <h2>Grooming Behavior and Ectoparasite Control</h2>
+            <p>Grooming behavior is one of the most widespread and effective behavioral defenses against ectoparasites across animal taxa. It serves both social and health functions.</p>
+
+            <h3>Functions of Grooming</h3>
+            <ul>
+                <li><strong>Social bonding:</strong> Allogrooming strengthens social relationships</li>
+                <li><strong>Ectoparasite removal:</strong> Direct removal of ticks, fleas, lice, and other external parasites</li>
+                <li><strong>Disease prevention:</strong> Reduces vector-borne disease transmission</li>
+            </ul>
+
+            <div class="case-study">
+                <h4>Case Study: Desert Rodent Grooming Efficiency (Hawlena et al. 2007)</h4>
+                <p><strong>Study system:</strong> Desert rodents and flea parasites in natural populations</p>
+                <p><strong>Key findings:</strong></p>
+                <ul>
+                    <li>Strong positive correlation between grooming time and flea mortality</li>
+                    <li>Juveniles more efficient groomers than adults</li>
+                    <li>Relationship: Y = 0.013X - 0.013 for juveniles (R² = 0.70)</li>
+                    <li>Relationship: Y = 0.0068X + 0.014 for adults (R² = 0.57)</li>
+                </ul>
+                <p><strong>Take-home message:</strong> Grooming effectiveness varies with age and experience, demonstrating that behavioral defenses can be learned and optimized.</p>
+            </div>
+
+
+
+            <div class="equation-box">
+                <p><strong>Grooming Efficiency Equations:</strong></p>
+                <p class="mathematical">Juveniles: Mortality = 0.013 × (Grooming Time) - 0.013</p>
+                <p class="mathematical">Adults: Mortality = 0.0068 × (Grooming Time) + 0.014</p>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study: Lyme Disease Vector Control (LoGiudice et al. 2003)</h4>
+                <p><strong>Study system:</strong> Various host species and their role in Lyme disease transmission</p>
+                <p><strong>Key findings:</strong></p>
+                <ul>
+                    <li>Host species vary dramatically in tick burden (body burden range: 1.7 - 254)</li>
+                    <li>White-footed mice: high tick burden (27.8), low grooming efficiency</li>
+                    <li>Virginia opossums: high tick burden (254), but effective groomers</li>
+                    <li>Birds generally have lower tick burdens due to preening behavior</li>
+                </ul>
+                <p><strong>Take-home message:</strong> Different host species contribute differentially to disease transmission based on their grooming effectiveness and tick tolerance, affecting community-level disease dynamics.</p>
+            </div>
+        </section>
+
+        <section id="preening" class="concept-card">
+            <h2>Preening and Uropygial Gland Secretions</h2>
+            <p>Birds have evolved sophisticated grooming behaviors and specialized glands to combat ectoparasites and maintain feather condition.</p>
+
+            <h3>Uropygial Gland Function</h3>
+            <ul>
+                <li><strong>Waterproofing:</strong> Oily secretions maintain feather integrity</li>
+                <li><strong>Antiparasitic properties:</strong> Chemical compounds deter or kill parasites</li>
+                <li><strong>Antibacterial activity:</strong> Prevents bacterial growth on feathers and skin</li>
+            </ul>
+
+            <div class="case-study">
+                <h4>Case Study: Uropygial Gland Size and Parasite Load (Møller et al. 2010)</h4>
+                <p><strong>Study system:</strong> Bird species with varying uropygial gland sizes and their Amblycerans lice loads</p>
+                <p><strong>Key findings:</strong></p>
+                <ul>
+                    <li>Positive correlation between gland size and number of lice species</li>
+                    <li>Larger glands associated with better parasite control</li>
+                    <li>Gland size varies significantly among bird species</li>
+                </ul>
+                <p><strong>Take-home message:</strong> Morphological adaptations like gland size reflect evolutionary responses to parasite pressure, with larger glands providing better chemical defense.</p>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study: Bill Morphology and Preening Efficiency (Clayton & Cotgreave 1994)</h4>
+                <p><strong>Study system:</strong> Costa Rican bird species with different bill shapes and scratching behavior</p>
+                <p><strong>Key findings:</strong></p>
+                <ul>
+                    <li>Strong negative correlation (r = -0.61) between bill length and scratching behavior</li>
+                    <li>Birds with longer bills spend less time scratching</li>
+                    <li>Compensation through increased preening in long-billed species</li>
+                </ul>
+                <p><strong>Take-home message:</strong> Morphological constraints shape behavioral strategies, with birds adapting their grooming methods based on physical limitations.</p>
+            </div>
+
+            <div class="key-insight">
+                The evolution of preening behavior and associated morphological structures demonstrates how hosts and parasites engage in evolutionary arms races, with hosts developing increasingly sophisticated defense mechanisms.
+            </div>
+        </section>
+
+        <section id="medicinal" class="concept-card">
+            <h2>Medicinal Plant Use and Self-Medication</h2>
+            <p>Many animals exhibit self-medication behaviors, actively seeking out and consuming plants or other substances with therapeutic properties to combat parasites and pathogens.</p>
+
+            <h3>Types of Self-Medication</h3>
+            <ul>
+                <li><strong>Prophylactic:</strong> Regular consumption to prevent infection</li>
+                <li><strong>Therapeutic:</strong> Consumption after symptoms appear</li>
+                <li><strong>Seasonal:</strong> Increased consumption during high-risk periods</li>
+            </ul>
+
+            <div class="case-study">
+                <h4>Case Study: Monarch Butterfly Chemical Defense (De Roode et al. 2008)</h4>
+                <p><strong>Study system:</strong> Monarch butterflies, Asclepias host plants, and Ophryocystis elektroscirrha parasites</p>
+                <p><strong>Key findings:</strong></p>
+                <ul>
+                    <li>Over 100 Asclepias species worldwide with varying cardenolide content</li>
+                    <li>High-cardenolide plants provide better protection against parasites</li>
+                    <li>Infected monarchs preferentially choose toxic plants for oviposition</li>
+                    <li>Cardenolides reduce parasite spore loads and improve survival</li>
+                </ul>
+                <p><strong>Take-home message:</strong> Plant secondary compounds can serve dual functions as predator deterrents and antiparasitic agents, leading to complex plant-herbivore-parasite interactions.</p>
+            </div>
+
+
+
+            <div class="key-insight">
+                Self-medication represents a sophisticated behavioral adaptation where animals can adjust their behavior based on infection status, demonstrating cognitive recognition of disease states and appropriate therapeutic responses.
+            </div>
+        </section>
+
+        <section id="behavioral-fever" class="concept-card">
+            <h2>Behavioral Fever and Thermoregulation</h2>
+            <p>Many ectothermic animals exhibit behavioral fever, actively seeking warmer environments when infected to create suboptimal conditions for pathogens.</p>
+
+            <div class="case-study">
+                <h4>Case Study: House Fly Behavioral Fever (Kalsbeek et al. 2001)</h4>
+                <p><strong>Study system:</strong> House flies infected with Entomophthora muscae fungal pathogen</p>
+                <p><strong>Experimental design:</strong></p>
+                <ul>
+                    <li>Mark-recapture study of 3000 flies</li>
+                    <li>Heat lamps providing temperature gradients</li>
+                    <li>Categorization by infection stage and temperature preference</li>
+                </ul>
+                <p><strong>Key findings:</strong></p>
+                <ul>
+                    <li>Fungal parasite load decreases dramatically with temperature (optimal ~15-20°C)</li>
+                    <li>Infected flies more likely to be found near heat sources</li>
+                    <li>Behavioral fever effective at reducing parasite load</li>
+                </ul>
+                <p><strong>Take-home message:</strong> Behavioral thermoregulation can be an effective defense mechanism, allowing hosts to manipulate environmental conditions to disadvantage pathogens.</p>
+            </div>
+
+
+
+            <div class="equation-box">
+                <p><strong>Temperature-Parasite Load Relationship:</strong></p>
+                <p class="mathematical">Parasite Load = 12 × e^(-0.2 × (Temperature - 15))</p>
+                <p>Where temperature is in degrees Celsius</p>
+            </div>
+        </section>
+
+        <section id="social-avoidance" class="concept-card">
+            <h2>Social Avoidance and Disease Recognition</h2>
+            <p>Many social animals have evolved the ability to recognize and avoid infected conspecifics, reducing transmission risk within groups.</p>
+
+            <div class="case-study">
+                <h4>Case Study: Caribbean Spiny Lobster Avoidance (Behringer et al. 2006)</h4>
+                <p><strong>Study system:</strong> Panulirus argus (Caribbean spiny lobster) and PaV1 virus infection</p>
+                <p><strong>Experimental design:</strong></p>
+                <ul>
+                    <li>Choice experiments between healthy and infected lobsters</li>
+                    <li>Den sharing preferences measured over time</li>
+                    <li>Chemical cue identification experiments</li>
+                </ul>
+                <p><strong>Key findings:</strong></p>
+                <ul>
+                    <li>Healthy lobsters strongly avoid infected individuals (60% vs 12% choice)</li>
+                    <li>Avoidance behavior increases over time after infection</li>
+                    <li>Chemical cues likely mediate recognition</li>
+                    <li>Avoidance behavior protects against infection</li>
+                </ul>
+                <p><strong>Take-home message:</strong> Social animals can evolve sophisticated disease recognition systems that break transmission chains and protect group health.</p>
+            </div>
+
+            <div class="key-insight">
+                Disease avoidance behaviors represent a form of "behavioral immunity" that can significantly reduce transmission rates in social populations, potentially altering epidemic dynamics.
+            </div>
+        </section>
+
+        <section id="physical" class="concept-card">
+            <h2>Physical Barriers to Infection</h2>
+            <p>Physical barriers represent the first line of defense against pathogen entry, including both external barriers and internal protective mechanisms.</p>
+
+            <h3>Types of Physical Barriers</h3>
+            <div class="defense-framework">
+                <div class="defense-level">
+                    <h4>External Barriers</h4>
+                    <ul>
+                        <li>Skin and cuticle</li>
+                        <li>Hair and feathers</li>
+                        <li>Waxy secretions</li>
+                    </ul>
+                </div>
+                <div class="defense-level">
+                    <h4>Secreted Barriers</h4>
+                    <ul>
+                        <li>Mucus layers</li>
+                        <li>Antimicrobial peptides</li>
+                        <li>Low pH environments</li>
+                    </ul>
+                </div>
+                <div class="defense-level">
+                    <h4>Commensal Protection</h4>
+                    <ul>
+                        <li>Beneficial microbes</li>
+                        <li>Competitive exclusion</li>
+                        <li>Antimicrobial production</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Host Microbiome and Colonization Resistance</h3>
+            <p>Commensal microorganisms provide crucial protection against pathogenic invasion through multiple mechanisms:</p>
+            <ul>
+                <li><strong>Resource competition:</strong> Outcompeting pathogens for nutrients and space</li>
+                <li><strong>Chemical warfare:</strong> Producing antimicrobial compounds</li>
+                <li><strong>Immune modulation:</strong> Stimulating appropriate host immune responses</li>
+                <li><strong>pH regulation:</strong> Maintaining inhospitable conditions for pathogens</li>
+            </ul>
+
+            <div class="key-insight">
+                The microbiome represents a co-evolved defensive ecosystem where host, commensal microbes, and potential pathogens engage in complex ecological interactions that determine infection outcomes.
+            </div>
+        </section>
+
+        <section id="innate" class="concept-card">
+            <h2>Innate Immune Defenses</h2>
+            <p>Innate immunity provides immediate, non-specific responses to pathogen invasion. These ancient defense mechanisms are conserved across animal taxa and serve as the second line of defense.</p>
+
+            <h3>Characteristics of Innate Immunity</h3>
+            <ul>
+                <li><strong>Evolutionarily ancient:</strong> Present in all multicellular organisms</li>
+                <li><strong>Non-specific:</strong> Responds to broad categories of pathogens</li>
+                <li><strong>Immediate:</strong> No time delay for activation</li>
+                <li><strong>No memory:</strong> Same response upon re-exposure</li>
+            </ul>
+
+            <h3>Three Major Components</h3>
+            <div class="defense-framework">
+                <div class="defense-level">
+                    <h4>1. Inflammation Response</h4>
+                    <p>Increased blood flow and vascular permeability at infection sites</p>
+                    <ul>
+                        <li>Vasodilation</li>
+                        <li>Increased permeability</li>
+                        <li>Leukocyte recruitment</li>
+                        <li>Chemical signaling</li>
+                    </ul>
+                </div>
+                <div class="defense-level">
+                    <h4>2. Phagocytic Cells</h4>
+                    <p>Specialized white blood cells that engulf and destroy pathogens</p>
+                    <ul>
+                        <li>Neutrophils (first responders)</li>
+                        <li>Macrophages (cleanup crew)</li>
+                        <li>Eosinophils (anti-parasite)</li>
+                        <li>Natural killer cells</li>
+                    </ul>
+                </div>
+                <div class="defense-level">
+                    <h4>3. Complement System</h4>
+                    <p>Cascade of blood proteins that enhance immune responses</p>
+                    <ul>
+                        <li>Opsonization</li>
+                        <li>Membrane attack complex</li>
+                        <li>Inflammation signals</li>
+                        <li>Pathogen lysis</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Leukocyte Types and Functions</h3>
+            <div class="case-study">
+                <h4>White Blood Cell Characteristics</h4>
+                <ul>
+                    <li><strong>Neutrophils:</strong> 7 hours lifespan, immediate immune defense</li>
+                    <li><strong>Eosinophils:</strong> 8-12 days lifespan, defense against parasites</li>
+                    <li><strong>Basophils:</strong> Few hours to days, inflammatory response</li>
+                    <li><strong>Monocytes:</strong> 3 days lifespan, immune surveillance</li>
+                    <li><strong>B-lymphocytes:</strong> Years lifespan, antibody production</li>
+                    <li><strong>T-lymphocytes:</strong> Years lifespan, cellular immune response</li>
+                </ul>
+            </div>
+
+            <h3>When Innate Defenses are Most Important</h3>
+            <ul>
+                <li><strong>First exposure:</strong> Before adaptive immunity develops</li>
+                <li><strong>Rapid response needs:</strong> When immediate action is critical</li>
+                <li><strong>Broad-spectrum threats:</strong> Against diverse pathogen types</li>
+                <li><strong>Extracellular pathogens:</strong> Bacteria and fungi outside cells</li>
+                <li><strong>Large parasites:</strong> Helminths and protozoa</li>
+            </ul>
+
+            <div class="key-insight">
+                Innate immunity serves as both an immediate defense and a bridge to adaptive immunity, providing the time and signals necessary for specific immune responses to develop.
+            </div>
+        </section>
+
+        <section id="invertebrate" class="concept-card">
+            <h2>Invertebrate Immune Defenses</h2>
+            <p>Invertebrates rely entirely on innate immune mechanisms, having evolved sophisticated defense systems without adaptive immunity. These systems show remarkable parallels to vertebrate innate immunity.</p>
+
+            <h3>Invertebrate Defense Components</h3>
+            <div class="defense-framework">
+                <div class="defense-level">
+                    <h4>Physical Barriers</h4>
+                    <ul>
+                        <li>Tough, waxy cuticle</li>
+                        <li>Midgut epithelial barrier</li>
+                        <li>Antimicrobial peptides in secretions</li>
+                        <li>Beneficial microbial symbionts</li>
+                    </ul>
+                </div>
+                <div class="defense-level">
+                    <h4>Cellular Responses</h4>
+                    <ul>
+                        <li>Phagocytosis by hemocytes</li>
+                        <li>Encapsulation of large parasites</li>
+                        <li>Coagulation and wound healing</li>
+                        <li>Melanization responses</li>
+                    </ul>
+                </div>
+                <div class="defense-level">
+                    <h4>Humoral Responses</h4>
+                    <ul>
+                        <li>Antimicrobial peptide production</li>
+                        <li>Phenoloxidase cascade</li>
+                        <li>Lysozyme and other enzymes</li>
+                        <li>Reactive oxygen species</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Hemocyte Types and Functions</h3>
+            <p>Invertebrates possess several types of circulating immune cells (hemocytes) in their hemolymph:</p>
+            <ul>
+                <li><strong>Granulocytes:</strong> Phagocytic cells that engulf small pathogens</li>
+                <li><strong>Plasmatocytes:</strong> Adhere to foreign surfaces, involved in encapsulation</li>
+                <li><strong>Spherulocytes:</strong> Transport cuticular components and immune factors</li>
+                <li><strong>Oenocytoids:</strong> Store phenoloxidase precursors and clotting factors</li>
+            </ul>
+
+            <h3>Melanization and Phenoloxidase Cascade</h3>
+            <p>The melanization response is a key invertebrate defense mechanism involving a complex enzymatic cascade:</p>
+            
+            <div class="equation-box">
+                <p><strong>Phenoloxidase Cascade:</strong></p>
+                <p class="mathematical">Phenoloxidase (inactive) → Phenoloxidase (active)</p>
+                <p class="mathematical">↓</p>
+                <p class="mathematical">Tyrosine → DOPA → Dopaquinone → Melanin + Cytotoxic compounds</p>
+            </div>
+
+            <div class="case-study">
+                <h4>Encapsulation Response</h4>
+                <p><strong>Process:</strong> When large parasites (too big for phagocytosis) enter the hemocoel, hemocytes aggregate around the invader, forming multiple layers. Melanin is deposited on the parasite surface, creating a toxic barrier that kills and isolates the threat.</p>
+                <p><strong>Examples:</strong> Tobacco hornworms encapsulating fungal pathogens like <em>Metarhizium</em> species</p>
+            </div>
+
+            <h3>Antimicrobial Peptides (AMPs)</h3>
+            <p>Invertebrates produce diverse antimicrobial peptides with broad-spectrum activity:</p>
+            <ul>
+                <li><strong>Defensins:</strong> Active against gram-positive bacteria</li>
+                <li><strong>Cecropins:</strong> Effective against gram-negative bacteria</li>
+                <li><strong>Lysozymes:</strong> Break down bacterial cell walls</li>
+                <li><strong>Antifungal peptides:</strong> Target fungal cell membranes</li>
+            </ul>
+
+
+
+            <div class="key-insight">
+                Invertebrate immune systems demonstrate that sophisticated pathogen recognition and elimination can occur without adaptive immunity, relying on pattern recognition and immediate effector responses.
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>Comparative Analysis: Vertebrate vs Invertebrate Immunity</h2>
+            
+            <div class="case-study">
+                <h4>Similarities</h4>
+                <ul>
+                    <li>Pathogen recognition through pattern recognition receptors</li>
+                    <li>Phagocytic responses to eliminate pathogens</li>
+                    <li>Antimicrobial compound production</li>
+                    <li>Inflammation-like responses</li>
+                    <li>Wound healing and tissue repair mechanisms</li>
+                </ul>
+            </div>
+
+            <div class="case-study">
+                <h4>Key Differences</h4>
+                <ul>
+                    <li><strong>Memory:</strong> Vertebrates have immunological memory; invertebrates do not</li>
+                    <li><strong>Specificity:</strong> Adaptive immunity provides highly specific responses</li>
+                    <li><strong>Amplification:</strong> Clonal expansion occurs only in vertebrates</li>
+                    <li><strong>Circulating cells:</strong> Closed vs open circulatory systems</li>
+                    <li><strong>Humoral factors:</strong> Antibodies vs antimicrobial peptides</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>Environmental Factors Affecting Host Defenses</h2>
+            <p>Host defense effectiveness is highly dependent on environmental conditions and host physiological state.</p>
+
+            <h3>Key Environmental Influences</h3>
+            <ul>
+                <li><strong>Temperature:</strong> Affects immune cell function and pathogen growth rates</li>
+                <li><strong>Nutrition:</strong> Adequate protein and energy for immune system maintenance</li>
+                <li><strong>Stress:</strong> Chronic stress suppresses immune function through hormonal pathways</li>
+                <li><strong>Social environment:</strong> Group living affects disease transmission and stress levels</li>
+                <li><strong>Seasonal cycles:</strong> Photoperiod and resource availability influence immunity</li>
+                <li><strong>Pollution:</strong> Environmental toxins can compromise immune function</li>
+            </ul>
+
+            <div class="key-insight">
+                Understanding environmental effects on host defenses is crucial for predicting disease outcomes in natural populations and managing wildlife health in changing environments.
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>Summary and Key Takeaways</h2>
+            
+            <div class="defense-framework">
+                <div class="defense-level">
+                    <h4>Behavioral Defenses</h4>
+                    <p>Cost-effective prevention strategies that avoid infection through avoidance behaviors, grooming, and environmental manipulation</p>
+                </div>
+                <div class="defense-level">
+                    <h4>Physical Barriers</h4>
+                    <p>First line of cellular defense through skin, mucus, antimicrobial secretions, and beneficial microorganisms</p>
+                </div>
+                <div class="defense-level">
+                    <h4>Innate Immunity</h4>
+                    <p>Immediate, non-specific responses conserved across taxa, providing rapid pathogen elimination and tissue repair</p>
+                </div>
+            </div>
+
+            <h3>Critical Concepts for Population Biology</h3>
+            <ul>
+                <li><strong>Trade-offs:</strong> Defense mechanisms are costly and compete with other biological functions</li>
+                <li><strong>Variation:</strong> Individual differences in defense capabilities affect population susceptibility</li>
+                <li><strong>Evolution:</strong> Host-pathogen coevolution drives continuous innovation in defense strategies</li>
+                <li><strong>Ecology:</strong> Environmental context determines the effectiveness of different defense mechanisms</li>
+                <li><strong>Integration:</strong> Multiple defense layers work synergistically to protect hosts</li>
+            </ul>
+
+            <div class="key-insight">
+                Host defenses represent a complex, multilayered system that has evolved to balance protection against diverse threats while maintaining energy for growth, reproduction, and survival in variable environments.
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Initialize all charts and simulations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add a small delay to ensure all elements are fully rendered
+            setTimeout(function() {
+                initializeGroomingChart();
+                initializePlantSelectionChart();
+                initializeFeverChart();
+                initializeInvertebrateChart();
+                setupEventListeners();
+            }, 100);
+        });
+
+        // Event listeners for interactive elements
+        function setupEventListeners() {
+            const groomingTimeSlider = document.getElementById('groomingTime');
+            const ageGroupSelect = document.getElementById('ageGroup');
+            const cardenolideSlider = document.getElementById('cardenolideLevel');
+            const infectionSelect = document.getElementById('infectionStatus');
+            const temperatureSlider = document.getElementById('temperature');
+            const hostChoiceSelect = document.getElementById('hostChoice');
+            const pathogenSizeSelect = document.getElementById('pathogenSize');
+            const timePointSlider = document.getElementById('timePoint');
+
+            if (groomingTimeSlider) {
+                groomingTimeSlider.addEventListener('input', function() {
+                    updateGroomingChart();
+                });
+            }
+            if (ageGroupSelect) {
+                ageGroupSelect.addEventListener('change', function() {
+                    updateGroomingChart();
+                });
+            }
+            if (cardenolideSlider) {
+                cardenolideSlider.addEventListener('input', function() {
+                    updatePlantSelectionChart();
+                });
+            }
+            if (infectionSelect) {
+                infectionSelect.addEventListener('change', function() {
+                    updatePlantSelectionChart();
+                });
+            }
+            if (temperatureSlider) {
+                temperatureSlider.addEventListener('input', function() {
+                    updateFeverChart();
+                });
+            }
+            if (hostChoiceSelect) {
+                hostChoiceSelect.addEventListener('change', function() {
+                    updateFeverChart();
+                });
+            }
+            if (pathogenSizeSelect) {
+                pathogenSizeSelect.addEventListener('change', function() {
+                    updateInvertebrateChart();
+                });
+            }
+            if (timePointSlider) {
+                timePointSlider.addEventListener('input', function() {
+                    updateInvertebrateChart();
+                });
+            }
+        }
+
+        // Grooming efficiency chart
+        function initializeGroomingChart() {
+            const canvas = document.getElementById('groomingChart');
+            if (!canvas) {
+                console.log('Grooming chart canvas not found');
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+            window.groomingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Parasite Mortality Probability',
+                        data: [],
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Grooming Time (minutes)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Mortality Probability per Flea'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Grooming Efficiency vs Parasite Mortality'
+                        }
+                    }
+                }
+            });
+            updateGroomingChart();
+        }
+
+        function updateGroomingChart() {
+            if (!window.groomingChart) return;
+            
+            const groomingTimeSlider = document.getElementById('groomingTime');
+            const ageGroupSelect = document.getElementById('ageGroup');
+            const groomingTimeValue = document.getElementById('groomingTimeValue');
+            
+            if (!groomingTimeSlider || !ageGroupSelect || !groomingTimeValue) return;
+            
+            const groomingTime = parseInt(groomingTimeSlider.value);
+            const ageGroup = ageGroupSelect.value;
+            
+            groomingTimeValue.textContent = groomingTime;
+            
+            const times = [];
+            const mortalities = [];
+            
+            for (let t = 0; t <= 100; t += 5) {
+                times.push(t);
+                let mortality;
+                if (ageGroup === 'juvenile') {
+                    mortality = Math.max(0, 0.013 * t - 0.013);
+                } else {
+                    mortality = Math.max(0, 0.0068 * t + 0.014);
+                }
+                mortalities.push(Math.min(1, mortality));
+            }
+            
+            window.groomingChart.data.labels = times;
+            window.groomingChart.data.datasets[0].data = mortalities;
+            window.groomingChart.data.datasets[0].label = `${ageGroup.charAt(0).toUpperCase() + ageGroup.slice(1)} Mortality Rate`;
+            window.groomingChart.update();
+        }
+
+        // Plant selection chart
+        function initializePlantSelectionChart() {
+            const canvas = document.getElementById('plantSelectionChart');
+            if (!canvas) {
+                console.log('Plant selection chart canvas not found');
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+            window.plantChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Low Cardenolide', 'Medium Cardenolide', 'High Cardenolide'],
+                    datasets: [{
+                        label: 'Plant Selection Probability',
+                        data: [],
+                        backgroundColor: ['#ffcc5c', '#ff8c69', '#ff6b6b'],
+                        borderColor: ['#e6b84f', '#e67a5a', '#e65c5c'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Selection Probability'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Host Plant Selection by Monarchs'
+                        }
+                    }
+                }
+            });
+            updatePlantSelectionChart();
+        }
+
+        function updatePlantSelectionChart() {
+            if (!window.plantChart) return;
+            
+            const cardenolideSlider = document.getElementById('cardenolideLevel');
+            const infectionSelect = document.getElementById('infectionStatus');
+            const cardenolideValue = document.getElementById('cardenolideValue');
+            
+            if (!cardenolideSlider || !infectionSelect || !cardenolideValue) return;
+            
+            const cardenolideLevel = parseInt(cardenolideSlider.value);
+            const infectionStatus = infectionSelect.value;
+            
+            cardenolideValue.textContent = cardenolideLevel;
+            
+            let lowProb, medProb, highProb;
+            
+            if (infectionStatus === 'infected') {
+                // Infected monarchs prefer high-cardenolide plants
+                lowProb = 0.2;
+                medProb = 0.3;
+                highProb = 0.5;
+            } else {
+                // Uninfected monarchs show less preference
+                lowProb = 0.4;
+                medProb = 0.35;
+                highProb = 0.25;
+            }
+            
+            window.plantChart.data.datasets[0].data = [lowProb, medProb, highProb];
+            window.plantChart.data.datasets[0].label = `${infectionStatus.charAt(0).toUpperCase() + infectionStatus.slice(1)} Monarch Selection`;
+            window.plantChart.update();
+        }
+
+        // Behavioral fever chart
+        function initializeFeverChart() {
+            const canvas = document.getElementById('feverChart');
+            if (!canvas) {
+                console.log('Fever chart canvas not found');
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+            window.feverChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Parasite Load',
+                        data: [],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.3,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Temperature (°C)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Parasite Load'
+                            },
+                            min: 0
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Temperature Effect on Parasite Load'
+                        }
+                    }
+                }
+            });
+            updateFeverChart();
+        }
+
+        function updateFeverChart() {
+            if (!window.feverChart) return;
+            
+            const temperatureSlider = document.getElementById('temperature');
+            const hostChoiceSelect = document.getElementById('hostChoice');
+            const temperatureValue = document.getElementById('temperatureValue');
+            
+            if (!temperatureSlider || !hostChoiceSelect || !temperatureValue) return;
+            
+            const temperature = parseInt(temperatureSlider.value);
+            const hostChoice = hostChoiceSelect.value;
+            
+            temperatureValue.textContent = temperature;
+            
+            const temperatures = [];
+            const parasiteLoads = [];
+            
+            for (let temp = 15; temp <= 35; temp++) {
+                temperatures.push(temp);
+                const load = 12 * Math.exp(-0.2 * (temp - 15));
+                parasiteLoads.push(load);
+            }
+            
+            window.feverChart.data.labels = temperatures;
+            window.feverChart.data.datasets[0].data = parasiteLoads;
+            
+            // Add current temperature marker
+            if (hostChoice === 'seeking') {
+                window.feverChart.data.datasets[0].pointBackgroundColor = temperatures.map(t => 
+                    Math.abs(t - temperature) < 1 ? '#ff6b6b' : '#dc3545'
+                );
+                window.feverChart.data.datasets[0].pointRadius = temperatures.map(t => 
+                    Math.abs(t - temperature) < 1 ? 8 : 3
+                );
+            } else {
+                window.feverChart.data.datasets[0].pointBackgroundColor = '#dc3545';
+                window.feverChart.data.datasets[0].pointRadius = 3;
+            }
+            
+            window.feverChart.update();
+        }
+
+        // Invertebrate immune response chart
+        function initializeInvertebrateChart() {
+            const canvas = document.getElementById('invertebrateChart');
+            if (!canvas) {
+                console.log('Invertebrate chart canvas not found');
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+            window.invertebrateChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Phagocytosis',
+                            data: [],
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            tension: 0.3,
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Melanization',
+                            data: [],
+                            borderColor: '#6f42c1',
+                            backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                            tension: 0.3,
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'AMP Production',
+                            data: [],
+                            borderColor: '#fd7e14',
+                            backgroundColor: 'rgba(253, 126, 20, 0.1)',
+                            tension: 0.3,
+                            pointRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time After Infection (hours)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Response Intensity'
+                            },
+                            min: 0,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Invertebrate Immune Response Timeline'
+                        }
+                    }
+                }
+            });
+            updateInvertebrateChart();
+        }
+
+        function updateInvertebrateChart() {
+            if (!window.invertebrateChart) return;
+            
+            const pathogenSizeSelect = document.getElementById('pathogenSize');
+            const timePointSlider = document.getElementById('timePoint');
+            const timePointValue = document.getElementById('timePointValue');
+            
+            if (!pathogenSizeSelect || !timePointSlider || !timePointValue) return;
+            
+            const pathogenSize = pathogenSizeSelect.value;
+            const timePoint = parseInt(timePointSlider.value);
+            
+            timePointValue.textContent = timePoint;
+            
+            const times = [];
+            const phagocytosis = [];
+            const melanization = [];
+            const ampProduction = [];
+            
+            for (let t = 0; t <= 48; t += 2) {
+                times.push(t);
+                
+                let phago, melan, amp;
+                
+                if (pathogenSize === 'small') {
+                    // Small pathogens - mainly phagocytosis and AMPs
+                    phago = t < 24 ? 80 * (1 - Math.exp(-0.3 * t)) : 80 * Math.exp(-0.1 * (t - 24));
+                    melan = 20 * (1 - Math.exp(-0.1 * t));
+                    amp = t < 12 ? 60 * (1 - Math.exp(-0.2 * t)) : 60 * Math.exp(-0.05 * (t - 12));
+                } else if (pathogenSize === 'medium') {
+                    // Medium pathogens - balanced response
+                    phago = t < 24 ? 60 * (1 - Math.exp(-0.2 * t)) : 60 * Math.exp(-0.08 * (t - 24));
+                    melan = t < 36 ? 70 * (1 - Math.exp(-0.15 * t)) : 70 * Math.exp(-0.05 * (t - 36));
+                    amp = t < 16 ? 50 * (1 - Math.exp(-0.25 * t)) : 50 * Math.exp(-0.06 * (t - 16));
+                } else {
+                    // Large pathogens - mainly encapsulation/melanization
+                    phago = 30 * (1 - Math.exp(-0.15 * t));
+                    melan = t < 48 ? 90 * (1 - Math.exp(-0.12 * t)) : 90;
+                    amp = t < 8 ? 40 * (1 - Math.exp(-0.3 * t)) : 40 * Math.exp(-0.1 * (t - 8));
+                }
+                
+                phagocytosis.push(Math.max(0, phago));
+                melanization.push(Math.max(0, melan));
+                ampProduction.push(Math.max(0, amp));
+            }
+            
+            window.invertebrateChart.data.labels = times;
+            window.invertebrateChart.data.datasets[0].data = phagocytosis;
+            window.invertebrateChart.data.datasets[1].data = melanization;
+            window.invertebrateChart.data.datasets[2].data = ampProduction;
+            window.invertebrateChart.update();
+        }.exp(-0.12 * t)) : 90;
+                    amp = t < 8 ? 40 * (1 - Math.exp(-0.3 * t)) : 40 * Math.exp(-0.1 * (t - 8));
+                }
+                
+                phagocytosis.push(Math.max(0, phago));
+                melanization.push(Math.max(0, melan));
+                ampProduction.push(Math.max(0, amp));
+            }
+            
+            window.invertebrateChart.data.labels = times;
+            window.invertebrateChart.data.datasets[0].data = phagocytosis;
+            window.invertebrateChart.data.datasets[1].data = melanization;
+            window.invertebrateChart.data.datasets[2].data = ampProduction;
+            window.invertebrateChart.update();
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
