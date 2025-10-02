@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolution of Host Resistance | Population Biology of Infectious Diseases</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .objectives ul {
+            margin-left: 1.5rem;
+        }
+
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .concept-card h2 {
+            color: #2c5530;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .equation-box .equation {
+            font-size: 1.3rem;
+            font-family: 'Times New Roman', serif;
+            margin: 1rem 0;
+            font-style: italic;
+        }
+
+        .key-insight {
+            background: #fff9e6;
+            border-left: 5px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .key-insight strong {
+            color: #2c5530;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #f0f8ff, #e6f2ff);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .case-study h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .simulation-box {
+            background: white;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .simulation-explanation {
+            background: #f0f8f0;
+            border-left: 4px solid #4a7c59;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .control-group label {
+            flex: 1;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .control-group input[type="range"] {
+            flex: 2;
+        }
+
+        .control-group span {
+            flex: 0.5;
+            text-align: right;
+        }
+
+        button {
+            background-color: #4a7c59;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2c5530;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #4a7c59;
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Evolution of Host Resistance</h1>
+        <p>Population Biology of Infectious Diseases - BIOL 6150</p>
+        <p>Trade-offs and Costs in Host-Parasite Interactions</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#definitions">Definitions</a></li>
+            <li><a href="#mechanisms">Mechanisms</a></li>
+            <li><a href="#sickle-cell">Sickle Cell Case</a></li>
+            <li><a href="#myxomatosis">Myxomatosis Case</a></li>
+            <li><a href="#soay-sheep">Soay Sheep Case</a></li>
+            <li><a href="#costs">Costs of Resistance</a></li>
+            <li><a href="#tolerance">Tolerance</a></li>
+            <li><a href="#simulations">Simulations</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the definition of resistance, susceptibility, and tolerance in host-parasite interactions</li>
+                <li>Identify the mechanisms by which hosts express resistance to parasites</li>
+                <li>Analyze evidence for pathogen-driven natural selection on host resistance in wild populations</li>
+                <li>Evaluate the processes that maintain genetic variation in host resistance</li>
+                <li>Explain why not all hosts evolve complete resistance to all parasites</li>
+                <li>Understand the concept of costs and trade-offs associated with resistance</li>
+                <li>Distinguish between resistance and tolerance as alternative defensive strategies</li>
+                <li>Apply evolutionary theory to predict host population responses to novel pathogens</li>
+            </ul>
+        </section>
+
+        <section id="definitions" class="concept-card">
+            <h2>Fundamental Definitions</h2>
+            
+            <h3>Resistance</h3>
+            <p>Resistance refers to the ability of a host to prevent or limit parasite infection. It is the inverse of susceptibility. A resistant host is rarely or never infected, while a susceptible host is mostly or always infected when exposed to a parasite.</p>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> Resistance is a quantitative trait that exists on a continuum. Hosts are not simply "resistant" or "susceptible" but rather exhibit varying degrees of resistance depending on their genotype, physiological state, and environmental conditions.
+            </div>
+
+            <h3>Susceptibility</h3>
+            <p>Susceptibility is the opposite of resistance. It measures how likely a host is to become infected when exposed to a parasite. High susceptibility means the host is easily infected, while low susceptibility indicates the host can effectively prevent infection.</p>
+
+            <h3>Tolerance</h3>
+            <p>Tolerance refers to the ability of a host to maintain fitness (survival, growth, reproduction) despite being infected. Unlike resistance, tolerance does not reduce parasite load but instead minimizes the damage caused by infection.</p>
+
+            <div class="equation-box">
+                <p><strong>Mathematical Representation of Tolerance:</strong></p>
+                <div class="equation">
+                    W = W<sub>0</sub> - m × P
+                </div>
+                <p>Where:</p>
+                <p>W = host fitness when infected</p>
+                <p>W<sub>0</sub> = host fitness when uninfected</p>
+                <p>m = slope of fitness decline (tolerance = 1/m)</p>
+                <p>P = parasite load</p>
+                <p style="margin-top: 1rem;"><em>A more tolerant host has a smaller slope (m), meaning fitness declines less rapidly with increasing parasite load.</em></p>
+            </div>
+        </section>
+
+        <section id="mechanisms" class="concept-card">
+            <h2>Mechanisms of Host Resistance</h2>
+            
+            <h3>1. Immune Defenses</h3>
+            <p>The immune system provides the primary defense against parasites through both innate and adaptive mechanisms:</p>
+            
+            <p><strong>Innate Immunity:</strong> The first line of defense, including physical barriers (skin, mucous membranes), chemical barriers (antimicrobial peptides, pH), and cellular responses (phagocytes, natural killer cells). Innate immunity is rapid but non-specific.</p>
+            
+            <p><strong>Adaptive Immunity:</strong> A learned, specific response involving B cells (antibody production) and T cells (cell-mediated immunity). Adaptive immunity provides immunological memory, allowing faster and stronger responses upon re-exposure to the same parasite.</p>
+
+            <div class="key-insight">
+                <strong>Key Insight:</strong> The strength and specificity of immune responses vary greatly among individuals due to genetic variation in immune genes, including the Major Histocompatibility Complex (MHC), which plays a crucial role in pathogen recognition and presentation.
+            </div>
+
+            <h3>2. Physical Barriers</h3>
+            <p>Physical barriers prevent parasites from entering host tissues. Examples include:</p>
+            <ul>
+                <li>Skin thickness and composition</li>
+                <li>Mucous membrane integrity</li>
+                <li>Shell structures in invertebrates</li>
+                <li>Cuticle thickness in plants and arthropods</li>
+            </ul>
+
+            <h3>3. Behavioral Avoidance</h3>
+            <p>Hosts can reduce exposure to parasites through behavioral modifications:</p>
+            <ul>
+                <li>Avoiding contaminated water sources</li>
+                <li>Grooming behaviors to remove ectoparasites</li>
+                <li>Selecting nesting sites with lower parasite prevalence</li>
+                <li>Reducing social contact when infected individuals are present</li>
+            </ul>
+
+            <h3>4. Lack of Susceptible Tissue</h3>
+            <p>Some hosts lack the specific receptors or tissues required for parasite infection. This form of resistance is often highly effective but genetically constrained.</p>
+
+            <div class="case-study">
+                <h4>Example: CCR5-Δ32 Mutation and HIV Resistance</h4>
+                <p>Individuals homozygous for a 32-base-pair deletion in the CCR5 gene lack functional CCR5 receptors on their cell surfaces. Since most HIV strains require CCR5 to enter cells, these individuals are highly resistant to HIV infection. This represents resistance through the absence of necessary host tissue (functional receptors).</p>
+                <p><strong>Take-home message:</strong> Genetic mutations that eliminate pathogen entry points can provide strong resistance, but such mutations may have other fitness consequences in the absence of the pathogen.</p>
+            </div>
+        </section>
+
+        <section id="sickle-cell" class="concept-card">
+            <h2>Case Study: Sickle Cell Anemia and Heterozygote Advantage</h2>
+            
+            <h3>Background</h3>
+            <p>Sickle cell disease is caused by a single amino acid substitution in the beta-globin gene (hemoglobin subunit). The mutation changes glutamic acid to valine at position 6, resulting in abnormal hemoglobin that causes red blood cells to adopt a sickle shape under low oxygen conditions.</p>
+
+            <h3>Genotypes and Phenotypes</h3>
+            <table>
+                <tr>
+                    <th>Genotype</th>
+                    <th>Red Blood Cell Shape</th>
+                    <th>Malaria Susceptibility</th>
+                    <th>Health Impact</th>
+                </tr>
+                <tr>
+                    <td>AA (homozygous normal)</td>
+                    <td>Round, normal</td>
+                    <td>Susceptible</td>
+                    <td>No sickle cell disease</td>
+                </tr>
+                <tr>
+                    <td>Aa (heterozygous)</td>
+                    <td>Mostly round, some sickling</td>
+                    <td>Resistant</td>
+                    <td>Mild sickle cell trait</td>
+                </tr>
+                <tr>
+                    <td>aa (homozygous sickle)</td>
+                    <td>Sickled</td>
+                    <td>Resistant</td>
+                    <td>Severe/fatal sickle cell disease</td>
+                </tr>
+            </table>
+
+            <h3>Mechanism of Resistance</h3>
+            <p>Sickled red blood cells provide resistance to malaria through multiple mechanisms:</p>
+            <ul>
+                <li>Sickled cells are rapidly cleared from circulation, reducing parasite replication time</li>
+                <li>The abnormal cell environment inhibits Plasmodium growth and development</li>
+                <li>Sickled cells display surface markers that trigger earlier immune recognition</li>
+                <li>Reduced oxygen availability in sickled cells inhibits parasite metabolism</li>
+            </ul>
+
+            <h3>Heterozygote Advantage</h3>
+            <p>The sickle cell allele persists at high frequencies in malaria-endemic regions despite causing severe disease in homozygotes because heterozygotes (Aa) have the highest fitness. They gain malaria resistance without suffering severe anemia.</p>
+
+            <div class="equation-box">
+                <p><strong>Fitness Values in Malaria-Endemic Regions:</strong></p>
+                <div class="equation">
+                    W<sub>AA</sub> < W<sub>Aa</sub> > W<sub>aa</sub>
+                </div>
+                <p>Example fitness values:</p>
+                <p>W<sub>AA</sub> = 0.85 (dies from malaria)</p>
+                <p>W<sub>Aa</sub> = 1.0 (resistant to malaria, mild symptoms)</p>
+                <p>W<sub>aa</sub> = 0.2 (dies from sickle cell disease)</p>
+            </div>
+
+            <h3>Geographic Distribution</h3>
+            <p>The sickle cell allele arose independently at least four times in human populations, always in regions with high malaria prevalence. The allele frequency reaches 10-20% in sub-Saharan Africa and parts of Asia where malaria is endemic but is rare in regions without malaria.</p>
+
+            <div class="key-insight">
+                <strong>Take-home Message:</strong> The sickle cell case demonstrates balancing selection, where genetic variation is maintained because heterozygotes have higher fitness than either homozygote. This illustrates how parasites can drive the evolution and maintenance of genetic polymorphisms in host populations, and how resistance alleles can have severe costs that prevent them from going to fixation.
+            </div>
+        </section>
+
+        <section id="myxomatosis" class="concept-card">
+            <h2>Case Study: Myxomatosis in Australian Rabbits</h2>
+            
+            <h3>Historical Context</h3>
+            <p>European rabbits were introduced to Australia in 1859 for hunting. By 1920, the population had exploded to an estimated 10 billion rabbits, causing massive agricultural damage and ecological disruption.</p>
+
+            <h3>Introduction of Myxomatosis Virus (1950)</h3>
+            <p>The Australian government deliberately introduced the highly virulent myxoma virus as a biological control agent in 1950. The initial population was approximately 1.8 billion rabbits.</p>
+
+            <div class="case-study">
+                <h4>Initial Impact</h4>
+                <p><strong>1950-1952:</strong> The virus killed 99.8% of exposed rabbits. Case fatality rate was greater than 99%. This appeared to be a spectacular success in biocontrol.</p>
+                <p><strong>1952-1954:</strong> Case fatality rate declined to approximately 90%.</p>
+                <p><strong>By 1958:</strong> Only 30% of exposed rabbits died from the virus.</p>
+                <p><strong>What happened?</strong> Both the virus and the rabbits evolved rapidly.</p>
+            </div>
+
+            <h3>Viral Evolution: Decreased Virulence</h3>
+            <p>The virus evolved to become less virulent. Data from field isolates showed a dramatic shift in virulence grades:</p>
+            
+            <table>
+                <tr>
+                    <th>Time Period</th>
+                    <th>Grade I (>99% fatal)</th>
+                    <th>Grade III (70-95% fatal)</th>
+                    <th>Grade V (<50% fatal)</th>
+                </tr>
+                <tr>
+                    <td>1950-1951</td>
+                    <td>100%</td>
+                    <td>0%</td>
+                    <td>0%</td>
+                </tr>
+                <tr>
+                    <td>1952-1955</td>
+                    <td>13.3%</td>
+                    <td>53.3%</td>
+                    <td>0%</td>
+                </tr>
+                <tr>
+                    <td>1955-1958</td>
+                    <td>0.7%</td>
+                    <td>54.6%</td>
+                    <td>15.5%</td>
+                </tr>
+            </table>
+
+            <h3>Why Did Virulence Evolve Downward?</h3>
+            <p>The myxoma virus is transmitted by mosquitoes and fleas, which require live hosts to feed on. Extremely virulent strains that killed rabbits within 10-13 days provided less opportunity for transmission than moderately virulent strains that kept hosts alive for 20-30 days with external lesions.</p>
+
+            <div class="equation-box">
+                <p><strong>Trade-off Between Transmission and Virulence:</strong></p>
+                <div class="equation">
+                    R<sub>0</sub> = β × D × S/N
+                </div>
+                <p>Where:</p>
+                <p>β = transmission rate (opportunities for transmission)</p>
+                <p>D = duration of infectiousness (increases with lower virulence)</p>
+                <p>S/N = proportion of susceptible hosts</p>
+                <p style="margin-top: 1rem;"><em>Optimal virulence maximizes R<sub>0</sub> by balancing transmission rate against host survival.</em></p>
+            </div>
+
+            <h3>Host Evolution: Increased Resistance</h3>
+            <p>Simultaneously, rabbits evolved resistance to the virus. Experimental infections in the 1960s-1970s showed:</p>
+            
+            <table>
+                <tr>
+                    <th>Location</th>
+                    <th>Year</th>
+                    <th>Virus Grade</th>
+                    <th>Case Fatality Rate</th>
+                </tr>
+                <tr>
+                    <td>Norfolk</td>
+                    <td>1966</td>
+                    <td>III</td>
+                    <td>90%</td>
+                </tr>
+                <tr>
+                    <td>Norfolk</td>
+                    <td>1970</td>
+                    <td>III</td>
+                    <td>59%</td>
+                </tr>
+                <tr>
+                    <td>Norfolk</td>
+                    <td>1974</td>
+                    <td>III</td>
+                    <td>13%</td>
+                </tr>
+            </table>
+
+            <p>When challenged with the same standard virus strain (Grade III), rabbits from later years showed dramatically improved survival, indicating genetic evolution of resistance.</p>
+
+            <h3>Form of Selection</h3>
+            <p><strong>Rabbits:</strong> Directional selection favoring increased resistance. The mean resistance in the population shifted toward higher values.</p>
+            <p><strong>Virus:</strong> Stabilizing selection toward intermediate virulence, balancing transmission opportunity against host survival.</p>
+
+            <div class="key-insight">
+                <strong>Take-home Message:</strong> The myxomatosis case demonstrates rapid coevolution of both host and parasite in response to strong selection pressure. It illustrates that parasites may not evolve to maximum virulence when transmission depends on host survival, and that hosts can rapidly evolve resistance when genetic variation exists. This case became a classic example of "failed" biocontrol, highlighting the importance of evolutionary thinking in disease management.
+            </div>
+        </section>
+
+        <section id="soay-sheep" class="concept-card">
+            <h2>Case Study: Soay Sheep and Costs of Resistance</h2>
+            
+            <h3>Background</h3>
+            <p>Soay sheep are a primitive breed living on the island of St. Kilda, Scotland. This population has been intensively studied since the 1980s, providing insights into host-parasite dynamics and the evolution of resistance in a natural setting.</p>
+
+            <h3>The Parasite System</h3>
+            <p>The sheep are infected by macroparasitic nematode worms (primarily Teladorsagia circumcincta and Trichostrongylus spp.) that live in the gastrointestinal tract. Parasite infections contribute significantly to population cycles, with major die-offs occurring during harsh winters.</p>
+
+            <h3>Autoantibodies as a Measure of Immune Responsiveness</h3>
+            <p>Researchers measured antinuclear antibodies (ANAs) as a proxy for overall immune system activity. ANAs are antibodies that bind to components of the cell nucleus. While typically associated with autoimmune disorders in humans, in Soay sheep, elevated ANA levels indicate heightened antibody responsiveness in general.</p>
+
+            <h3>Distribution of ANAs in the Population</h3>
+            <ul>
+                <li>Approximately 12% of sheep carry elevated ANAs (ANA-positive)</li>
+                <li>ANA levels increase with age</li>
+                <li>Females have higher ANA levels than males</li>
+                <li>ANA-positive status is heritable, indicating a genetic basis</li>
+            </ul>
+
+            <h3>Benefits of High ANAs: Survival During Harsh Winters</h3>
+            <p>During population crash years (characterized by high population density, limited food, and heavy parasite loads), ANA-positive sheep had significantly higher survival rates:</p>
+
+            <table>
+                <tr>
+                    <th>Condition</th>
+                    <th>ANA-Negative Survival</th>
+                    <th>ANA-Positive Survival</th>
+                </tr>
+                <tr>
+                    <td>Crash Years</td>
+                    <td>65%</td>
+                    <td>74%</td>
+                </tr>
+            </table>
+
+            <p>This suggests that high immune responsiveness (indicated by ANA-positive status) protects against parasite-induced mortality when conditions are harsh and parasite loads are high.</p>
+
+            <h3>Costs of High ANAs: Reduced Survival in Good Years</h3>
+            <p>However, during years with low parasite pressure (non-crash years), the pattern reversed:</p>
+
+            <table>
+                <tr>
+                    <th>Condition</th>
+                    <th>ANA-Negative Survival</th>
+                    <th>ANA-Positive Survival</th>
+                </tr>
+                <tr>
+                    <td>Non-Crash Years</td>
+                    <td>95%</td>
+                    <td>90%</td>
+                </tr>
+            </table>
+
+            <p>When parasite pressure was low, ANA-positive sheep had reduced survival, demonstrating a cost to maintaining high immune responsiveness in the absence of strong parasitic challenge.</p>
+
+            <h3>Reproductive Costs</h3>
+            <p>ANA-positive individuals also experienced reproductive costs:</p>
+            
+            <p><strong>Males:</strong> ANA-positive males had reduced siring success. Only about 18% of ANA-positive males successfully sired offspring, compared to 50% of ANA-negative males.</p>
+            
+            <p><strong>Females:</strong> ANA-positive females had lower breeding rates (80% vs. 85% for ANA-negative females) and their lambs had slightly lower survival rates (92% vs. 85%).</p>
+
+            <div class="key-insight">
+                <strong>Take-home Message:</strong> The Soay sheep case demonstrates that resistance is not "free." High immune responsiveness provides survival advantages during epidemics but incurs costs in survival and reproduction when parasite pressure is low. These costs create a trade-off that maintains genetic variation in resistance within the population. This explains why not all individuals evolve maximum resistance - the optimal level of immune investment depends on the strength and predictability of parasite pressure. The case illustrates balancing selection in action, where environment-dependent fitness effects maintain polymorphism in resistance traits.
+            </div>
+        </section>
+
+        <section id="costs" class="concept-card">
+            <h2>Why Don't All Hosts Evolve Maximum Resistance?</h2>
+            
+            <h3>Constraints on Evolution of Resistance</h3>
+            <p>Despite strong selection imposed by parasites, complete resistance rarely evolves. Three major factors limit the evolution of resistance:</p>
+
+            <h3>1. Lack of Genetic Variation</h3>
+            <p>Evolution requires heritable variation in resistance. In some populations, genetic variation may be depleted through:</p>
+            <ul>
+                <li><strong>Genetic bottlenecks:</strong> Founding events or population crashes reduce genetic diversity</li>
+                <li><strong>Inbreeding:</strong> Small or isolated populations lose variation through genetic drift</li>
+                <li><strong>Artificial selection:</strong> Selective breeding can reduce variation in immune genes</li>
+            </ul>
+
+            <div class="case-study">
+                <h4>Example: Tasmanian Devil Facial Tumor Disease</h4>
+                <p>Tasmanian devils have extremely low genetic diversity at MHC loci due to historical population bottlenecks. This "genetic impoverishment has made the immune system blind" to the contagious cancer (Devil Facial Tumor Disease), which is transmitted as an allograft between individuals. The lack of MHC diversity means devils cannot recognize tumor cells as foreign, allowing the cancer to spread unchecked.</p>
+                <p><strong>Take-home message:</strong> Without genetic variation, natural selection cannot act. Conservation of genetic diversity is crucial for populations to adapt to emerging diseases.</p>
+            </div>
+
+            <h3>2. Host-Parasite Genetic Interactions (Gene-for-Gene)</h3>
+            <p>Resistance is often genetically specific - a host genotype that resists one parasite genotype may be susceptible to another. This creates frequency-dependent selection and coevolutionary dynamics.</p>
+
+            <p>Examples of strain-specific immunity:</p>
+            <ul>
+                <li><strong>Flax-rust system:</strong> Plant resistance genes match specific fungal avirulence genes</li>
+                <li><strong>Daphnia-bacterial parasite:</strong> Each host clone is resistant to some parasite strains but susceptible to others</li>
+                <li><strong>Snail-trematode interactions:</strong> Matching alleles determine infection success</li>
+            </ul>
+
+            <p>This genetic specificity means no single "super resistant" genotype exists that can resist all parasite strains. We will explore this coevolutionary dynamic in detail next week.</p>
+
+            <h3>3. Costs and Trade-offs of Resistance</h3>
+            <p>Resistance mechanisms impose fitness costs that prevent fixation of resistance alleles. These costs operate through several mechanisms:</p>
+
+            <h4>Metabolic Costs</h4>
+            <p>Maintaining immune defenses requires energy and resources. The immune system is metabolically expensive:</p>
+            <ul>
+                <li>Antibody production requires amino acids and energy</li>
+                <li>Fever responses increase metabolic rate by 10-15%</li>
+                <li>Lymphocyte proliferation during infection demands substantial resources</li>
+            </ul>
+
+            <div class="equation-box">
+                <p><strong>Resource Allocation Trade-off:</strong></p>
+                <div class="equation">
+                    E<sub>total</sub> = E<sub>growth</sub> + E<sub>reproduction</sub> + E<sub>immunity</sub> + E<sub>maintenance</sub>
+                </div>
+                <p>Where E represents energy allocation to different functions. Energy invested in immunity reduces energy available for growth and reproduction.</p>
+            </div>
+
+            <h4>Immunopathology</h4>
+            <p>Strong immune responses can cause self-damage:</p>
+            <ul>
+                <li>Inflammation damages host tissues alongside parasites</li>
+                <li>Autoimmune reactions occur when immune system attacks self-antigens</li>
+                <li>Cytokine storms can be fatal in severe infections</li>
+                <li>Allergic reactions result from overly aggressive immune responses</li>
+            </ul>
+
+            <h4>Ecological Costs</h4>
+            <p>Resistance alleles may reduce fitness in other ecological contexts:</p>
+            <ul>
+                <li>Increased metabolic rate may reduce starvation resistance</li>
+                <li>Immune activation may reduce competitive ability</li>
+                <li>Resistance traits may trade off with other adaptive traits</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Key Insight:</strong> The existence of costs explains why resistance alleles do not go to fixation. When parasite pressure is high, resistance provides net benefits. When parasite pressure is low, the costs outweigh benefits, and susceptible genotypes have higher fitness. This creates balancing selection that maintains genetic variation in natural populations.
+            </div>
+        </section>
+
+        <section id="tolerance" class="concept-card">
+            <h2>Tolerance as an Alternative Strategy</h2>
+            
+            <h3>Resistance vs. Tolerance: A Conceptual Framework</h3>
+            <p>Hosts can respond to parasites through two fundamentally different strategies:</p>
+            
+            <table>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Mechanism</th>
+                    <th>Effect on Parasite</th>
+                    <th>Effect on Host Fitness</th>
+                </tr>
+                <tr>
+                    <td>Resistance</td>
+                    <td>Detect and eliminate pathogens</td>
+                    <td>Reduces parasite load</td>
+                    <td>Reduces infection probability</td>
+                </tr>
+                <tr>
+                    <td>Tolerance</td>
+                    <td>Minimize damage from infection</td>
+                    <td>No direct effect</td>
+                    <td>Maintains fitness despite infection</td>
+                </tr>
+            </table>
+
+            <h3>Measuring Tolerance</h3>
+            <p>Tolerance is measured as the slope of the relationship between host fitness and parasite load. A shallower (less negative) slope indicates greater tolerance.</p>
+
+            <div class="equation-box">
+                <p><strong>Tolerance Reaction Norm:</strong></p>
+                <div class="equation">
+                    Fitness = a - b × (Parasite Load)
+                </div>
+                <p>Where:</p>
+                <p>a = fitness when uninfected (intercept)</p>
+                <p>b = rate of fitness decline per unit parasite load (slope)</p>
+                <p><strong>Tolerance = 1/b</strong></p>
+                <p style="margin-top: 1rem;"><em>Two genotypes with the same parasite loads but different fitness values differ in tolerance, not resistance.</em></p>
+            </div>
+
+            <h3>Mechanisms of Tolerance</h3>
+            <ul>
+                <li><strong>Tissue repair:</strong> Enhanced wound healing and tissue regeneration</li>
+                <li><strong>Anorexia:</strong> Reducing feeding during infection limits nutrient availability to parasites</li>
+                <li><strong>Increased resource acquisition:</strong> Compensatory feeding or metabolism</li>
+                <li><strong>Stress response regulation:</strong> Dampening inflammation to reduce immunopathology</li>
+                <li><strong>Antioxidant production:</strong> Neutralizing free radicals produced during infection</li>
+            </ul>
+
+            <div class="case-study">
+                <h4>Example: Hawaiian Amakihi and Avian Malaria Tolerance</h4>
+                <p>Hawaiian honeycreepers (Amakihi) were historically restricted to high elevations (>1,000m) where mosquito vectors of avian malaria (Plasmodium relictum) were absent. Low-elevation forests had high malaria prevalence, and most native birds died if exposed.</p>
+                
+                <p><strong>Evidence of Evolution:</strong> By the 2000s, Amakihi were observed breeding successfully in low-elevation forests despite high malaria prevalence (72-83%). When researchers experimentally infected birds from low and high elevations:</p>
+                
+                <ul>
+                    <li>Low-elevation birds had 50% mortality vs. 83% for high-elevation birds</li>
+                    <li>Low-elevation birds maintained higher body weight during infection</li>
+                    <li>Both groups had similar parasite loads (parasitemia)</li>
+                </ul>
+                
+                <p>This indicates evolution of <strong>tolerance</strong> rather than resistance - low-elevation birds maintained fitness despite similar parasite burdens.</p>
+                
+                <p><strong>Take-home message:</strong> When resistance is difficult to evolve (due to lack of genetic variation or high costs), tolerance may provide an alternative evolutionary pathway. Tolerance can allow host populations to persist in the presence of virulent parasites without necessarily reducing transmission.</p>
+            </div>
+
+            <h3>Evolutionary Dynamics of Tolerance vs. Resistance</h3>
+            <p>Tolerance and resistance have different consequences for disease dynamics:</p>
+            
+            <ul>
+                <li><strong>Resistance</strong> reduces parasite transmission by reducing parasite load in hosts, potentially driving parasite extinction</li>
+                <li><strong>Tolerance</strong> does not reduce transmission and may even increase it by allowing hosts to remain active and infectious for longer periods</li>
+                <li>Tolerance may favor evolution of higher virulence in parasites (hosts can tolerate more damage, removing constraint on virulence)</li>
+                <li>Tolerance may be favored when resistance is costly or genetically constrained</li>
+            </ul>
+        </section>
+
+        <section id="simulations" class="concept-card">
+            <h2>Interactive Simulations</h2>
+            
+            <div class="simulation-box">
+                <h3>Simulation 1: Frequency-Dependent Selection with Costs</h3>
+                <div class="simulation-explanation">
+                    <strong>How this simulation works:</strong> This simulation models the evolution of resistance in a host population exposed to parasites. You can adjust the benefit of resistance when parasites are present, the cost of resistance when parasites are absent, and the frequency of parasite outbreaks. The model tracks the frequency of resistant alleles over 100 generations. When resistance is costly and parasites are rare, resistant alleles decline in frequency. When parasites are common, resistance increases. This demonstrates how balancing selection maintains genetic variation.
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Survival Benefit of Resistance (during outbreak):</label>
+                        <input type="range" id="benefit" min="0" max="0.5" step="0.05" value="0.3">
+                        <span id="benefit-value">0.30</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Cost of Resistance (no outbreak):</label>
+                        <input type="range" id="cost" min="0" max="0.2" step="0.02" value="0.05">
+                        <span id="cost-value">0.05</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Outbreak Frequency (probability per generation):</label>
+                        <input type="range" id="outbreak-freq" min="0" max="1" step="0.1" value="0.3">
+                        <span id="outbreak-freq-value">0.30</span>
+                    </div>
+                    <button onclick="runResistanceSimulation()">Run Simulation</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="resistanceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="simulation-box">
+                <h3>Simulation 2: Resistance vs. Tolerance Trade-off</h3>
+                <div class="simulation-explanation">
+                    <strong>How this simulation works:</strong> This simulation compares three host strategies: high resistance (low parasite load), high tolerance (maintains fitness despite infection), and intermediate strategy. You can adjust parasite prevalence and virulence. The model calculates fitness for each strategy based on infection probability and tolerance to infection. When parasites are rare, costs of resistance reduce fitness. When parasites are common and virulent, resistance provides the greatest benefit. Tolerance is advantageous at intermediate parasite pressures.
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Parasite Prevalence:</label>
+                        <input type="range" id="prevalence" min="0" max="1" step="0.1" value="0.5">
+                        <span id="prevalence-value">0.50</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Parasite Virulence (fitness cost):</label>
+                        <input type="range" id="virulence" min="0" max="0.8" step="0.1" value="0.4">
+                        <span id="virulence-value">0.40</span>
+                    </div>
+                    <button onclick="runToleranceSimulation()">Run Simulation</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="toleranceChart"></canvas>
+                </div>
+            </div>
+
+
+        </section>
+
+        <section class="concept-card">
+            <h2>Key Takeaways</h2>
+            <ol>
+                <li><strong>Hosts can express resistance through multiple mechanisms</strong> including innate and adaptive immunity, physical barriers, behavioral avoidance, and lack of susceptible tissues.</li>
+                
+                <li><strong>Hosts can rapidly evolve resistance when confronted with novel parasites</strong>, as demonstrated by the myxomatosis-rabbit system and Hawaiian honeycreeper-malaria system. Evolution can occur on timescales of years to decades.</li>
+                
+                <li><strong>Resistance is not "free"</strong> - costs and trade-offs are associated with all forms of resistance. These costs include metabolic expenses, immunopathology, and reduced fitness in other ecological contexts.</li>
+                
+                <li><strong>Costs maintain genetic variation</strong> through balancing selection. The Soay sheep and sickle cell examples show that resistance alleles may increase fitness in some environments (high parasite pressure) but decrease fitness in others (low parasite pressure).</li>
+                
+                <li><strong>Gene-for-gene interactions create complex dynamics</strong> where no single genotype is universally resistant. This genetic specificity contributes to the maintenance of polymorphism.</li>
+                
+                <li><strong>Tolerance is an alternative to resistance</strong> that allows hosts to maintain fitness despite infection without directly reducing parasite load. Tolerance may be favored when resistance is costly or genetically constrained.</li>
+                
+                <li><strong>The evolution of resistance and tolerance has implications for disease control</strong>. Understanding costs and benefits of different defensive strategies is crucial for predicting host population responses to emerging diseases and designing effective management strategies.</li>
+            </ol>
+        </section>
+    </div>
+
+    <script>
+        let resistanceChart, toleranceChart, sickleCellChart;
+
+        // Update slider values display
+        document.getElementById('benefit').addEventListener('input', function() {
+            document.getElementById('benefit-value').textContent = parseFloat(this.value).toFixed(2);
+        });
+        
+        document.getElementById('cost').addEventListener('input', function() {
+            document.getElementById('cost-value').textContent = parseFloat(this.value).toFixed(2);
+        });
+        
+        document.getElementById('outbreak-freq').addEventListener('input', function() {
+            document.getElementById('outbreak-freq-value').textContent = parseFloat(this.value).toFixed(2);
+        });
+        
+        document.getElementById('prevalence').addEventListener('input', function() {
+            document.getElementById('prevalence-value').textContent = parseFloat(this.value).toFixed(2);
+        });
+        
+        document.getElementById('virulence').addEventListener('input', function() {
+            document.getElementById('virulence-value').textContent = parseFloat(this.value).toFixed(2);
+        });
+
+        // Simulation 1: Frequency-dependent selection
+        function runResistanceSimulation() {
+            const benefit = parseFloat(document.getElementById('benefit').value);
+            const cost = parseFloat(document.getElementById('cost').value);
+            const outbreakFreq = parseFloat(document.getElementById('outbreak-freq').value);
+            
+            const generations = 100;
+            const resistantFreq = [];
+            const susceptibleFreq = [];
+            
+            let pResistant = 0.5; // Start at 50% frequency
+            
+            for (let gen = 0; gen < generations; gen++) {
+                resistantFreq.push(pResistant);
+                susceptibleFreq.push(1 - pResistant);
+                
+                // Determine if outbreak occurs this generation
+                const outbreak = Math.random() < outbreakFreq;
+                
+                // Calculate fitness
+                let wResistant, wSusceptible;
+                if (outbreak) {
+                    // During outbreak: resistant has advantage
+                    wResistant = 1.0;
+                    wSusceptible = 1.0 - benefit;
+                } else {
+                    // No outbreak: resistant pays cost
+                    wResistant = 1.0 - cost;
+                    wSusceptible = 1.0;
+                }
+                
+                // Calculate mean fitness
+                const wMean = pResistant * wResistant + (1 - pResistant) * wSusceptible;
+                
+                // Update frequency
+                pResistant = (pResistant * wResistant) / wMean;
+                
+                // Ensure frequency stays between 0 and 1
+                pResistant = Math.max(0, Math.min(1, pResistant));
+            }
+            
+            // Plot results
+            const ctx = document.getElementById('resistanceChart').getContext('2d');
+            
+            if (resistanceChart) {
+                resistanceChart.destroy();
+            }
+            
+            resistanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: generations}, (_, i) => i),
+                    datasets: [{
+                        label: 'Resistant Allele Frequency',
+                        data: resistantFreq,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Susceptible Allele Frequency',
+                        data: susceptibleFreq,
+                        borderColor: '#c0392b',
+                        backgroundColor: 'rgba(192, 57, 43, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Evolution of Resistance Over Time',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Generation'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Allele Frequency'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        // Simulation 2: Resistance vs Tolerance
+        function runToleranceSimulation() {
+            const prevalence = parseFloat(document.getElementById('prevalence').value);
+            const virulence = parseFloat(document.getElementById('virulence').value);
+            
+            // Define strategies
+            const strategies = ['High Resistance', 'High Tolerance', 'Intermediate'];
+            
+            // Parameters for each strategy
+            const params = {
+                'High Resistance': { infectionProb: 0.1, fitnessCost: 0.8, baseCost: 0.15 },
+                'High Tolerance': { infectionProb: 0.9, fitnessCost: 0.2, baseCost: 0.05 },
+                'Intermediate': { infectionProb: 0.5, fitnessCost: 0.5, baseCost: 0.08 }
+            };
+            
+            // Calculate fitness for each strategy
+            const fitness = [];
+            
+            for (let strategy of strategies) {
+                const p = params[strategy];
+                const pInfected = prevalence * p.infectionProb;
+                const fitnessInfected = 1.0 - (virulence * p.fitnessCost);
+                const fitnessUninfected = 1.0 - p.baseCost;
+                
+                const overallFitness = pInfected * fitnessInfected + (1 - pInfected) * fitnessUninfected;
+                fitness.push(overallFitness);
+            }
+            
+            // Plot results
+            const ctx = document.getElementById('toleranceChart').getContext('2d');
+            
+            if (toleranceChart) {
+                toleranceChart.destroy();
+            }
+            
+            toleranceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: strategies,
+                    datasets: [{
+                        label: 'Fitness',
+                        data: fitness,
+                        backgroundColor: ['#2c5530', '#4a7c59', '#7ba885'],
+                        borderColor: ['#1a3d20', '#2c5530', '#4a7c59'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Fitness of Different Defense Strategies',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Relative Fitness'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize simulations on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            runResistanceSimulation();
+            runToleranceSimulation();
+        });
+    </script>
+</body>
+</html>
