@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host-Parasite Coevolution</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 1.5rem;
+        }
+        
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+        
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 3px solid #4a7c59;
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .equation-box h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .key-insight {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .key-insight strong {
+            color: #856404;
+        }
+        
+        .case-study {
+            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .case-study h4 {
+            color: #1565C0;
+            margin-bottom: 1rem;
+        }
+        
+        .simulation {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .simulation h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .controls {
+            margin: 1.5rem 0;
+        }
+        
+        .control-group {
+            margin: 1rem 0;
+        }
+        
+        .control-group label {
+            display: inline-block;
+            width: 200px;
+            font-weight: bold;
+            color: #2c5530;
+        }
+        
+        .control-group input[type="range"] {
+            width: 300px;
+        }
+        
+        .control-group span {
+            margin-left: 1rem;
+            color: #666;
+        }
+        
+        button {
+            background-color: #4a7c59;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2c5530;
+        }
+        
+        .matrix-table {
+            margin: 1.5rem 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        .matrix-table th,
+        .matrix-table td {
+            border: 2px solid #4a7c59;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .matrix-table th {
+            background-color: #2c5530;
+            color: white;
+        }
+        
+        .matrix-table .infect {
+            background-color: #ffcdd2;
+            font-weight: bold;
+        }
+        
+        .matrix-table .resist {
+            background-color: #c8e6c9;
+            font-weight: bold;
+        }
+        
+        .explanation-box {
+            background: #f0f8ff;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid #2196F3;
+        }
+        
+        .explanation-box h4 {
+            color: #1565C0;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Host-Parasite Coevolution</h1>
+        <p>Population Biology of Infectious Diseases - Course 6150</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#coevolution">Coevolution Basics</a></li>
+            <li><a href="#gene-for-gene">Gene-for-Gene Model</a></li>
+            <li><a href="#matching-alleles">Matching Alleles Model</a></li>
+            <li><a href="#red-queen">Red Queen Dynamics</a></li>
+            <li><a href="#case-studies">Case Studies</a></li>
+            <li><a href="#simulations">Simulations</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the fundamental concept of coevolution in host-parasite systems</li>
+                <li>Distinguish between mutualistic and antagonistic coevolution</li>
+                <li>Compare and contrast the gene-for-gene and matching alleles models</li>
+                <li>Explain negative frequency-dependent selection and its role in maintaining genetic diversity</li>
+                <li>Describe Red Queen dynamics and their implications for the evolution of sex</li>
+                <li>Analyze empirical evidence from flax-rust and Daphnia-Pasteuria systems</li>
+                <li>Evaluate the costs and benefits of resistance and virulence</li>
+            </ul>
+        </section>
+        
+        <section id="coevolution" class="concept-card">
+            <h2>Coevolution: The Fundamental Concept</h2>
+            
+            <p><strong>Coevolution</strong> is evolution by natural selection in populations of two closely interacting species, in which evolutionary changes in each species directly shapes the fitness of the other.</p>
+            
+            <h3>Types of Coevolution</h3>
+            
+            <div class="case-study">
+                <h4>Mutualistic Coevolution</h4>
+                <p>All participants benefit with increased fitness as a result of the interaction. Examples include pollination mutualisms and resource consumption relationships.</p>
+                <p><strong>Classic Example:</strong> Darwin's star orchid (Angraecum sesquipedale) and its hawkmoth pollinator evolved together. The orchid has an extremely long nectar spur (up to 30 cm), and Darwin predicted the existence of a moth with an equally long proboscis before it was discovered. This demonstrates how selection pressures from one species drive adaptive changes in another, with both species benefiting from the relationship.</p>
+            </div>
+            
+            <div class="case-study">
+                <h4>Antagonistic Coevolution</h4>
+                <p>One participant suffers as a result of the interaction. This includes predation, herbivory, and parasitism. In host-parasite systems, this leads to evolutionary "arms races" where:</p>
+                <ul>
+                    <li>Parasites evolve to infect hosts more effectively (increased virulence or infectivity)</li>
+                    <li>Hosts evolve to resist, tolerate, or avoid infection</li>
+                    <li>Costs may limit both evolutionary responses, preventing indefinite escalation</li>
+                </ul>
+            </div>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> In host-parasite antagonistic coevolution, neither side achieves permanent victory. Instead, the interaction creates a dynamic equilibrium where both hosts and parasites continually adapt to each other, maintaining genetic diversity in both populations.
+            </div>
+        </section>
+        
+        <section id="gene-for-gene" class="concept-card">
+            <h2>Gene-for-Gene Model of Coevolution</h2>
+            
+            <p>The gene-for-gene model, originally described by H.H. Flor in 1956 studying flax and flax rust, proposes a specific genetic architecture underlying host-parasite interactions.</p>
+            
+            <h3>Model Assumptions</h3>
+            <ul>
+                <li><strong>Resistance gene is dominant in host:</strong> Hosts carrying at least one copy of the resistance allele (R) can resist infection</li>
+                <li><strong>Infectivity (virulence) gene is recessive in pathogen:</strong> Parasites need two copies of the virulence allele (a) to overcome host resistance</li>
+                <li><strong>Multiple alleles exist:</strong> Both host and pathogen populations harbor many such alleles</li>
+                <li><strong>Matching specificity:</strong> For each resistance gene, there is usually a corresponding gene in the pathogen that can overcome that resistance</li>
+                <li><strong>Costs constrain evolution:</strong> Both resistance and infectivity impose fitness costs</li>
+            </ul>
+            
+            <div class="case-study">
+                <h4>Case Study: Flax and Flax Rust (Linum marginale and Melampsora lini)</h4>
+                <p><strong>System Description:</strong> Flax rust is a fungal pathogen that causes significant disease in flax plants. The rust has a complex life cycle alternating between woody and herbaceous plant hosts, with wind-dispersed spores that can rapidly spread through flax populations.</p>
+                <p><strong>Findings:</strong> Flor's pioneering work identified specific resistance genes in flax that corresponded to avirulence genes in the rust fungus. This one-to-one correspondence became the foundation of the gene-for-gene hypothesis.</p>
+                <p><strong>Take-Home Message:</strong> The gene-for-gene model provides a mechanistic explanation for how hosts and parasites can maintain genetic diversity through balancing selection, with each genotype's success depending on the frequency of matching genotypes in the opposing population.</p>
+            </div>
+            
+            <h3>Infection Matrix: Gene-for-Gene Interactions</h3>
+            
+            <table class="matrix-table">
+                <tr>
+                    <th>Pathogen / Host</th>
+                    <th>RR (Resistant)</th>
+                    <th>Rr (Resistant)</th>
+                    <th>rr (Susceptible)</th>
+                </tr>
+                <tr>
+                    <th>AA (Avirulent)</th>
+                    <td class="resist">No Infection</td>
+                    <td class="resist">No Infection</td>
+                    <td class="infect">Infection</td>
+                </tr>
+                <tr>
+                    <th>Aa (Avirulent)</th>
+                    <td class="resist">No Infection</td>
+                    <td class="resist">No Infection</td>
+                    <td class="infect">Infection</td>
+                </tr>
+                <tr>
+                    <th>aa (Virulent)</th>
+                    <td class="infect">Infection</td>
+                    <td class="infect">Infection</td>
+                    <td class="infect">Infection</td>
+                </tr>
+            </table>
+            
+            <div class="key-insight">
+                <strong>Key Pattern:</strong> The aa (virulent) parasite genotype can infect all host types, but this universally infective genotype pays a cost. In the absence of resistant hosts, avirulent parasites (A_) have higher fitness. This creates frequency-dependent selection where the most common host genotype selects for the matching virulent parasite, which then selects for new resistant host genotypes.
+            </div>
+            
+            <h3>Costs of Resistance and Virulence</h3>
+            
+            <p>Both resistance in hosts and virulence in parasites come with fitness costs:</p>
+            
+            <ul>
+                <li><strong>Cost of resistance:</strong> Hosts carrying resistance genes may have reduced growth rates, reproduction, or competitive ability when parasites are absent. This explains why susceptible genotypes persist in populations.</li>
+                <li><strong>Cost of virulence:</strong> Parasites capable of overcoming more resistance genes show reduced transmission rates or spore production. Research by Thrall and Burdon (2003) demonstrated that parasites with broader host ranges had lower fecundity.</li>
+            </ul>
+            
+            <div class="equation-box">
+                <h4>Fitness Trade-off Relationships</h4>
+                <p>Host fitness with resistance:</p>
+                <p style="font-size: 1.2em; margin: 1rem 0;">W<sub>host</sub> = W<sub>max</sub> - c<sub>resistance</sub></p>
+                <p>Parasite fitness with virulence:</p>
+                <p style="font-size: 1.2em; margin: 1rem 0;">W<sub>parasite</sub> = β<sub>max</sub> - c<sub>virulence</sub> × n</p>
+                <p>Where:</p>
+                <ul>
+                    <li>W = fitness</li>
+                    <li>c = cost parameter</li>
+                    <li>β = transmission rate</li>
+                    <li>n = number of resistance genes overcome</li>
+                </ul>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study: Australian Flax System (Thrall & Burdon 2003)</h4>
+                <p><strong>Experimental Design:</strong> Researchers surveyed natural populations of Linum marginale and its rust pathogen Melampsora lini across multiple sites, measuring host resistance and pathogen virulence frequencies.</p>
+                <p><strong>Key Results:</strong></p>
+                <ul>
+                    <li>Strong positive correlation between mean host resistance and mean pathogen virulence across populations</li>
+                    <li>Pathogens were locally adapted but showed decreased fecundity with increasing virulence breadth</li>
+                    <li>The relationship showed diminishing returns, consistent with costs of resistance</li>
+                </ul>
+                <p><strong>Take-Home Message:</strong> Empirical data supports the gene-for-gene model predictions, showing that virulence evolves in response to host resistance but is constrained by fitness costs, preventing evolution of a universally infective "super-parasite."</p>
+            </div>
+        </section>
+        
+        <section id="matching-alleles" class="concept-card">
+            <h2>Matching Alleles Model of Coevolution</h2>
+            
+            <p>The matching alleles model represents an alternative framework for understanding host-parasite coevolution. Unlike gene-for-gene, this model proposes that parasites must precisely match host genotypes to successfully infect.</p>
+            
+            <h3>Model Characteristics</h3>
+            <ul>
+                <li><strong>Lock-and-key mechanism:</strong> Parasites can only infect hosts with matching genotypes</li>
+                <li><strong>No universal infectivity:</strong> No single parasite genotype can infect all hosts</li>
+                <li><strong>No universal resistance:</strong> No single host genotype resists all parasites</li>
+                <li><strong>Symmetrical interaction:</strong> The interaction is more balanced than in gene-for-gene</li>
+            </ul>
+            
+            <h3>Infection Matrix: Matching Alleles</h3>
+            
+            <table class="matrix-table">
+                <tr>
+                    <th>Parasite / Host</th>
+                    <th>AB</th>
+                    <th>Ab</th>
+                    <th>aB</th>
+                    <th>ab</th>
+                </tr>
+                <tr>
+                    <th>AB</th>
+                    <td class="infect">Infection</td>
+                    <td>No Infection</td>
+                    <td>No Infection</td>
+                    <td>No Infection</td>
+                </tr>
+                <tr>
+                    <th>Ab</th>
+                    <td>No Infection</td>
+                    <td class="infect">Infection</td>
+                    <td>No Infection</td>
+                    <td>No Infection</td>
+                </tr>
+                <tr>
+                    <th>aB</th>
+                    <td>No Infection</td>
+                    <td>No Infection</td>
+                    <td class="infect">Infection</td>
+                    <td>No Infection</td>
+                </tr>
+                <tr>
+                    <th>ab</th>
+                    <td>No Infection</td>
+                    <td>No Infection</td>
+                    <td>No Infection</td>
+                    <td class="infect">Infection</td>
+                </tr>
+            </table>
+            
+            <div class="key-insight">
+                <strong>Critical Difference from Gene-for-Gene:</strong> In the matching alleles model, infection only occurs when host and parasite genotypes precisely match (diagonal elements). This creates strong negative frequency-dependent selection, where rare genotypes have a selective advantage simply because parasites are not adapted to them.
+            </div>
+            
+            <h3>Negative Frequency-Dependent Selection</h3>
+            
+            <p>The matching alleles model generates negative frequency-dependent selection, where the fitness of a genotype decreases as it becomes more common. This occurs because:</p>
+            
+            <ol>
+                <li>Common host genotypes are targeted by parasites, which evolve to match them</li>
+                <li>Rare host genotypes escape parasite pressure because few parasites are adapted to infect them</li>
+                <li>As rare genotypes increase in frequency, parasites adapt to match them</li>
+                <li>The formerly common genotypes (now rare) gain an advantage</li>
+                <li>This creates oscillating dynamics in genotype frequencies</li>
+            </ol>
+            
+            <div class="equation-box">
+                <h4>Frequency-Dependent Selection</h4>
+                <p>Change in host allele frequency:</p>
+                <p style="font-size: 1.2em; margin: 1rem 0;">Δp<sub>host</sub> = p<sub>host</sub>(1 - p<sub>host</sub>)[s(1 - 2p<sub>parasite</sub>)]</p>
+                <p>Change in parasite allele frequency:</p>
+                <p style="font-size: 1.2em; margin: 1rem 0;">Δp<sub>parasite</sub> = p<sub>parasite</sub>(1 - p<sub>parasite</sub>)[s(2p<sub>host</sub> - 1)]</p>
+                <p>Where:</p>
+                <ul>
+                    <li>p = allele frequency</li>
+                    <li>s = selection coefficient</li>
+                </ul>
+                <p>Note: Parasites "track" hosts with a time lag, creating oscillations</p>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study: Daphnia magna and Pasteuria ramosa (Carius et al. 2001)</h4>
+                <p><strong>System Description:</strong> Daphnia magna (water flea) is infected by Pasteuria ramosa, a bacterial parasite that castrates its host. Daphnia reproduce by cyclical parthenogenesis (alternating between asexual and sexual reproduction), allowing maintenance of distinct clonal lineages.</p>
+                <p><strong>Experimental Approach:</strong> Researchers created infection matrices by exposing multiple Daphnia clones to multiple Pasteuria isolates in all pairwise combinations.</p>
+                <p><strong>Key Results:</strong></p>
+                <ul>
+                    <li>Highly specific infection patterns with no universally infective parasite or universally resistant host</li>
+                    <li>Strong evidence for matching alleles dynamics (diagonal patterns in infection matrices)</li>
+                    <li>Local adaptation: parasites were more infective on sympatric (local) hosts than allopatric (foreign) hosts</li>
+                </ul>
+                <p><strong>Take-Home Message:</strong> The Daphnia-Pasteuria system provides strong empirical support for matching alleles dynamics and demonstrates that specific genetic matching, rather than simple virulence-resistance, can drive host-parasite coevolution.
+            </div>
+        </section>
+        
+        <section id="red-queen" class="concept-card">
+            <h2>Red Queen Dynamics</h2>
+            
+            <p>The Red Queen hypothesis, named after Lewis Carroll's character in "Through the Looking Glass" who said "it takes all the running you can do to keep in the same place," proposes that organisms must constantly adapt just to maintain their relative fitness.</p>
+            
+            <h3>The Red Queen Hypothesis and Sexual Reproduction</h3>
+            
+            <p>One of the most compelling applications of the Red Queen hypothesis is as an explanation for the evolution and maintenance of sexual reproduction. This addresses a fundamental puzzle in evolutionary biology:</p>
+            
+            <div class="case-study">
+                <h4>The Cost of Sex</h4>
+                <p><strong>The Paradox:</strong> Sexual reproduction has substantial costs compared to asexual reproduction:</p>
+                <ul>
+                    <li>Only 50% of offspring carry your genes (compared to 100% in asexual reproduction)</li>
+                    <li>Time and energy spent finding mates</li>
+                    <li>Risk of sexually transmitted diseases</li>
+                    <li>Breaking up favorable gene combinations through recombination</li>
+                </ul>
+                <p><strong>The Solution:</strong> Parasites may provide the selective pressure that maintains sex. Through negative frequency-dependent selection, sexual reproduction generates rare genotype combinations that escape parasite adaptation.</p>
+            </div>
+            
+            <h3>Key Predictions of Red Queen Dynamics</h3>
+            
+            <p>If parasites track host genotypes through negative frequency-dependent selection, we expect:</p>
+            
+            <ol>
+                <li><strong>Parasites should be most infective on common hosts</strong> and less able to infect rare hosts</li>
+                <li><strong>Parasites should better infect contemporary hosts</strong> than those common in the past or future (temporal tracking)</li>
+                <li><strong>Parasites should better infect local (sympatric) hosts</strong> than those from elsewhere (spatial adaptation)</li>
+            </ol>
+            
+            <div class="equation-box">
+                <h4>Red Queen Oscillations</h4>
+                <p>Host-parasite frequencies oscillate over time:</p>
+                <p style="font-size: 1.2em; margin: 1rem 0;">p<sub>host</sub>(t) = A sin(ωt + φ<sub>1</sub>)</p>
+                <p style="font-size: 1.2em; margin: 1rem 0;">p<sub>parasite</sub>(t) = A sin(ωt + φ<sub>2</sub>)</p>
+                <p>Where:</p>
+                <ul>
+                    <li>A = amplitude of oscillation</li>
+                    <li>ω = angular frequency (2π/period)</li>
+                    <li>φ = phase angle (φ<sub>2</sub> - φ<sub>1</sub> represents time lag)</li>
+                    <li>Parasite oscillations lag behind host oscillations</li>
+                </ul>
+                <p>Over long timescales, frequencies cycle but average values remain relatively constant ("running to stay in place").</p>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study: Resurrection Ecology with Daphnia (Decaestecker et al. 2007, 2013)</h4>
+                <p><strong>Revolutionary Approach:</strong> Researchers extracted dormant Daphnia eggs and Pasteuria spores from dated sediment layers in lake cores, effectively "resurrecting" hosts and parasites from the past.</p>
+                <p><strong>Experimental Design:</strong></p>
+                <ul>
+                    <li>Sediment cores representing 100+ years of evolutionary history</li>
+                    <li>Cross-temporal infection experiments: past parasites × current hosts, current parasites × past hosts, etc.</li>
+                    <li>Each sediment layer represented 10-20 host generations</li>
+                </ul>
+                <p><strong>Key Results:</strong></p>
+                <ul>
+                    <li><strong>Temporal tracking:</strong> Parasites from any given time period were most infective on hosts from the same time period</li>
+                    <li><strong>Oscillating dynamics:</strong> Infection success showed cyclical patterns consistent with Red Queen predictions</li>
+                    <li><strong>Amplitude changes:</strong> Oscillations had larger amplitudes in the past (fewer resistance genes) and smaller amplitudes more recently (more resistance genes accumulated)</li>
+                    <li><strong>Asymmetric tracking:</strong> Hosts from the past were more vulnerable to future parasites (large amplitude) than recent hosts were to past parasites (small amplitude)</li>
+                </ul>
+                <p><strong>Take-Home Message:</strong> The sediment core studies provide the most direct evidence for Red Queen dynamics in nature, demonstrating that parasites continuously track and adapt to host populations over evolutionary time. This supports the hypothesis that parasite-mediated selection maintains genetic diversity and favors sexual reproduction.</p>
+            </div>
+            
+            <div class="key-insight">
+                <strong>Major Implication:</strong> Parasites may be responsible for the evolution and maintenance of sexual reproduction in most eukaryotes. Without the constantly changing selective pressure from rapidly evolving parasites, asexual reproduction would likely outcompete sexual reproduction in most circumstances.
+            </div>
+            
+            <h3>Local Adaptation</h3>
+            
+            <div class="case-study">
+                <h4>Case Study: Geographic Variation in Daphnia-Pasteuria (Ebert 1994)</h4>
+                <p><strong>Experimental Design:</strong> Pasteuria parasites collected from different lakes were tested for their ability to infect Daphnia hosts from the same lake (sympatric) versus different lakes (allopatric).</p>
+                <p><strong>Results:</strong> Parasites showed higher growth rates and infectivity when paired with sympatric hosts compared to novel (allopatric) hosts, demonstrating local adaptation.</p>
+                <p><strong>Take-Home Message:</strong> Parasites are locally adapted to their host populations, supporting the prediction that parasite evolution tracks local host genotype frequencies through space as well as time.</p>
+            </div>
+        </section>
+        
+        <section id="case-studies" class="concept-card">
+            <h2>Synthesis: Comparing Models and Evidence</h2>
+            
+            <h3>Gene-for-Gene vs. Matching Alleles</h3>
+            
+            <table class="matrix-table">
+                <tr>
+                    <th>Feature</th>
+                    <th>Gene-for-Gene</th>
+                    <th>Matching Alleles</th>
+                </tr>
+                <tr>
+                    <td><strong>Interaction Type</strong></td>
+                    <td>Asymmetric (parasites can overcome)</td>
+                    <td>Symmetric (must match exactly)</td>
+                </tr>
+                <tr>
+                    <td><strong>Universal Infectivity</strong></td>
+                    <td>Possible (virulent genotype)</td>
+                    <td>Impossible</td>
+                </tr>
+                <tr>
+                    <td><strong>Selection Pattern</strong></td>
+                    <td>Directional (arms race)</td>
+                    <td>Balancing (cycling)</td>
+                </tr>
+                <tr>
+                    <td><strong>Diversity Maintenance</strong></td>
+                    <td>Through costs and escalation</td>
+                    <td>Through negative frequency-dependence</td>
+                </tr>
+                <tr>
+                    <td><strong>Empirical Support</strong></td>
+                    <td>Plant-pathogen systems</td>
+                    <td>Daphnia-Pasteuria system</td>
+                </tr>
+            </table>
+            
+            <div class="key-insight">
+                <strong>Important Note:</strong> These models are not mutually exclusive. Natural systems may exhibit characteristics of both models, with some genes following gene-for-gene dynamics and others following matching alleles patterns. The models represent idealized endpoints of a continuum of host-parasite genetic interactions.
+            </div>
+            
+            <h3>Broad Conclusions</h3>
+            
+            <ul>
+                <li>Hosts and parasites coevolve together in dynamic, reciprocal evolutionary processes</li>
+                <li>Both gene-for-gene and matching alleles models promote genetic diversity in both hosts and parasites</li>
+                <li>Negative frequency-dependent selection provides the best explanation for the evolution and maintenance of sexual reproduction (Red Queen Hypothesis)</li>
+                <li>Parasites may have been the primary selective force driving the evolution of sex in eukaryotes</li>
+                <li>Costs constrain both resistance evolution in hosts and virulence evolution in parasites</li>
+                <li>Empirical evidence from multiple systems supports coevolutionary theory predictions</li>
+            </ul>
+        </section>
+        
+        <section id="simulations" class="simulation">
+            <h3>Interactive Simulation 1: Matching Alleles Dynamics</h3>
+            
+            <div class="explanation-box">
+                <h4>How This Simulation Works</h4>
+                <p>This simulation models the frequency dynamics of a single host genotype and its matching parasite genotype in a population. The key features are:</p>
+                <ul>
+                    <li><strong>Negative Frequency-Dependent Selection:</strong> When the host genotype is common, parasites adapt to it, increasing parasite frequency and decreasing host frequency</li>
+                    <li><strong>Time Lag:</strong> Parasite adaptation follows host frequency changes with a delay, creating oscillations</li>
+                    <li><strong>Selection Strength:</strong> Determines how quickly populations respond to frequency changes</li>
+                    <li><strong>Time Lag Parameter:</strong> Controls how quickly parasites track host frequencies</li>
+                </ul>
+                <p><strong>Expected Pattern:</strong> You should observe cyclical oscillations where host and parasite frequencies rise and fall, with parasite peaks lagging behind host peaks. This demonstrates the "Red Queen" effect where genotypes cycle through advantage and disadvantage.</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>Selection Strength:</label>
+                    <input type="range" id="selection1" min="0.1" max="1" step="0.1" value="0.5">
+                    <span id="selection1-val">0.5</span>
+                </div>
+                <div class="control-group">
+                    <label>Time Lag (generations):</label>
+                    <input type="range" id="timeLag1" min="1" max="10" step="1" value="5">
+                    <span id="timeLag1-val">5</span>
+                </div>
+                <div class="control-group">
+                    <label>Initial Host Frequency:</label>
+                    <input type="range" id="initHost1" min="0.1" max="0.9" step="0.1" value="0.5">
+                    <span id="initHost1-val">0.5</span>
+                </div>
+                <button onclick="window.updateSimulation1()">Run Simulation</button>
+                <button onclick="window.resetSimulation1()">Reset</button>
+            </div>
+            
+            <canvas id="chart1" width="800" height="400"></canvas>
+        </section>
+        
+        <section class="simulation">
+            <h3>Interactive Simulation 2: Gene-for-Gene Infection Success</h3>
+            
+            <div class="explanation-box">
+                <h4>How This Simulation Works</h4>
+                <p>This simulation visualizes infection outcomes in a gene-for-gene system. You can create different host populations and see how a virulent parasite (with different numbers of virulence genes) performs:</p>
+                <ul>
+                    <li><strong>Host Population:</strong> Set the percentage of hosts with 0, 1, 2, or 3 resistance genes</li>
+                    <li><strong>Parasite Virulence:</strong> Choose how many virulence genes the parasite has (can overcome 0-3 resistance genes)</li>
+                    <li><strong>Gene-for-Gene Rule:</strong> The parasite successfully infects a host ONLY if its virulence genes ≥ host's resistance genes</li>
+                    <li><strong>Cost of Virulence:</strong> Parasites with more virulence genes have lower transmission (shown as reduced bar height)</li>
+                </ul>
+                <p><strong>Key Insight:</strong> When most hosts are susceptible (0 resistance genes), a less virulent parasite is favored because it has higher transmission. When most hosts are resistant (many resistance genes), only highly virulent parasites can infect, despite their cost. This shows how host evolution drives parasite evolution!</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>% Hosts with 0 R genes:</label>
+                    <input type="range" id="host0R" min="0" max="100" step="5" value="25">
+                    <span id="host0R-val">25%</span>
+                </div>
+                <div class="control-group">
+                    <label>% Hosts with 1 R gene:</label>
+                    <input type="range" id="host1R" min="0" max="100" step="5" value="25">
+                    <span id="host1R-val">25%</span>
+                </div>
+                <div class="control-group">
+                    <label>% Hosts with 2 R genes:</label>
+                    <input type="range" id="host2R" min="0" max="100" step="5" value="25">
+                    <span id="host2R-val">25%</span>
+                </div>
+                <div class="control-group">
+                    <label>% Hosts with 3 R genes:</label>
+                    <input type="range" id="host3R" min="0" max="100" step="5" value="25">
+                    <span id="host3R-val">25%</span>
+                </div>
+                <div class="control-group">
+                    <label>Cost per Virulence Gene:</label>
+                    <input type="range" id="virCost" min="0.05" max="0.3" step="0.05" value="0.15">
+                    <span id="virCost-val">0.15</span>
+                </div>
+                <button onclick="window.updateSimulation2()">Update Simulation</button>
+                <button onclick="window.resetSimulation2()">Reset to Equal</button>
+            </div>
+            
+            <div style="margin: 1rem 0; padding: 1rem; background: #e8f5e8; border-radius: 4px;">
+                <strong>Total Host Population: <span id="totalPop">100%</span></strong>
+                <p style="margin-top: 0.5rem; color: #d32f2f;" id="popWarning"></p>
+            </div>
+            
+            <canvas id="chart2" width="800" height="400"></canvas>
+            
+            <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 4px; border-left: 4px solid #ffc107;">
+                <h4 style="margin-top: 0; color: #856404;">Parasite Fitness Summary</h4>
+                <p id="fitnessResult"></p>
+            </div>
+        </section>
+        
+        <section class="simulation">
+            <h3>Interactive Simulation 3: Temporal Tracking (Resurrection Ecology)</h3>
+            
+            <div class="explanation-box">
+                <h4>How This Simulation Works</h4>
+                <p>This simulation recreates the Decaestecker et al. (2007) resurrection ecology experiments, showing how parasite infectivity varies with host temporal origin:</p>
+                <ul>
+                    <li><strong>Contemporary Matching:</strong> Parasites are most effective against hosts from the same time period</li>
+                    <li><strong>Past Hosts (Naive):</strong> Old hosts lack resistance to future parasites, showing large amplitude in susceptibility</li>
+                    <li><strong>Future Hosts (Experienced):</strong> Recent hosts have accumulated resistance, showing smaller amplitude</li>
+                    <li><strong>Time Shift:</strong> Represents how many generations separate parasite and host samples (negative = past, positive = future)</li>
+                </ul>
+                <p><strong>Expected Pattern:</strong> A peak in infection performance at time shift = 0 (contemporary), with declining performance for parasites from the past or future. The decline is asymmetric: steeper for future hosts (who have evolved resistance) than past hosts (who lack resistance).</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>Number of Resistance Genes:</label>
+                    <input type="range" id="numGenes" min="3" max="10" step="1" value="5">
+                    <span id="numGenes-val">5</span>
+                </div>
+                <div class="control-group">
+                    <label>Evolution Rate:</label>
+                    <input type="range" id="evolRate" min="0.1" max="1" step="0.1" value="0.5">
+                    <span id="evolRate-val">0.5</span>
+                </div>
+                <button onclick="window.updateSimulation3()">Run Simulation</button>
+                <button onclick="window.resetSimulation3()">Reset</button>
+            </div>
+            
+            <canvas id="chart3" width="800" height="400"></canvas>
+        </section>
+    </div>
+    
+    <script>
+        let chart1, chart2, chart3;
+        
+        // Update slider value displays
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', function() {
+                document.getElementById(this.id + '-val').textContent = this.value;
+            });
+        });
+        
+        // Simulation 1: Matching Alleles Dynamics
+        window.updateSimulation1 = function() {
+            const selection = parseFloat(document.getElementById('selection1').value);
+            const timeLag = parseInt(document.getElementById('timeLag1').value);
+            const initHost = parseFloat(document.getElementById('initHost1').value);
+            
+            const generations = 100;
+            const hostFreq = [initHost];
+            const parasiteFreq = [0.1];
+            
+            for (let t = 1; t < generations; t++) {
+                let lagIndex = Math.max(0, t - timeLag);
+                let pHost = hostFreq[t - 1];
+                let pPar = parasiteFreq[t - 1];
+                let pHostLag = hostFreq[lagIndex];
+                
+                // Host frequency increases when rare (negative freq dependence)
+                let deltaHost = selection * pHost * (1 - pHost) * (0.5 - pPar);
+                let newHostFreq = Math.max(0.05, Math.min(0.95, pHost + deltaHost));
+                
+                // Parasite tracks host with time lag
+                let deltaPar = selection * pPar * (1 - pPar) * (pHostLag - 0.5);
+                let newParFreq = Math.max(0.05, Math.min(0.95, pPar + deltaPar));
+                
+                hostFreq.push(newHostFreq);
+                parasiteFreq.push(newParFreq);
+            }
+            
+            const ctx = document.getElementById('chart1').getContext('2d');
+            
+            if (chart1) {
+                chart1.destroy();
+            }
+            
+            chart1 = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: generations}, (_, i) => i),
+                    datasets: [{
+                        label: 'Host Genotype Frequency',
+                        data: hostFreq,
+                        borderColor: '#2196F3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Parasite Genotype Frequency',
+                        data: parasiteFreq,
+                        borderColor: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Matching Alleles: Oscillating Genotype Frequencies',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: {
+                                display: true,
+                                text: 'Genotype Frequency'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Generation'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+        
+        window.resetSimulation1 = function() {
+            document.getElementById('selection1').value = 0.5;
+            document.getElementById('timeLag1').value = 5;
+            document.getElementById('initHost1').value = 0.5;
+            document.getElementById('selection1-val').textContent = '0.5';
+            document.getElementById('timeLag1-val').textContent = '5';
+            document.getElementById('initHost1-val').textContent = '0.5';
+            window.updateSimulation1();
+        };
+        
+        // Simulation 2: Gene-for-Gene Infection Success
+        window.updateSimulation2 = function() {
+            const host0R = parseFloat(document.getElementById('host0R').value);
+            const host1R = parseFloat(document.getElementById('host1R').value);
+            const host2R = parseFloat(document.getElementById('host2R').value);
+            const host3R = parseFloat(document.getElementById('host3R').value);
+            const virCost = parseFloat(document.getElementById('virCost').value);
+            
+            // Check if total is 100%
+            const total = host0R + host1R + host2R + host3R;
+            document.getElementById('totalPop').textContent = total + '%';
+            
+            if (Math.abs(total - 100) > 0.1) {
+                document.getElementById('popWarning').textContent = '⚠ Warning: Total must equal 100%';
+            } else {
+                document.getElementById('popWarning').textContent = '';
+            }
+            
+            // Normalize to ensure 100%
+            const norm0R = host0R / total * 100;
+            const norm1R = host1R / total * 100;
+            const norm2R = host2R / total * 100;
+            const norm3R = host3R / total * 100;
+            
+            // Calculate fitness for each parasite type (0-3 virulence genes)
+            const parasiteTypes = ['0 V genes', '1 V gene', '2 V genes', '3 V genes'];
+            const fitnessData = [];
+            const infectionData = [];
+            let bestParasite = 0;
+            let maxFitness = 0;
+            
+            for (let v = 0; v <= 3; v++) {
+                // Calculate % of hosts this parasite can infect
+                let canInfect = 0;
+                if (v >= 0) canInfect += norm0R;
+                if (v >= 1) canInfect += norm1R;
+                if (v >= 2) canInfect += norm2R;
+                if (v >= 3) canInfect += norm3R;
+                
+                // Apply cost of virulence (each gene reduces transmission)
+                let baseFitness = 1.0;
+                let costReduction = 1 - (v * virCost);
+                let fitness = (canInfect / 100) * costReduction * baseFitness;
+                
+                fitnessData.push(fitness);
+                infectionData.push(canInfect);
+                
+                if (fitness > maxFitness) {
+                    maxFitness = fitness;
+                    bestParasite = v;
+                }
+            }
+            
+            const ctx = document.getElementById('chart2').getContext('2d');
+            
+            if (chart2) {
+                chart2.destroy();
+            }
+            
+            chart2 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: parasiteTypes,
+                    datasets: [{
+                        label: 'Parasite Fitness (Infection Rate × Transmission)',
+                        data: fitnessData,
+                        backgroundColor: [
+                            'rgba(76, 175, 80, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(255, 152, 0, 0.8)',
+                            'rgba(244, 67, 54, 0.8)'
+                        ],
+                        borderColor: [
+                            '#4CAF50',
+                            '#FFC107',
+                            '#FF9800',
+                            '#f44336'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Gene-for-Gene: Which Parasite Genotype Has Highest Fitness?',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const index = context.dataIndex;
+                                    return [
+                                        'Can infect: ' + infectionData[index].toFixed(1) + '% of hosts',
+                                        'Transmission cost: ' + (index * virCost * 100).toFixed(0) + '%'
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: {
+                                display: true,
+                                text: 'Overall Parasite Fitness'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Parasite Genotype'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Update fitness summary
+            let summary = `<strong>Winner: Parasite with ${bestParasite} virulence gene(s)</strong><br>`;
+            summary += `This parasite can infect ${infectionData[bestParasite].toFixed(1)}% of hosts and has fitness = ${maxFitness.toFixed(3)}.<br><br>`;
+            
+            if (bestParasite === 0) {
+                summary += `<em>Interpretation: When most hosts are susceptible, avirulent parasites win because they pay no cost!</em>`;
+            } else if (bestParasite === 3) {
+                summary += `<em>Interpretation: When most hosts are highly resistant, only highly virulent parasites can infect enough hosts to compensate for their transmission cost.</em>`;
+            } else {
+                summary += `<em>Interpretation: The optimal virulence level balances host range against transmission costs. This parasite can infect enough hosts without paying excessive costs.</em>`;
+            }
+            
+            document.getElementById('fitnessResult').innerHTML = summary;
+        };
+        
+        window.resetSimulation2 = function() {
+            document.getElementById('host0R').value = 25;
+            document.getElementById('host1R').value = 25;
+            document.getElementById('host2R').value = 25;
+            document.getElementById('host3R').value = 25;
+            document.getElementById('virCost').value = 0.15;
+            document.getElementById('host0R-val').textContent = '25%';
+            document.getElementById('host1R-val').textContent = '25%';
+            document.getElementById('host2R-val').textContent = '25%';
+            document.getElementById('host3R-val').textContent = '25%';
+            document.getElementById('virCost-val').textContent = '0.15';
+            window.updateSimulation2();
+        };
+        
+        // Simulation 3: Temporal Tracking
+        window.updateSimulation3 = function() {
+            const numGenes = parseInt(document.getElementById('numGenes').value);
+            const evolRate = parseFloat(document.getElementById('evolRate').value);
+            
+            const timeShifts = [-8, -6, -4, -2, 0, 2, 4, 6, 8];
+            const infectivity = [];
+            
+            for (let shift of timeShifts) {
+                let performance;
+                
+                if (shift === 0) {
+                    // Contemporary: highest infectivity
+                    performance = 0.72;
+                } else if (shift < 0) {
+                    // Past hosts: large amplitude decline (naive hosts)
+                    let distance = Math.abs(shift);
+                    performance = 0.72 - (0.4 * evolRate * (distance / 8));
+                } else {
+                    // Future hosts: smaller amplitude decline (experienced hosts)
+                    let distance = shift;
+                    let resistanceAccumulation = 1 - Math.exp(-numGenes * 0.1);
+                    performance = 0.72 - (0.25 * evolRate * (distance / 8) * resistanceAccumulation);
+                }
+                
+                // Add some noise
+                performance += (Math.random() - 0.5) * 0.05;
+                performance = Math.max(0.1, Math.min(0.9, performance));
+                
+                infectivity.push(performance);
+            }
+            
+            const ctx = document.getElementById('chart3').getContext('2d');
+            
+            if (chart3) {
+                chart3.destroy();
+            }
+            
+            chart3 = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeShifts,
+                    datasets: [{
+                        label: 'Parasite Infectivity',
+                        data: infectivity,
+                        borderColor: '#9C27B0',
+                        backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Temporal Tracking: Parasite Performance vs Host Time Origin',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 0,
+                            max: 1,
+                            title: {
+                                display: true,
+                                text: 'Infection Performance'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Shift (generations): Negative = Past, Positive = Future'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+        
+        window.resetSimulation3 = function() {
+            document.getElementById('numGenes').value = 5;
+            document.getElementById('evolRate').value = 0.5;
+            document.getElementById('numGenes-val').textContent = '5';
+            document.getElementById('evolRate-val').textContent = '0.5';
+            window.updateSimulation3();
+        };
+        
+        // Initialize all simulations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            window.updateSimulation1();
+            window.updateSimulation2();
+            window.updateSimulation3();
+        });
+    </script>
+</body>
+</html>
