@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Evolution of Virulence</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: #a8d5a8;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 1.5rem;
+        }
+        
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+        
+        .concept-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+        
+        .equation-box .equation {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .key-insight {
+            background: linear-gradient(135deg, #4a7c59, #2c5530);
+            color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 5px solid #1a3d20;
+        }
+        
+        .key-insight strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .simulation-container {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .simulation-explanation {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #4a7c59;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .controls {
+            margin: 1.5rem 0;
+        }
+        
+        .control-group {
+            margin: 1rem 0;
+        }
+        
+        .control-group label {
+            display: inline-block;
+            width: 200px;
+            font-weight: 600;
+            color: #2c5530;
+        }
+        
+        .control-group input[type="range"] {
+            width: 300px;
+            margin: 0 1rem;
+        }
+        
+        .control-group span {
+            display: inline-block;
+            min-width: 60px;
+            font-weight: bold;
+            color: #4a7c59;
+        }
+        
+        canvas {
+            max-width: 100%;
+            margin: 1rem auto;
+            display: block;
+        }
+        
+        .case-study {
+            background: linear-gradient(135deg, #f0f8f0, #ffffff);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .case-study h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .takeaway {
+            background-color: #e8f5e8;
+            border-left: 4px solid #2c5530;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            font-style: italic;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        th, td {
+            border: 1px solid #4a7c59;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #4a7c59;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f0f8f0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>The Evolution of Virulence</h1>
+        <p>Why Bite the Hand that Feeds You?</p>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Population Biology of Infectious Diseases - Course 6150</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#myxomatosis">Myxomatosis Case Study</a></li>
+            <li><a href="#theories">Virulence Theories</a></li>
+            <li><a href="#tradeoff">Trade-off Model</a></li>
+            <li><a href="#hiv">HIV Evidence</a></li>
+            <li><a href="#transmission">Transmission Strategy</a></li>
+            <li><a href="#competition">Within-host Competition</a></li>
+            <li><a href="#simulations">Interactive Simulations</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the concept of virulence and disease-induced mortality in the context of population biology</li>
+                <li>Distinguish between conventional wisdom and enlightened theory regarding parasite virulence evolution</li>
+                <li>Analyze the trade-off between transmission rate and virulence</li>
+                <li>Examine real-world case studies demonstrating virulence evolution (myxomatosis, HIV, malaria)</li>
+                <li>Evaluate how transmission strategy affects optimal virulence levels</li>
+                <li>Understand the role of within-host competition in driving virulence evolution</li>
+                <li>Apply mathematical models to predict optimal virulence levels</li>
+            </ul>
+        </section>
+        
+        <section id="introduction" class="concept-card">
+            <h2>Introduction to Virulence</h2>
+            
+            <h3>What is a Parasite?</h3>
+            <p>In biological terms, a parasite is any organism that lives in or on another organism (the host), using the host's energy and resources, often to the detriment of the host. Parasites are living beings that must survive within their hosts and successfully transmit to new hosts to continue their lineage.</p>
+            
+            <h3>Defining Virulence</h3>
+            <p>Virulence can be defined in multiple ways:</p>
+            <ul>
+                <li><strong>Definition 1:</strong> The case mortality rate of an infection (proportion of infected individuals who die)</li>
+                <li><strong>Definition 2:</strong> Pathogen-mediated reduction in host fitness (reproductive success)</li>
+                <li><strong>Definition 3:</strong> The harm caused by pathogens to their hosts</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Central Paradox:</strong>
+                Why would a parasite cause harm to its host, on which it is so dependent for survival and transmission? This question forms the foundation of virulence evolution theory.
+            </div>
+            
+            <h3>Disease-Induced Mortality in Models</h3>
+            <p>We have encountered virulence in previous macroparasite models. In the basic macroparasite model, disease-induced mortality (denoted as α) affects the host population dynamics alongside natural mortality (b) and recovery rates (v).</p>
+            
+            <div class="equation-box">
+                <p><strong>Key Parameters:</strong></p>
+                <div class="equation">β = transmission parameter</div>
+                <div class="equation">μ = adult parasite death rate</div>
+                <div class="equation">α = parasite-induced host death</div>
+                <div class="equation">b = parasite-induced host sterility</div>
+                <div class="equation">λ = production of infectious stages</div>
+                <div class="equation">γ = decay of infectious stages</div>
+            </div>
+            
+            <p>The effects of virulence on population size can be complex. At very low levels of parasite-induced mortality, the parasite spreads but does not control the host population. At intermediate levels, population regulation occurs. At very high levels of virulence, the parasite cannot spread and dies out because it kills hosts too quickly.</p>
+        </section>
+        
+        <section id="myxomatosis" class="concept-card">
+            <h2>Case Study: Myxomatosis - Evolution in Action</h2>
+            
+            <div class="case-study">
+                <h3>Historical Context</h3>
+                <p><strong>Background:</strong> European rabbits (Oryctolagus cuniculus) were introduced to Australia by British settlers around 1860. Without natural predators, the rabbit population exploded, spreading rapidly across the continent over the next 60 years.</p>
+                
+                <p><strong>Problem:</strong> By the early 20th century, rabbits caused severe economic damage to rangeland and agricultural areas. Traditional control methods (hunting, fencing, poisoning) proved largely ineffective against the massive rabbit populations.</p>
+                
+                <div class="takeaway">
+                    <strong>Historical Significance:</strong> The rabbit invasion became one of Australia's most serious environmental and economic disasters, prompting scientists to seek biological control solutions.
+                </div>
+            </div>
+            
+            <h3>The Myxoma Virus</h3>
+            <p>Myxoma virus is a DNA virus belonging to the Poxvirus family. Key characteristics include:</p>
+            <ul>
+                <li>Isolated from South American rabbits (Sylvilagus brasiliensis) in the 1920s</li>
+                <li>In its native host, causes only mild, benign tumors</li>
+                <li>Transmitted mechanically by mosquitoes and other biting insects (not biologically - virus does not replicate in vector)</li>
+                <li>In European rabbits, causes severe myxomatosis with dramatically different outcomes</li>
+            </ul>
+            
+            <div class="case-study">
+                <h3>Disease Severity in European Rabbits</h3>
+                <p><strong>Initial Symptoms:</strong> Large lesions, severe facial swelling, eye discharge and blindness</p>
+                <p><strong>Mortality:</strong> Extremely high case fatality rates</p>
+                <p><strong>Time to Death:</strong> Death typically within 14 days of infection</p>
+                
+                <h4>Virulence Grading System</h4>
+                <table>
+                    <tr>
+                        <th>Virulence Grade</th>
+                        <th>Mean Survival Time</th>
+                        <th>Case Fatality Rate</th>
+                    </tr>
+                    <tr>
+                        <td>I</td>
+                        <td>≤13 days</td>
+                        <td>&gt;99%</td>
+                    </tr>
+                    <tr>
+                        <td>II</td>
+                        <td>14-16 days</td>
+                        <td>95-99%</td>
+                    </tr>
+                    <tr>
+                        <td>III</td>
+                        <td>17-28 days</td>
+                        <td>70-95%</td>
+                    </tr>
+                    <tr>
+                        <td>IIIA</td>
+                        <td>17-22 days</td>
+                        <td>90-95%</td>
+                    </tr>
+                    <tr>
+                        <td>IIIB</td>
+                        <td>23-28 days</td>
+                        <td>70-90%</td>
+                    </tr>
+                    <tr>
+                        <td>IV</td>
+                        <td>29-50 days</td>
+                        <td>50-70%</td>
+                    </tr>
+                    <tr>
+                        <td>V</td>
+                        <td>Not applicable</td>
+                        <td>&lt;50%</td>
+                    </tr>
+                </table>
+                
+                <div class="takeaway">
+                    <strong>Classification Note:</strong> This grading system, developed through laboratory trials, allowed researchers to track how virulence changed over time in field populations.
+                </div>
+            </div>
+            
+            <h3>Introduction and Initial Impact (1950)</h3>
+            <p>Myxoma virus was deliberately introduced to mainland Australia in 1950 as a biological control agent. The results were dramatic:</p>
+            <ul>
+                <li>Spread rapidly across southern and eastern Australia within 1-3 years</li>
+                <li>Caused widespread mortality in rabbit populations</li>
+                <li>Initial strain was Grade I (most virulent): 100% of field isolates in 1950-1951</li>
+                <li>Appeared to be a successful biocontrol solution</li>
+            </ul>
+            
+            <h3>Evolutionary Change in the Virus</h3>
+            <p>However, over subsequent decades, researchers observed remarkable evolutionary changes in virus virulence:</p>
+            
+            <table>
+                <tr>
+                    <th>Time Period</th>
+                    <th>Grade I (%)</th>
+                    <th>Grade II (%)</th>
+                    <th>Grade III (%)</th>
+                    <th>Grade IV (%)</th>
+                    <th>Grade V (%)</th>
+                </tr>
+                <tr>
+                    <td>1950-1951</td>
+                    <td>100</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>1952-1955</td>
+                    <td>13.3</td>
+                    <td>20.0</td>
+                    <td>53.3</td>
+                    <td>13.3</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>1955-1958</td>
+                    <td>0.7</td>
+                    <td>5.3</td>
+                    <td>54.6</td>
+                    <td>24.1</td>
+                    <td>15.5</td>
+                </tr>
+                <tr>
+                    <td>1959-1963</td>
+                    <td>1.7</td>
+                    <td>11.1</td>
+                    <td>60.6</td>
+                    <td>21.8</td>
+                    <td>4.7</td>
+                </tr>
+                <tr>
+                    <td>1970-1974</td>
+                    <td>0.6</td>
+                    <td>4.6</td>
+                    <td>74.1</td>
+                    <td>20.7</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>1975-1981</td>
+                    <td>1.9</td>
+                    <td>3.3</td>
+                    <td>67.0</td>
+                    <td>27.8</td>
+                    <td>0</td>
+                </tr>
+            </table>
+            
+            <div class="key-insight">
+                <strong>Evolutionary Pattern:</strong>
+                The most deadly Grade I virus rapidly gave way to intermediate virulence grades (III and IV), which became dominant. This pattern was observed independently in both Australia and Britain, suggesting a predictable evolutionary trajectory.
+            </div>
+            
+            <h3>Host Evolution: Rabbit Resistance</h3>
+            <p>The rabbits did not remain passive victims. Host populations evolved increased resistance to the virus:</p>
+            <ul>
+                <li>Modern Australian rabbits show significantly higher survival rates when exposed to myxoma virus compared to naive populations</li>
+                <li>Resistance evolution occurred rapidly after the initial epidemic waves</li>
+                <li>The optimal virulence for the host is always ZERO - any reduction in mortality benefits host fitness</li>
+            </ul>
+            
+            <p><strong>Secondary Viral Evolution:</strong> Interestingly, following the emergence of rabbit resistance (around 1960), average viral virulence began to increase again. Mortality in naive (non-resistant) rabbits rose from about 65% to over 90% by the 1990s.</p>
+            
+            <div class="case-study">
+                <h3>The Mechanism: Why Intermediate Virulence?</h3>
+                <p>Studies by Best and Kerr (2000) revealed the underlying mechanism:</p>
+                
+                <p><strong>In Naive (Susceptible) Rabbits:</strong></p>
+                <ul>
+                    <li>Avirulent (benign) strains reach moderate viral titers</li>
+                    <li>Host remains alive and mobile for extended periods</li>
+                    <li>Many transmission opportunities as mosquitoes bite the living host</li>
+                </ul>
+                
+                <p><strong>In Resistant Rabbits:</strong></p>
+                <ul>
+                    <li>Virulent strains achieve higher viral titers due to faster replication</li>
+                    <li>Host immune system contains the infection better than naive hosts</li>
+                    <li>Host typically survives but with higher virus density</li>
+                    <li>Higher transmission probability per bite due to increased viral load</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Takeaway Message:</strong> The evolution of myxomatosis demonstrates that virulence is not static. Instead, it evolves in response to: (1) the trade-off between transmission and host mortality, (2) the immune status of the host population, and (3) ecological factors like vector availability. This case study refutes the conventional wisdom that parasites always evolve toward benignity and shows that intermediate virulence can be evolutionarily optimal. It also demonstrates host-parasite coevolution, where changes in one species drive evolutionary responses in the other.
+                </div>
+            </div>
+        </section>
+        
+        <section id="theories" class="concept-card">
+            <h2>Theories of Virulence Evolution</h2>
+            
+            <h3>Conventional Wisdom (Historical View)</h3>
+            <p>The traditional view, popularized in the mid-20th century, held that:</p>
+            <ul>
+                <li>Parasites should evolve to become benign to their hosts over time</li>
+                <li>Virulent parasites are "recent" or "newly emerged" infections</li>
+                <li>Natural selection favors harmony between host and parasite</li>
+            </ul>
+            
+            <div class="case-study">
+                <h3>The "Nature Prefers Harmony" Hypothesis</h3>
+                <p>As stated by Burnet and White (1972) in their influential textbook "Natural History of Infectious Disease":</p>
+                <blockquote style="padding: 1rem; background: #f0f8f0; border-left: 4px solid #4a7c59; font-style: italic;">
+                    "Nature prefers that neither host nor parasite should be too hard on the other. For Nature, survival of the species is all that counts."
+                </blockquote>
+                
+                <p><strong>Problem with this view:</strong> It commits the fallacy of group selection - assuming evolution acts for "the good of the species" rather than individual fitness.</p>
+            </div>
+            
+            <h3>Failures of Conventional Wisdom</h3>
+            <p>Multiple examples contradict the prediction that parasites evolve toward benignity:</p>
+            
+            <div class="case-study">
+                <h3>Failure 1: Sleeping Sickness (African Trypanosomiasis)</h3>
+                <p><strong>Pathogen:</strong> Trypanosoma brucei (protozoan parasite)</p>
+                <p><strong>Vector:</strong> Tsetse flies (Glossina species)</p>
+                <p><strong>Duration:</strong> Long-term host-parasite association in Africa (thousands of years)</p>
+                <p><strong>Virulence:</strong> Remains highly virulent - causes progressive neurological disease leading to coma and death if untreated</p>
+                
+                <div class="takeaway">
+                    <strong>Key Point:</strong> Despite thousands of years of coevolution, T. brucei has not evolved toward benignity. This suggests virulence can be maintained over evolutionary time when transmission does not depend on host health.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h3>Failure 2: River Blindness (Onchocerciasis)</h3>
+                <p><strong>Pathogen:</strong> Onchocerca volvulus (filarial nematode)</p>
+                <p><strong>Vector:</strong> Blackflies (Simulium species)</p>
+                <p><strong>Duration:</strong> Ancient association with human hosts in Africa</p>
+                <p><strong>Virulence:</strong> Causes severe skin disease, visual impairment, and permanent blindness</p>
+                
+                <div class="takeaway">
+                    <strong>Key Point:</strong> Like sleeping sickness, onchocerciasis maintains significant virulence despite being an old infection. Blindness severely impacts host quality of life but does not prevent vector-mediated transmission.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h3>Failure 3: Zombie Fungi (Cordyceps and Entomophthora)</h3>
+                <p><strong>Pathogens:</strong> Various fungal species infecting insects</p>
+                <p><strong>Mechanism:</strong> Fungi manipulate host behavior, causing infected insects to climb to elevated positions before death</p>
+                <p><strong>Virulence:</strong> 100% lethal - host death is required for spore dispersal</p>
+                
+                <div class="takeaway">
+                    <strong>Key Point:</strong> These fungi demonstrate that extreme virulence (guaranteed host death) can be optimal when transmission requires host mortality. The elevated death position maximizes spore dispersal range.
+                </div>
+            </div>
+            
+            <h3>Parasite Fitness and the Basic Reproductive Number</h3>
+            <p>To understand virulence evolution, we must consider parasite fitness, typically measured by the basic reproductive number R₀:</p>
+            
+            <div class="equation-box">
+                <p><strong>Basic Reproductive Number:</strong></p>
+                <div class="equation">
+                    R₀ = (βN) / (α + b + ν)
+                </div>
+                <p style="margin-top: 1rem;"><strong>Where:</strong></p>
+                <p>β = transmission rate (new infections per contact)</p>
+                <p>N = susceptible host population size</p>
+                <p>α = disease-induced mortality rate (virulence)</p>
+                <p>b = background host mortality rate</p>
+                <p>ν = recovery rate</p>
+            </div>
+            
+            <p>This equation reveals that virulence (α) appears in the denominator, suggesting that as virulence increases, parasite fitness (R₀) should decrease by shortening the infectious period.</p>
+            
+            <div class="key-insight">
+                <strong>Initial Conclusion:</strong>
+                If all parameters were independent, parasites should maximize transmission (β) and minimize virulence (α). This would support conventional wisdom. However, the critical assumption - that parameters are independent - is often violated in nature.
+            </div>
+        </section>
+        
+        <section id="tradeoff" class="concept-card">
+            <h2>The Trade-off Model (Enlightened Theory)</h2>
+            
+            <h3>The Central Trade-off</h3>
+            <p>The enlightened or trade-off theory of virulence evolution recognizes that transmission rate (β) and virulence (α) are often positively correlated rather than independent. This changes everything.</p>
+            
+            <p><strong>Why are they linked?</strong></p>
+            <ul>
+                <li>Higher parasite replication rates → more transmission stages produced</li>
+                <li>Higher parasite replication rates → more damage to host tissues (virulence)</li>
+                <li>Higher parasite density → higher probability of transmission per contact</li>
+                <li>Higher parasite density → more host pathology</li>
+            </ul>
+            
+            <h3>Graphical Representation of the Trade-off</h3>
+            <p>Consider how transmission and virulence both change with parasite growth rate:</p>
+            
+            <ul>
+                <li><strong>Transmission stages:</strong> Increase with parasite growth, but with diminishing returns (saturating curve)</li>
+                <li><strong>Mortality/virulence:</strong> Increase steadily with parasite growth (accelerating curve)</li>
+                <li><strong>Resulting fitness (R₀):</strong> Shows a peak at intermediate growth rates, corresponding to intermediate virulence</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Critical Insight:</strong>
+                When transmission and virulence are positively correlated, there exists an optimal intermediate level of virulence that maximizes between-host transmission. Too little virulence means low transmission; too much virulence means hosts die too quickly to transmit effectively.
+            </div>
+            
+            <h3>Mathematical Formulation</h3>
+            <p>When β depends on virulence α, we can write β = β(α), and the optimal virulence α* maximizes:</p>
+            
+            <div class="equation-box">
+                <div class="equation">
+                    R₀(α) = [β(α) × N] / (α + b + ν)
+                </div>
+                <p style="margin-top: 1rem;">The optimal virulence α* is found by taking the derivative and setting it to zero:</p>
+                <div class="equation">
+                    dR₀/dα = 0
+                </div>
+                <p style="margin-top: 1rem;">This yields the condition:</p>
+                <div class="equation">
+                    [dβ/dα] / β(α) = 1 / (α + b + ν)
+                </div>
+                <p style="margin-top: 1rem;"><strong>Interpretation:</strong> Optimal virulence balances the marginal benefit of increased transmission with the marginal cost of shortened infectious period.</p>
+            </div>
+            
+            <h3>Key Predictions of Trade-off Theory</h3>
+            <ul>
+                <li>Intermediate virulence is often optimal (not zero, not maximum)</li>
+                <li>Optimal virulence depends on the shape of the β(α) trade-off function</li>
+                <li>Factors that reduce transmission opportunities should select for lower virulence</li>
+                <li>Factors that increase transmission should allow higher virulence to evolve</li>
+                <li>Different transmission modes should favor different virulence levels</li>
+            </ul>
+        </section>
+        
+        <section id="hiv" class="concept-card">
+            <h2>Evidence for Trade-offs: HIV/AIDS</h2>
+            
+            <h3>HIV Disease Progression</h3>
+            <p>HIV infection progresses through three distinct phases:</p>
+            
+            <ul>
+                <li><strong>Acute Phase (0-3 months):</strong> Initial infection with flu-like symptoms, rapid viral replication, high viral load, steep decline in CD4+ T cells</li>
+                <li><strong>Asymptomatic Phase (typically 5-10 years):</strong> Immune system controls viral replication, relatively low and stable viral load (set-point viral load), gradual CD4+ T cell decline, host appears healthy</li>
+                <li><strong>AIDS Phase:</strong> Immune system collapse, opportunistic infections, rapid increase in viral load, severe CD4+ T cell depletion</li>
+            </ul>
+            
+            <h3
