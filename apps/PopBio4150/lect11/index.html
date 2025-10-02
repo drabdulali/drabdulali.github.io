@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Defenses: Adaptive Immunity and MHC - BIOL 6150</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: #4a7c59;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 2rem;
+        }
+        
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+        
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 3px solid #4a7c59;
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+        
+        .equation-box .equation {
+            text-align: center;
+            font-size: 1.3rem;
+            margin: 1rem 0;
+        }
+        
+        .key-insight {
+            background: #4a7c59;
+            color: white;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .key-insight strong {
+            font-size: 1.1rem;
+        }
+        
+        .case-study {
+            background: linear-gradient(135deg, #fff8e1, #fffef5);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #2c5530;
+        }
+        
+        .case-study h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+        
+        .simulation-container {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .simulation-explanation {
+            background: linear-gradient(135deg, #e3f2fd, #f5f9ff);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 6px;
+            border-left: 3px solid #2c5530;
+        }
+        
+        .controls {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .control-group {
+            margin: 1rem 0;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+        
+        .value-display {
+            display: inline-block;
+            margin-left: 1rem;
+            padding: 0.25rem 0.75rem;
+            background: #4a7c59;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        canvas {
+            max-width: 100%;
+            margin: 1rem 0;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                flex-direction: column;
+            }
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #2c5530;
+            color: white;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Host Defenses: Adaptive Immunity and MHC</h1>
+        <p>Population Biology of Infectious Diseases - BIOL 6150</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#case-dftd">Case: DFTD</a></li>
+            <li><a href="#case-hiv">Case: HIV</a></li>
+            <li><a href="#adaptive">Adaptive Immunity</a></li>
+            <li><a href="#mhc">MHC Basics</a></li>
+            <li><a href="#diversity">MHC Diversity</a></li>
+            <li><a href="#selection">Selection Pressures</a></li>
+            <li><a href="#simulations">Simulations</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the fundamental differences between innate and adaptive immunity in host defense systems</li>
+                <li>Explain the structure and function of Major Histocompatibility Complex (MHC) molecules in pathogen recognition</li>
+                <li>Describe the mechanisms of cell-mediated and humoral immunity in controlling infectious diseases</li>
+                <li>Analyze how MHC diversity is maintained through balancing selection in populations</li>
+                <li>Evaluate case studies demonstrating the role of adaptive immunity in disease outcomes (DFTD, HIV, Soay sheep)</li>
+                <li>Apply population genetic principles to understand MHC polymorphism and its evolutionary significance</li>
+                <li>Interpret the relationship between MHC diversity and disease resistance at both individual and population levels</li>
+            </ul>
+        </section>
+        
+        <section id="intro" class="concept-card">
+            <h2>Introduction to Host Defense Systems</h2>
+            
+            <p>Host organisms have evolved multiple layers of defense against infectious diseases, representing a complex arms race between hosts and pathogens that has shaped immune system evolution over millions of years. These defenses can be categorized into three distinct but interconnected lines of protection.</p>
+            
+            <h3>The Three Lines of Defense</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Defense Line</th>
+                        <th>Type</th>
+                        <th>Characteristics</th>
+                        <th>Examples</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>First Line</strong></td>
+                        <td>Behavioral and Physical Barriers</td>
+                        <td>Immediate, non-specific, always present</td>
+                        <td>Skin, mucous membranes, stomach acid, behavioral avoidance</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Second Line</strong></td>
+                        <td>Innate (Non-specific) Immunity</td>
+                        <td>Immediate response, generally non-specific, no memory</td>
+                        <td>Phagocytes, natural killer cells, inflammation, complement system</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Third Line</strong></td>
+                        <td>Adaptive (Specific) Immunity</td>
+                        <td>Delayed response, highly specific, immunological memory</td>
+                        <td>B cells, T cells, antibodies, MHC-mediated recognition</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Innate vs. Adaptive Immunity: Critical Distinctions</h3>
+            
+            <div class="two-column">
+                <div>
+                    <h4>Innate Immunity</h4>
+                    <ul>
+                        <li><strong>Timing:</strong> Immediate response (minutes to hours)</li>
+                        <li><strong>Specificity:</strong> Recognizes broad pathogen-associated patterns</li>
+                        <li><strong>Memory:</strong> No immunological memory; identical response upon re-exposure</li>
+                        <li><strong>Diversity:</strong> Limited receptor diversity (germline-encoded)</li>
+                        <li><strong>Components:</strong> Neutrophils, macrophages, NK cells, complement proteins</li>
+                        <li><strong>Evolution:</strong> Ancient system present in all multicellular organisms</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Adaptive Immunity</h4>
+                    <ul>
+                        <li><strong>Timing:</strong> Delayed response (days to weeks for primary response)</li>
+                        <li><strong>Specificity:</strong> Recognizes specific molecular structures (epitopes)</li>
+                        <li><strong>Memory:</strong> Strong immunological memory; faster, stronger secondary response</li>
+                        <li><strong>Diversity:</strong> Enormous receptor diversity (somatic recombination)</li>
+                        <li><strong>Components:</strong> B lymphocytes, T lymphocytes, antibodies, MHC molecules</li>
+                        <li><strong>Evolution:</strong> Evolved in jawed vertebrates approximately 500 million years ago</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> The critical distinction between innate and adaptive immunity lies in the trade-off between speed and specificity. Innate immunity provides immediate but non-specific protection, while adaptive immunity offers highly targeted defense with immunological memory, but requires time for activation and expansion of antigen-specific lymphocytes. This time delay is the window during which pathogens can establish infection, making the coordination between these systems crucial for host survival.
+            </div>
+            
+            <h3>Key Features of Adaptive Immunity</h3>
+            
+            <p>Adaptive immunity represents one of the most sophisticated biological systems evolution has produced. It is characterized by four fundamental properties that distinguish it from innate immune responses:</p>
+            
+            <ul>
+                <li><strong>Specificity:</strong> The ability to recognize and respond to specific molecular structures (antigens) with exquisite precision. Each lymphocyte expresses receptors that recognize only one specific antigen, allowing the immune system to distinguish between closely related pathogens.</li>
+                
+                <li><strong>Diversity:</strong> The capacity to recognize an extraordinarily wide range of foreign molecules. Through genetic recombination mechanisms (V(D)J recombination), the immune system can generate over 10<sup>15</sup> different antigen receptors, far exceeding the number of genes in the genome.</li>
+                
+                <li><strong>Memory:</strong> The ability to "remember" previous encounters with pathogens and mount faster, stronger responses upon re-exposure. Memory B and T cells can persist for decades, providing long-lasting immunity. This is the biological basis of vaccination.</li>
+                
+                <li><strong>Self-tolerance:</strong> The critical ability to distinguish self from non-self, preventing autoimmune attacks on the host's own tissues. This is achieved through negative selection processes that eliminate or inactivate self-reactive lymphocytes during development.</li>
+            </ul>
+            
+            <div class="equation-box">
+                <p><strong>Immune Response Kinetics:</strong></p>
+                <div class="equation">
+                    Primary Response Time = t<sub>lag</sub> + t<sub>expansion</sub> + t<sub>effector</sub>
+                </div>
+                <p>Where:</p>
+                <ul>
+                    <li>t<sub>lag</sub> = Time for antigen recognition and lymphocyte activation (1-3 days)</li>
+                    <li>t<sub>expansion</sub> = Clonal expansion period (3-5 days)</li>
+                    <li>t<sub>effector</sub> = Effector function development (2-4 days)</li>
+                </ul>
+                <p>Total primary response: 6-12 days</p>
+                <p>Secondary response: 2-4 days (due to pre-existing memory cells)</p>
+            </div>
+        </section>
+        
+        <section id="case-dftd" class="concept-card">
+            <h2>Case Study: Devil Facial Tumor Disease (DFTD)</h2>
+            
+            <p>Devil Facial Tumor Disease represents one of only three known naturally occurring transmissible cancers in mammals, providing a remarkable natural experiment in immunology and population biology. This case study illustrates the critical importance of adaptive immunity and MHC diversity in disease resistance.</p>
+            
+            <div class="case-study">
+                <h4>Background and Disease Characteristics</h4>
+                <p><strong>Species:</strong> Tasmanian devil (Sarcophilus harrisii)</p>
+                <p><strong>First Observed:</strong> 1996 in northeastern Tasmania</p>
+                <p><strong>Transmission:</strong> Direct physical contact, typically through biting during feeding or mating</p>
+                <p><strong>Disease Progression:</strong> Tumors appear around mouth and face, grow rapidly, interfere with feeding, lead to death within 6-12 months</p>
+                <p><strong>Population Impact:</strong> 80% population decline across Tasmania by 2008; local extinctions in affected regions</p>
+            </div>
+            
+            <h3>The Allograft Theory and Immune Evasion</h3>
+            
+            <p>DFTD is fundamentally a transmissible cancer that acts as an allograft (tissue transplant between genetically different individuals). Under normal circumstances, the immune system should recognize and reject such foreign tissue. The critical question is: Why don't Tasmanian devils reject these tumor cells?</p>
+            
+            <h4>Mechanism of Immune Evasion:</h4>
+            
+            <ol>
+                <li><strong>MHC Downregulation:</strong> DFTD tumor cells have dramatically reduced expression of MHC Class I molecules on their surface. Without MHC Class I presentation, cytotoxic T cells (CD8+ T cells) cannot recognize the tumor cells as foreign.</li>
+                
+                <li><strong>Low Population MHC Diversity:</strong> Tasmanian devils experienced severe population bottlenecks in their evolutionary history, resulting in exceptionally low genetic diversity, particularly at MHC loci. Many individuals share identical or nearly identical MHC alleles, reducing the likelihood that the immune system will recognize tumor cells as "non-self."</li>
+                
+                <li><strong>Lack of Inflammatory Signals:</strong> The tumor cells do not trigger strong inflammatory responses that would normally recruit immune cells to the site of infection or tissue damage.</li>
+            </ol>
+            
+            <div class="equation-box">
+                <p><strong>Population Decline Model:</strong></p>
+                <div class="equation">
+                    N(t) = N<sub>0</sub> × e<sup>-rt</sup>
+                </div>
+                <p>Where:</p>
+                <ul>
+                    <li>N(t) = Population size at time t</li>
+                    <li>N<sub>0</sub> = Initial population size</li>
+                    <li>r = Disease-induced mortality rate (approximately 0.4-0.6 per year for DFTD)</li>
+                    <li>t = Time in years</li>
+                </ul>
+                <p>This exponential decline model accurately predicted the rapid population collapse observed in affected regions.</p>
+            </div>
+            
+            <h3>Emergence of Resistance</h3>
+            
+            <p>Beginning around 2012-2014, researchers observed signs of resistance emerging in some Tasmanian devil populations. Several mechanisms appear to be contributing to this evolutionary response:</p>
+            
+            <ul>
+                <li><strong>Selection for MHC Diversity:</strong> Individuals with rare MHC alleles or higher heterozygosity show improved survival and tumor regression rates.</li>
+                
+                <li><strong>Behavioral Changes:</strong> Some populations show reduced biting behavior and increased spatial separation, reducing transmission opportunities.</li>
+                
+                <li><strong>Earlier Reproduction:</strong> Evolutionary pressure has shifted reproductive maturity to younger ages, allowing individuals to reproduce before succumbing to disease.</li>
+                
+                <li><strong>Tumor-Specific Immune Responses:</strong> A small proportion of individuals (~5-10%) mount effective immune responses, with evidence of tumor regression and antibody production against tumor antigens.</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Take-Home Message:</strong> DFTD demonstrates that MHC diversity is not merely a theoretical concern but has direct, measurable impacts on population survival. The case illustrates three critical principles: (1) low MHC diversity can make populations vulnerable to diseases that evade immune recognition, (2) transmissible cancers exploit weaknesses in adaptive immunity, and (3) natural selection can drive rapid evolutionary responses when selective pressure is strong enough. The emergence of resistance in some populations provides hope for species recovery but also highlights that such evolution requires sufficient standing genetic variation to select upon.
+            </div>
+        </section>
+        
+        <section id="case-hiv" class="concept-card">
+            <h2>Case Study: HIV Infection and Immune System Dynamics</h2>
+            
+            <p>Human Immunodeficiency Virus (HIV) provides a compelling case study of host-pathogen coevolution at the individual level, demonstrating how pathogens can exploit and eventually destroy the adaptive immune system itself. HIV specifically targets CD4+ T helper cells, the very cells that coordinate adaptive immune responses.</p>
+            
+            <div class="case-study">
+                <h4>HIV Disease Progression</h4>
+                <p><strong>Target Cells:</strong> CD4+ T helper cells, macrophages, dendritic cells</p>
+                <p><strong>Entry Mechanism:</strong> Viral envelope protein (gp120) binds to CD4 receptor and CCR5 or CXCR4 co-receptor</p>
+                <p><strong>Replication Rate:</strong> ~10<sup>10</sup> virions produced per day during chronic infection</p>
+                <p><strong>Mutation Rate:</strong> ~10<sup>-4</sup> per nucleotide per replication cycle (one mutation per genome per replication)</p>
+                <p><strong>Untreated Outcome:</strong> Progression to AIDS and death typically within 8-12 years</p>
+            </div>
+            
+            <h3>Three Phases of HIV Infection</h3>
+            
+            <h4>1. Acute Phase (First 2-4 weeks)</h4>
+            <p>The acute phase represents the initial battle between virus and immune system. During this period:</p>
+            <ul>
+                <li>Rapid viral replication occurs, with viral loads reaching 10<sup>6</sup>-10<sup>7</sup> copies/mL of blood</li>
+                <li>Flu-like symptoms may occur as the innate immune system responds</li>
+                <li>Massive CD4+ T cell depletion in gut-associated lymphoid tissue (up to 60% loss)</li>
+                <li>Adaptive immune response begins to develop, with HIV-specific antibodies appearing 3-12 weeks post-infection (seroconversion)</li>
+                <li>Cytotoxic T lymphocytes (CTLs) begin targeting infected cells</li>
+            </ul>
+            
+            <h4>2. Chronic Asymptomatic Phase (2-10 years)</h4>
+            <p>This is a period of apparent quiescence that masks ongoing immune warfare:</p>
+            <ul>
+                <li>Viral loads decrease and stabilize at a "set point" (typically 10<sup>3</sup>-10<sup>5</sup> copies/mL)</li>
+                <li>CD4+ T cell counts remain relatively stable but gradually decline</li>
+                <li>The immune system maintains control through CTL responses and antibody production</li>
+                <li>However, viral evolution continues: the virus undergoes constant mutation and selection, developing escape mutations that avoid immune recognition</li>
+                <li>Thymus output of new T cells compensates for destruction, but this regenerative capacity gradually becomes exhausted</li>
+                <li>Chronic immune activation leads to progressive dysfunction</li>
+            </ul>
+            
+            <div class="equation-box">
+                <p><strong>Viral Dynamics During Chronic Phase:</strong></p>
+                <div class="equation">
+                    dV/dt = p × I - c × V
+                </div>
+                <div class="equation">
+                    dI/dt = k × V × T - δ × I
+                </div>
+                <p>Where:</p>
+                <ul>
+                    <li>V = Viral load (virions/mL)</li>
+                    <li>I = Infected CD4+ T cells</li>
+                    <li>T = Uninfected CD4+ T cells</li>
+                    <li>p = Viral production rate per infected cell (~10,000 virions/day)</li>
+                    <li>c = Viral clearance rate</li>
+                    <li>k = Infection rate constant</li>
+                    <li>δ = Death rate of infected cells</li>
+                </ul>
+                <p>At equilibrium (set point), production equals clearance: p × I = c × V</p>
+            </div>
+            
+            <h4>3. AIDS Phase (Final 1-2 years)</h4>
+            <p>The immune system eventually loses control, leading to AIDS (Acquired Immunodeficiency Syndrome):</p>
+            <ul>
+                <li>CD4+ T cell count falls below 200 cells/μL (normal is 500-1500 cells/μL)</li>
+                <li>Viral loads increase dramatically as immune control fails</li>
+                <li>Opportunistic infections emerge: Pneumocystis pneumonia, tuberculosis, cytomegalovirus, toxoplasmosis</li>
+                <li>Increased risk of certain cancers (Kaposi's sarcoma, lymphomas)</li>
+                <li>Wasting syndrome and neurological complications</li>
+                <li>Without treatment, death typically occurs within 1-2 years of AIDS diagnosis</li>
+            </ul>
+            
+            <h3>The Role of CTLs and MHC in HIV Control</h3>
+            
+            <p>Cytotoxic T lymphocytes (CTLs, also called CD8+ T cells) are crucial for controlling HIV infection. These cells recognize HIV-infected cells through MHC Class I molecules that present viral peptides on the cell surface.</p>
+            
+            <h4>Mechanism of CTL-Mediated Control:</h4>
+            <ol>
+                <li><strong>Antigen Presentation:</strong> Infected cells process HIV proteins and display viral peptides on MHC Class I molecules</li>
+                <li><strong>Recognition:</strong> CTLs bearing T cell receptors (TCRs) specific for the MHC-peptide complex recognize infected cells</li>
+                <li><strong>Killing:</strong> Upon recognition, CTLs release perforin and granzymes, inducing apoptosis in the infected cell</li>
+                <li><strong>Cytokine Production:</strong> CTLs also produce antiviral cytokines like interferon-gamma</li>
+            </ol>
+            
+            <h3>HIV Mutation and Immune Escape</h3>
+            
+            <p>HIV's extraordinarily high mutation rate is central to its pathogenesis. With approximately 10<sup>10</sup> virions produced daily and a mutation rate of 10<sup>-4</sup> per base per replication cycle, HIV generates roughly one million mutations per day across its ~10,000 base pair genome.</p>
+            
+            <div class="equation-box">
+                <p><strong>Mutation Generation Rate:</strong></p>
+                <div class="equation">
+                    Mutations per day = (Virions produced/day) × (Genome length) × (Mutation rate per base)
+                </div>
+                <div class="equation">
+                    = 10<sup>10</sup> × 10<sup>4</sup> × 10<sup>-4</sup> = 10<sup>10</sup> mutations/day
+                </div>
+                <p>This means that every possible single nucleotide mutation occurs thousands of times per day, providing extensive raw material for selection.</p>
+            </div>
+            
+            <h4>Consequences of High Mutation Rate:</h4>
+            <ul>
+                <li><strong>CTL Escape:</strong> Mutations in viral epitopes prevent recognition by MHC-TCR complexes</li>
+                <li><strong>Antibody Escape:</strong> Changes in envelope proteins reduce antibody binding</li>
+                <li><strong>Drug Resistance:</strong> Mutations in reverse transcriptase and protease genes confer resistance to antiretroviral drugs</li>
+                <li><strong>Within-Host Evolution:</strong> HIV forms a diverse "quasispecies" within each infected individual, with multiple viral variants circulating simultaneously</li>
+            </ul>
+            
+            <h3>MHC and HIV Disease Progression</h3>
+            
+            <p>Specific MHC alleles significantly influence HIV disease progression. The best-studied example is HLA-B*57, which is associated with elite controller status (individuals who maintain undetectable viral loads without treatment):</p>
+            
+            <ul>
+                <li>HLA-B*57 presents HIV peptides that are highly conserved (difficult for virus to mutate without fitness cost)</li>
+                <li>Elite controllers (~1% of HIV+ individuals) maintain CD4+ counts above 500 cells/μL and viral loads below 50 copies/mL for years without treatment</li>
+                <li>Other protective alleles include HLA-B*27, HLA-B*51, and HLA-B*81</li>
+                <li>Conversely, some alleles (e.g., HLA-B*35) are associated with rapid progression</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Take-Home Message:</strong> HIV illustrates the critical importance of CD4+ T helper cells in coordinating adaptive immunity. By specifically targeting these cells, HIV progressively dismantles the immune system from within. The case demonstrates three key principles: (1) adaptive immunity requires time to develop, creating a window for viral replication, (2) pathogen mutation rates can exceed the immune system's ability to respond, leading to immune escape, and (3) MHC diversity influences disease outcomes at the individual level. The phylogenetic diversification of HIV within hosts mirrors evolutionary processes at the species level, representing evolution in real time at the scale of years rather than millennia. Modern antiretroviral therapy targets multiple steps in the viral lifecycle simultaneously precisely because HIV's high mutation rate would rapidly generate resistance to single drugs.
+            </div>
+        </section>
+        
+        <section id="adaptive" class="concept-card">
+            <h2>Adaptive Immunity: Cell-Mediated and Humoral Responses</h2>
+            
+            <p>Adaptive immunity consists of two interconnected arms that work together to eliminate pathogens: cell-mediated immunity and humoral immunity. These systems are distinguished by their target locations (intracellular vs. extracellular pathogens) and their effector mechanisms.</p>
+            
+            <h3>1. Humoral (Antibody-Mediated) Immunity</h3>
+            
+            <p>Humoral immunity targets pathogens in body fluids (blood, lymph, extracellular spaces) and is mediated by B lymphocytes and the antibodies they produce.</p>
+            
+            <h4>Key Components:</h4>
+            <ul>
+                <li><strong>B Lymphocytes:</strong> Bone marrow-derived cells that produce antibodies; each B cell expresses a unique B cell receptor (BCR) specific for one antigen</li>
+                <li><strong>T Helper Cells (Th2):</strong> CD4+ T cells that recognize antigens presented on MHC Class II and activate B cells through cytokine signals</li>
+                <li><strong>Antibodies (Immunoglobulins):</strong> Y-shaped proteins with two antigen-binding sites; five classes (IgG, IgM, IgA, IgE, IgD) with different functions</li>
+                <li><strong>Memory B Cells:</strong> Long-lived cells that enable rapid response upon re-exposure to the same pathogen</li>
+            </ul>
+            
+            <h4>Antibody Effector Functions:</h4>
+            <ol>
+                <li><strong>Neutralization:</strong> Antibodies bind to viral surface proteins or bacterial toxins, blocking their ability to enter cells or cause damage</li>
+                <li><strong>Agglutination:</strong> Cross-linking of pathogens by multiple antibodies, forming large clumps that are easier for phagocytes to engulf</li>
+                <li><strong>Opsonization:</strong> Antibody coating of pathogens marks them for phagocytosis; macrophages have Fc receptors that bind to the constant region of antibodies</li>
+                <li><strong>Complement Activation:</strong> Antibody-antigen complexes trigger the complement cascade, leading to pathogen lysis</li>
+                <li><strong>Antibody-Dependent Cell-mediated Cytotoxicity (ADCC):</strong> Natural killer cells recognize antibody-coated cells and destroy them</li>
+            </ol>
+            
+            <div class="equation-box">
+                <p><strong>Antibody Production Kinetics:</strong></p>
+                <div class="equation">
+                    Primary Response: [Ab] = [Ab]<sub>max</sub> × (1 - e<sup>-kt</sup>)
+                </div>
+                <div class="equation">
+                    Secondary Response: [Ab]<sub>secondary</sub> ≈ 10-100 × [Ab]<sub>primary</sub>
+                </div>
+                <p>Where:</p>
+                <ul>
+                    <li>[Ab] = Antibody concentration</li>
+                    <li>[Ab]<sub>max</sub> = Maximum antibody concentration</li>
+                    <li>k = Rate constant (higher for secondary response)</li>
+                    <li>t = Time since antigen exposure</li>
+                </ul>
+                <p>Primary response peaks at 7-14 days; secondary response peaks at 3-5 days with 10-100 fold higher antibody levels</p>
+            </div>
+            
+            <h3>2. Cell-Mediated Immunity</h3>
+            
+            <p>Cell-mediated immunity is essential for destroying intracellular pathogens (viruses, some bacteria, parasites) that antibodies cannot reach. This system is mediated by T lymphocytes.</p>
+            
+            <h4>Key Components:</h4>
+            <ul>
+                <li><strong>T Helper Cells (CD4+):</strong> Coordinate immune responses by activating other immune cells
+                    <ul>
+                        <li>Th1 cells: Support cell-mediated immunity against intracellular pathogens; produce IFN-γ and IL-2</li>
+                        <li>Th2 cells: Support humoral immunity against extracellular pathogens; produce IL-4, IL-5, IL-13</li>
+                    </ul>
+                </li>
+                <li><strong>Cytotoxic T Lymphocytes (CD8+, CTLs):</strong> Kill infected cells by recognizing antigens presented on MHC Class I molecules</li>
+                <li><strong>Memory T Cells:</strong> Long-lived cells providing rapid recall responses</li>
+            </ul>
+            
+            <h4>CTL Killing Mechanism:</h4>
+            <ol>
+                <li><strong>Recognition:</strong> TCR on CTL recognizes MHC Class I + viral peptide complex on infected cell surface</li>
+                <li><strong>Adhesion:</strong> CTL forms tight junction with target cell through adhesion molecules</li>
+                <li><strong>Granule Release:</strong> CTL releases cytotoxic granules containing:
+                    <ul>
+                        <li>Perforin: Forms pores in target cell membrane</li>
+                        <li>Granzymes: Serine proteases that activate apoptosis pathways</li>
+                    </ul>
+                </li>
+                <li><strong>Target Cell Death:</strong> Apoptosis occurs within 2-6 hours; infected cell dies before viral replication completes</li>
+                <li><strong>CTL Survival:</strong> CTL detaches and can kill additional targets (serial killing)</li>
+            </ol>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> The division between humoral and cell-mediated immunity reflects the fundamental challenge of pathogen location. Antibodies excel at neutralizing extracellular threats but cannot penetrate cell membranes to reach intracellular pathogens. CTLs solve this problem by destroying the infected cell itself, sacrificing the host cell to prevent pathogen replication. This illustrates a critical principle in immunology: effective defense often requires accepting collateral damage to host tissues. The coordination between these two arms through helper T cells demonstrates the sophisticated integration required for effective adaptive immunity.
+            </div>
+            
+            <h3>Leukocytes: The Cellular Players</h3>
+            
+            <p>White blood cells (leukocytes) mediate both innate and adaptive immunity. Understanding their diverse roles is essential for comprehending immune function.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cell Type</th>
+                        <th>Lifespan</th>
+                        <th>Primary Function</th>
+                        <th>Immunity Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Neutrophils</td>
+                        <td>7 hours in blood</td>
+                        <td>First responders; phagocytose bacteria</td>
+                        <td>Innate</td>
+                    </tr>
+                    <tr>
+                        <td>Eosinophils</td>
+                        <td>8-12 days</td>
+                        <td>Attack parasites with toxic enzymes</td>
+                        <td>Innate</td>
+                    </tr>
+                    <tr>
+                        <td>Basophils</td>
+                        <td>Few hours to days</td>
+                        <td>Release histamine; inflammatory response</td>
+                        <td>Innate</td>
+                    </tr>
+                    <tr>
+                        <td>Monocytes/Macrophages</td>
+                        <td>3 days (blood) / months-years (tissue)</td>
+                        <td>Phagocytosis; antigen presentation</td>
+                        <td>Innate & Adaptive</td>
+                    </tr>
+                    <tr>
+                        <td>B Lymphocytes</td>
+                        <td>Memory cells: years to lifetime</td>
+                        <td>Antibody production</td>
+                        <td>Adaptive</td>
+                    </tr>
+                    <tr>
+                        <td>T Lymphocytes</td>
+                        <td>Memory cells: years to lifetime</td>
+                        <td>Cell-mediated immunity</td>
+                        <td>Adaptive</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <section id="mhc" class="concept-card">
+            <h2>The Major Histocompatibility Complex (MHC)</h2>
+            
+            <p>The Major Histocompatibility Complex represents one of the most important genetic regions for immune function and represents the most polymorphic gene complex in vertebrates. In humans, MHC is called the Human Leukocyte Antigen (HLA) system. These molecules are absolutely central to adaptive immunity because they determine which pathogen-derived peptides can be presented to T cells.</p>
+            
+            <h3>Discovery and Historical Context</h3>
+            
+            <p>The story of MHC discovery illustrates how basic research in tissue transplantation led to fundamental insights about immunity:</p>
+            
+            <ul>
+                <li><strong>1910s-1940s:</strong> Experiments with tumor transplants in mice revealed inherited factors controlling graft acceptance or rejection. Clarence Little and Peter Gorer identified genetic loci determining transplant compatibility.</li>
+                <li><strong>World War II (1940s):</strong> Burn victims receiving skin grafts from genetically unrelated donors experienced rejection. This led to the hypothesis that molecular markers on cell surfaces determine "self" versus "non-self" recognition.</li>
+                <li><strong>1950s:</strong> George Snell characterized the H-2 complex in mice (mouse MHC), demonstrating that specific genes on chromosome 17 controlled tissue compatibility. His work established that MHC genes are codominantly expressed.</li>
+                <li><strong>1958:</strong> Jean Dausset identified the first human MHC antigen (HLA-A2), proving the system existed in humans.</li>
+                <li><strong>1960s-1970s:</strong> Recognition that MHC's primary function is not tissue transplant rejection (a rare event evolutionarily) but rather immune surveillance and pathogen recognition. Rolf Zinkernagel and Peter Doherty discovered MHC restriction in 1974.</li>
+            </ul>
+            
+            <div class="case-study">
+                <h4>MHC Restriction: The 1974 Zinkernagel-Doherty Experiment</h4>
+                <p>This Nobel Prize-winning discovery demonstrated that T cells recognize antigens only when presented by self-MHC molecules:</p>
+                <ul>
+                    <li>Mice infected with lymphocytic choriomeningitis virus (LCMV) developed virus-specific CTLs</li>
+                    <li>These CTLs could kill infected cells from the same mouse strain but NOT infected cells from different MHC strains</li>
+                    <li>Conclusion: T cell receptors recognize both the pathogen peptide AND the specific MHC molecule presenting it</li>
+                    <li><strong>Implication:</strong> Each individual's T cells are "educated" to recognize pathogens only in the context of their own MHC molecules, preventing autoimmune reactions while enabling pathogen surveillance</li>
+                </ul>
+            </div>
+            
+            <h3>MHC Structure and Function</h3>
+            
+            <p>MHC molecules are cell-surface glycoproteins that bind peptide fragments and display them for T cell recognition. The MHC region in humans spans approximately 4 million base pairs on chromosome 6 and contains over 200 genes, though only a subset directly function in antigen presentation.</p>
+            
+            <h4>Two Classes of MHC Molecules:</h4>
+            
+            <div class="two-column">
+                <div>
+                    <h4>MHC Class I</h4>
+                    <ul>
+                        <li><strong>Expression:</strong> All nucleated cells (not red blood cells)</li>
+                        <li><strong>Structure:</strong> Heavy chain (α) + β2-microglobulin</li>
+                        <li><strong>Peptide Source:</strong> Intracellular proteins (8-10 amino acids)</li>
+                        <li><strong>Recognized by:</strong> CD8+ T cells (cytotoxic T cells)</li>
+                        <li><strong>Function:</strong> Display samples of intracellular proteins for immune surveillance</li>
+                        <li><strong>Human Genes:</strong> HLA-A, HLA-B, HLA-C</li>
+                        <li><strong>Pathway:</strong> Cytosolic pathway
+                            <ol>
+                                <li>Intracellular proteins degraded by proteasome</li>
+                                <li>Peptides transported into ER by TAP proteins</li>
+                                <li>Peptides bind to MHC I in ER</li>
+                                <li>Complex transported to cell surface</li>
+                            </ol>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>MHC Class II</h4>
+                    <ul>
+                        <li><strong>Expression:</strong> Antigen-presenting cells only (macrophages, dendritic cells, B cells)</li>
+                        <li><strong>Structure:</strong> α chain + β chain (both MHC-encoded)</li>
+                        <li><strong>Peptide Source:</strong> Extracellular proteins (12-25 amino acids)</li>
+                        <li><strong>Recognized by:</strong> CD4+ T cells (helper T cells)</li>
+                        <li><strong>Function:</strong> Display samples of phagocytosed material to coordinate immune responses</li>
+                        <li><strong>Human Genes:</strong> HLA-DP, HLA-DQ, HLA-DR</li>
+                        <li><strong>Pathway:</strong> Endocytic pathway
+                            <ol>
+                                <li>Extracellular material endocytosed</li>
+                                <li>Proteins degraded in endosomal compartments</li>
+                                <li>MHC II transported from ER to endosome</li>
+                                <li>Peptides bind to MHC II</li>
+                                <li>Complex transported to cell surface</li>
+                            </ol>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="equation-box">
+                <p><strong>MHC-Peptide Binding Affinity:</strong></p>
+                <div class="equation">
+                    K<sub>d</sub> = [MHC][Peptide] / [MHC-Peptide]
+                </div>
+                <p>Where K<sub>d</sub> is the dissociation constant (lower = stronger binding)</p>
+                <p>High-affinity MHC-peptide interactions: K<sub>d</sub> = 10<sup>-6</sup> to 10<sup>-9</sup> M</p>
+                <p>Each MHC molecule can bind ~1000-10,000 different peptide sequences with varying affinities, but peptides must have specific anchor residues matching the MHC binding groove.</p>
+            </div>
+            
+            <h3>Antigen Processing and Presentation</h3>
+            
+            <p>The process by which pathogen-derived peptides are displayed on MHC molecules is called "antigen processing and presentation." This is a sophisticated quality control system that samples the protein content of different cellular compartments.</p>
+            
+            <h4>Why is Antigen Processing Necessary?</h4>
+            <ul>
+                <li>T cell receptors cannot recognize intact proteins; they require peptide fragments 8-25 amino acids long</li>
+                <li>Different cellular compartments contain different types of pathogens (cytoplasm vs. endosomes)</li>
+                <li>MHC Class I and II sample different compartments, providing comprehensive surveillance</li>
+                <li>Processing generates multiple peptides from each protein, increasing probability of immune recognition</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> The existence of two MHC classes solving different surveillance problems represents an elegant evolutionary solution. MHC Class I acts as an "identity card" displayed by all nucleated cells, proclaiming "I am self, and here is a sample of my internal proteins to prove it." Virally infected cells cannot hide because they must display viral peptides alongside self-peptides. MHC Class II acts as an "alarm signal" raised by professional antigen-presenting cells that have encountered and consumed pathogens, alerting helper T cells to coordinate appropriate responses. This division of labor allows the immune system to simultaneously monitor intracellular and extracellular spaces.
+            </div>
+        </section>
+        
+        <section id="diversity" class="concept-card">
+            <h2>MHC Diversity: The Most Polymorphic Genes in Vertebrates</h2>
+            
+            <p>MHC genes exhibit extraordinary levels of genetic polymorphism—variation in DNA sequences among individuals in a population. This diversity is not accidental but rather maintained by powerful evolutionary forces.</p>
+            
+            <h3>Quantifying MHC Diversity</h3>
+            
+            <ul>
+                <li><strong>Allelic Diversity:</strong> Some HLA loci have over 349 documented alleles in human populations (e.g., HLA-B has >6,000 alleles identified globally)</li>
+                <li><strong>Individual Heterozygosity:</strong> Each individual inherits two alleles per MHC gene (one from each parent), typically expressing 6-12 different MHC Class I and Class II molecules</li>
+                <li><strong>Non-synonymous Mutations:</strong> Most amino acid substitutions occur in the peptide-binding region, directly affecting which peptides can be presented (dN/dS ratio >1, indicating positive selection)</li>
+                <li><strong>Trans-species Polymorphism:</strong> Some MHC alleles are more similar between species (e.g., human-chimpanzee) than within species, indicating alleles older than speciation events (>6 million years)</li>
+            </ul>
+            
+            <div class="equation-box">
+                <p><strong>Measuring Polymorphism:</strong></p>
+                <div class="equation">
+                    Expected Heterozygosity (H<sub>e</sub>) = 1 - Σp<sub>i</sub><sup>2</sup>
+                </div>
+                <p>Where p<sub>i</sub> is the frequency of allele i in the population</p>
+                <p>For a typical MHC locus with 50 alleles at equal frequency:</p>
+                <div class="equation">
+                    H<sub>e</sub> = 1 - (50 × (1/50)<sup>2</sup>) = 1 - 0.02 = 0.98
+                </div>
+                <p>This means 98% of individuals would be heterozygous at this locus—exceptional compared to most genes where H<sub>e</sub> < 0.5</p>
+            </div>
+            
+            <h3>Why Is MHC Diversity Maintained?</h3>
+            
+            <p>The extreme polymorphism at MHC loci demands explanation. Several evolutionary mechanisms work in concert to maintain this diversity:</p>
+            
+            <h4>1. Balancing Selection</h4>
+            <p>Unlike directional selection (which reduces diversity by favoring one allele), balancing selection actively maintains multiple alleles in populations. Several forms operate on MHC:</p>
+            
+            <ul>
+                <li><strong>Heterozygote Advantage (Overdominance):</strong> Individuals heterozygous at MHC loci can present a wider range of pathogen peptides than homozygotes, providing broader protection. This creates a fitness advantage for heterozygotes.</li>
+                
+                <li><strong>Frequency-Dependent Selection:</strong> Rare MHC alleles may be advantageous because pathogens adapt to evade common alleles in the population. As an allele becomes common, pathogens evolve to escape it, making rare alleles valuable (negative frequency-dependent selection).</li>
+                
+                <li><strong>Fluctuating Selection:</strong> Pathogen communities change over time and space. Alleles protective against current dominant pathogens increase in frequency, but as pathogen composition shifts, different alleles become advantageous.</li>
+            </ul>
+            
+            <h4>2. Pathogen-Driven Selection</h4>
+            <p>This is perhaps the strongest force maintaining MHC diversity. Evidence includes:</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Soay Sheep and Nematode Parasites (Paterson et al. 1998, PNAS)</h4>
+                <p><strong>System:</strong> Unmanaged population of Soay sheep on St. Kilda archipelago, Scotland</p>
+                <p><strong>Pathogen:</strong> Intestinal nematodes (parasitic worms)</p>
+                <p><strong>Key Findings:</strong></p>
+                <ul>
+                    <li>Specific MHC alleles significantly associated with juvenile survival rates (up to 30% difference)</li>
+                    <li>MHC genotype predicted parasite burden: certain alleles associated with 40-50% lower nematode egg counts</li>
+                    <li>Effect sizes large enough to drive selection: difference between genotypes equivalent to 20-30% fitness difference</li>
+                    <li>No single "best" genotype—different alleles advantageous in different years, likely reflecting pathogen strain variation</li>
+                </ul>
+                <p><strong>Take-Home Message:</strong> This study provided gold-standard evidence that MHC polymorphism directly impacts survival in wild populations. The fluctuating advantages of different alleles across years demonstrates why no single allele becomes fixed—the optimal genotype depends on the current pathogen environment. This is balancing selection in action.</p>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study: House Finches and Mycoplasma gallisepticum (Hawley & Fleischer 2012, PLoS ONE)</h4>
+                <p><strong>System:</strong> House finches (Haemorhous mexicanus) facing bacterial conjunctivitis epidemic</p>
+                <p><strong>Pathogen:</strong> Mycoplasma gallisepticum (causes severe eye infections)</p>
+                <p><strong>Natural Experiment:</strong> Compare eastern (introduced, low genetic diversity) vs. western (native, high diversity) populations</p>
+                <p><strong>Key Findings:</strong></p>
+                <ul>
+                    <li>Disease severity inversely correlated with MHC Class II diversity (r = -0.65, p < 0.001)</li>
+                    <li>Individuals with 1-2 MHC alleles: disease severity score ~7/10</li>
+                    <li>Individuals with 4-5 MHC alleles: disease severity score ~4.5/10</li>
+                    <li>Post-epidemic: significant increase in MHC diversity in eastern populations (2.8 → 4.0 alleles per individual)</li>
+                    <li>Selection coefficient estimated at s ≈ 0.25 (very strong selection)</li>
+                </ul>
+                <p><strong>Take-Home Message:</strong> This study demonstrates rapid evolutionary response to disease pressure. The introduced eastern population had low MHC diversity due to founder effects, making it vulnerable to the epidemic. Strong selection during the outbreak rapidly increased MHC diversity, showing evolution occurring over just a few generations. However, intermediate diversity (4-5 alleles) was optimal—very high diversity (7-8 alleles) showed slightly reduced fitness, possibly due to autoimmunity risks or T cell repertoire limitations.</p>
+            </div>
+            
+            <h4>3. Sexual Selection and MHC-Based Mate Choice</h4>
+            
+            <p>Multiple species show mate preferences based on MHC genotypes, potentially maintaining diversity through sexual selection:</p>
+            
+            <ul>
+                <li><strong>Disassortative Mating:</strong> Preference for MHC-dissimilar mates increases offspring heterozygosity</li>
+                <li><strong>Optimal MHC Diversity:</strong> Preference for mates that would produce offspring with intermediate MHC diversity</li>
+                <li><strong>Specific Allele Preferences:</strong> In some contexts, females prefer males with alleles conferring pathogen resistance</li>
+            </ul>
+            
+            <p>The classic demonstration comes from Claus Wedekind's "sweaty T-shirt" experiments (1995):</p>
+            
+            <div class="case-study">
+                <h4>Wedekind et al. 1995: MHC-Dependent Mate Preferences in Humans</h4>
+                <p><strong>Experimental Design:</strong></p>
+                <ul>
+                    <li>Male volunteers wore T-shirts for two nights</li>
+                    <li>Female volunteers (mid-cycle, not on contraceptives) rated odor pleasantness</li>
+                    <li>Both groups MHC-typed</li>
+                </ul>
+                <p><strong>Results:</strong></p>
+                <ul>
+                    <li>Women rated odors of MHC-dissimilar men as more pleasant</li>
+                    <li>Odors of MHC-similar men reminded women of brothers or fathers</li>
+                    <li>Effect reversed for women on oral contraceptives (hormonal disruption)</li>
+                    <li>Similar preferences documented in mice, fish, birds, and other mammals</li>
+                </ul>
+                <p><strong>Mechanism:</strong> MHC molecules or peptides they bind are secreted in sweat and urine, creating individual-specific odor profiles</p>
+                <p><strong>Take-Home Message:</strong> MHC influences mate choice through olfactory cues, potentially maintaining diversity by promoting heterozygosity in offspring. This represents an elegant solution: by preferring dissimilar mates, individuals produce offspring with broader pathogen recognition capabilities.</p>
+            </div>
+            
+            <h3>Limits to MHC Diversity</h3>
+            
+            <p>If MHC diversity is so beneficial, why isn't diversity infinite? Several constraints limit optimal diversity:</p>
+            
+            <ul>
+                <li><strong>Autoimmunity Risk:</strong> More MHC variants increase probability of self-reactive T cells escaping negative selection. Very high MHC diversity associated with increased autoimmune disease risk.</li>
+                
+                <li><strong>T Cell Repertoire Holes:</strong> T cells must be educated to work with self-MHC molecules. With too many MHC variants, the T cell repertoire becomes spread thin, potentially leaving gaps in pathogen coverage.</li>
+                
+                <li><strong>Time Constraints:</strong> T cell education (positive and negative selection) takes time. More MHC diversity requires more stringent selection, potentially reducing the final T cell repertoire size.</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> The intermediate MHC diversity optimum observed in species like house finches reflects fundamental trade-offs in adaptive immunity. Too little diversity leaves hosts vulnerable to specific pathogens. Too much diversity increases autoimmunity risk and creates holes in the T cell repertoire. This explains why even endangered species with severe bottlenecks often retain substantial MHC diversity—selection is so strong that even small populations can maintain polymorphism. The fact that MHC alleles can be older than speciation events (trans-species polymorphism) demonstrates that this diversity has been actively maintained for millions of years, making MHC one of the best examples of long-term balancing selection in nature.
+            </div>
+        </section>
+        
+        <section id="selection" class="concept-card">
+            <h2>Evolutionary Forces Maintaining MHC Polymorphism</h2>
+            
+            <p>The maintenance of MHC diversity represents a triumph of balancing selection over genetic drift and purifying selection. Understanding these mechanisms provides insights into host-pathogen coevolution and the population biology of infectious diseases.</p>
+            
+            <h3>Directional vs. Balancing Selection</h3>
+            
+            <div class="two-column">
+                <div>
+                    <h4>Directional Selection</h4>
+                    <p>Favors one allele over others, reducing genetic diversity</p>
+                    <ul>
+                        <li>Common for most traits under selection</li>
+                        <li>Leads to fixation of beneficial alleles</li>
+                        <li>Example: Pesticide resistance genes</li>
+                        <li>Signature: Reduced variation, skewed allele frequencies</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Balancing Selection</h4>
+                    <p>Maintains multiple alleles at intermediate frequencies</p>
+                    <ul>
+                        <li>Rare for most genes</li>
+                        <li>Prevents fixation, maintains polymorphism</li>
+                        <li>Example: MHC, ABO blood groups, self-incompatibility in plants</li>
+                        <li>Signature: Excess variation, even allele frequencies, trans-species polymorphism</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="equation-box">
+                <p><strong>Selection Coefficient and Fitness:</strong></p>
+                <div class="equation">
+                    Relative Fitness (w) = 1 - s
+                </div>
+                <p>Where s = selection coefficient (proportion reduction in fitness)</p>
+                <p><strong>For Heterozygote Advantage:</strong></p>
+                <div class="equation">
+                    Equilibrium Frequency (p̂) = s<sub>B</sub> / (s<sub>A</sub> + s<sub>B</sub>)
+                </div>
+                <p>Where s<sub>A</sub> and s<sub>B</sub> are selection coefficients against the two homozygotes</p>
+                <p>Example: If both homozygotes have s = 0.1, equilibrium frequency = 0.5 (both alleles maintained)</p>
+            </div>
+            
+            <h3>Evidence for Balancing Selection on MHC</h3>
+            
+            <h4>1. Molecular Signatures</h4>
+            <ul>
+                <li><strong>Elevated dN/dS Ratios:</strong> The ratio of non-synonymous to synonymous substitutions >1 in peptide-binding region (indicating positive selection for amino acid changes)</li>
+                <li><strong>Trans-species Polymorphism:</strong> Alleles shared between species indicate long-term maintenance</li>
+                <li><strong>Excess Heterozygosity:</strong> Observed heterozygosity significantly exceeds expected under neutrality</li>
+            </ul>
+            
+            <h4>2. Population Genetic Patterns</h4>
+            <ul>
+                <li>MHC diversity often exceeds neutral marker diversity even in bottlenecked populations</li>
+                <li>Rare alleles persist at higher frequencies than expected under drift</li>
+                <li>Geographic variation in allele frequencies correlates with pathogen environments</li>
+            </ul>
+            
+            <h4>3. Fitness Associations</h4>
+            <ul>
+                <li>Heterozygotes often show survival advantages</li>
+                <li>Specific alleles associated with resistance to specific pathogens</li>
+                <li>Temporal fluctuations in allele frequencies correlated with pathogen prevalence</li>
+            </ul>
+            
+            <h3>The Red Queen Hypothesis and MHC</h3>
+            
+            <p>The Red Queen hypothesis, derived from Lewis Carroll's "Through the Looking-Glass" ("it takes all the running you can do, to keep in the same place"), posits that species must constantly evolve to maintain fitness relative to coevolving competitors, predators, or pathogens.</p>
+            
+            <p>For MHC and pathogens:</p>
+            <ul>
+                <li>Pathogens evolve to escape recognition by common MHC alleles</li>
+                <li>This creates advantage for rare MHC alleles (negative frequency-dependent selection)</li>
+                <li>As these alleles increase, pathogens adapt to them</li>
+                <li>Result: Continuous cycling of allele frequencies and pathogen strains</li>
+                <li>No equilibrium reached—perpetual evolutionary arms race</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Take-Home Message:</strong> MHC polymorphism represents one of the clearest examples of balancing selection in nature. Multiple mechanisms work synergistically: pathogen-driven selection favors rare alleles and heterozygotes, sexual selection promotes MHC-dissimilar mating, and mutation generates new variants. The result is a dynamic equilibrium where diversity is maintained not despite selection but because of it. This has profound implications for conservation biology—populations that lose MHC diversity through bottlenecks become vulnerable to diseases, as seen in cheetahs, Tasmanian devils, and other endangered species. Understanding MHC evolution is therefore essential for predicting and managing disease risk in both human and wildlife populations.
+            </div>
+        </section>
+        
+        <section id="simulations" class="concept-card">
+            <h2>Interactive Simulations</h2>
+            
+            <div class="simulation-container">
+                <h3>Simulation 1: HIV Infection Dynamics</h3>
+                
+                <div class="simulation-explanation">
+                    <h4>How This Simulation Works:</h4>
+                    <p>This simulation models the three phases of HIV infection over time. It tracks four key variables:</p>
+                    <ul>
+                        <li><strong>Viral Load:</strong> Number of HIV virions per mL of blood (red line)</li>
+                        <li><strong>CD4+ T Cell Count:</strong> Helper T cells per μL of blood (dashed white line)</li>
+                        <li><strong>Antibody Levels:</strong> HIV-specific antibody concentration (blue line)</li>
+                    </ul>
+                    <p>Adjust the sliders to see how mutation rate and immune response strength affect disease progression. Higher mutation rates allow the virus to escape immune control more rapidly. Stronger immune responses delay progression but ultimately cannot prevent AIDS without treatment.</p>
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="mutationRate">Viral Mutation Rate (×10⁻⁴ per base): <span id="mutationValue" class="value-display">1.0</span></label>
+                        <input type="range" id="mutationRate" min="0.5" max="3.0" step="0.1" value="1.0">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="immuneStrength">Immune Response Strength: <span id="immuneValue" class="value-display">1.0</span></label>
+                        <input type="range" id="immuneStrength" min="0.3" max="2.0" step="0.1" value="1.0">
+                    </div>
+                </div>
+                
+                <canvas id="hivChart" width="800" height="400"></canvas>
+            </div>
+            
+            <div class="simulation-container">
+                <h3>Simulation 2: MHC Diversity and Disease Resistance</h3>
+                
+                <div class="simulation-explanation">
+                    <h4>How This Simulation Works:</h4>
+                    <p>This simulation demonstrates the relationship between MHC diversity and disease outcomes in a population. It models a population of 1000 individuals with varying numbers of MHC alleles facing a disease outbreak.</p>
+                    <ul>
+                        <li><strong>X-axis:</strong> Number of MHC Class II alleles per individual (1-8)</li>
+                        <li><strong>Y-axis:</strong> Disease severity score (0-10, where 10 is most severe)</li>
+                        <li><strong>Pattern:</strong> Based on house finch data showing intermediate optimum</li>
+                    </ul>
+                    <p>Adjust pathogen diversity to see how facing multiple pathogen strains changes the optimal MHC diversity. With low pathogen diversity, few MHC alleles suffice. With high pathogen diversity, more MHC alleles are needed, but excessive diversity incurs fitness costs (autoimmunity).</p>
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="pathogenDiversity">Pathogen Strain Diversity: <span id="pathogenValue" class="value-display">5</span></label>
+                        <input type="range" id="pathogenDiversity" min="1" max="10" step="1" value="5">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="autoimmunityRisk">Autoimmunity Risk Factor: <span id="autoimmunityValue" class="value-display">0.5</span></label>
+                        <input type="range" id="autoimmunityRisk" min="0.1" max="1.0" step="0.1" value="0.5">
+                    </div>
+                </div>
+                
+                <canvas id="mhcChart" width="800" height="400"></canvas>
+            </div>
+            
+            <div class="simulation-container">
+                <h3>Simulation 3: Balancing Selection on MHC Alleles</h3>
+                
+                <div class="simulation-explanation">
+                    <h4>How This Simulation Works:</h4>
+                    <p>This simulation models allele frequency changes over generations under different selection regimes. It compares three scenarios:</p>
+                    <ul>
+                        <li><strong>Neutral Evolution (gray):</strong> Genetic drift alone—allele frequencies fluctuate randomly</li>
+                        <li><strong>Directional Selection (red):</strong> One allele favored—diversity decreases as beneficial allele fixes</li>
+                        <li><strong>Balancing Selection (green):</strong> Heterozygote advantage—diversity maintained at intermediate frequencies</li>
+                    </ul>
+                    <p>Adjust selection strength to see how powerful balancing selection must be to maintain diversity against drift. Larger populations and stronger selection maintain more diversity.</p>
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="popSize">Population Size: <span id="popSizeValue" class="value-display">1000</span></label>
+                        <input type="range" id="popSize" min="100" max="10000" step="100" value="1000">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="selectionStrength">Heterozygote Advantage (s): <span id="selectionValue" class="value-display">0.10</span></label>
+                        <input type="range" id="selectionStrength" min="0" max="0.3" step="0.01" value="0.10">
+                    </div>
+                </div>
+                
+                <canvas id="selectionChart" width="800" height="400"></canvas>
+            </div>
+        </section>
+        
+        <section class="concept-card">
+            <h2>Summary and Synthesis</h2>
+            
+            <p>This lecture has explored the critical role of adaptive immunity and MHC molecules in host defense against infectious diseases. The key concepts integrate immunology, genetics, evolution, and population biology:</p>
+            
+            <h3>Core Principles</h3>
+            
+            <ol>
+                <li><strong>Layered Defense Systems:</strong> Host organisms employ multiple defense layers (behavioral/physical barriers, innate immunity, adaptive immunity), each with distinct characteristics and trade-offs between speed and specificity.</li>
+                
+                <li><strong>Adaptive Immunity's Distinctive Features:</strong> Specificity, diversity, memory, and self-tolerance distinguish adaptive from innate immunity, enabling targeted pathogen elimination while preventing autoimmunity.</li>
+                
+                <li><strong>MHC Central Role:</strong> MHC molecules serve as the critical link between innate and adaptive immunity by presenting pathogen-derived peptides to T cells, enabling immune surveillance of intracellular and extracellular compartments.</li>
+                
+                <li><strong>Extraordinary MHC Polymorphism:</strong> MHC genes exhibit the highest polymorphism of any coding genes in vertebrates, maintained by powerful balancing selection driven by pathogen pressure and sexual selection.</li>
+                
+                <li><strong>Population-Level Consequences:</strong> MHC diversity has measurable impacts on population survival during disease outbreaks, with implications for conservation biology and understanding epidemic dynamics.</li>
+            </ol>
+            
+            <h3>Integrating Across Scales</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Scale</th>
+                        <th>Key Processes</th>
+                        <th>Implications for Disease</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Molecular</strong></td>
+                        <td>MHC-peptide binding, TCR recognition, CTL killing</td>
+                        <td>Determines which pathogens can be recognized and eliminated</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cellular</strong></td>
+                        <td>Lymphocyte activation, clonal expansion, memory formation</td>
+                        <td>Explains timing of immune responses and vaccine efficacy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Individual</strong></td>
+                        <td>Primary vs. secondary responses, disease progression</td>
+                        <td>Determines individual susceptibility and outcome</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Population</strong></td>
+                        <td>MHC allele frequency dynamics, balancing selection</td>
+                        <td>Influences epidemic spread and population viability</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Evolutionary</strong></td>
+                        <td>Host-pathogen coevolution, Red Queen dynamics</td>
+                        <td>Explains long-term patterns of diversity and disease emergence</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Clinical and Conservation Applications</h3>
+            
+            <ul>
+                <li><strong>Vaccine Design:</strong> Understanding memory responses guides vaccination strategies and booster schedules</li>
+                <li><strong>Transplant Medicine:</strong> MHC matching remains critical for organ transplant success</li>
+                <li><strong>Disease Prediction:</strong> MHC typing can predict susceptibility to autoimmune diseases and infections</li>
+                <li><strong>Conservation Genetics:</strong> MHC diversity assessment identifies populations at disease risk</li>
+                <li><strong>Epidemic Management:</strong> Understanding immune heterogeneity improves epidemic modeling</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Final Integration:</strong> The study of MHC and adaptive immunity exemplifies how molecular mechanisms scale up to affect population dynamics and evolutionary trajectories. The same molecules that determine whether an individual T cell recognizes an infected cell also influence which pathogen strains circulate in populations and how species respond to emerging diseases over evolutionary time. This integration across biological scales—from molecules to ecosystems—is the essence of population biology of infectious diseases. The case studies presented (DFTD, HIV, Soay sheep, house finches) demonstrate that these principles are not merely theoretical but have real, measurable consequences for individual survival and population persistence. Understanding these connections is essential for addressing contemporary challenges in human health, wildlife conservation, and emerging infectious diseases.
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // Global chart variables
+        let hivChart, mhcChart, selectionChart;
+        
+        // Initialize all simulations when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initHIVSimulation();
+            initMHCSimulation();
+            initSelectionSimulation();
+            
+            // Add event listeners for controls
+            document.getElementById('mutationRate').addEventListener('input', updateHIVSimulation);
+            document.getElementById('immuneStrength').addEventListener('input', updateHIVSimulation);
+            document.getElementById('pathogenDiversity').addEventListener('input', updateMHCSimulation);
+            document.getElementById('autoimmunityRisk').addEventListener('input', updateMHCSimulation);
+            document.getElementById('popSize').addEventListener('input', updateSelectionSimulation);
+            document.getElementById('selectionStrength').addEventListener('input', updateSelectionSimulation);
+        });
+        
+        // Simulation 1: HIV Infection Dynamics
+        function initHIVSimulation() {
+            const ctx = document.getElementById('hivChart').getContext('2d');
+            const data = generateHIVData(1.0, 1.0);
+            
+            hivChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.years,
+                    datasets: [
+                        {
+                            label: 'Viral Load (log copies/mL)',
+                            data: data.viralLoad,
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.4,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'CD4+ T Cells (cells/μL)',
+                            data: data.cd4Count,
+                            borderColor: '#ffffff',
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Antibody Levels (relative)',
+                            data: data.antibodies,
+                            borderColor: '#4a7c59',
+                            backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                            tension: 0.4,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'HIV Infection Progression: Three Phases',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        annotation: {
+                            annotations: {
+                                acute: {
+                                    type: 'box',
+                                    xMin: 0,
+                                    xMax: 0.5,
+                                    backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                                    borderWidth: 0,
+                                    label: {
+                                        display: true,
+                                        content: 'Acute',
+                                        position: 'start'
+                                    }
+                                },
+                                chronic: {
+                                    type: 'box',
+                                    xMin: 0.5,
+                                    xMax: 9,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.05)',
+                                    borderWidth: 0,
+                                    label: {
+                                        display: true,
+                                        content: 'Chronic Asymptomatic',
+                                        position: 'center'
+                                    }
+                                },
+                                aids: {
+                                    type: 'box',
+                                    xMin: 9,
+                                    xMax: 12,
+                                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                                    borderWidth: 0,
+                                    label: {
+                                        display: true,
+                                        content: 'AIDS',
+                                        position: 'end'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value (scaled)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years Since Infection'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function generateHIVData(mutationRate, immuneStrength) {
+            const years = [];
+            const viralLoad = [];
+            const cd4Count = [];
+            const antibodies = [];
+            
+            for (let t = 0; t <= 12; t += 0.5) {
+                years.push(t);
+                
+                // Acute phase (0-0.5 years)
+                if (t < 0.5) {
+                    viralLoad.push(6 + t * 2);
+                    cd4Count.push(800 - t * 800);
+                    antibodies.push(0);
+                }
+                // Chronic phase (0.5-9 years)
+                else if (t < 9) {
+                    const chronicTime = t - 0.5;
+                    const escapeRate = mutationRate / immuneStrength;
+                    viralLoad.push(4 + Math.log(1 + chronicTime * escapeRate * 0.3));
+                    cd4Count.push(600 - chronicTime * (350 / 8.5) * (1 / immuneStrength));
+                    antibodies.push(5 + Math.sin(chronicTime * 0.5) * 0.5 * immuneStrength);
+                }
+                // AIDS phase (9-12 years)
+                else {
+                    const aidsTime = t - 9;
+                    viralLoad.push(5 + aidsTime * 0.8);
+                    cd4Count.push(Math.max(0, 250 - aidsTime * 80));
+                    antibodies.push(Math.max(0, 5 - aidsTime * 1.5));
+                }
+            }
+            
+            return { years, viralLoad, cd4Count, antibodies };
+        }
+        
+        function updateHIVSimulation() {
+            const mutationRate = parseFloat(document.getElementById('mutationRate').value);
+            const immuneStrength = parseFloat(document.getElementById('immuneStrength').value);
+            
+            document.getElementById('mutationValue').textContent = mutationRate.toFixed(1);
+            document.getElementById('immuneValue').textContent = immuneStrength.toFixed(1);
+            
+            const data = generateHIVData(mutationRate, immuneStrength);
+            hivChart.data.datasets[0].data = data.viralLoad;
+            hivChart.data.datasets[1].data = data.cd4Count;
+            hivChart.data.datasets[2].data = data.antibodies;
+            hivChart.update();
+        }
+        
+        // Simulation 2: MHC Diversity and Disease Resistance
+        function initMHCSimulation() {
+            const ctx = document.getElementById('mhcChart').getContext('2d');
+            const data = generateMHCData(5, 0.5);
+            
+            mhcChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Disease Severity',
+                        data: data,
+                        backgroundColor: '#4a7c59',
+                        borderColor: '#2c5530',
+                        pointRadius: 6,
+                        showLine: true,
+                        tension: 0.4,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'MHC Diversity vs Disease Severity (Intermediate Optimum)',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Disease Severity (0-10)'
+                            },
+                            min: 0,
+                            max: 10,
+                            reverse: false
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Number of MHC Class II Alleles'
+                            },
+                            min: 0,
+                            max: 9
+                        }
+                    }
+                }
+            });
+        }
+        
+        function generateMHCData(pathogenDiversity, autoimmunityRisk) {
+            const data = [];
+            
+            for (let mhcAlleles = 1; mhcAlleles <= 8; mhcAlleles++) {
+                // Disease resistance improves with more alleles (up to pathogen diversity)
+                const pathogenResistance = Math.min(mhcAlleles / pathogenDiversity, 1);
+                const resistanceScore = pathogenResistance * 5;
+                
+                // Autoimmunity cost increases with very high diversity
+                const autoimmunityCost = mhcAlleles > 5 ? (mhcAlleles - 5) * autoimmunityRisk : 0;
+                
+                // Total disease severity (lower is better)
+                const severity = 7 - resistanceScore + autoimmunityCost + (Math.random() * 0.8 - 0.4);
+                
+                data.push({ x: mhcAlleles, y: Math.max(0, Math.min(10, severity)) });
+            }
+            
+            return data.sort((a, b) => a.x - b.x);
+        }
+        
+        function updateMHCSimulation() {
+            const pathogenDiversity = parseInt(document.getElementById('pathogenDiversity').value);
+            const autoimmunityRisk = parseFloat(document.getElementById('autoimmunityRisk').value);
+            
+            document.getElementById('pathogenValue').textContent = pathogenDiversity;
+            document.getElementById('autoimmunityValue').textContent = autoimmunityRisk.toFixed(1);
+            
+            const data = generateMHCData(pathogenDiversity, autoimmunityRisk);
+            mhcChart.data.datasets[0].data = data;
+            mhcChart.update();
+        }
+        
+        // Simulation 3: Balancing Selection
+        function initSelectionSimulation() {
+            const ctx = document.getElementById('selectionChart').getContext('2d');
+            const data = generateSelectionData(1000, 0.10);
+            
+            selectionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.generations,
+                    datasets: [
+                        {
+                            label: 'Neutral (Drift)',
+                            data: data.neutral,
+                            borderColor: '#6c757d',
+                            backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                            tension: 0.1,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Directional Selection',
+                            data: data.directional,
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Balancing Selection',
+                            data: data.balancing,
+                            borderColor: '#4a7c59',
+                            backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Allele Frequency Dynamics Under Different Selection Regimes',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Allele Frequency'
+                            },
+                            min: 0,
+                            max: 1
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Generations'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function generateSelectionData(popSize, selectionStrength) {
+            const generations = [];
+            const neutral = [];
+            const directional = [];
+            const balancing = [];
+            
+            let pNeutral = 0.5;
+            let pDirectional = 0.5;
+            let pBalancing = 0.5;
+            
+            for (let gen = 0; gen <= 100; gen++) {
+                generations.push(gen);
+                
+                // Neutral evolution (genetic drift)
+                const driftVariance = pNeutral * (1 - pNeutral) / (2 * popSize);
+                pNeutral += (Math.random() - 0.5) * Math.sqrt(driftVariance) * 10;
+                pNeutral = Math.max(0, Math.min(1, pNeutral));
+                neutral.push(pNeutral);
+                
+                // Directional selection (favoring one allele)
+                const fitnessAdvantage = 0.1;
+                pDirectional = pDirectional * (1 + fitnessAdvantage) / 
+                              (pDirectional * (1 + fitnessAdvantage) + (1 - pDirectional));
+                pDirectional = Math.min(0.99, pDirectional);
+                directional.push(pDirectional);
+                
+                // Balancing selection (heterozygote advantage)
+                if (selectionStrength > 0) {
+                    const wAA = 1 - selectionStrength;
+                    const wAB = 1;
+                    const wBB = 1 - selectionStrength;
+                    
+                    const q = 1 - pBalancing;
+                    const meanFitness = pBalancing * pBalancing * wAA + 
+                                       2 * pBalancing * q * wAB + 
+                                       q * q * wBB;
+                    
+                    const pNext = (pBalancing * pBalancing * wAA + pBalancing * q * wAB) / meanFitness;
+                    pBalancing = pNext + (Math.random() - 0.5) * Math.sqrt(pBalancing * (1 - pBalancing) / (2 * popSize)) * 2;
+                    pBalancing = Math.max(0.1, Math.min(0.9, pBalancing));
+                } else {
+                    pBalancing += (Math.random() - 0.5) * Math.sqrt(pBalancing * (1 - pBalancing) / (2 * popSize)) * 10;
+                    pBalancing = Math.max(0, Math.min(1, pBalancing));
+                }
+                balancing.push(pBalancing);
+            }
+            
+            return { generations, neutral, directional, balancing };
+        }
+        
+        function updateSelectionSimulation() {
+            const popSize = parseInt(document.getElementById('popSize').value);
+            const selectionStrength = parseFloat(document.getElementById('selectionStrength').value);
+            
+            document.getElementById('popSizeValue').textContent = popSize;
+            document.getElementById('selectionValue').textContent = selectionStrength.toFixed(2);
+            
+            const data = generateSelectionData(popSize, selectionStrength);
+            selectionChart.data.datasets[0].data = data.neutral;
+            selectionChart.data.datasets[1].data = data.directional;
+            selectionChart.data.datasets[2].data = data.balancing;
+            selectionChart.update();
+        }
+    </script>
+</body>
+</html>
