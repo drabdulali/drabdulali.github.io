@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Networks and Superspreaders | BIOL 6150</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .objectives ul {
+            margin-left: 2rem;
+        }
+
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .equation-box .equation {
+            font-family: 'Courier New', monospace;
+            font-size: 1.4rem;
+            color: #2c5530;
+            margin: 1rem 0;
+        }
+
+        .key-insight {
+            background: #fff8e1;
+            border-left: 5px solid #ffa726;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .key-insight strong {
+            color: #e65100;
+        }
+
+        .simulation-box {
+            background: white;
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .simulation-explanation {
+            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #2c5530;
+        }
+
+        .control-group input {
+            padding: 0.5rem;
+            border: 1px solid #4a7c59;
+            border-radius: 4px;
+        }
+
+        .control-group output {
+            font-weight: bold;
+            color: #4a7c59;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: 400px !important;
+            margin: 1rem 0;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .acronym-box {
+            background: linear-gradient(135deg, #f3e5f5, #fce4ec);
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .acronym-box h4 {
+            color: #6a1b9a;
+            margin-bottom: 0.5rem;
+        }
+
+        .memory-anchor {
+            background: linear-gradient(135deg, #e1f5fe, #f0f4ff);
+            border-left: 4px solid #0288d1;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-style: italic;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4a7c59;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .case-study h4 {
+            color: #e65100;
+            margin-bottom: 1rem;
+        }
+
+        .takeaway {
+            background: #c8e6c9;
+            border-left: 4px solid #388e3c;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .takeaway strong {
+            color: #1b5e20;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Contact Networks and Superspreaders of Infectious Disease</h1>
+        <p>Population Biology of Infectious Diseases - BIOL 6150</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#hiv">HIV Case Study</a></li>
+            <li><a href="#superspreaders">Superspreaders</a></li>
+            <li><a href="#networks">Contact Networks</a></li>
+            <li><a href="#centrality">Network Centrality</a></li>
+            <li><a href="#vaccination">Vaccination Strategies</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand how heterogeneity in contact rates influences disease transmission dynamics</li>
+                <li>Explain the role of superspreaders in maintaining and initiating epidemics</li>
+                <li>Apply network theory concepts to model pathogen spread in structured populations</li>
+                <li>Evaluate how network position affects individual infection risk and outbreak probability</li>
+                <li>Design targeted vaccination strategies based on contact network structure</li>
+                <li>Calculate modified R₀ values that incorporate variance in contact rates</li>
+            </ul>
+        </section>
+
+        <div class="acronym-box">
+            <h4>Memory Acronym: VCHN-SS</h4>
+            <p><strong>V</strong>ariance - <strong>C</strong>ontacts - <strong>H</strong>eterogeneity - <strong>N</strong>etworks - <strong>S</strong>uper<strong>S</strong>preaders</p>
+            <p>Remember: "Very Central Hubs Network SuperSpreaders"</p>
+        </div>
+
+        <section id="hiv" class="concept-card">
+            <h2>HIV/AIDS: A Case Study in Heterogeneous Transmission</h2>
+            
+            <h3>The Disease and Pathogen</h3>
+            <p>Acquired Immunodeficiency Syndrome (AIDS) results from infection with the Human Immunodeficiency Virus (HIV), a retrovirus that systematically destroys the immune system over the course of many years. HIV represents one of the most significant pandemics in human history, fundamentally transforming our understanding of sexually transmitted infections and heterogeneous disease transmission.</p>
+
+            <div class="case-study">
+                <h4>Case Study: The Global HIV Pandemic</h4>
+                <p><strong>Epidemiological Profile (2015 Data):</strong></p>
+                <ul>
+                    <li>37 million people living with HIV/AIDS globally</li>
+                    <li>35 million deaths since the early 1990s</li>
+                    <li>Highly unequal geographic distribution: Africa (26.5M), Asia (6.5M), Eastern Europe (1.6M), Latin America (1.4M), North America (1.0M), Western Europe (0.6M)</li>
+                </ul>
+                <div class="takeaway">
+                    <strong>Key Takeaway:</strong> HIV demonstrates how a slowly-progressing pathogen with heterogeneous transmission can create sustained global pandemic conditions. The long asymptomatic period (5-15 years) allows extensive transmission before symptoms develop, while variance in sexual contact rates creates superspreading dynamics.
+                </div>
+            </div>
+
+            <h3>Clinical Progression: Three Distinct Phases</h3>
+            <p>Understanding HIV progression is critical for modeling transmission dynamics because infectiousness varies dramatically across disease stages:</p>
+
+            <table>
+                <tr>
+                    <th>Phase</th>
+                    <th>Duration</th>
+                    <th>Clinical Features</th>
+                    <th>Transmission Significance</th>
+                </tr>
+                <tr>
+                    <td><strong>Acute Phase</strong></td>
+                    <td>First few months</td>
+                    <td>High viral load, flu-like symptoms, virus enters CD4+ T cells</td>
+                    <td>Extremely high infectiousness due to peak viremia</td>
+                </tr>
+                <tr>
+                    <td><strong>Asymptomatic Phase</strong></td>
+                    <td>5-15 years</td>
+                    <td>Immune system controls virus, reduced viral replication, few/no symptoms</td>
+                    <td>Lower infectiousness but longest duration enables most transmission</td>
+                </tr>
+                <tr>
+                    <td><strong>AIDS Phase</strong></td>
+                    <td>Variable (months-years)</td>
+                    <td>Immune collapse, CD4+ count drops, opportunistic infections, high viral load</td>
+                    <td>High infectiousness but reduced transmission opportunities due to illness</td>
+                </tr>
+            </table>
+
+            <div class="memory-anchor">
+                <strong>Visual Memory:</strong> Picture HIV infection as a "silent storm" - the acute phase is lightning (brief, intense), the asymptomatic phase is the calm before the hurricane (long, deceptive), and AIDS is the hurricane itself (devastating but often too late for extensive transmission).
+            </div>
+
+            <h3>Transmission Routes and Heterogeneity</h3>
+            <p>HIV transmission demonstrates extreme heterogeneity based on route and behavioral factors:</p>
+
+            <ul>
+                <li><strong>Sexual Intercourse (80% of cases):</strong> Highly variable transmission probability depending on type of contact, viral load, presence of other STIs, and circumcision status. This route shows the greatest heterogeneity in contact rates.</li>
+                <li><strong>Intravenous Drug Use:</strong> Transmission through sharing needles. Creates network structures distinct from sexual networks.</li>
+                <li><strong>Blood Transfusion:</strong> Historically significant but greatly reduced through screening protocols.</li>
+                <li><strong>Vertical Transmission:</strong> Mother to child during pregnancy, birth, or breastfeeding. Dramatically reduced (>90%) through antiretroviral therapy during pregnancy.</li>
+            </ul>
+
+            <div class="case-study">
+                <h4>Research Finding: Real-World HIV Networks</h4>
+                <p>Ragonnet-Cronin et al. (2018) used phylogenetic analysis to reconstruct actual HIV transmission networks, revealing:</p>
+                <ul>
+                    <li>Networks show clustering patterns with highly connected "hub" individuals</li>
+                    <li>Men who have sex with men (MSM) networks show different topology than heterosexual networks</li>
+                    <li>Some individuals function as bridges between otherwise disconnected network components</li>
+                    <li>Network position better predicts infection risk than individual-level risk behaviors alone</li>
+                </ul>
+                <div class="takeaway">
+                    <strong>Key Takeaway:</strong> HIV spread is fundamentally a network phenomenon. Individual risk cannot be assessed without understanding social and sexual network structure. This finding revolutionized public health approaches to HIV prevention.
+                </div>
+            </div>
+
+            <h3>Modeling HIV Dynamics: Simple SI Framework</h3>
+            <p>While HIV involves complex within-host dynamics, population-level transmission can be approximated using a modified SI (Susceptible-Infectious) model that accounts for the three clinical phases:</p>
+
+            <div class="equation-box">
+                <p>Basic HIV Transmission Model:</p>
+                <div class="equation">
+                    S → I<sub>acute</sub> → I<sub>asymptomatic</sub> → I<sub>AIDS</sub> → Death
+                </div>
+                <p>Where transmission rate β varies by phase:</p>
+                <div class="equation">
+                    β<sub>acute</sub> > β<sub>AIDS</sub> > β<sub>asymptomatic</sub>
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <strong>Critical Insight:</strong> The long asymptomatic period creates a "hidden transmission period" where infected individuals feel healthy and continue normal sexual activity, enabling sustained transmission despite relatively low per-contact transmission probability during this phase. This biological feature interacts with behavioral heterogeneity to drive epidemic dynamics.
+            </div>
+        </section>
+
+        <section id="heterogeneity" class="concept-card">
+            <h2>Heterogeneity in Contact Rates: Beyond the Mean</h2>
+
+            <h3>The Fundamental Problem with Averages</h3>
+            <p>Traditional epidemic models assume all individuals have the same contact rate (homogeneous mixing). However, real populations show dramatic variation in contact frequencies. This heterogeneity has profound implications for disease transmission that cannot be captured by using average contact rates alone.</p>
+
+            <div class="case-study">
+                <h4>Empirical Data: Sexual Partner Exchange Rates</h4>
+                <p>Studies of sexual behavior reveal consistent patterns of heterogeneity across different time scales:</p>
+                <table>
+                    <tr>
+                        <th>Time Period</th>
+                        <th>Mean Partners</th>
+                        <th>Variance</th>
+                        <th>Variance:Mean Ratio</th>
+                    </tr>
+                    <tr>
+                        <td>Past 3 months</td>
+                        <td>1.14</td>
+                        <td>1.05</td>
+                        <td>0.92</td>
+                    </tr>
+                    <tr>
+                        <td>Past year</td>
+                        <td>2.84</td>
+                        <td>12.8</td>
+                        <td>4.51</td>
+                    </tr>
+                    <tr>
+                        <td>Past 2 years</td>
+                        <td>3.67</td>
+                        <td>15.3</td>
+                        <td>4.17</td>
+                    </tr>
+                    <tr>
+                        <td>Lifetime</td>
+                        <td>4.54</td>
+                        <td>22.2</td>
+                        <td>4.89</td>
+                    </tr>
+                </table>
+                <div class="takeaway">
+                    <strong>Key Takeaway:</strong> Variance consistently exceeds the mean (σ² > μ), indicating aggregated or overdispersed distributions. This pattern signals that a small proportion of individuals have many partners while most have few - the signature of superspreading potential.
+                </div>
+            </div>
+
+            <h3>Statistical Interpretation: Three Distribution Patterns</h3>
+            <p>The relationship between variance (σ²) and mean (μ) reveals the underlying contact structure:</p>
+
+            <div class="equation-box">
+                <p><strong>Regular Distribution (σ² < μ):</strong></p>
+                <p>Everyone has similar numbers of partners</p>
+                <p>Minimal heterogeneity - epidemic spreads uniformly</p>
+                <br>
+                <p><strong>Random Distribution (σ² = μ):</strong></p>
+                <p>Contact rates follow Poisson distribution</p>
+                <p>Moderate heterogeneity - standard models approximately correct</p>
+                <br>
+                <p><strong>Aggregated Distribution (σ² >> μ):</strong></p>
+                <p>Few individuals have many contacts, most have few</p>
+                <p>High heterogeneity - superspreader dynamics possible</p>
+            </div>
+
+            <div class="memory-anchor">
+                <strong>Story-Based Memory:</strong> Imagine three nightclubs. In the REGULAR club, everyone dances with exactly 3 people per night. In the RANDOM club, some nights you dance with 2 people, some nights 4, averaging 3. In the AGGREGATED club, most people stand against the wall while a few "social butterflies" dance with dozens of people. Which club would a flu virus love? The aggregated one - it can exploit those super-connectors!
+            </div>
+
+            <h3>Incorporating Heterogeneity into R₀</h3>
+            <p>The basic reproduction number must be modified to account for variance in contact rates. This correction can dramatically alter epidemic predictions.</p>
+
+            <div class="equation-box">
+                <p>Standard R₀ for STDs (assumes homogeneous mixing):</p>
+                <div class="equation">
+                    R₀ = βc / (α + d)
+                </div>
+                <p>where:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>β = transmission probability per contact</li>
+                    <li>c = contact rate (partners/time)</li>
+                    <li>α = disease-induced mortality rate</li>
+                    <li>d = natural mortality rate</li>
+                </ul>
+                <br><br>
+                <p><strong>Corrected R₀ accounting for heterogeneity:</strong></p>
+                <div class="equation">
+                    R₀ = β(μ + σ²/μ) / (α + d)
+                </div>
+                <p>where:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>μ = mean contact rate</li>
+                    <li>σ² = variance in contact rate</li>
+                    <li>σ²/μ = variance-to-mean ratio</li>
+                </ul>
+                <br><br>
+                <p>Effective contact rate: <strong>c<sub>eff</sub> = μ + σ²/μ</strong></p>
+            </div>
+
+            <div class="key-insight">
+                <strong>Critical Insight:</strong> The term σ²/μ represents the "superspreading correction factor." When variance equals the mean (σ² = μ), this term equals μ and R₀ doubles! For highly heterogeneous populations where σ² >> μ, R₀ can be much larger than predicted by the mean contact rate alone.
+            </div>
+
+            <div class="case-study">
+                <h4>Quantitative Example: The Power of Heterogeneity</h4>
+                <p><strong>Scenario:</strong> Population where 90% have 2 partners, 10% have 20 partners</p>
+                <p><strong>Calculations:</strong></p>
+                <ul>
+                    <li>Mean (μ) = 0.9(2) + 0.1(20) = 1.8 + 2.0 = 3.8 partners</li>
+                    <li>Variance (σ²) ≈ 32</li>
+                    <li>Assuming β = 0.1, α = 0.1, d = 0.1:</li>
+                </ul>
+                <br>
+                <p><strong>Using mean only:</strong></p>
+                <div class="equation">
+                    R₀ = 0.1 × 3.8 / 0.2 = 1.9
+                </div>
+                <p><strong>Accounting for heterogeneity:</strong></p>
+                <div class="equation">
+                    c<sub>eff</sub> = 3.8 + 32/3.8 = 3.8 + 8.4 = 12.2<br>
+                    R₀ = 0.1 × 12.2 / 0.2 = 6.1
+                </div>
+                <div class="takeaway">
+                    <strong>Key Takeaway:</strong> Heterogeneity increased R₀ from 1.9 to 6.1 - more than tripling it! This means the difference between a dying outbreak (R₀ < 2) and a major epidemic (R₀ > 6). Ignoring heterogeneity leads to massive underestimation of epidemic potential.
+                </div>
+            </div>
+        </section>
+
+        <div class="simulation-box">
+            <h3>Interactive Simulation: R₀ and Contact Heterogeneity</h3>
+            <div class="simulation-explanation">
+                <h4>How this simulation works:</h4>
+                <p>This simulation demonstrates how variance in contact rates affects the basic reproduction number (R₀). You can adjust the mean contact rate and variance to see how heterogeneity amplifies transmission potential. The graph shows how R₀ increases exponentially with variance, even when mean contact rate stays constant. This illustrates why superspreaders (who contribute to high variance) are so epidemiologically significant.</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="meanContacts">Mean Contact Rate (μ): <output id="meanOutput">3</output></label>
+                    <input type="range" id="meanContacts" min="1" max="10" value="3" step="0.5">
+                </div>
+                <div class="control-group">
+                    <label for="variance">Variance (σ²): <output id="varianceOutput">5</output></label>
+                    <input type="range" id="variance" min="0" max="40" value="5" step="1">
+                </div>
+                <div class="control-group">
+                    <label for="beta">Transmission Probability (β): <output id="betaOutput">0.1</output></label>
+                    <input type="range" id="beta" min="0.01" max="0.5" value="0.1" step="0.01">
+                </div>
+                <div class="control-group">
+                    <label for="mortality">Mortality Rate (α + d): <output id="mortalityOutput">0.2</output></label>
+                    <input type="range" id="mortality" min="0.05" max="0.5" value="0.2" step="0.05">
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+                <h4>Results:</h4>
+                <p>Effective Contact Rate (c<sub>eff</sub>): <strong id="effectiveContact">4.67</strong></p>
+                <p>R₀ (ignoring heterogeneity): <strong id="r0Simple">1.50</strong></p>
+                <p>R₀ (with heterogeneity): <strong id="r0Corrected">2.33</strong></p>
+                <p>Amplification Factor: <strong id="amplification">1.56x</strong></p>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="r0Chart"></canvas>
+            </div>
+        </div>
+
+        <section id="superspreaders" class="concept-card">
+            <h2>Superspreaders: The 20-80 Rule of Infectious Disease</h2>
+
+            <h3>Defining Superspreaders</h3>
+            <p>A superspreader is an infected individual who transmits a pathogen to substantially more secondary cases than the average infected person. While definitions vary by pathogen and context, superspreaders typically account for a disproportionate fraction of transmission events - often following a "20-80 rule" where approximately 20% of cases cause 80% of transmission.</p>
+
+            <div class="acronym-box">
+                <h4>SPREADS Framework for Superspreader Characteristics:</h4>
+                <p><strong>S</strong>hedding (high pathogen load)<br>
+                <strong>P</strong>osition (central network location)<br>
+                <strong>R</strong>ate (many contacts)<br>
+                <strong>E</strong>xposure duration (long infectious period)<br>
+                <strong>A</strong>symptomatic (or mild symptoms enabling mobility)<br>
+                <strong>D</strong>ensity (contacts in crowded settings)<br>
+                <strong>S</strong>usceptible contacts (many uninfected individuals)</p>
+            </div>
+
+            <h3>Two Primary Mechanisms of Superspreading</h3>
+
+            <p><strong>1. High Contact Rates (Behavioral Superspreading):</strong></p>
+            <p>Individuals with unusually many contacts per unit time. For sexually transmitted diseases, this includes individuals with many sexual partners. For respiratory diseases, this includes individuals who interact with many people (teachers, healthcare workers, public speakers).</p>
+
+            <p><strong>2. Long Infectious Periods (Biological Superspreading):</strong></p>
+            <p>Individuals who remain infectious for extended periods, particularly when asymptomatic or experiencing mild symptoms. This allows sustained transmission without behavioral changes or isolation.</p>
+
+            <div class="memory-anchor">
+                <strong>Visual Memory:</strong> Think of superspreaders as "epidemic multipliers" - while most infected people might light one or two candles, superspreaders are like someone with a flamethrower in a fireworks factory. The difference isn't just quantitative; it's qualitatively different epidemic dynamics.
+            </div>
+
+            <div class="case-study">
+                <h4>Historical Case Study: Typhoid Mary (Mary Mallon, 1900-1907)</h4>
+                <p><strong>Background:</strong> Mary Mallon was an Irish-American cook working for wealthy families in New York during the early 1900s. She became the first documented asymptomatic carrier of typhoid fever in the United States.</p>
+                
+                <p><strong>Epidemiological Profile:</strong></p>
+                <ul>
+                    <li>Directly infected 53 people over approximately 7 years (1900-1907)</li>
+                    <li>3 confirmed deaths</li>
+                    <li>Unknown number of additional secondary and tertiary cases</li>
+                    <li>Worked as a cook, frequently preparing dishes that required no cooking (especially her famous peach ice cream)</li>
+                    <li>Poor personal hygiene practices, particularly handwashing</li>
+                </ul>
+
+                <p><strong>Investigation by George Soper:</strong></p>
+                <p>Soper, a sanitation engineer, was called to investigate unusual typhoid outbreaks among wealthy families. Typhoid was rare in affluent households with good sanitation, making these cases epidemiologically puzzling. Soper traced the common factor: Mary Mallon had worked for all affected families shortly before outbreaks began.</p>
+
+                <p><strong>Public Health Response:</strong></p>
+                <ul>
+                    <li>Mary repeatedly refused to provide stool samples for testing</li>
+                    <li>She was forcibly quarantined on North Brother Island near New York City</li>
+                    <li>Released after agreeing not to work as a cook</li>
+                    <li>Violated agreement and continued cooking under assumed names</li>
+                    <li>Caused additional outbreaks including 25 cases at Sloane Maternity Hospital</li>
+                    <li>Permanently quarantined for the final 23 years of her life</li>
+                </ul>
+
+                <div class="takeaway">
+                    <strong>Key Takeaways:</strong>
+                    <ul>
+                        <li><strong>Historical context:</strong> This occurred before antibiotics, when typhoid was a serious threat. Mary represented a newly understood phenomenon - the healthy carrier state.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study: SARS-CoV-1 and Superspreading Events (2003)</h4>
+                <p><strong>Background:</strong> The 2003 SARS epidemic provided the first modern, well-documented case of superspreading driving an epidemic. The outbreak began in Guangdong Province, China, and spread globally through air travel.</p>
+
+                <p><strong>Key Superspreading Event - Singapore:</strong></p>
+                <ul>
+                    <li><strong>Esther Mok</strong>, a 26-year-old flight attendant, became Singapore's index case</li>
+                    <li>Infected 23 people directly - 10x the average R₀ of 2-3</li>
+                    <li>Most transmission occurred in the hospital where she was treated</li>
+                    <li>Created a transmission chain affecting over 160 people</li>
+                </ul>
+
+                <p><strong>Epidemiological Pattern:</strong></p>
+                <p>Analysis of SARS transmission revealed extreme heterogeneity:</p>
+                <ul>
+                    <li>Approximately 80% of cases generated zero secondary cases</li>
+                    <li>~20% of cases caused the majority of transmission</li>
+                    <li>A small number of individuals infected >10 people each</li>
+                    <li>Several superspreading events involved hospital settings</li>
+                </ul>
+
+                <p><strong>Contributing Factors to SARS Superspreading:</strong></p>
+                <ul>
+                    <li><strong>High viral shedding:</strong> Some patients produced exceptionally high viral loads</li>
+                    <li><strong>Timing:</strong> Peak infectiousness coincided with hospitalization (nosocomial transmission)</li>
+                    <li><strong>Aerosol-generating procedures:</strong> Medical procedures amplified airborne transmission</li>
+                    <li><strong>Crowded settings:</strong> Hospitals, hotels, and apartment buildings facilitated spread</li>
+                    <li><strong>Delayed isolation:</strong> Patients remained in community before diagnosis</li>
+                </ul>
+
+                <div class="takeaway">
+                    <strong>Key Takeaways:</strong>
+                    <ul>
+                        <li><strong>Stochasticity matters:</strong> SARS outbreaks were highly unpredictable due to superspreading. Some chains died out quickly; others exploded.</li>
+                        <li><strong>Contact tracing is crucial:</strong> Because most cases didn't transmit, intensive contact tracing could interrupt chains.</li>
+                        <li><strong>Environmental factors amplify biological variation:</strong> Superspreading resulted from interactions between individual biology (viral load), behavior (crowded settings), and environment (poor ventilation).</li>
+                        <li><strong>Public health success:</strong> SARS was contained without a vaccine, partly because transmission was concentrated in identifiable superspreading events that could be interrupted.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Mathematical Framework: The Dispersion Parameter (k)</h3>
+            <p>Epidemiologists quantify superspreading using the dispersion parameter k from the negative binomial distribution. This parameter describes how variable transmission is across individuals.</p>
+
+            <div class="equation-box">
+                <p>Negative Binomial Distribution for Secondary Cases:</p>
+                <div class="equation">
+                    P(n) = Γ(n + k) / (Γ(k) × n!) × (k/(R₀ + k))^k × (R₀/(R₀ + k))^n
+                </div>
+                <p>Key interpretations:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li><strong>k → ∞:</strong> Homogeneous transmission (everyone causes ~R₀ cases)</li>
+                    <li><strong>k ≈ 1:</strong> Moderate heterogeneity (influenza-like)</li>
+                    <li><strong>k < 0.5:</strong> Extreme heterogeneity (superspreading dominates)</li>
+                    <li><strong>k → 0:</strong> Almost all transmission from superspreaders</li>
+                </ul>
+                <br><br>
+                <p><strong>Pathogen-specific k values:</strong></p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>SARS-CoV-1: k ≈ 0.16 (extreme superspreading)</li>
+                    <li>MERS-CoV: k ≈ 0.25 (high superspreading)</li>
+                    <li>Ebola: k ≈ 0.27 (high superspreading)</li>
+                    <li>COVID-19: k ≈ 0.1-0.5 (substantial superspreading)</li>
+                    <li>Influenza: k ≈ 1 (moderate heterogeneity)</li>
+                </ul>
+            </div>
+
+            <div class="key-insight">
+                <strong>Critical Insight:</strong> When k is small, most infected individuals are "transmission dead-ends" while a few cause large outbreaks. This creates a highly stochastic epidemic where outbreak size is unpredictable and depends critically on chance early events. It also means that aggressive contact tracing targeting clusters can be highly effective.
+            </div>
+        </section>
+
+        <section id="networks" class="concept-card">
+            <h2>Contact Networks: Beyond Compartmental Models</h2>
+
+            <h3>Fundamental Concepts</h3>
+            <p>A contact network is a mathematical structure representing relationships between individuals in a population. Rather than assuming random mixing (as in compartmental SIR models), network models explicitly represent who contacts whom.</p>
+
+            <p><strong>Network Components:</strong></p>
+            <ul>
+                <li><strong>Nodes (vertices):</strong> Individual hosts in the population</li>
+                <li><strong>Edges (ties, links):</strong> Epidemiologically relevant contacts between nodes</li>
+                <li><strong>Degree:</strong> Number of edges connected to a node (contact rate)</li>
+                <li><strong>Path:</strong> Sequence of edges connecting two nodes</li>
+                <li><strong>Component:</strong> Set of nodes where all can reach each other through paths</li>
+            </ul>
+
+            <div class="memory-anchor">
+                <strong>Story-Based Memory:</strong> Imagine a zombie apocalypse movie. The compartmental model says "10% of people are zombies." The network model shows you EXACTLY who bit whom, revealing that Patient Zero was a dentist who infected 50 people, while most zombies never infected anyone. Same number of zombies, completely different story about how we got there and how to stop it.
+            </div>
+
+            <h3>Network Topology: Three Fundamental Structures</h3>
+            <p>Watts and Strogatz (1998) identified three archetypal network structures that represent a spectrum from ordered to random:</p>
+
+            <table>
+                <tr>
+                    <th>Network Type</th>
+                    <th>Structure</th>
+                    <th>Characteristics</th>
+                    <th>Epidemic Properties</th>
+                </tr>
+                <tr>
+                    <td><strong>Regular</strong></td>
+                    <td>Everyone has exactly k neighbors (lattice-like)</td>
+                    <td>High clustering, long path lengths, predictable</td>
+                    <td>Slow epidemic spread, predictable dynamics, easy to control with local interventions</td>
+                </tr>
+                <tr>
+                    <td><strong>Small-World</strong></td>
+                    <td>Mostly local connections with occasional long-range "shortcuts"</td>
+                    <td>High clustering, short path lengths</td>
+                    <td>Rapid spread along shortcuts, local clustering maintains transmission, realistic for many social networks</td>
+                </tr>
+                <tr>
+                    <td><strong>Random</strong></td>
+                    <td>Connections formed randomly with probability p</td>
+                    <td>Low clustering, short path lengths, highly variable</td>
+                    <td>Rapid epidemic spread, high stochasticity, matches some disease transmission networks</td>
+                </tr>
+            </table>
+
+            <div class="key-insight">
+                <strong>Critical Insight:</strong> Most real social networks exhibit small-world properties. This means diseases can spread rapidly through the population (short path lengths) while maintaining local clustering (facilitating superspreading events within communities). This combination is particularly dangerous for epidemic spread.
+            </div>
+
+            <h3>Compartmental vs. Network Approaches</h3>
+            <p>The fundamental difference between these modeling frameworks lies in how they represent population structure:</p>
+
+            <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <h4>Compartmental Model (SIR):</h4>
+                <p><strong>Assumptions:</strong></p>
+                <ul>
+                    <li>Population divided into discrete states (S, I, R)</li>
+                    <li>Individuals within each state are identical</li>
+                    <li>Random mixing - any susceptible equally likely to contact any infectious</li>
+                    <li>Transmission probability uniform across all contacts</li>
+                </ul>
+                <p><strong>Advantages:</strong> Mathematically tractable, provides average dynamics, good for large-scale predictions</p>
+                <p><strong>Limitations:</strong> Ignores network structure, misses superspreading, cannot predict which specific individuals get infected</p>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fff3e0, #fce4ec); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <h4>Network Model:</h4>
+                <p><strong>Assumptions:</strong></p>
+                <ul>
+                    <li>Explicit representation of who contacts whom</li>
+                    <li>Transmission only occurs along network edges</li>
+                    <li>Individual heterogeneity in contact patterns preserved</li>
+                    <li>Can incorporate variable transmission probability per edge</li>
+                </ul>
+                <p><strong>Advantages:</strong> Captures heterogeneity, predicts specific infection patterns, enables targeted interventions</p>
+                <p><strong>Limitations:</strong> Requires detailed network data, computationally intensive, network structure may change over time</p>
+            </div>
+
+            <h3>Dynamics on Networks: A Step-by-Step Example</h3>
+            <p>Consider a simple network where one central node (superspreader candidate) connects to multiple peripheral nodes. If infection enters through the central node versus a peripheral node, outcomes differ dramatically:</p>
+
+            <table>
+                <tr>
+                    <th>Time Step</th>
+                    <th>Central Node Entry</th>
+                    <th>Peripheral Node Entry</th>
+                </tr>
+                <tr>
+                    <td>t = 0</td>
+                    <td>1 central node infected</td>
+                    <td>1 peripheral node infected</td>
+                </tr>
+                <tr>
+                    <td>t = 1</td>
+                    <td>6 nodes infected (all neighbors)</td>
+                    <td>2 nodes infected (limited spread)</td>
+                </tr>
+                <tr>
+                    <td>t = 2</td>
+                    <td>15+ nodes infected (explosive spread)</td>
+                    <td>4-5 nodes infected (slow spread)</td>
+                </tr>
+                <tr>
+                    <td>Final</td>
+                    <td>Major epidemic likely (>50% infected)</td>
+                    <td>Limited outbreak or fadeout (<20% infected)</td>
+                </tr>
+            </table>
+
+            <div class="takeaway">
+                <strong>Key Takeaway:</strong> Network position of the index case determines outbreak probability and size. This explains why epidemics are inherently stochastic - the same pathogen with the same R₀ can cause vastly different outcomes depending on "where" (network position) infection enters.
+            </div>
+
+            <div class="case-study">
+                <h4>Research Application: HIV Transmission Networks</h4>
+                <p><strong>Study:</strong> Phylogenetic reconstruction of HIV transmission networks reveals non-random structure</p>
+                
+                <p><strong>Key Findings:</strong></p>
+                <ul>
+                    <li>HIV transmission networks show "scale-free" properties with hub individuals</li>
+                    <li>MSM networks tend to be denser and more connected than heterosexual networks</li>
+                    <li>Geographic clustering combined with long-distance links (small-world properties)</li>
+                    <li>Some individuals function as "bridges" between otherwise disconnected network components</li>
+                </ul>
+
+                <p><strong>Public Health Implications:</strong></p>
+                <ul>
+                    <li>Molecular epidemiology can identify transmission clusters for targeted intervention</li>
+                    <li>Partner notification should extend beyond first-generation contacts in high-risk networks</li>
+                    <li>PrEP (pre-exposure prophylaxis) provision should prioritize individuals with high network centrality</li>
+                    <li>Breaking connections to high-degree nodes can fragment networks and prevent epidemic spread</li>
+                </ul>
+
+                <div class="takeaway">
+                    <strong>Key Takeaway:</strong> HIV prevention shifted from individual-based to network-based approaches after recognizing that infection risk depends not just on personal behavior but on position within sexual networks. "Your risk is not just who you sleep with, but who they sleep with, and who those people sleep with."
+                </div>
+            </div>
+        </section>
+
+        <section id="centrality" class="concept-card">
+            <h2>Network Centrality: Quantifying Importance</h2>
+
+            <h3>Multiple Definitions of "Central"</h3>
+            <p>Not all network positions are equal. Centrality measures quantify how "important" a node is within a network. Different centrality measures capture different aspects of importance, and the most relevant measure depends on the epidemiological question.</p>
+
+            <div class="acronym-box">
+                <h4>DEB-C Framework for Centrality Measures:</h4>
+                <p><strong>D</strong>egree - direct connections<br>
+                <strong>E</strong>igenvector - connected to well-connected nodes<br>
+                <strong>B</strong>etweenness - lies on paths between others<br>
+                <strong>C</strong>loseness - short paths to all others</p>
+            </div>
+
+            <h3>Degree Centrality: The Simple Count</h3>
+            <p>Degree centrality is simply the number of edges connected to a node - the most intuitive measure of connectivity.</p>
+
+            <div class="equation-box">
+                <p>Degree Centrality:</p>
+                <div class="equation">
+                    C<sub>D</sub>(i) = k<sub>i</sub>
+                </div>
+                <p>where k<sub>i</sub> = number of edges connected to node i</p>
+                <br>
+                <p>Normalized degree centrality:</p>
+                <div class="equation">
+                    C<sub>D</sub>'(i) = k<sub>i</sub> / (N - 1)
+                </div>
+                <p>where N = total number of nodes</p>
+            </div>
+
+            <p><strong>Epidemiological Relevance:</strong></p>
+            <ul>
+                <li>High-degree nodes can infect many individuals in one generation</li>
+                <li>Corresponds directly to contact rate in epidemic models</li>
+                <li>Individuals with high degree are prime targets for vaccination</li>
+                <li>Degree distribution shape predicts epidemic potential</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Critical Insight:</strong> For directly transmitted pathogens, degree centrality is often the most important predictor of an individual's role in transmission. A person with 10 contacts has 10 times the opportunity to transmit compared to someone with 1 contact (assuming equal transmission probability per contact).
+            </div>
+
+            <h3>Betweenness Centrality: The Bridge</h3>
+            <p>Betweenness measures how often a node lies on the shortest path between two other nodes. High betweenness nodes act as "bridges" connecting different parts of the network.</p>
+
+            <div class="equation-box">
+                <p>Betweenness Centrality:</p>
+                <div class="equation">
+                    C<sub>B</sub>(i) = Σ<sub>s≠i≠t</sub> (σ<sub>st</sub>(i) / σ<sub>st</sub>)
+                </div>
+                <p>where:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>σ<sub>st</sub> = number of shortest paths from s to t</li>
+                    <li>σ<sub>st</sub>(i) = number of those paths passing through node i</li>
+                </ul>
+            </div>
+
+            <p><strong>Epidemiological Relevance:</strong></p>
+            <ul>
+                <li>High-betweenness nodes control information/pathogen flow between clusters</li>
+                <li>Removing high-betweenness nodes fragments networks most effectively</li>
+                <li>Bridge individuals connect risk groups (e.g., connecting MSM and heterosexual networks)</li>
+                <li>Critical for understanding epidemic spread between communities</li>
+            </ul>
+
+            <div class="memory-anchor">
+                <strong>Visual Memory:</strong> Imagine a river system. High-degree nodes are like areas with many tributaries flowing in. High-betweenness nodes are like narrow gorges where all water must pass through - control that chokepoint and you control the whole river. In epidemics, these are the "super-connectors" between communities.
+            </div>
+
+            <h3>Closeness Centrality: The Rapid Spreader</h3>
+            <p>Closeness measures how quickly a node can reach all other nodes via shortest paths.</p>
+
+            <div class="equation-box">
+                <p>Closeness Centrality:</p>
+                <div class="equation">
+                    C<sub>C</sub>(i) = (N - 1) / Σ<sub>j≠i</sub> d(i,j)
+                </div>
+                <p>where d(i,j) = shortest path distance from i to j</p>
+            </div>
+
+            <p><strong>Epidemiological Relevance:</strong></p>
+            <ul>
+                <li>High-closeness nodes can rapidly transmit to entire network</li>
+                <li>Relevant for fast-spreading pathogens with short generation times</li>
+                <li>Index cases with high closeness cause larger, faster outbreaks</li>
+                <li>Important for identifying early warning surveillance targets</li>
+            </ul>
+
+            <h3>Eigenvector Centrality: The Influential Connection</h3>
+            <p>Eigenvector centrality weights connections by the centrality of connected nodes - it's not just how many connections you have, but how well-connected your connections are.</p>
+
+            <div class="equation-box">
+                <p>Eigenvector Centrality:</p>
+                <div class="equation">
+                    C<sub>E</sub>(i) = (1/λ) Σ<sub>j</sub> A<sub>ij</sub> C<sub>E</sub>(j)
+                </div>
+                <p>where:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>A<sub>ij</sub> = adjacency matrix (1 if connected, 0 otherwise)</li>
+                    <li>λ = largest eigenvalue of A</li>
+                </ul>
+            </div>
+
+            <p><strong>Epidemiological Relevance:</strong></p>
+            <ul>
+                <li>Captures indirect influence through well-connected neighbors</li>
+                <li>Relevant when pathogen spreads multiple generations within closed networks</li>
+                <li>Predicts long-term epidemic impact better than degree alone</li>
+                <li>Used in targeted vaccination strategies (vaccinate high-eigenvector nodes)</li>
+            </ul>
+
+            <div class="case-study">
+                <h4>Comparative Example: Same Network, Different Centrality</h4>
+                <p>Consider a workplace contact network with 18 individuals. Analysis reveals:</p>
+                
+                <table>
+                    <tr>
+                        <th>Individual</th>
+                        <th>Degree</th>
+                        <th>Betweenness</th>
+                        <th>Interpretation</th>
+                    </tr>
+                    <tr>
+                        <td>Linda</td>
+                        <td>8 (highest)</td>
+                        <td>Low</td>
+                        <td>Many contacts within one cluster; local superspreader</td>
+                    </tr>
+                    <tr>
+                        <td>Conrad</td>
+                        <td>4 (moderate)</td>
+                        <td>Very high</td>
+                        <td>Connects two otherwise disconnected groups; critical bridge</td>
+                    </tr>
+                    <tr>
+                        <td>Pam</td>
+                        <td>3 (low)</td>
+                        <td>Very low</td>
+                        <td>Peripheral; infection enters here unlikely to spread widely</td>
+                    </tr>
+                </table>
+
+                <div class="takeaway">
+                    <strong>Key Takeaway:</strong> Vaccination prioritization depends on control goals. To prevent large outbreaks: vaccinate Linda (high degree). To prevent spread between departments: vaccinate Conrad (high betweenness). To protect vulnerable individuals: vaccinate their direct contacts. Network analysis enables targeted, efficient interventions.
+                </div>
+            </div>
+        </section>
+
+        <div class="simulation-box">
+            <h3>Interactive Simulation: Network Outbreak Dynamics</h3>
+            <div class="simulation-explanation">
+                <h4>How this simulation works:</h4>
+                <p>This simulation models disease spread on a contact network with varying structure. You can adjust network connectivity (average degree) and transmission probability to see how network structure affects outbreak size. The simulation runs 100 random outbreaks starting from different initial nodes, showing how network position influences epidemic probability. Higher connectivity and transmission probability increase both outbreak frequency and size. This demonstrates why network structure matters for epidemic predictions.</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="networkDegree">Average Network Degree: <output id="degreeOutput">4</output></label>
+                    <input type="range" id="networkDegree" min="2" max="10" value="4" step="1">
+                </div>
+                <div class="control-group">
+                    <label for="transmissionProb">Transmission Probability: <output id="transProbOutput">0.3</output></label>
+                    <input type="range" id="transmissionProb" min="0.1" max="0.9" value="0.3" step="0.05">
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+                <h4>Simulation Results (100 runs):</h4>
+                <p>Average Outbreak Size: <strong id="avgOutbreak">32%</strong></p>
+                <p>Outbreaks >50% of population: <strong id="largeOutbreaks">15%</strong></p>
+                <p>Complete fadeouts (≤5% infected): <strong id="fadeouts">40%</strong></p>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="networkChart"></canvas>
+            </div>
+        </div>
+
+        <section id="vaccination" class="concept-card">
+            <h2>Targeted Vaccination in Heterogeneous Populations</h2>
+
+            <h3>The Critical Vaccination Coverage Problem</h3>
+            <p>For homogeneous populations with random mixing, the fraction of the population that must be vaccinated to prevent epidemics is:</p>
+
+            <div class="equation-box">
+                <p>Critical Vaccination Coverage (Homogeneous):</p>
+                <div class="equation">
+                    p<sub>c</sub> = 1 - (1/R₀)
+                </div>
+                <p>Examples:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>R₀ = 2: p<sub>c</sub> = 0.50 (50% must be vaccinated)</li>
+                    <li>R₀ = 5: p<sub>c</sub> = 0.80 (80% must be vaccinated)</li>
+                    <li>R₀ = 15: p<sub>c</sub> = 0.93 (93% must be vaccinated)</li>
+                </ul>
+            </div>
+
+            <p>However, this formula assumes random vaccination in a homogeneously mixing population. When contact rates are heterogeneous, we can do better by targeting high-contact individuals.</p>
+
+            <h3>Targeted Vaccination Strategy</h3>
+            <p>If we can identify and preferentially vaccinate individuals with the highest contact rates (highest network degree), we can achieve herd immunity with lower overall vaccination coverage.</p>
+
+            <div class="equation-box">
+                <p>Probability of Outbreak with Targeted Vaccination:</p>
+                <div class="equation">
+                    P(outbreak) = 1 - (1/R₀)<sup>n</sup>
+                </div>
+                <p>where n = number of contacts of the index case</p>
+                <br>
+                <p>For a heterogeneous population with targeted vaccination:</p>
+                <div class="equation">
+                    p<sub>c,targeted</sub> < p<sub>c,random</sub>
+                </div>
+                <p>The reduction depends on the degree distribution shape</p>
+            </div>
+
+            <div class="case-study">
+                <h4>Quantitative Example: Efficiency of Targeted Vaccination</h4>
+                <p><strong>Scenario:</strong> STD with R₀ = 5 in a population where 10% have 20 partners and 90% have 2 partners</p>
+                
+                <p><strong>Random Vaccination Requirement:</strong></p>
+                <div class="equation">
+                    p<sub>c</sub> = 1 - (1/5) = 0.80 (80% of population)
+                </div>
+                
+                <p><strong>Targeted Strategy:</strong></p>
+                <ul>
+                    <li>Vaccinate all individuals in the 10% high-activity group (20 partners each)</li>
+                    <li>These individuals contribute disproportionately to transmission</li>
+                    <li>Effective R₀ drops dramatically when these nodes are removed</li>
+                </ul>
+                
+                <p><strong>Result:</strong></p>
+                <p>Vaccinating only 10-20% of the population (targeting high-activity individuals and their immediate contacts) can achieve the same epidemic control as randomly vaccinating 80%.</p>
+
+                <div class="takeaway">
+                    <strong>Key Takeaway:</strong> Targeted vaccination is 4-8 times more efficient than random vaccination in highly heterogeneous populations. This has enormous practical and economic implications: limited vaccine supplies can be used much more effectively. However, it requires identifying high-risk individuals, which raises logistical and ethical challenges.
+                </div>
+            </div>
+
+            <h3>Practical Vaccination Strategies</h3>
+            <p>Several approaches can approximate targeted vaccination without complete network knowledge:</p>
+
+            <table>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Method</th>
+                    <th>Efficiency</th>
+                    <th>Feasibility</th>
+                </tr>
+                <tr>
+                    <td><strong>Acquaintance Vaccination</strong></td>
+                    <td>Ask random people to nominate contacts; vaccinate nominees</td>
+                    <td>High (nominees tend to be high-degree)</td>
+                    <td>Moderate (requires nomination)</td>
+                </tr>
+                <tr>
+                    <td><strong>Behavioral Screening</strong></td>
+                    <td>Identify high-contact individuals via questionnaires</td>
+                    <td>Moderate-High</td>
+                    <td>Moderate (self-report bias)</td>
+                </tr>
+                <tr>
+                    <td><strong>Ring Vaccination</strong></td>
+                    <td>Vaccinate all contacts of confirmed cases</td>
+                    <td>Very High (if cases detected early)</td>
+                    <td>High (requires contact tracing)</td>
+                </tr>
+                <tr>
+                    <td><strong>Venue-Based</strong></td>
+                    <td>Target high-mixing venues (schools, healthcare settings)</td>
+                    <td>Moderate</td>
+                    <td>Very High (easy to implement)</td>
+                </tr>
+                <tr>
+                    <td><strong>Age-Stratified</strong></td>
+                    <td>Target age groups with highest contact rates</td>
+                    <td>Moderate</td>
+                    <td>Very High</td>
+                </tr>
+            </table>
+
+            <div class="key-insight">
+                <strong>Critical Insight:</strong> The "acquaintance vaccination" strategy is particularly clever: if you ask random people to name friends, those friends are mathematically more likely to be well-connected than random individuals (the "friendship paradox"). This provides a way to efficiently find high-degree nodes without mapping the entire network.
+            </div>
+
+            <h3>Ethical Considerations</h3>
+            <p>Targeted vaccination strategies raise important ethical questions:</p>
+            
+            <ul>
+                <li><strong>Stigmatization:</strong> Identifying "high-risk" individuals may stigmatize those groups</li>
+                <li><strong>Privacy:</strong> Network-based approaches require knowledge of contact patterns</li>
+                <li><strong>Equity:</strong> Should epidemic control or individual protection be prioritized?</li>
+                <li><strong>Consent:</strong> Individuals may not want to reveal their contact patterns</li>
+                <li><strong>Implementation:</strong> Practical challenges in reaching marginalized, high-risk groups</li>
+            </ul>
+
+            <div class="memory-anchor">
+                <strong>Story-Based Memory:</strong> Imagine a forest fire (epidemic). Random vaccination is like randomly wetting trees throughout the forest. Targeted vaccination is like identifying the dry, tall trees (high connectivity) that would allow fire to jump long distances, and wetting those first. Same amount of water (vaccine doses), vastly different effectiveness. But you need to know which trees are which!
+            </div>
+        </section>
+
+        <div class="simulation-box">
+            <h3>Interactive Simulation: Vaccination Strategy Comparison</h3>
+            <div class="simulation-explanation">
+                <h4>How this simulation works:</h4>
+                <p>This simulation compares random versus targeted vaccination in populations with varying contact heterogeneity. You can adjust the variance in contact rates and vaccination coverage to see how targeting high-degree individuals improves efficiency. The graph shows the probability of an epidemic as vaccination coverage increases for both strategies. Targeted vaccination achieves epidemic control at lower coverage levels, especially when heterogeneity is high (large variance). This demonstrates the epidemiological value of network-informed interventions.</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="r0Vacc">Basic R₀: <output id="r0VaccOutput">3.0</output></label>
+                >Asymptomatic carriage enables sustained transmission:</strong> Mary felt healthy and believed (or claimed) she couldn't be sick. This biological fact combined with her occupation (preparing uncooked food) created perfect superspreading conditions.</li>
+                        <li><strong>Occupation matters:</strong> Her role as a cook multiplied her contact rate with susceptible individuals through food preparation.</li>
+                        <li><strong>Ethical dilemmas:</strong> Mary's case raised profound questions about individual liberty versus public health that remain relevant today. Was lifelong isolation justified?</li>
+                        <li><strong
