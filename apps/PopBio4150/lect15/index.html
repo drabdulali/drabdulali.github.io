@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parasites and Host Behavior - PBID 6150</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 2rem;
+            border-radius: 8px;
+            border-left: 5px solid #4a7c59;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 1.5rem;
+        }
+        
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+        
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #2c5530;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+        
+        .key-insight {
+            background-color: #fff9e6;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .key-insight strong {
+            color: #d68910;
+        }
+        
+        .case-study {
+            background: linear-gradient(135deg, #f0f8ff, #e6f3ff);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .case-study h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .takeaway {
+            background-color: #e8f8f5;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            border-left: 3px solid #16a085;
+        }
+        
+        .simulation-box {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #4a7c59;
+        }
+        
+        .simulation-explanation {
+            background: linear-gradient(135deg, #fff4e6, #ffe8cc);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #e67e22;
+        }
+        
+        .controls {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .control-group {
+            margin: 1rem 0;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+        
+        .control-group span {
+            color: #4a7c59;
+            font-weight: bold;
+        }
+        
+        table {
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Parasites and Host Behavior</h1>
+        <p>Population Biology of Infectious Diseases - Course 6150</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#defense">Behavioral Defense</a></li>
+            <li><a href="#manipulation">Parasite Manipulation</a></li>
+            <li><a href="#sickness">Sickness Behaviors</a></li>
+            <li><a href="#memory-aids">Memory Aids</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand how hosts use behavioral defenses to reduce infection risk through grooming, medicinal plant use, and habitat selection</li>
+                <li>Explain the evolutionary context of host behavioral responses and how behavior can drive evolution</li>
+                <li>Describe mechanisms of parasite manipulation of host behavior to enhance transmission</li>
+                <li>Analyze case studies demonstrating behavioral defense and manipulation across taxa</li>
+                <li>Evaluate the adaptive significance of sickness behaviors during infection</li>
+                <li>Apply quantitative models to understand the relationship between grooming effort and parasite mortality</li>
+            </ul>
+        </section>
+        
+        <div class="concept-card" id="overview">
+            <h2>Overview: The Behavioral Dimension of Host-Parasite Interactions</h2>
+            <p>Parasites and hosts are locked in an evolutionary arms race that extends beyond physiological and immunological defenses. Behavior represents a critical dimension of this interaction, manifesting in three primary ways:</p>
+            
+            <ul style="margin: 1rem 0 1rem 2rem;">
+                <li><strong>Behavioral Defense:</strong> Hosts evolve behaviors that reduce exposure to parasites or remove them after infection</li>
+                <li><strong>Parasite Manipulation:</strong> Parasites alter host behavior to facilitate their own transmission</li>
+                <li><strong>Sickness Behaviors:</strong> Behavioral changes during infection that may aid recovery or inadvertently benefit parasites</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> Many host behaviors, even in humans, may reflect selection pressures imposed by pathogens over evolutionary time. This suggests that parasites have been significant drivers of behavioral evolution across taxa.
+            </div>
+        </div>
+        
+        <div class="concept-card" id="evolutionary">
+            <h2>Evolutionary Context of Host Behavioral Responses</h2>
+            
+            <h3>Natural Selection and Behavioral Traits</h3>
+            <p>Behavioral defenses against parasites evolve through natural selection when:</p>
+            
+            <div class="equation-box">
+                Fitness(with behavior) > Fitness(without behavior)
+                <br><br>
+                Where fitness = survival × reproduction
+            </div>
+            
+            <p>The evolutionary process follows these steps:</p>
+            <ol style="margin: 1rem 0 1rem 2rem;">
+                <li><strong>Variation:</strong> Individuals within a population vary in their behavioral responses to infection risk</li>
+                <li><strong>Selection:</strong> Individuals exhibiting protective behaviors experience higher survival and reproductive success</li>
+                <li><strong>Inheritance:</strong> Behavioral traits have a genetic component that can be passed to offspring</li>
+                <li><strong>Population Change:</strong> Over generations, the frequency of protective behaviors increases in the population</li>
+            </ol>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> Behavior can drive evolution. When a behavioral innovation reduces parasite burden, it creates new selection pressures on both the host population and the parasite population, leading to coevolutionary dynamics.
+            </div>
+            
+            <p>According to Freeland (1976, Biotropica 8:12-24) and Loehle (1995, Ecology 76:326-335), many seemingly complex behaviors in mammals may have evolved primarily as antiparasite adaptations. This includes behaviors we might otherwise attribute to social, cultural, or hygienic motivations.</p>
+        </div>
+        
+        <div class="concept-card" id="defense">
+            <h2>Host Behavioral Defenses Against Infection</h2>
+            
+            <h3>1. Parasite Removal Strategies</h3>
+            
+            <h4>Grooming Behavior</h4>
+            <p>Grooming is one of the most widespread behavioral defenses across vertebrates. It serves multiple functions including social bonding and thermoregulation, but parasite removal appears to be a primary driver of its evolution.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Desert Bighorn Sheep (Ovis canadensis mexicana)</h4>
+                <p><strong>Context:</strong> Mooring et al. (2006, Behavioral Ecology) tested the "programmed grooming" model, which hypothesizes that grooming behaviors are maintained even in the absence of current parasite pressure due to historical selection.</p>
+                
+                <p><strong>Findings:</strong> Desert bighorn sheep in parasite-free environments continued to exhibit stereotyped grooming behaviors at rates similar to populations with high parasite loads. This suggests that grooming is an evolutionarily canalized behavior.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Behavioral defenses against parasites may persist as "ghosts of parasites past" - evolved responses that continue even when the selective pressure is temporarily absent. This demonstrates the deep evolutionary history of host-parasite interactions.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study: Grooming Efficacy in Desert Rodents</h4>
+                <p><strong>Context:</strong> Experimental study examining the relationship between grooming time and flea mortality in both adult and juvenile rodents in desert environments.</p>
+                
+                <p><strong>Methods:</strong> Researchers placed known numbers of fleas on rodents, allowed grooming for measured time periods, then counted surviving fleas.</p>
+                
+                <p><strong>Results:</strong> The relationship between grooming time and flea mortality showed strong positive linear relationships:</p>
+                
+                <div class="equation-box">
+                    For adults: Y = 0.0068X + 0.014
+                    <br>where Y = mortality probability per flea
+                    <br>X = total grooming time (minutes)
+                    <br>r² = 0.57, p < 0.0001
+                    <br><br>
+                    For juveniles: Y = 0.013X - 0.013
+                    <br>r² = 0.70, p < 0.001
+                </div>
+                
+                <p>Juveniles showed steeper slopes, suggesting higher grooming efficiency, possibly due to smaller body size making fleas more accessible or greater motivation due to higher vulnerability.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Grooming is not merely ritualistic but has measurable, dose-dependent effects on ectoparasite survival. The quantitative relationship demonstrates that even modest increases in grooming time substantially reduce parasite burden, providing direct fitness benefits.
+                </div>
+            </div>
+            
+            <h4>Preening in Birds</h4>
+            <p>Birds spend substantial time preening, using their beaks to manipulate feathers. This behavior serves multiple functions, but parasite removal is critical.</p>
+            
+            <p><strong>The Uropygeal Gland:</strong> Located at the base of the tail, this gland produces oily secretions that birds spread on feathers during preening. These secretions have:</p>
+            <ul style="margin: 1rem 0 1rem 2rem;">
+                <li>Waterproofing properties</li>
+                <li>Anti-parasitic compounds</li>
+                <li>Anti-bacterial properties</li>
+            </ul>
+            
+            <div class="case-study">
+                <h4>Case Study: Bill Morphology and Preening Efficiency (Clayton & Cotgreave 1994)</h4>
+                <p><strong>Context:</strong> If preening evolved primarily for parasite removal, bill morphology should correlate with grooming effectiveness against lice.</p>
+                
+                <p><strong>Study Design:</strong> Examined 17 bird species in Costa Rica, measuring bill dimensions and quantifying time spent scratching (grooming behavior).</p>
+                
+                <p><strong>Results:</strong> Species with longer bills relative to body size spent significantly less time scratching (r = 0.61, N = 17, P = 0.01). This inverse relationship suggests that longer bills enable more efficient removal of ectoparasites through preening, reducing the need for scratching.</p>
+                
+                <p><strong>Examples from the study:</strong></p>
+                <ul style="margin: 1rem 0 1rem 2rem;">
+                    <li>Fiery-throated hummingbird (shortest relative bill): ~100% of maximum scratching time</li>
+                    <li>Keel-billed toucan (longest relative bill): ~20% of maximum scratching time</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Morphological adaptations (bill shape) and behavioral adaptations (preening) are functionally integrated in the context of parasite defense. This demonstrates coevolution between anatomy and behavior driven by parasite pressure.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study: Avian Lice Size and Host Body Size Coevolution</h4>
+                <p><strong>Pattern:</strong> Across bird species, there is a strong positive correlation between host body mass and the body size of their specialized lice.</p>
+                
+                <p><strong>Hypotheses Tested:</strong></p>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Attachment hypothesis: Larger birds have larger feathers requiring larger lice for secure attachment</li>
+                    <li>Feeding hypothesis: Larger hosts provide more abundant food requiring larger mouthparts</li>
+                    <li>Escape from preening hypothesis: Larger birds have larger bills, so lice must be larger to escape the gap between bill tips</li>
+                </ol>
+                
+                <p><strong>Results:</strong> Experimental manipulations supported only hypothesis 3. The functional basis of the size relationship is that lice must be large enough to wedge between feather barbs and avoid being crushed during preening, and this critical size scales with bill gap width.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Host behavioral defenses (preening) drive parasite evolution (body size). This represents an evolutionary arms race where host morphology selects for specific parasite traits, demonstrating ongoing coevolutionary dynamics.
+                </div>
+            </div>
+            
+            <h3>2. Medicinal Plant Use (Zoopharmacognosy)</h3>
+            <p>Zoopharmacognosy is the self-medication behavior where animals seek out and consume plants with medicinal properties. This sophisticated behavior has been documented across many taxa.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Monarch Butterflies and Medicinal Milkweed</h4>
+                <p><strong>Context:</strong> De Roode et al. (2008, Journal of Animal Ecology 77:120-126) investigated whether monarch butterflies preferentially use toxic milkweed species when infected with the protozoan parasite Ophryocystis elektroscirrha.</p>
+                
+                <p><strong>Host-Plant Variation:</strong> Monarch host plants (Asclepias species, milkweed) include over 100 species worldwide that vary dramatically in cardenolide content. Cardenolides are secondary compounds that:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Protect monarchs from vertebrate predators (sequestered in body tissues)</li>
+                    <li>Reduce parasite spore loads when consumed during larval development</li>
+                </ul>
+                
+                <p><strong>Experimental Design:</strong> Compared diet preferences and parasite outcomes between:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Infected vs. uninfected caterpillars</li>
+                    <li>High-cardenolide vs. low-cardenolide milkweed species</li>
+                </ul>
+                
+                <p><strong>Results:</strong> Infected caterpillars showed significant preference for high-toxicity milkweed (approximately 50% diet composition from toxic plants) compared to uninfected caterpillars (approximately 45% diet composition). This modest but significant shift resulted in measurable reductions in parasite spore loads.</p>
+                
+                <p><strong>Critical Evidence for Therapeutic Medication (De Roode et al. 2013 criteria):</strong></p>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Infected individuals preferentially consume medicinal plants compared to healthy individuals</li>
+                    <li>Consumption of medicinal plants reduces parasite burden and increases host fitness</li>
+                </ol>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Self-medication in insects demonstrates that sophisticated behavioral responses to infection are not limited to vertebrates. The ability to detect infection status and adjust diet accordingly suggests complex sensory and decision-making mechanisms even in organisms with simple nervous systems.
+                </div>
+            </div>
+            
+            <h3>3. Behavioral Fever</h3>
+            <p>Behavioral fever is the active selection of warmer microclimates during infection. Unlike physiological fever, which requires metabolic heat production, behavioral fever leverages environmental heat sources.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: House Flies and Fungal Pathogens (Kalsbeek et al. 2001)</h4>
+                <p><strong>Pathogen:</strong> Entomophthora muscae, a fungal pathogen of house flies that shows strong temperature-dependent growth.</p>
+                
+                <p><strong>Temperature Effects on Parasite Load:</strong> Laboratory experiments demonstrated inverse relationship between ambient temperature and fungal development:</p>
+                
+                <div class="equation-box">
+                    At 15°C: Mean parasite load ≈ 10 units
+                    <br>At 20°C: Mean parasite load ≈ 3-9 units  
+                    <br>At 25°C: Mean parasite load ≈ 1-3 units
+                    <br>At 30°C: Mean parasite load ≈ 0 units
+                    <br><br>
+                    General relationship: Parasite load decreases exponentially with temperature
+                </div>
+                
+                <p><strong>Behavioral Response:</strong> Mark-recapture study of 3,000 flies in barn with heat lamps showed:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Infected flies significantly more likely to be recaptured near heat sources</li>
+                    <li>Response varied with infection stage (stronger thermotaxis in early infection)</li>
+                    <li>Temperature preference returned to normal after pathogen clearance</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Behavioral fever represents an energetically economical defense mechanism. By seeking environmental heat rather than generating it metabolically, infected individuals can create inhospitable conditions for pathogens at lower fitness cost than physiological fever.
+                </div>
+            </div>
+            
+            <h3>4. Behavioral Avoidance Strategies</h3>
+            
+            <h4>Habitat Selection</h4>
+            <p>Hosts may avoid habitats or microhabitats with high parasite transmission risk. This requires the ability to detect parasite presence or correlates of infection risk.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Daphnia and Fungal Epidemic Avoidance</h4>
+                <p><strong>System:</strong> Daphnia (water fleas) and Metschnikowia bicuspidata, an infectious fungus causing fall epidemics in freshwater lakes.</p>
+                
+                <p><strong>Transmission Route:</strong> Daphnia encounter parasite spores while filter-feeding in the water column.</p>
+                
+                <p><strong>Epidemic Dynamics:</strong> Lakes vary in epidemic magnitude but can reach approximately 60% infection prevalence at peak.</p>
+                
+                <p><strong>Behavioral Response:</strong> Daphnia with lower feeding rates encounter fewer infectious spores and generally experience less disease. This creates selection for reduced feeding during epidemic periods.</p>
+                
+                <p><strong>Evolutionary Question:</strong> Why do these epidemics happen every year? If reduced feeding is protective, why don't hosts evolve permanent resistance through feeding reduction?</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Behavioral avoidance through reduced feeding creates a trade-off: lower infection risk but also reduced energy acquisition and population growth. Seasonal epidemics may persist because the fitness costs of year-round feeding reduction exceed the costs of seasonal infection risk.
+                </div>
+            </div>
+            
+            <h4>Avoiding Infected Conspecifics</h4>
+            <p>Social animals may reduce contact with infected group members to minimize disease transmission.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Caribbean Spiny Lobsters and PaV1 Virus (Behringer et al. 2006)</h4>
+                <p><strong>Host Species:</strong> Panulirus argus, a highly social lobster that normally aggregates in shared dens for protection from predators.</p>
+                
+                <p><strong>Pathogen:</strong> PaV1 (Panulirus argus Virus 1), a lethal pathosymbiont transmitted through den-sharing and physical contact.</p>
+                
+                <p><strong>Experimental Design:</strong> Choice experiments offering healthy lobsters the option to den with:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Healthy conspecific (~60% chose to share)</li>
+                    <li>Infected conspecific (~10% chose to share)</li>
+                </ul>
+                
+                <p><strong>Infectivity Timeline:</strong> Laboratory infections showed:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Weeks 2-4 post-inoculation: <5% of inoculated lobsters show visible infection</li>
+                    <li>Week 6 post-inoculation: ~10% infection visible</li>
+                    <li>Week 8 post-inoculation: 60-80% of infected lobsters become visibly diseased</li>
+                </ul>
+                
+                <p><strong>Critical Finding:</strong> Healthy lobsters avoided infected individuals from approximately week 2 onward, well before visual disease signs appeared (week 6+). This suggests chemical or behavioral cues enable early detection of infection status.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Social organisms face a fundamental trade-off between the benefits of group living (predator protection, mating opportunities) and increased disease transmission risk. The evolution of discriminatory social preferences represents a sophisticated solution that maintains social benefits while minimizing infection risk.
+                </div>
+            </div>
+            
+            <h4>Avoiding Infected Mates</h4>
+            <p>Sexual selection theory predicts that showy ornaments may honestly signal health status and parasite resistance, allowing potential mates to avoid infected individuals.</p>
+            
+            <p>The handicap principle suggests that only healthy individuals can afford to produce and maintain elaborate ornaments. Parasitized individuals would show reduced ornament quality, revealing their infection status to potential mates. This provides an evolutionary explanation for the evolution of elaborate sexual displays beyond simple aesthetic preference.</p>
+        </div>
+        
+        <div class="concept-card" id="manipulation">
+            <h2>Parasite Manipulation of Host Behavior</h2>
+            
+            <h3>Theoretical Framework</h3>
+            <p>Many parasites have complex life cycles requiring transmission between multiple host species. In these systems, parasites may manipulate intermediate host behavior to increase the probability of transmission to definitive hosts.</p>
+            
+            <div class="equation-box">
+                Parasite Life Cycle Types:
+                <br><br>
+                Simple (Direct): 
+                <br>Definitive Host ⟷ Environment ⟷ Definitive Host
+                <br><br>
+                Complex (Indirect):
+                <br>Definitive Host ⟷ Intermediate Host(s) ⟷ Definitive Host
+                <br><br>
+                Where sexual reproduction occurs only in definitive host
+            </div>
+            
+            <p><strong>Selection Pressure for Manipulation:</strong> Parasites in intermediate hosts are in an evolutionary dead-end unless they reach the definitive host. This creates intense selection for traits that increase trophic transmission (predation of intermediate by definitive host).</p>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> Parasite manipulation represents an extended phenotype - the parasite's genes affecting the phenotype (behavior) of another organism (the host). This is one of the most striking examples of interspecific gene effects in nature.
+            </div>
+            
+            <h3>Case Studies of Parasite Manipulation</h3>
+            
+            <div class="case-study">
+                <h4>Case Study 1: Dicrocoelium dendriticum (Lancet Liver Fluke)</h4>
+                <p><strong>Life Cycle:</strong></p>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Definitive host: Sheep, cattle (eggs passed in feces)</li>
+                    <li>First intermediate host: Land snails (consume eggs)</li>
+                    <li>Second intermediate host: Ants (consume snail slime balls containing cercariae)</li>
+                    <li>Return to definitive host: Grazing mammals eat infected ants</li>
+                </ol>
+                
+                <p><strong>Behavioral Manipulation:</strong> One fluke cercaria migrates to the ant's subesophageal ganglion (brain) and forms a cyst. This "brain worm" causes dramatic behavioral changes:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Normal behavior: Ants forage during the day, return to nest at night</li>
+                    <li>Infected behavior: At dusk, infected ants climb to the tips of grass blades and clamp onto the vegetation with their mandibles, remaining there overnight when grazing mammals feed</li>
+                    <li>If not consumed, ants descend and behave normally during the heat of day, repeating the climbing behavior the following evening</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> This manipulation is remarkably precise - altering behavior only at times and places that maximize transmission probability while avoiding times that would kill the ant (daytime heat). It demonstrates that parasite manipulation can be highly sophisticated and adaptive.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study 2: Cordyceps (Zombie Fungus)</h4>
+                <p><strong>Host Range:</strong> Multiple Cordyceps species, each highly specific to particular insect hosts (ants, beetles, moths).</p>
+                
+                <p><strong>Manipulation Mechanism:</strong></p>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Fungal spores infect insect host</li>
+                    <li>Fungus grows through host tissues, avoiding vital organs initially</li>
+                    <li>Chemical signals (possibly ergot alkaloids) affect host nervous system</li>
+                    <li>Host climbs to elevated location optimal for spore dispersal</li>
+                    <li>Host clamps onto substrate with mandibles (death grip)</li>
+                    <li>Fungus kills host and produces fruiting body that disperses spores</li>
+                </ol>
+                
+                <p><strong>Remarkable Specificity:</strong> Different Cordyceps species manipulate hosts to die at specific heights, orientations, and microhabitats optimal for that fungal species' dispersal strategy.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> The death grip and summit disease behaviors demonstrate that parasites can exert precise spatial and temporal control over host behavior. The specificity of manipulation suggests millions of years of coevolution between fungi and insect hosts.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study 3: Leucochloridium paradoxum (Zombie Snail)</h4>
+                <p><strong>Life Cycle:</strong></p>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Definitive host: Birds (eggs passed in feces)</li>
+                    <li>Intermediate host: Land snails (consume eggs from bird droppings)</li>
+                    <li>Transmission: Birds consume infected snails</li>
+                </ol>
+                
+                <p><strong>Spectacular Manipulation:</strong> The parasitic trematode produces brightly colored, pulsating broodsacs that invade the snail's eye stalks (tentacles). These broodsacs:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Are banded with bright colors (green, orange, brown stripes)</li>
+                    <li>Pulsate rhythmically (20-70 times per minute)</li>
+                    <li>Resemble caterpillars or maggots - prey items for insectivorous birds</li>
+                </ul>
+                
+                <p><strong>Behavioral Changes:</strong> Infected snails exhibit multiple behavioral alterations:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Move to open, well-lit areas (uninfected snails avoid light and stay hidden)</li>
+                    <li>Remain exposed during daylight hours</li>
+                    <li>Wave extended eye stalks</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> This represents visual mimicry combined with behavioral manipulation. The parasite creates a false signal (caterpillar mimic) and ensures the signal is displayed in the right place and time to attract bird predators. This multi-component manipulation demonstrates sophisticated exploitation of predator visual search images.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study 4: Myrmeconema neotropicum and Fruit Mimicry</h4>
+                <p><strong>Discovery:</strong> Yanoviak et al. (2008, American Naturalist) described this nematode-ant system from Neotropical rainforests.</p>
+                
+                <p><strong>Host:</strong> Cephalotes atratus (canopy-dwelling arboreal ant)</p>
+                
+                <p><strong>Manipulation Syndrome:</strong> Infected ants undergo remarkable transformation:</p>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li><strong>Color change:</strong> The gaster (abdomen) changes from black to bright red, resembling ripe berries</li>
+                    <li><strong>Structural change:</strong> The gaster becomes easily detachable (uninfected gasters are firmly attached)</li>
+                    <li><strong>Postural change:</strong> Infected ants hold their gasters elevated and in conspicuous positions</li>
+                    <li><strong>Activity pattern change:</strong> Slower, more deliberate movements</li>
+                </ol>
+                
+                <p><strong>Transmission Mechanism:</strong> Frugivorous birds mistake the modified ants for berries, consume them (especially the gaster), and pass nematode eggs in their feces, which are then consumed by ants.</p>
+                
+                <p><strong>Definitive Host:</strong> While not definitively proven, circumstantial evidence points to frugivorous birds based on the nature of the manipulation.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> This case demonstrates that parasites can fundamentally alter host phenotype to exploit predator foraging behaviors. The convergence on fruit-like appearance suggests strong selection for deception of visually-oriented vertebrate predators.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study 5: Toxoplasma gondii and Fearlessness in Rodents</h4>
+                <p><strong>Life Cycle:</strong></p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li><strong>Definitive host:</strong> Cats (only location where sexual reproduction occurs)</li>
+                    <li><strong>Intermediate hosts:</strong> Rodents, birds, humans, and other warm-blooded animals</li>
+                    <li><strong>Transmission route:</strong> Cats shed oocysts in feces → intermediate hosts ingest oocysts → tissue cysts form in brain and muscles → cats consume infected prey</li>
+                </ul>
+                
+                <p><strong>The Manipulation:</strong> Toxoplasma infection causes specific behavioral changes in rodent intermediate hosts:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Loss of innate fear of cat odor (predator aversion normally strong)</li>
+                    <li>Some studies suggest attraction to cat urine odor</li>
+                    <li>General activity levels may increase</li>
+                    <li>Reduced neophobia (fear of novelty)</li>
+                </ul>
+                
+                <p><strong>Mechanism:</strong> Toxoplasma cysts preferentially form in the amygdala and other limbic regions involved in fear and threat assessment. The parasite may:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Secrete dopamine or affect dopamine metabolism</li>
+                    <li>Alter neurotransmitter ratios in fear circuits</li>
+                    <li>Create localized inflammation affecting neural processing</li>
+                </ul>
+                
+                <p><strong>Specificity of Effect:</strong> Importantly, fear responses to non-cat predators (e.g., dogs, mink) remain intact, suggesting targeted manipulation of cat-specific aversion circuits rather than general fearlessness.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Toxoplasma manipulation is remarkably specific - altering fear responses only toward the definitive host species. This precision argues against the manipulation being a side effect of infection and instead supports adaptive manipulation evolved to facilitate trophic transmission.
+                </div>
+            </div>
+            
+            <h3>Toxoplasma and Human Behavior</h3>
+            <p>Humans are accidental intermediate hosts for Toxoplasma gondii. While the parasite cannot complete its life cycle through human-cat transmission in contemporary society, the parasite still forms cysts in human brains. This raises the question: Does Toxoplasma affect human behavior?</p>
+            
+            <p><strong>Prevalence:</strong> Global Toxoplasma infection rates vary from approximately 10% to over 60% depending on geographic region, with rates correlating with cat density, meat consumption patterns, and sanitation infrastructure.</p>
+            
+            <p><strong>Documented Correlations in Humans:</strong></p>
+            
+            <div class="case-study">
+                <h4>Individual-Level Behavioral Correlations</h4>
+                
+                <p><strong>In males (Toxoplasma-positive vs negative):</strong></p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Less trusting of others</li>
+                    <li>Less respectful of moral rules</li>
+                    <li>More orderly and organized</li>
+                    <li>More jealous</li>
+                    <li>More dogmatic</li>
+                    <li>More wary and suspicious</li>
+                    <li>Less impulsive</li>
+                </ul>
+                
+                <p><strong>In females (Toxoplasma-positive vs negative):</strong></p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>More warm-hearted</li>
+                    <li>More easy-going</li>
+                    <li>More conscientious</li>
+                    <li>More persistent</li>
+                    <li>More insecure</li>
+                    <li>More moralistic</li>
+                    <li>More likely to have many friends and romantic partners</li>
+                    <li>Report enjoying shopping for clothes more</li>
+                </ul>
+                
+                <p><strong>Important Caveats:</strong></p>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>These are correlational findings, not causal demonstrations</li>
+                    <li>Effect sizes are typically small to moderate</li>
+                    <li>Reverse causality is possible (certain behaviors increase infection risk)</li>
+                    <li>Many findings have not been consistently replicated</li>
+                </ol>
+            </div>
+            
+            <div class="case-study">
+                <h4>Case Study: Toxoplasma and National Culture (Lafferty 2006)</h4>
+                <p><strong>Hypothesis:</strong> If Toxoplasma affects individual personality, might it affect aggregate cultural characteristics at the population level?</p>
+                
+                <p><strong>Methods:</strong> Lafferty (2006, Proceedings B) examined correlations between national Toxoplasma prevalence and cultural dimensions measured by Hofstede's cultural indices across Western nations.</p>
+                
+                <p><strong>Cultural Measures Examined:</strong></p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li><strong>Uncertainty avoidance:</strong> Extent to which cultures feel threatened by ambiguous situations</li>
+                    <li><strong>Masculinity index:</strong> Degree of traditional gender role differentiation</li>
+                    <li><strong>Neuroticism:</strong> Aggregate personality trait scores</li>
+                </ul>
+                
+                <p><strong>Results:</strong></p>
+                <div class="equation-box">
+                    Aggregate Neuroticism = 0.027 × (T. gondii prevalence) - 0.85
+                    <br>r² = significant positive correlation
+                    <br><br>
+                    Uncertainty Avoidance increased with prevalence
+                    <br>Masculine Sex Roles increased with prevalence
+                </div>
+                
+                <p><strong>Nations with highest Toxoplasma prevalence:</strong> Brazil, France, some Eastern European countries (50-70% prevalence)</p>
+                <p><strong>Nations with lowest Toxoplasma prevalence:</strong> United States, United Kingdom, Scandinavia (10-30% prevalence)</p>
+                
+                <p><strong>Critical Analysis:</strong> While these correlations are statistically significant, they face several challenges:</p>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Many other factors co-vary with Toxoplasma prevalence (climate, economic development, diet)</li>
+                    <li>Cultural characteristics have complex historical origins</li>
+                    <li>The direction of causality is unclear</li>
+                    <li>Correlations at the national level may not reflect individual-level mechanisms</li>
+                </ol>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> While fascinating, the hypothesis that Toxoplasma influences human culture remains speculative. These correlational studies generate intriguing hypotheses but cannot establish causation. They do, however, illustrate how parasites might have subtle, population-level effects on host behavior that accumulate over evolutionary time.
+                </div>
+            </div>
+        </div>
+        
+        <div class="concept-card" id="sickness">
+            <h2>Sickness Behaviors</h2>
+            
+            <h3>Definition and Characteristics</h3>
+            <p>Sickness behaviors are coordinated behavioral changes that occur during the acute phase of infection. These typically include:</p>
+            
+            <ul style="margin: 1rem 0 1rem 2rem;">
+                <li><strong>Anorexia:</strong> Reduced food intake</li>
+                <li><strong>Lethargy:</strong> Reduced activity and increased sleep</li>
+                <li><strong>Social withdrawal:</strong> Reduced social interactions</li>
+                <li><strong>Reduced reproductive behavior:</strong> Decreased mating activity</li>
+                <li><strong>Depressed mood:</strong> In species where this can be assessed</li>
+                <li><strong>Altered thermoregulatory behavior:</strong> Seeking warmth (behavioral fever)</li>
+            </ul>
+            
+            <h3>Proximate Mechanisms</h3>
+            <p>Sickness behaviors are mediated by the immune system's communication with the central nervous system:</p>
+            
+            <div class="equation-box">
+                Infection → Immune Activation → Cytokine Release → 
+                <br>CNS Reception → Behavioral Changes
+                <br><br>
+                Key cytokines: IL-1β, IL-6, TNF-α
+                <br>CNS targets: Hypothalamus, limbic system
+            </div>
+            
+            <p>These cytokines cross the blood-brain barrier or signal through vagal afferents, triggering coordinated neuroendocrine and behavioral responses.</p>
+            
+            <h3>Adaptive Significance: Evolved Response or Pathological Side Effect?</h3>
+            
+            <p><strong>The Adaptive Hypothesis:</strong> Sickness behaviors may be adaptive host responses that aid recovery:</p>
+            
+            <ul style="margin: 1rem 0 1rem 2rem;">
+                <li><strong>Energy reallocation:</strong> Reduced activity conserves energy for immune function</li>
+                <li><strong>Reduced transmission:</strong> Social withdrawal reduces spread to conspecifics (kin protection)</li>
+                <li><strong>Enhanced recovery:</strong> Sleep and rest may accelerate healing</li>
+                <li><strong>Anorexia benefits:</strong> Withholding nutrients may limit pathogen growth; avoiding food reduces exposure to additional pathogens</li>
+            </ul>
+            
+            <p><strong>The Manipulation Hypothesis:</strong> Alternatively, sickness behaviors might benefit parasites:</p>
+            
+            <ul style="margin: 1rem 0 1rem 2rem;">
+                <li>Lethargy may reduce host defenses (behavioral fever, grooming)</li>
+                <li>Immunopathology from cytokines might create opportunities for parasite growth</li>
+                <li>For some pathogens, reduced host activity facilitates transmission</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong> The adaptive significance of sickness behaviors likely varies by pathogen and host system. Some components may be adaptive host responses, while others represent unavoidable pathology or even subtle parasite manipulation. Disentangling these alternatives requires experimental manipulation and comparative studies.
+            </div>
+        </div>
+        
+        <div class="concept-card" id="memory-aids">
+            <h2>Memory Aids and Study Tools</h2>
+            
+            <h3>Master Mnemonic: The Three Bs of Parasite-Host Behavior</h3>
+            <div class="equation-box">
+                <strong>B-D-M-S Framework:</strong>
+                <br>Behavioral <strong>Defense</strong> (hosts protect themselves)
+                <br>Behavioral <strong>Manipulation</strong> (parasites control hosts)
+                <br>Behavioral <strong>Modifications</strong> during sickness (adaptive or incidental?)
+            </div>
+            
+            <h3>Mnemonic for Behavioral Defenses: "GRAMP"</h3>
+            <div class="key-insight">
+                <strong>G</strong>rooming - Remove ectoparasites mechanically
+                <br><strong>R</strong>educing contact - Avoid infected individuals
+                <br><strong>A</strong>voiding habitats - Stay away from risky areas
+                <br><strong>M</strong>edicine seeking - Self-medication with plants
+                <br><strong>P</strong>reening & fever - Birds preen, ectotherms seek heat
+            </div>
+            
+            <h3>Quick Comparison Table: Defense vs. Manipulation vs. Sickness</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                <thead style="background: linear-gradient(135deg, #2c5530, #4a7c59); color: white;">
+                    <tr>
+                        <th style="padding: 0.75rem; border: 1px solid #ddd;">Feature</th>
+                        <th style="padding: 0.75rem; border: 1px solid #ddd;">Behavioral Defense</th>
+                        <th style="padding: 0.75rem; border: 1px solid #ddd;">Parasite Manipulation</th>
+                        <th style="padding: 0.75rem; border: 1px solid #ddd;">Sickness Behaviors</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Who benefits?</strong></td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Host (increased survival/fitness)</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Parasite (increased transmission)</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Debated - possibly both or neither</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Timing</strong></td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Before or during infection</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">During infection (intermediate host)</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">During acute infection phase</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Examples</strong></td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Grooming, avoiding infected dens, medicinal plants</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Zombie ants, fearless mice, fruit-mimic ants</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Lethargy, anorexia, social withdrawal</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Mechanism</strong></td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Evolved behavioral programs</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Parasite secretions affect CNS</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Cytokine signaling to brain</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Evidence type</strong></td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Dose-response, fitness measurements</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Complex life cycles, altered predation</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Immune-CNS communication</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Case Study Summary Table</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                <thead style="background: linear-gradient(135deg, #2c5530, #4a7c59); color: white;">
+                    <tr>
+                        <th style="padding: 0.75rem; border: 1px solid #ddd;">Organism</th>
+                        <th style="padding: 0.75rem; border: 1px solid #ddd;">Behavior Type</th>
+                        <th style="padding: 0.75rem; border: 1px solid #ddd;">Key Finding</th>
+                        <th style="padding: 0.75rem; border: 1px solid #ddd;">Remember This</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Desert bighorn sheep</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Defense - Grooming</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Groom even without parasites</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">"Ghost of parasites past"</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Desert rodents</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Defense - Grooming</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">More grooming = fewer fleas (linear)</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Juveniles more efficient (steeper slope)</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Birds (17 species)</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Defense - Preening</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Longer bills = less scratching</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Toucans scratch less than hummingbirds</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Pigeons & doves</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Defense - Preening</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Larger birds have larger lice</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Lice must fit bill gap to escape crushing</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Monarch butterflies</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Defense - Medication</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Infected prefer toxic milkweed</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Self-medication in insects!</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">House flies</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Defense - Behavioral fever</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Seek heat when infected with fungus</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">30°C kills fungus, flies know it</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Daphnia</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Defense - Avoidance</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Lower feeding = fewer spores</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Trade-off: safety vs. food</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Caribbean lobsters</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Defense - Social avoidance</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Won't den with PaV1-infected lobsters</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Can detect infection before visible signs</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Liver fluke (Dicrocoelium)</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Manipulation</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Ants climb grass at dusk</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">"Zombie ants" get eaten by sheep</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Cordyceps fungus</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Manipulation</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Insects climb, death grip, fruiting body</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">"Summit disease" for spore dispersal</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Leucochloridium (fluke)</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Manipulation</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Pulsating eye stalks mimic caterpillars</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">"Zombie snail" with disco eyes</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Myrmeconema (nematode)</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Manipulation</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Ant gaster turns red like berry</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">"Fruit mimic" fools birds</td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Toxoplasma gondii</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Manipulation</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">Mice lose fear of cat odor</td>
+                        <td style="padding: 0.75rem; border: 1px solid #ddd;">"Fearless mouse" → cat food</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Decision Framework: Identifying Manipulation vs. Defense</h3>
+            <div class="case-study">
+                <h4>Ask These Questions:</h4>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li><strong>Does the parasite have a complex life cycle?</strong> If YES → suspect manipulation</li>
+                    <li><strong>Does the behavior increase predation risk?</strong> If YES → likely manipulation</li>
+                    <li><strong>Does the behavior reduce parasite load?</strong> If YES → likely defense</li>
+                    <li><strong>Does the behavior appear before infection?</strong> If YES → defense</li>
+                    <li><strong>Is the behavior specific to one predator species?</strong> If YES → strong evidence for manipulation</li>
+                </ol>
+            </div>
+            
+            <h3>Memory Stories: Link Cases Together</h3>
+            
+            <div class="key-insight">
+                <strong>Story 1: The Grooming Hierarchy</strong>
+                <br>Picture a desert landscape. Baby rodents groom most efficiently (steep slope) while their parents are less efficient (shallow slope). Meanwhile, bighorn sheep groom constantly even without fleas (ghosts of parasites past). In the sky, a toucan barely scratches because its huge bill does the job, while a hummingbird with a needle-thin bill scratches constantly.
+                <br><br><strong>Memory trigger:</strong> "From rodent to toucan, everyone's grooming differently"
+            </div>
+            
+            <div class="key-insight">
+                <strong>Story 2: The Zombie Parade</strong>
+                <br>Imagine a parade of manipulated creatures: First comes the ant climbing grass at sunset (liver fluke), followed by the insect frozen in a death grip with a mushroom growing from its head (Cordyceps). Next is the snail with pulsating disco-ball eyes (Leucochloridium), then the ant with a bright red berry-butt (Myrmeconema), and finally a fearless mouse dancing toward a cat (Toxoplasma).
+                <br><br><strong>Memory trigger:</strong> "The zombie parade goes: Ant-Mushroom-Snail-Berry-Mouse"
+            </div>
+            
+            <h3>Pattern Recognition Rules</h3>
+            <div class="equation-box">
+                <strong>Rule 1:</strong> Complex life cycle + altered predation = MANIPULATION
+                <br><br>
+                <strong>Rule 2:</strong> Dose-response relationship + reduced parasites = DEFENSE
+                <br><br>
+                <strong>Rule 3:</strong> Cytokine involvement + acute phase = SICKNESS BEHAVIOR
+                <br><br>
+                <strong>Rule 4:</strong> Morphology + behavior correlation = COEVOLUTION
+            </div>
+            
+            <h3>Self-Testing Questions</h3>
+            
+            <div class="case-study">
+                <h4>Test Your Understanding:</h4>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li><strong>Why do desert bighorn sheep groom even without parasites?</strong>
+                        <br><em>Answer: Evolutionary canalization - "ghost of parasites past" - the behavior is genetically programmed from historical selection.</em>
+                    </li>
+                    <br>
+                    <li><strong>What's the key difference between adult and juvenile rodent grooming efficiency?</strong>
+                        <br><em>Answer: Juveniles have steeper slopes (0.013 vs 0.0068) meaning more efficient grooming, possibly due to smaller size or higher vulnerability.</em>
+                    </li>
+                    <br>
+                    <li><strong>How did Clayton & Cotgreave test the functional role of bill morphology?</strong>
+                        <br><em>Answer: Measured correlation between bill length and scratching frequency - longer bills = less scratching, supporting preening efficiency hypothesis.</em>
+                    </li>
+                    <br>
+                    <li><strong>Why are Toxoplasma manipulations considered "specific" rather than general impairment?</strong>
+                        <br><em>Answer: Mice lose fear only of cats (definitive host), not other predators - this specificity argues against side effects and for adaptive manipulation.</em>
+                    </li>
+                    <br>
+                    <li><strong>What are the two criteria for definitive therapeutic self-medication (De Roode et al. 2013)?</strong>
+                        <br><em>Answer: (1) Infected individuals preferentially consume medicinal plants vs. healthy individuals, AND (2) consumption reduces parasite burden and increases fitness.</em>
+                    </li>
+                    <br>
+                    <li><strong>Why do Cordyceps-infected insects perform the "death grip"?</strong>
+                        <br><em>Answer: Fungus manipulates host to clamp onto substrate at optimal height/location for spore dispersal - benefits parasite transmission.</em>
+                    </li>
+                    <br>
+                    <li><strong>What trade-off do Daphnia face during fungal epidemics?</strong>
+                        <br><em>Answer: Reduced feeding lowers infection risk but also reduces energy acquisition and population growth.</em>
+                    </li>
+                    <br>
+                    <li><strong>How can lobsters detect PaV1 infection before visible signs?</strong>
+                        <br><em>Answer: Likely chemical or behavioral cues allow detection from week 2, well before visible disease at week 6+.</em>
+                    </li>
+                </ol>
+            </div>
+            
+            <h3>Concept Map Framework</h3>
+            <div class="equation-box">
+                PARASITES AND HOST BEHAVIOR
+                <br>├── BEHAVIORAL DEFENSE (Host benefits)
+                <br>│   ├── Parasite Removal: GRAMP
+                <br>│   │   ├── Grooming (rodents, sheep, primates)
+                <br>│   │   ├── Preening (birds + uropygeal gland)
+                <br>│   │   └── Self-anointing (lemurs)
+                <br>│   ├── Medication
+                <br>│   │   └── Monarchs + toxic milkweed
+                <br>│   ├── Behavioral fever
+                <br>│   │   └── Flies seek heat → kills fungus
+                <br>│   └── Avoidance
+                <br>│       ├── Habitat (Daphnia reduce feeding)
+                <br>│       ├── Social (lobsters avoid infected)
+                <br>│       └── Mate choice (ornaments signal health)
+                <br>│
+                <br>├── PARASITE MANIPULATION (Parasite benefits)
+                <br>│   ├── Requirements: Complex life cycle
+                <br>│   ├── Target: Intermediate host behavior
+                <br>│   ├── Goal: Increase trophic transmission
+                <br>│   └── Examples
+                <br>│       ├── Liver fluke → zombie ants
+                <br>│       ├── Cordyceps → death grip
+                <br>│       ├── Leucochloridium → disco snails
+                <br>│       ├── Myrmeconema → fruit-mimic ants
+                <br>│       └── Toxoplasma → fearless mice
+                <br>│
+                <br>└── SICKNESS BEHAVIORS (Who benefits? Debated!)
+                <br>    ├── Triggers: Cytokines (IL-1β, IL-6, TNF-α)
+                <br>    ├── Symptoms: Lethargy, anorexia, withdrawal
+                <br>    ├── Adaptive hypothesis: Energy for immunity
+                <br>    └── Manipulation hypothesis: Benefits pathogen
+            </div>
+            
+            <h3>Flashcard-Style Quick Facts</h3>
+            <div class="key-insight">
+                <strong>Q:</strong> What's the steepest grooming efficiency?
+                <br><strong>A:</strong> Juvenile rodents (slope = 0.013)
+                <br><br>
+                <strong>Q:</strong> What temperature kills fly fungus?
+                <br><strong>A:</strong> 30°C (approximately zero parasite load)
+                <br><br>
+                <strong>Q:</strong> What percentage avoid infected lobsters?
+                <br><strong>A:</strong> ~90% (only 10% den with infected)
+                <br><br>
+                <strong>Q:</strong> What's the zombie ant parasite?
+                <br><strong>A:</strong> Dicrocoelium dendriticum (liver fluke)
+                <br><br>
+                <strong>Q:</strong> What do pulsating snail eyes mimic?
+                <br><strong>A:</strong> Caterpillars/maggots (bird prey)
+                <br><br>
+                <strong>Q:</strong> Toxoplasma prevalence range?
+                <br><strong>A:</strong> 10-60% globally (varies by region)
+            </div>
+            
+            <h3>How to Study This Material</h3>
+            <div class="case-study">
+                <h4>Recommended Study Strategy:</h4>
+                <ol style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li><strong>First Pass:</strong> Read through all content, focusing on the three main categories (Defense, Manipulation, Sickness)</li>
+                    <li><strong>Second Pass:</strong> Memorize the GRAMP mnemonic and the case study table</li>
+                    <li><strong>Third Pass:</strong> Use the memory stories to link cases together narratively</li>
+                    <li><strong>Fourth Pass:</strong> Test yourself with the self-testing questions without looking at answers</li>
+                    <li><strong>Fifth Pass:</strong> Apply the decision framework to new scenarios your instructor might present</li>
+                    <li><strong>Review:</strong> Use the comparison table to see patterns across all three categories</li>
+                </ol>
+                
+                <p><strong>Active Recall Practice:</strong> Close this page and try to:</p>
+                <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                    <li>Draw the concept map from memory</li>
+                    <li>List all case studies and their key findings</li>
+                    <li>Explain each case to a friend without notes</li>
+                    <li>Create your own examples of each behavior type</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="concept-card">
+            <h2>Summary and Integration</h2>
+            
+            <p>The behavioral dimension of host-parasite interactions reveals three fundamental patterns:</p>
+            
+            <h3>1. Hosts Defend Behaviorally</h3>
+            <p>Behavioral defenses against parasites are ubiquitous and often evolutionarily ancient. From grooming to habitat selection to self-medication, hosts employ sophisticated behavioral strategies to reduce infection risk. These behaviors show:</p>
+            <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                <li>Measurable fitness benefits (reduced parasite loads, increased survival)</li>
+                <li>Dose-dependent relationships (more behavior → greater protection)</li>
+                <li>Evidence of natural selection (programmed behaviors that persist even without current parasite pressure)</li>
+                <li>Integration with morphological traits (bill shape and preening ability)</li>
+            </ul>
+            
+            <h3>2. Parasites Counter-Attack Through Manipulation</h3>
+            <p>Parasites with complex life cycles have evolved remarkable abilities to manipulate intermediate host behavior. These manipulations are:</p>
+            <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                <li>Often highly specific (targeting predator avoidance of definitive hosts)</li>
+                <li>Multi-component (combining morphological, behavioral, and temporal changes)</li>
+                <li>Adaptive for the parasite (increasing trophic transmission rates)</li>
+                <li>Evidence of extended phenotypes (parasite genes affecting host phenotype)</li>
+            </ul>
+            
+            <h3>3. The Arms Race Continues</h3>
+            <p>Host behavioral defenses and parasite manipulation represent an ongoing coevolutionary arms race. Neither hosts nor parasites achieve complete victory; instead, we observe:</p>
+            <ul style="margin: 0.5rem 0 0.5rem 2rem;">
+                <li>Dynamic equilibria maintained by frequency-dependent selection</li>
+                <li>Trade-offs constraining both hosts and parasites</li>
+                <li>Continuous evolution as each party evolves counter-strategies</li>
+                <li>Population and community-level consequences of these individual interactions</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Final Integration:</strong> Behavior is not merely a consequence of infection but an active arena of host-parasite coevolution. Understanding behavioral ecology is essential for understanding disease dynamics, as behavior determines contact rates, transmission probabilities, and population-level outcomes. The field of disease ecology must integrate behavioral mechanisms to make accurate predictions about epidemic dynamics and evolutionary trajectories.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
