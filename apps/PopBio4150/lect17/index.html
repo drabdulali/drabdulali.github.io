@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Spread of Infectious Diseases</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover {
+            background: #2c5530;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .objectives ul {
+            margin-left: 2rem;
+        }
+
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .concept-card h2 {
+            color: #2c5530;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .equation-box h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .equation {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1a3d20;
+            margin: 1rem 0;
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, #fff4e6, #fffaf0);
+            border-left: 5px solid #ff9800;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .key-insight h4 {
+            color: #e65100;
+            margin-bottom: 0.5rem;
+        }
+
+        .acronym {
+            background: #e8f5e8;
+            border: 2px dashed #4a7c59;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
+        .acronym strong {
+            color: #2c5530;
+            font-size: 1.1rem;
+        }
+
+        .simulation-box {
+            background: white;
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .simulation-box h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .control-group input {
+            padding: 0.5rem;
+            border: 1px solid #4a7c59;
+            border-radius: 4px;
+        }
+
+        .control-group output {
+            color: #1a3d20;
+            font-weight: bold;
+        }
+
+        button {
+            background: #4a7c59;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2c5530;
+        }
+
+        .canvas-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .explanation-box {
+            background: #f0f8f0;
+            border: 1px solid #4a7c59;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .explanation-box h5 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+
+        strong {
+            color: #2c5530;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #fff9e6, #fffef0);
+            border-left: 5px solid #ffa726;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .case-study h3 {
+            color: #e65100;
+            margin-bottom: 1rem;
+        }
+
+        .takeaway {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .takeaway strong {
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Spatial Spread of Infectious Diseases</h1>
+        <p>Course 6150: Population Biology of Infectious Diseases</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#kernels">Dispersal Kernels</a></li>
+            <li><a href="#waves">Traveling Waves</a></li>
+            <li><a href="#fmd">FMD Case Study</a></li>
+            <li><a href="#rabies">Rabies Case Study</a></li>
+            <li><a href="#influenza">Influenza Case Study</a></li>
+            <li><a href="#wnv">West Nile Virus</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="objectives" id="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand how infectious diseases spread across geographic space through wave-like patterns</li>
+                <li>Learn to model spatial spread using dispersal kernels and traveling wave theory</li>
+                <li>Analyze the relationship between R₀, dispersal distance, and wave speed</li>
+                <li>Evaluate how environmental heterogeneity affects disease spread</li>
+                <li>Apply spatial modeling concepts to real-world disease outbreaks including FMD, rabies, influenza, and West Nile virus</li>
+                <li>Design effective control strategies based on spatial spread patterns</li>
+                <li>Recognize the signature of traveling waves in epidemic data</li>
+            </ul>
+        </div>
+
+        <div class="concept-card" id="intro">
+            <h2>Introduction to Spatial Spread</h2>
+            
+            <p>Infectious diseases do not respect geographic boundaries. Understanding how pathogens move through space is critical for predicting epidemic trajectories and designing effective interventions. Unlike temporal dynamics that focus on when infections occur, spatial epidemiology examines where diseases spread and how geographic features influence transmission.</p>
+
+            <div class="acronym">
+                <strong>WAVES Framework</strong> - Understanding Spatial Spread:<br>
+                <strong>W</strong>ave-like patterns of spread<br>
+                <strong>A</strong>dvance depends on R₀ and dispersal<br>
+                <strong>V</strong>ariable environments slow or accelerate spread<br>
+                <strong>E</strong>arly intervention most effective<br>
+                <strong>S</strong>patial heterogeneity matters
+            </div>
+
+            <h3>Why Spatial Spread Matters</h3>
+            <p>The spatial dimension of infectious disease spread is crucial because:</p>
+            <ul>
+                <li><strong>Scale dependence:</strong> Different diseases operate at different spatial scales - from local neighborhoods (cholera in London) to continental expanses (plague across Europe) to global pandemics (influenza)</li>
+                <li><strong>Control opportunities:</strong> Spatial patterns create windows for targeted interventions like ring vaccination or quarantine zones</li>
+                <li><strong>Predictive power:</strong> Understanding dispersal patterns allows forecasting where outbreaks will emerge next</li>
+                <li><strong>Resource allocation:</strong> Spatial models guide where to deploy limited public health resources</li>
+            </ul>
+
+            <div class="case-study">
+                <h3>Ring Culling Strategy</h3>
+                <p>The primary control measure was <strong>ring culling</strong> - pre-emptively killing all susceptible animals within a specified radius of confirmed cases to create a "firebreak" that stops transmission.</p>
+                
+                <p><strong>Implementation:</strong></p>
+                <ul>
+                    <li>Initial 3 km culling radius around infected premises (IPs)</li>
+                    <li>Extended to dangerous contact (DC) farms - those with epidemiological links</li>
+                    <li>Total of 6.5 million animals destroyed, including preventive culls</li>
+                </ul>
+
+                <p><strong>Modeling insights:</strong> Mathematical models were used in real-time to optimize the culling radius. Analysis showed:</p>
+                <ul>
+                    <li>3 km radius captured ~80% of transmission risk</li>
+                    <li>Extending to 5 km captured ~95% of risk but required culling 3× more animals</li>
+                    <li>Optimal radius balanced disease control against animal welfare and economic costs</li>
+                </ul>
+
+                <div class="takeaway">
+                    <strong>Take-home message:</strong> Spatial models directly informed control policy during an ongoing outbreak. The dispersal kernel quantified transmission risk by distance, allowing optimization of ring culling radius. This case demonstrates how understanding spatial dynamics creates actionable control opportunities - stopping waves before they spread. However, the enormous scale of culling raised ethical questions about balancing disease control with animal welfare.
+                </div>
+            </div>
+
+            <h3>Control Challenges and Opportunities</h3>
+            <p>The FMD outbreak revealed both challenges and opportunities in controlling spatially spreading diseases:</p>
+            
+            <p><strong>Challenges:</strong></p>
+            <ul>
+                <li>Delayed detection due to long incubation period created multiple satellite outbreaks</li>
+                <li>High farm density in some regions facilitated rapid local spread</li>
+                <li>Livestock movement networks created long-distance transmission before restrictions</li>
+                <li>Limited slaughter and disposal capacity created backlogs</li>
+            </ul>
+
+            <p><strong>Opportunities:</strong></p>
+            <ul>
+                <li>Predictable spatial spread allowed targeted surveillance ahead of the wave front</li>
+                <li>Ring culling effectively created spatial barriers to transmission</li>
+                <li>Movement restrictions reduced the dispersal kernel, slowing wave speed</li>
+                <li>Real-time modeling guided adaptive control strategies</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight: Timing is Everything</h4>
+                <p>Control measures are most effective when applied early in an outbreak and ahead of the wave front. Once the wave is fully developed and spreading rapidly, reactive strategies struggle to keep pace. The FMD outbreak demonstrated that strategies for limitation of disease are always easier in the initial stages of spread - prevention is vastly more efficient than cure at the population level.</p>
+            </div>
+        </div>
+
+        <div class="concept-card" id="rabies">
+            <h2>Case Study: Rabies in the United States</h2>
+            
+            <p>Rabies provides an excellent model system for understanding how environmental heterogeneity affects spatial disease dynamics. Unlike FMD, rabies spread occurs at regional scales over decades, allowing detailed study of environmental barriers and landscape effects.</p>
+
+            <h3>Disease Biology and Natural History</h3>
+            <p><strong>Rabies virus</strong> is a neurotropic RNA virus that causes acute fatal encephalitis in mammals. In the United States, distinct viral variants circulate in different wildlife reservoirs.</p>
+
+            <p><strong>Key biological features:</strong></p>
+            <ul>
+                <li><strong>Viral structure:</strong> Single-stranded RNA virus in family Rhabdoviridae</li>
+                <li><strong>Host range:</strong> Infects all mammals; primary reservoirs include raccoons, foxes, skunks, bats</li>
+                <li><strong>Transmission:</strong> Via saliva through bites; virus must reach peripheral nerves</li>
+                <li><strong>Case fatality:</strong> ~100% once clinical symptoms appear (except potentially in bats)</li>
+                <li><strong>Latent period:</strong> 3-12 weeks in raccoons while virus migrates through peripheral nervous system</li>
+                <li><strong>Infectious period:</strong> ~1 week, ending in death</li>
+            </ul>
+
+            <h3>Disease Dynamics and Population Effects</h3>
+            <p>Rabies creates unique population dynamics:</p>
+            <ul>
+                <li><strong>Susceptible depletion through death:</strong> Infected animals die, removing them from the population</li>
+                <li><strong>Reduced reproduction:</strong> Dwindling populations have fewer breeding pairs</li>
+                <li><strong>Wave-trough-wave pattern:</strong> Epidemic waves leave depleted populations that slowly recover until susceptible density permits another wave</li>
+                <li><strong>Metapopulation dynamics:</strong> Local extinctions occur, with recolonization from adjacent areas</li>
+            </ul>
+
+            <div class="acronym">
+                <strong>RABIES Spatial Dynamics</strong>:<br>
+                <strong>R</strong>eservoir species determines spread pattern<br>
+                <strong>A</strong>nimal movement drives dispersal kernel<br>
+                <strong>B</strong>arriers like rivers slow transmission<br>
+                <strong>I</strong>ncubation period allows spatial prediction<br>
+                <strong>E</strong>nvironmental heterogeneity critical<br>
+                <strong>S</strong>usceptible depletion limits wave speed
+            </div>
+
+            <h3>Raccoon Rabies: An Invasion History</h3>
+            <p>The raccoon rabies variant provides a natural experiment in spatial epidemiology:</p>
+
+            <p><strong>Origin and translocation (1970s):</strong></p>
+            <ul>
+                <li>Until the mid-1970s, raccoon rabies was restricted to Florida and Georgia</li>
+                <li>Rabid raccoons were translocated to the West Virginia-Virginia border, likely by hunters seeking to establish raccoon populations for hunting</li>
+                <li>This human-mediated long-distance dispersal event initiated a 23-year epidemic wave across the northeastern US</li>
+            </ul>
+
+            <p><strong>Spatial invasion dynamics (1977-1999):</strong></p>
+            <ul>
+                <li>Wave spread north and east from the WV-VA border at an average rate of 30-40 km/year</li>
+                <li>By 1999, raccoon rabies had reached Maine, affecting all of the northeastern United States</li>
+                <li>The outbreak contributed to a large fraction of wildlife rabies cases in the US during this period (>50% in peak years)</li>
+            </ul>
+
+            <div class="case-study">
+                <h3>Environmental Heterogeneity: The Connecticut River Study</h3>
+                <p>David L. Smith and colleagues (2002) conducted a landmark study examining how rivers affect rabies spread in Connecticut.</p>
+
+                <h4>Study Design and Methods</h4>
+                <p>Researchers mapped all confirmed rabies cases in Connecticut at the township level and analyzed the timing of outbreaks relative to geographic features, particularly rivers.</p>
+
+                <p><strong>Key findings:</strong></p>
+                <ul>
+                    <li><strong>Rivers as barriers:</strong> Major rivers slowed rabies transmission by a factor of 7</li>
+                    <li><strong>Temporal delays:</strong> Townships just across rivers from infected areas experienced outbreaks 11 months later than predicted by models ignoring rivers</li>
+                    <li><strong>Model accuracy:</strong> Including river barriers dramatically improved model fit to observed data</li>
+                    <li><strong>Mechanism:</strong> Raccoons rarely swim across wide rivers, effectively creating spatial discontinuities in the transmission landscape</li>
+                </ul>
+
+                <h4>Implications for Control: Vaccine Corridor Placement</h4>
+                <p>The river barrier effect creates strategic opportunities for vaccine deployment. Russell et al. (2006) showed that:</p>
+
+                <p><strong>Optimal strategy - River THEN vaccine corridor:</strong></p>
+                <ul>
+                    <li>Place vaccine corridor on the downwind side of river barriers</li>
+                    <li>Rivers slow the wave, giving time for vaccine immunity to develop</li>
+                    <li>Susceptible offspring born in the vaccine zone are disconnected from infection by the river</li>
+                    <li>This arrangement minimizes breakthrough infections and wave advancement</li>
+                </ul>
+
+                <p><strong>Suboptimal strategy - Vaccine corridor THEN river:</strong></p>
+                <ul>
+                    <li>Susceptible offspring in the vaccine corridor can reignite outbreaks</li>
+                    <li>Without the river barrier upstream, continuous challenge from infected animals overwhelms vaccination coverage</li>
+                    <li>Results in periodic breakthrough waves requiring repeated vaccination</li>
+                </ul>
+
+                <div class="takeaway">
+                    <strong>Take-home message:</strong> Environmental heterogeneity is not just a complicating factor to ignore - it creates control opportunities. By understanding how landscape features like rivers modify dispersal kernels, we can strategically position interventions for maximum effectiveness. One river barrier can delay disease arrival by nearly a year, providing critical time for preparedness and targeted vaccination.
+                </div>
+            </div>
+
+            <h3>Broader Lessons on Spatial Heterogeneity</h3>
+            <p>The rabies case studies demonstrate several general principles:</p>
+            <ul>
+                <li><strong>Heterogeneity slows waves:</strong> Any factor that creates spatial discontinuity (rivers, mountains, unsuitable habitat) reduces effective dispersal</li>
+                <li><strong>Barriers are not absolutes:</strong> Rivers reduce transmission by 7-fold but don't eliminate it entirely</li>
+                <li><strong>Scale matters:</strong> Small streams may not meaningfully impede raccoon movement, while major rivers create substantial barriers</li>
+                <li><strong>Synergistic control:</strong> Combining natural barriers with artificial interventions (vaccines) is more effective than either alone</li>
+            </ul>
+        </div>
+
+        <div class="concept-card" id="influenza">
+            <h2>Case Study: Seasonal Influenza in the United States</h2>
+            
+            <p>Influenza provides a contrasting example where spatial spread occurs at national scales driven primarily by human mobility rather than wildlife movement. The signature of traveling waves emerges clearly in influenza surveillance data.</p>
+
+            <h3>Influenza Biology and Epidemiology</h3>
+            <p><strong>Influenza viruses</strong> are segmented RNA viruses that cause acute respiratory infections. Seasonal influenza epidemics occur annually in temperate regions.</p>
+
+            <p><strong>Transmission characteristics:</strong></p>
+            <ul>
+                <li>R₀ = 1.2-1.8 for seasonal strains (higher for pandemic strains)</li>
+                <li>Incubation period: 1-4 days</li>
+                <li>Infectious period: 5-7 days</li>
+                <li>Transmission via respiratory droplets and fomites</li>
+                <li>Seasonal pattern in temperate zones (winter peaks)</li>
+            </ul>
+
+            <h3>Historical Example: The 1918 Influenza Pandemic</h3>
+            <p>The 1918 "Spanish Flu" pandemic demonstrated rapid spatial spread across the continental United States:</p>
+            <ul>
+                <li><strong>Timeline:</strong> The fall 1918 wave spread coast-to-coast in approximately 3 weeks</li>
+                <li><strong>Pattern:</strong> Appeared to originate in northeastern port cities and military bases</li>
+                <li><strong>Spread mechanism:</strong> Railroad networks and troop movements during WWI facilitated long-distance transmission</li>
+                <li><strong>Impact:</strong> 675,000 deaths in the US; 50-100 million worldwide</li>
+            </ul>
+
+            <h3>Modern Seasonal Influenza: Detecting Traveling Waves</h3>
+            <p>Weekly surveillance data from the CDC's Influenza-Like Illness (ILI) network reveals consistent spatial patterns in seasonal flu epidemics.</p>
+
+            <h4>The Signature of Traveling Waves</h4>
+            <p>Viboud et al. (2006) analyzed decades of influenza mortality data and identified several hallmarks of wave-like spatial spread:</p>
+
+            <p><strong>1. Decay in synchrony with distance:</strong></p>
+            <ul>
+                <li>Nearby cities show highly correlated epidemic timing (high synchrony)</li>
+                <li>Distant cities show lower correlation (low synchrony)</li>
+                <li>Correlation coefficient decays exponentially with distance</li>
+                <li>Countrywide correlation: 0.57 (95% CI: 0.53-0.61)</li>
+            </ul>
+
+            <p><strong>2. Phase difference proportional to distance:</strong></p>
+            <ul>
+                <li>Cities closer together experience epidemic peaks at similar times (small phase difference)</li>
+                <li>Cities farther apart show larger temporal lags in peak timing</li>
+                <li>This phase gradient indicates directional wave propagation</li>
+            </ul>
+
+            <div class="simulation-box">
+                <h4>Interactive Simulation: Synchrony Decay with Distance</h4>
+                <p><strong>How this simulation works:</strong> This simulation demonstrates how epidemic synchrony (correlation in timing) decays with geographic distance. Each city experiences an epidemic wave with some random timing variation. Cities close together are highly synchronized (peaks occur at similar times), while distant cities show progressively less synchrony. The correlation coefficient measures this synchrony - values near 1.0 indicate high synchrony, while values near 0 indicate independence. Adjust the decay parameter to see how it affects the distance at which synchrony is lost.</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="decayRate">Synchrony Decay Rate: <output id="decayRateOut">0.002</output></label>
+                        <input type="range" id="decayRate" min="0.0005" max="0.005" value="0.002" step="0.0005">
+                    </div>
+                </div>
+                <button onclick="updateSynchronyChart()">Update Visualization</button>
+                <div class="canvas-container">
+                    <canvas id="synchronyChart"></canvas>
+                </div>
+                <div class="explanation-box">
+                    <h5>Interpreting Synchrony Patterns:</h5>
+                    <p><strong>High correlation at short distances:</strong> Cities within 500 km show correlation > 0.7, indicating nearly simultaneous epidemics</p>
+                    <p><strong>Exponential decay:</strong> Correlation = exp(-decay × distance). With decay = <span id="decayVal">0.002</span>, correlation halves every <span id="halfDistance">346</span> km</p>
+                    <p><strong>Wave interpretation:</strong> This pattern is diagnostic of traveling waves. Random, independent outbreaks would show no distance-dependence in correlation</p>
+                </div>
+            </div>
+
+            <h3>What Drives Influenza Spread: Testing Hypotheses</h3>
+            <p>Viboud et al. examined multiple potential drivers of epidemic synchrony:</p>
+
+            <p><strong>Mantel correlation analysis results:</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                <tr style="background: #e8f5e8;">
+                    <th style="padding: 0.5rem; border: 1px solid #4a7c59;">Distance/Movement Matrix</th>
+                    <th style="padding: 0.5rem; border: 1px solid #4a7c59;">Correlation with Synchrony</th>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Influenza (US)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">National (weeks)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Human mobility, air travel</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Network-driven, not simple diffusion</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">WNV (US)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Continental (years)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Bird dispersal, habitat quality</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Accelerating (continental), decelerating (local)</td>
+                </tr>
+            </table>
+
+            <h3>Universal Principles Across Case Studies</h3>
+            
+            <div class="acronym">
+                <strong>CONTROL Framework</strong> - Spatial Disease Management:<br>
+                <strong>C</strong>ontrol easier in early stages before wave fully develops<br>
+                <strong>O</strong>bserve spatial patterns to predict next outbreak locations<br>
+                <strong>N</strong>atural barriers (rivers, mountains) slow transmission<br>
+                <strong>T</strong>argeted interventions (ring vaccination) leverage spatial structure<br>
+                <strong>R</strong>are long-distance events can undermine local control<br>
+                <strong>O</strong>ptimize intervention placement using dispersal kernels<br>
+                <strong>L</strong>andscape heterogeneity creates opportunities and challenges
+            </div>
+
+            <h3>Final Thoughts: Why Spatial Dynamics Matter</h3>
+            <p>Understanding the spatial dimension of infectious disease spread transforms how we approach epidemic control:</p>
+
+            <ul>
+                <li><strong>Prediction:</strong> Spatial models forecast where outbreaks will emerge, allowing pre-positioning of resources</li>
+                <li><strong>Optimization:</strong> Dispersal kernels quantify transmission risk by distance, enabling evidence-based decisions on ring sizes, barrier placement, and surveillance zones</li>
+                <li><strong>Early warning:</strong> Recognizing wave signatures in data provides lead time for intervention</li>
+                <li><strong>Strategic thinking:</strong> Natural barriers and habitat heterogeneity create strategic opportunities that non-spatial models miss</li>
+                <li><strong>Scale-appropriate responses:</strong> Different diseases require interventions at different spatial scales - local for FMD, regional for rabies, national for influenza</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>The Spatial Imperative</h4>
+                <p>Diseases spread through space just as they spread through time. Ignoring spatial dynamics is like forecasting temporal epidemic dynamics without considering R₀ - you miss fundamental drivers of the system. Every outbreak has a "where" as well as a "when," and understanding both dimensions is essential for effective public health response.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Global variables for charts
+        let kernelChart, waveChart, synchronyChart;
+        let waveSimulation = null;
+
+        // Initialize all visualizations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeKernelChart();
+            initializeWaveChart();
+            initializeSynchronyChart();
+            
+            // Set up input listeners
+            document.getElementById('variance').addEventListener('input', function() {
+                document.getElementById('varianceOut').textContent = this.value;
+            });
+            
+            document.getElementById('r0Wave').addEventListener('input', function() {
+                document.getElementById('r0WaveOut').textContent = this.value;
+            });
+            
+            document.getElementById('dispersal').addEventListener('input', function() {
+                document.getElementById('dispersalOut').textContent = this.value;
+            });
+            
+            document.getElementById('decayRate').addEventListener('input', function() {
+                document.getElementById('decayRateOut').textContent = this.value;
+            });
+        });
+
+        // Dispersal Kernel Simulation
+        function initializeKernelChart() {
+            const ctx = document.getElementById('kernelChart').getContext('2d');
+            const distances = [];
+            for (let i = 0; i <= 20; i += 0.5) {
+                distances.push(i);
+            }
+            
+            kernelChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: distances,
+                    datasets: [{
+                        label: 'Normal Kernel',
+                        data: [],
+                        borderColor: '#2196f3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Leptokurtic Kernel',
+                        data: [],
+                        borderColor: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Dispersal Kernels: Normal vs Leptokurtic',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Distance from Source'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Transmission Probability Density'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            updateKernelChart();
+        }
+
+        function updateKernelChart() {
+            const variance = parseFloat(document.getElementById('variance').value);
+            const distances = kernelChart.data.labels;
+            
+            // Normal kernel
+            const normalData = distances.map(d => {
+                return (1 / Math.sqrt(2 * Math.PI * variance)) * 
+                       Math.exp(-Math.pow(d, 2) / (2 * variance));
+            });
+            
+            // Leptokurtic kernel (mixture of two normals)
+            const leptokurticData = distances.map(d => {
+                const shortRange = 0.7 * (1 / Math.sqrt(2 * Math.PI * variance)) * 
+                                  Math.exp(-Math.pow(d, 2) / (2 * variance));
+                const longRange = 0.3 * (1 / Math.sqrt(2 * Math.PI * variance * 10)) * 
+                                 Math.exp(-Math.pow(d, 2) / (2 * variance * 10));
+                return shortRange + longRange;
+            });
+            
+            kernelChart.data.datasets[0].data = normalData;
+            kernelChart.data.datasets[1].data = leptokurticData;
+            kernelChart.update();
+        }
+
+        // Wave Simulation
+        function initializeWaveChart() {
+            const ctx = document.getElementById('waveChart').getContext('2d');
+            
+            waveChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Susceptible',
+                        data: [],
+                        borderColor: '#4caf50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.3)',
+                        fill: true
+                    }, {
+                        label: 'Exposed',
+                        data: [],
+                        borderColor: '#ffeb3b',
+                        backgroundColor: 'rgba(255, 235, 59, 0.3)',
+                        fill: true
+                    }, {
+                        label: 'Infected',
+                        data: [],
+                        borderColor: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.3)',
+                        fill: true
+                    }, {
+                        label: 'Recovered',
+                        data: [],
+                        borderColor: '#2196f3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.3)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Traveling Wave Simulation',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Spatial Location'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Population Proportion',
+                            },
+                            stacked: true,
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+            
+            resetWaveSimulation();
+        }
+
+        function runWaveSimulation() {
+            const r0 = parseFloat(document.getElementById('r0Wave').value);
+            const dispersal = parseFloat(document.getElementById('dispersal').value);
+            
+            // Update display values
+            document.getElementById('r0Display').textContent = r0;
+            document.getElementById('r0Display2').textContent = r0;
+            document.getElementById('dispDisplay').textContent = dispersal;
+            document.getElementById('dSquared').textContent = (dispersal * dispersal).toFixed(1);
+            document.getElementById('speedPrediction').textContent = Math.sqrt(r0 * dispersal * dispersal).toFixed(2);
+            
+            const numLocations = 50;
+            const locations = Array.from({length: numLocations}, (_, i) => i);
+            
+            // Initialize populations
+            let S = Array(numLocations).fill(0.95);
+            let E = Array(numLocations).fill(0);
+            let I = Array(numLocations).fill(0);
+            let R = Array(numLocations).fill(0);
+            
+            // Seed infection at location 5
+            S[5] = 0.9;
+            I[5] = 0.1;
+            
+            waveSimulation = setInterval(() => {
+                // Create new arrays for next step
+                let newS = [...S];
+                let newE = [...E];
+                let newI = [...I];
+                let newR = [...R];
+                
+                // Update each location
+                for (let i = 0; i < numLocations; i++) {
+                    // Local transmission
+                    const beta = 0.3 * (r0 / 2.5); // Scale with R0
+                    const sigma = 0.2; // Exposed to infected rate
+                    const gamma = 0.1; // Recovery rate
+                    
+                    // Spatial coupling - transmission from neighbors
+                    let spatialForce = 0;
+                    for (let j = 0; j < numLocations; j++) {
+                        const distance = Math.abs(i - j);
+                        if (distance > 0 && distance <= dispersal * 3) {
+                            const kernel = Math.exp(-distance / dispersal);
+                            spatialForce += kernel * I[j];
+                        }
+                    }
+                    
+                    const totalForce = beta * (I[i] + 0.1 * spatialForce);
+                    
+                    // SEIR transitions
+                    const newInfections = totalForce * S[i];
+                    const progression = sigma * E[i];
+                    const recoveries = gamma * I[i];
+                    
+                    newS[i] = S[i] - newInfections;
+                    newE[i] = E[i] + newInfections - progression;
+                    newI[i] = I[i] + progression - recoveries;
+                    newR[i] = R[i] + recoveries;
+                    
+                    // Ensure non-negative
+                    newS[i] = Math.max(0, newS[i]);
+                    newE[i] = Math.max(0, newE[i]);
+                    newI[i] = Math.max(0, newI[i]);
+                    newR[i] = Math.max(0, newR[i]);
+                }
+                
+                S = newS;
+                E = newE;
+                I = newI;
+                R = newR;
+                
+                // Update chart
+                waveChart.data.labels = locations;
+                waveChart.data.datasets[0].data = S;
+                waveChart.data.datasets[1].data = E;
+                waveChart.data.datasets[2].data = I;
+                waveChart.data.datasets[3].data = R;
+                waveChart.update();
+                
+                // Stop if wave has passed through
+                if (I.every(val => val < 0.001)) {
+                    clearInterval(waveSimulation);
+                    waveSimulation = null;
+                }
+            }, 200);
+        }
+
+        function resetWaveSimulation() {
+            if (waveSimulation) {
+                clearInterval(waveSimulation);
+                waveSimulation = null;
+            }
+            
+            const numLocations = 50;
+            const locations = Array.from({length: numLocations}, (_, i) => i);
+            
+            waveChart.data.labels = locations;
+            waveChart.data.datasets[0].data = Array(numLocations).fill(0.95);
+            waveChart.data.datasets[1].data = Array(numLocations).fill(0);
+            waveChart.data.datasets[2].data = Array(numLocations).fill(0);
+            waveChart.data.datasets[3].data = Array(numLocations).fill(0);
+            
+            // Seed infection
+            waveChart.data.datasets[0].data[5] = 0.9;
+            waveChart.data.datasets[2].data[5] = 0.1;
+            
+            waveChart.update();
+        }
+
+        // Synchrony Simulation
+        function initializeSynchronyChart() {
+            const ctx = document.getElementById('synchronyChart').getContext('2d');
+            
+            synchronyChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Epidemic Synchrony',
+                        data: [],
+                        backgroundColor: 'rgba(74, 124, 89, 0.6)',
+                        borderColor: '#4a7c59',
+                        pointRadius: 5
+                    }, {
+                        label: 'Exponential Decay Fit',
+                        data: [],
+                        type: 'line',
+                        borderColor: '#f44336',
+                        borderWidth: 3,
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Epidemic Synchrony Decay with Distance',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Distance (km)'
+                            },
+                            min: 0,
+                            max: 5000
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Correlation Coefficient'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+            
+            updateSynchronyChart();
+        }
+
+        function updateSynchronyChart() {
+            const decay = parseFloat(document.getElementById('decayRate').value);
+            
+            // Calculate half-distance
+            const halfDist = Math.log(2) / decay;
+            document.getElementById('decayVal').textContent = decay;
+            document.getElementById('halfDistance').textContent = Math.round(halfDist);
+            
+            // Generate synthetic data with scatter
+            const scatterData = [];
+            for (let i = 0; i < 100; i++) {
+                const distance = Math.random() * 5000;
+                const baseCorr = Math.exp(-decay * distance);
+                const noise = (Math.random() - 0.5) * 0.2;
+                const correlation = Math.max(0, Math.min(1, baseCorr + noise));
+                scatterData.push({x: distance, y: correlation});
+            }
+            
+            // Generate fit line
+            const fitData = [];
+            for (let d = 0; d <= 5000; d += 100) {
+                fitData.push({x: d, y: Math.exp(-decay * d)});
+            }
+            
+            synchronyChart.data.datasets[0].data = scatterData;
+            synchronyChart.data.datasets[1].data = fitData;
+            synchronyChart.update();
+        }
+
+        // Make functions globally available
+        window.updateKernelChart = updateKernelChart;
+        window.runWaveSimulation = runWaveSimulation;
+        window.resetWaveSimulation = resetWaveSimulation;
+        window.updateSynchronyChart = updateSynchronyChart;
+    </script>
+</body>
+</html>ddd;">Workflows (commuting patterns)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;"><strong>0.61***</strong></td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Long-distance trips</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;"><strong>0.55***</strong></td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Air travel</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;"><strong>0.37*</strong></td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Euclidian distance</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">-0.31*** (negative)</td>
+                </tr>
+            </table>
+
+            <p><strong>Partial correlations (controlling for other factors):</strong></p>
+            <ul>
+                <li><strong>Workflows controlling for long-distance trips:</strong> 0.31*** - still significant</li>
+                <li><strong>Air travel controlling for workflows:</strong> 0.52*** - still significant</li>
+                <li><strong>Euclidian distance controlling for workflows:</strong> 0.003 (P = 0.51) - not significant</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Key Insight: Workflows Trump Distance</h4>
+                <p>The analysis reveals that <strong>human mobility patterns</strong>, particularly daily commuting (workflows) and air travel, drive influenza synchrony more than simple geographic distance. Two cities 1,000 km apart with high commuter exchange will have more synchronized epidemics than two cities 100 km apart with minimal interaction. This has profound implications: influenza spreads along functional connectivity networks, not just spatial proximity.</p>
+            </div>
+
+            <h3>Implications for Pandemic Preparedness</h3>
+            <p>Understanding influenza's spatial dynamics guides pandemic response strategies:</p>
+
+            <p><strong>Where an epidemic starts matters:</strong></p>
+            <ul>
+                <li>Pandemics originating in California spread faster nationally than those starting in Wyoming</li>
+                <li>Hub cities with high air traffic connectivity accelerate national spread</li>
+                <li>Population density and connectivity interact to determine spread rates</li>
+            </ul>
+
+            <p><strong>Control strategy implications:</strong></p>
+            <ul>
+                <li>Targeted vaccination of highly connected individuals (frequent travelers) may disproportionately slow spread</li>
+                <li>Travel restrictions are most effective very early in outbreaks</li>
+                <li>School closures disrupt daily commuting patterns (workflows), potentially slowing local transmission</li>
+                <li>Real-time mobility data can predict which cities will be affected next</li>
+            </ul>
+
+            <div class="takeaway">
+                <strong>Take-home message:</strong> At national scales, infectious disease spread is driven by human mobility networks rather than simple diffusion. Commuting patterns and air travel create a functional distance that differs from geographic distance. Control strategies must target these mobility networks to effectively slow epidemic waves. The signature of traveling waves - synchrony decay with distance - provides a diagnostic tool for identifying wave-based spread and distinguishes it from random, independent outbreaks.
+            </div>
+        </div>
+
+        <div class="concept-card" id="wnv">
+            <h2>Case Study: West Nile Virus in North America</h2>
+            
+            <p>West Nile virus (WNV) represents a complex vector-borne disease system where spatial spread involves birds (amplification hosts), mosquitoes (vectors), and humans (dead-end hosts). The WNV invasion of North America demonstrates both accelerating and decelerating wave dynamics.</p>
+
+            <h3>Disease Biology and Transmission Cycle</h3>
+            <p><strong>West Nile virus</strong> is a flavivirus maintained in an enzootic cycle between birds and mosquitoes, with occasional spillover to humans and horses.</p>
+
+            <p><strong>Transmission cycle components:</strong></p>
+            <ul>
+                <li><strong>Virus:</strong> Single-stranded RNA flavivirus, 45 nm diameter</li>
+                <li><strong>Vector:</strong> Culex mosquitoes (C. pipiens in north, C. quinquefasciatus in south)</li>
+                <li><strong>Amplification hosts:</strong> Birds, particularly corvids (crows, jays) and other passerines</li>
+                <li><strong>Dead-end hosts:</strong> Humans, horses (insufficient viremia to infect mosquitoes)</li>
+            </ul>
+
+            <p><strong>Transmission pathway:</strong></p>
+            <ol>
+                <li>Infected mosquito feeds on susceptible bird</li>
+                <li>Bird develops viremia (2-7 days)</li>
+                <li>Susceptible mosquito acquires virus from viremic bird</li>
+                <li>Virus replicates in mosquito (10-14 days extrinsic incubation)</li>
+                <li>Infected mosquito transmits to new bird or dead-end host</li>
+            </ol>
+
+            <div class="acronym">
+                <strong>WNV Spatial Dynamics</strong>:<br>
+                <strong>W</strong>ave speed varies over time and space<br>
+                <strong>N</strong>ew York showed decelerating waves<br>
+                <strong>V</strong>ectors and hosts both disperse<br>
+                <strong>A</strong>cceleration possible with bird migration<br>
+                <strong>D</strong>eceleration from habitat patchiness<br>
+                <strong>E</strong>nvironmental heterogeneity critical
+            </div>
+
+            <h3>Continental Invasion: A 3-Year Sweep</h3>
+            <p>WNV was first detected in New York City in 1999 and spread across the entire continental United States by 2003:</p>
+
+            <ul>
+                <li><strong>1999:</strong> Initial outbreak in NYC; 62 human cases, 7 deaths</li>
+                <li><strong>2000-2001:</strong> Spread along eastern seaboard and into Midwest</li>
+                <li><strong>2002:</strong> Explosive westward expansion reaching the Pacific Coast</li>
+                <li><strong>2003:</strong> Established throughout lower 48 states</li>
+                <li><strong>Peak:</strong> 2002-2003 with >9,000 human cases annually</li>
+            </ul>
+
+            <h3>Decelerating Waves in New York City (2000-2007)</h3>
+            <p>Detailed surveillance in NYC revealed complex wave dynamics at the local scale:</p>
+
+            <p><strong>Pattern of wave speed changes:</strong></p>
+            <ul>
+                <li><strong>2000:</strong> Rapid initial spread, wave speed ~10 km/week</li>
+                <li><strong>2001-2003:</strong> Progressive deceleration</li>
+                <li><strong>2004-2007:</strong> Wave speed decreased to ~2-3 km/week</li>
+            </ul>
+
+            <h4>Mechanisms of Deceleration: Habitat Heterogeneity</h4>
+            <p>Kilpatrick et al. demonstrated that spatial heterogeneity in mosquito habitat quality drives wave deceleration:</p>
+
+            <p><strong>Transmission-promoting habitats (where R₀ > 1):</strong></p>
+            <ul>
+                <li>Developed high-intensity areas (39% of NYC) - Chi² = 38.96, highly significant</li>
+                <li>Woody wetlands (16% of suitable habitat)</li>
+                <li>Herbaceous wetlands (9% of suitable habitat)</li>
+            </ul>
+
+            <p><strong>Transmission-inhibiting habitats (where R₀ < 1):</strong></p>
+            <ul>
+                <li>Developed open spaces (14% of area)</li>
+                <li>Barren land</li>
+                <li>Evergreen forest (Chi² = 100.56 - strong negative association)</li>
+                <li>Water bodies</li>
+            </ul>
+
+            <p><strong>Overall transmission-promoting coverage:</strong></p>
+            <ul>
+                <li>Staten Island: 91.7% suitable habitat</li>
+                <li>Bronx-Brooklyn-Manhattan-Queens: 51.3% suitable habitat</li>
+                <li>Overall NYC: 58.6% suitable habitat</li>
+            </ul>
+
+            <div class="case-study">
+                <h3>Percolation Theory and Wave Deceleration</h3>
+                <p>The patchy distribution of suitable habitat creates a <strong>percolation system</strong> - the disease wave must navigate through a fragmented landscape where only certain patches permit transmission.</p>
+
+                <h4>Percolation Model Predictions</h4>
+                <p><strong>In homogeneous landscapes (p = 1.0, all patches suitable):</strong></p>
+                <ul>
+                    <li>Wave advances at constant speed per Fisher's equation</li>
+                    <li>Speed ∝ √(R₀ × D)</li>
+                    <li>Linear relationship between distance and time</li>
+                </ul>
+
+                <p><strong>In heterogeneous landscapes (p < 1.0, patchy habitat):</strong></p>
+                <ul>
+                    <li>Wave must find tortuous paths through suitable patches</li>
+                    <li>Effective dispersal distance reduced</li>
+                    <li>Wave speed decelerates over time as paths become more circuitous</li>
+                    <li>Near percolation threshold (p ≈ 0.59), waves may stall completely</li>
+                </ul>
+
+                <p><strong>NYC application:</strong> With 58.6% suitable habitat, NYC is near the percolation threshold. This explains why waves decelerated dramatically - the disease increasingly encountered transmission barriers as it spread into less suitable boroughs.</p>
+
+                <div class="takeaway">
+                    <strong>Take-home message:</strong> Wave speed is not constant but can decelerate due to environmental heterogeneity. When suitable habitat is patchily distributed, diseases must navigate increasingly tortuous pathways, slowing spatial spread. This has important implications: (1) simple Fisher-equation predictions may overestimate spread rates in real landscapes, (2) land use patterns and habitat quality maps can predict where waves will slow, and (3) preserving or creating transmission barriers (unsuitable habitat) can substantially reduce epidemic velocity.
+                </div>
+            </div>
+
+            <h3>Accelerating Waves: Continental-Scale Dynamics</h3>
+            <p>While NYC showed deceleration, the continental WNV invasion showed <strong>acceleration</strong> - wave speed increased over time:</p>
+
+            <p><strong>Evidence for acceleration:</strong></p>
+            <ul>
+                <li>1999-2001: Relatively slow spread along eastern seaboard</li>
+                <li>2002: Explosive westward expansion at >1,000 km/year</li>
+                <li>Final invasion phase faster than initial phases</li>
+            </ul>
+
+            <h4>Mechanisms of Acceleration</h4>
+            <p>Accelerating waves violate Fisher's constant-speed prediction and indicate fat-tailed dispersal kernels:</p>
+
+            <p><strong>1. Migratory bird dispersal:</strong></p>
+            <ul>
+                <li>Infected birds can fly hundreds of kilometers during viremic period</li>
+                <li>Spring and fall migration creates long-distance transmission pulses</li>
+                <li>Seeds new outbreak foci far ahead of the main wave front</li>
+            </ul>
+
+            <p><strong>2. Human-mediated transport:</strong></p>
+            <ul>
+                <li>Mosquitoes transported in vehicles, aircraft</li>
+                <li>Infected birds translocated (legal and illegal)</li>
+                <li>Creates rare but impactful long-distance jumps</li>
+            </ul>
+
+            <p><strong>3. Multiple host species:</strong></p>
+            <ul>
+                <li>Different bird species have different dispersal kernels</li>
+                <li>Corvids (short-range), waterfowl (long-range)</li>
+                <li>Mixture creates composite leptokurtic kernel</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Reconciling Deceleration and Acceleration</h4>
+                <p>WNV shows both patterns depending on spatial scale:</p>
+                <ul>
+                    <li><strong>Local scale (NYC):</strong> Deceleration due to habitat heterogeneity</li>
+                    <li><strong>Continental scale:</strong> Acceleration due to long-distance bird dispersal</li>
+                </ul>
+                <p>This scale-dependence emphasizes that no single model fits all scenarios - spatial dynamics must be understood at the appropriate scale for the question being asked.</p>
+            </div>
+        </div>
+
+        <div class="concept-card">
+            <h2>Summary and Synthesis</h2>
+            
+            <h3>Key Concepts</h3>
+            <ul>
+                <li><strong>Dispersal kernels</strong> mathematically describe how transmission probability changes with distance</li>
+                <li><strong>Fisher's equation</strong> predicts wave speed as v = 2√(R₀ × D) in homogeneous environments</li>
+                <li><strong>Traveling waves</strong> show characteristic patterns: synchrony decay with distance, phase gradients</li>
+                <li><strong>Environmental heterogeneity</strong> modifies wave dynamics, causing deceleration or stalling</li>
+                <li><strong>Long-distance dispersal</strong> creates fat-tailed kernels that accelerate waves beyond Fisher predictions</li>
+                <li><strong>Control strategies</strong> leverage spatial patterns - ring vaccination/culling, barrier placement</li>
+            </ul>
+
+            <h3>Comparative Case Study Insights</h3>
+            
+            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                <tr style="background: #e8f5e8;">
+                    <th style="padding: 0.5rem; border: 1px solid #4a7c59;">Disease</th>
+                    <th style="padding: 0.5rem; border: 1px solid #4a7c59;">Scale</th>
+                    <th style="padding: 0.5rem; border: 1px solid #4a7c59;">Key Driver</th>
+                    <th style="padding: 0.5rem; border: 1px solid #4a7c59;">Wave Pattern</th>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">FMD (UK)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">National (weeks)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Farm density, livestock movement</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Rapid, controllable by ring culling</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Rabies (US)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Regional (years)</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Wildlife movement, landscape barriers</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">Decelerated by rivers, heterogeneity</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem; border: 1px solid #study">
+                <h3>Historical Example: Bubonic Plague in Medieval Europe</h3>
+                <p>The Black Death (1347-1351) demonstrates classic wave-like spatial spread. The plague entered Europe through Mediterranean ports and radiated outward in a predictable pattern, taking approximately 4 years to spread from southern Italy to Scandinavia.</p>
+                
+                <p><strong>Spatial Pattern:</strong> The disease spread at roughly 2-4 kilometers per day, following trade routes and population centers. Cities along major trade arteries experienced outbreaks earlier than isolated rural areas.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-home message:</strong> Even in the 14th century without modern transportation, pathogens exhibited predictable spatial dynamics governed by human movement patterns and population density. The wave-like spread pattern is a fundamental feature of infectious disease epidemiology that transcends historical period or technology level.
+                </div>
+            </div>
+
+            <div class="case-study" id="cholera">
+                <h3>Case Study: John Snow's Cholera Investigation (London, 1854)</h3>
+                <p>John Snow's investigation of the 1854 Broad Street cholera outbreak represents a landmark in spatial epidemiology and public health science.</p>
+                
+                <h4>The Investigation</h4>
+                <p>During a cholera outbreak in London's Soho district, Snow meticulously mapped each case. He observed that deaths clustered around the Broad Street water pump, with the highest concentration within a 2-mile radius.</p>
+                
+                <p><strong>Methodological Innovations:</strong></p>
+                <ul>
+                    <li><strong>Spatial mapping:</strong> Snow created dot maps showing death locations, revealing clear clustering patterns</li>
+                    <li><strong>Questionnaire surveys:</strong> He systematically interviewed residents to establish water source usage</li>
+                    <li><strong>Statistical analysis:</strong> Compared attack rates between households using different water sources</li>
+                    <li><strong>Hypothesis testing:</strong> Challenged the prevailing miasma theory by demonstrating waterborne transmission</li>
+                </ul>
+
+                <p><strong>Key Finding:</strong> Snow identified "patient zero" - a baby whose diaper waste had contaminated a cesspit adjacent to the Broad Street pump. This contaminated the water supply, creating a point-source outbreak with radial dispersion.</p>
+
+                <div class="takeaway">
+                    <strong>Take-home message:</strong> Snow's work established three critical principles: (1) spatial analysis reveals disease sources, (2) systematic data collection enables causal inference, and (3) understanding transmission mechanisms guides effective interventions. His removal of the pump handle demonstrated how spatial epidemiology directly informs public health action.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h3>Case Study: Wheat Stem Rust and Barberry Bushes</h3>
+                <p>This agricultural example beautifully illustrates point-source spread and the importance of understanding pathogen life cycles.</p>
+                
+                <p><strong>Disease Biology:</strong> Wheat stem rust (Puccinia graminis) requires two hosts to complete its complex life cycle involving five different spore stages. Barberry bushes serve as the alternate host where sexual reproduction occurs, generating genetic diversity.</p>
+                
+                <p><strong>Spatial Pattern:</strong> Wheat fields near barberry bushes showed dramatically reduced yields in a distance-dependent pattern. Fields within a 2-mile radius experienced severe infections, with damage declining exponentially with distance from the barberry source.</p>
+                
+                <p><strong>Historical Control Measures:</strong> Laws banning barberry cultivation near wheat fields were enacted as early as 1660 in Rouen, France - remarkably, 200 years before germ theory! These regulations demonstrated empirical understanding of spatial disease dynamics even without knowledge of the underlying microbiology.</p>
+
+                <div class="takeaway">
+                    <strong>Take-home message:</strong> Point-source outbreaks create characteristic radial dispersal patterns with intensity declining by distance. Understanding the complete life cycle of pathogens - including alternate hosts - is essential for effective spatial control strategies. This agricultural model directly parallels zoonotic disease dynamics in human populations.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h3>Case Study: Long-Distance Transport - Poplar Rust Spores</h3>
+                <p>While many diseases spread through local, short-range transmission, some pathogens can disperse across vast distances through atmospheric transport.</p>
+                
+                <p><strong>Case Description:</strong> Poplar rust spores (Melampsora species) were tracked from Australia to New Zealand - a distance exceeding 1,000 kilometers across the Tasman Sea. Spores departed Australia on February 28, 1973, at noon, drifting at 3,000 meters altitude, and arrived in New Zealand on March 3, 1973.</p>
+                
+                <p><strong>Dispersal Mechanism:</strong> Fungal spores were lofted into the upper atmosphere by thermal updrafts, where they were transported by prevailing westerly winds. The spores remained viable during the multi-day journey due to cold temperatures and low UV exposure at altitude.</p>
+                
+                <p><strong>Implications:</strong> This demonstrates that dispersal kernels can have extremely long "tails" - rare long-distance dispersal events that dramatically affect spatial spread patterns. Such events can:
+                <ul>
+                    <li>Establish new disease foci far ahead of the main wave front</li>
+                    <li>Overcome geographic barriers like oceans or mountain ranges</li>
+                    <li>Accelerate overall epidemic spread beyond predictions from local transmission alone</li>
+                </ul>
+                </p>
+
+                <div class="takeaway">
+                    <strong>Take-home message:</strong> Spatial spread is not always a smooth, continuous wave. Rare long-distance dispersal events create satellite outbreaks and can dramatically accelerate epidemic expansion. Control strategies must account for both local transmission and potential long-range transport mechanisms.
+                </div>
+            </div>
+        </div>
+
+        <div class="concept-card" id="kernels">
+            <h2>Dispersal Kernels: Quantifying Transmission Over Distance</h2>
+            
+            <p>A <strong>dispersal kernel</strong> is a mathematical function describing how transmission probability changes with distance from an infectious source. Think of it as a transmission landscape - how likely is infection to "jump" from one location to another based on their separation?</p>
+
+            <h3>Formal Definition</h3>
+            <p>The dispersal kernel K(d) gives the probability density that an infection at location x will cause a new infection at location y, where d = |y - x| is the distance between them. Mathematically:</p>
+
+            <div class="equation-box">
+                <div class="equation">P(infection at distance d) = K(d)</div>
+                <p>where ∫₀^∞ K(d) dd = 1 (normalized probability)</p>
+            </div>
+
+            <h3>Types of Dispersal Kernels</h3>
+            
+            <h4>1. Normal (Gaussian) Distribution Kernel</h4>
+            <p>The simplest dispersal kernel assumes transmission probability follows a bell curve centered on the infectious source:</p>
+            
+            <div class="equation-box">
+                <div class="equation">K(d) = (1 / (σ√(2π))) exp(-d² / (2σ²))</div>
+                <p>where σ = standard deviation (average dispersal distance)</p>
+            </div>
+            
+            <p>This kernel assumes:</p>
+            <ul>
+                <li>Most transmission occurs near the source</li>
+                <li>Transmission probability declines symmetrically with distance</li>
+                <li>Long-distance transmission is rare (thin tails)</li>
+            </ul>
+
+            <h4>2. Leptokurtic Distribution Kernel</h4>
+            <p>More realistic for many diseases, leptokurtic kernels have a sharper central peak but longer tails, allowing for occasional long-distance transmission:</p>
+            
+            <div class="equation-box">
+                <div class="equation">K(d) = Σᵢ pᵢ Kᵢ(d)</div>
+                <p>Sum of multiple normal distributions with different variances</p>
+            </div>
+
+            <p>Characteristics:</p>
+            <ul>
+                <li><strong>Sharp peak:</strong> Very high transmission probability at short distances</li>
+                <li><strong>Fat tails:</strong> Non-negligible probability of long-distance transmission</li>
+                <li><strong>Biological realism:</strong> Captures heterogeneity in transmission routes (local contact + rare travel)</li>
+            </ul>
+
+            <div class="acronym">
+                <strong>KERNEL Principles</strong>:<br>
+                <strong>K</strong>ernel defines transmission landscape<br>
+                <strong>E</strong>xponential decay typical<br>
+                <strong>R</strong>are long-distance events matter<br>
+                <strong>N</strong>ormal vs leptokurtic shapes<br>
+                <strong>E</strong>mpirical data determines form<br>
+                <strong>L</strong>andscape features modify kernels
+            </div>
+
+            <div class="simulation-box">
+                <h4>Interactive Simulation: Dispersal Kernel Comparison</h4>
+                <p><strong>How this simulation works:</strong> This tool compares normal (Gaussian) versus leptokurtic dispersal kernels. The normal kernel shows simple exponential decay with distance, while the leptokurtic kernel combines short-range (70%) and long-range (30%) transmission components. Adjust the variance parameter to see how it affects transmission probability at different distances. Notice how leptokurtic kernels maintain higher probabilities at long distances - this fat-tailed property drives accelerating epidemic waves.</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="variance">Variance (σ²): <output id="varianceOut">5</output></label>
+                        <input type="range" id="variance" min="1" max="20" value="5" step="0.5">
+                    </div>
+                </div>
+                <button onclick="updateKernelChart()">Update Visualization</button>
+                <div class="canvas-container">
+                    <canvas id="kernelChart"></canvas>
+                </div>
+                <div class="explanation-box">
+                    <h5>Understanding the Results:</h5>
+                    <p><strong>Normal kernel (blue):</strong> Shows rapid exponential decay. At distance = 10 units with σ² = 5, transmission probability is negligible.</p>
+                    <p><strong>Leptokurtic kernel (red):</strong> Maintains higher probability at long distances due to the 30% long-range component (10× variance). This creates opportunities for disease to "leap" ahead of the main wave.</p>
+                    <p><strong>Practical implication:</strong> Control strategies must extend farther from known cases when dealing with fat-tailed kernels, as shown in the FMD ring culling example.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="concept-card" id="waves">
+            <h2>Traveling Waves and Fisher's Equation</h2>
+            
+            <p>When infectious diseases spread through continuous space, they often generate <strong>traveling waves</strong> - moving fronts of infection that sweep across populations like a wave across water.</p>
+
+            <h3>Fisher's Equation for Wave Speed</h3>
+            <p>R.A. Fisher (1937) derived a fundamental relationship for the speed at which epidemic waves advance:</p>
+
+            <div class="equation-box">
+                <h4>Fisher's Wave Speed Equation</h4>
+                <div class="equation">v = 2√(R₀ × D)</div>
+                <p>where:</p>
+                <ul style="text-align: left; margin-top: 1rem;">
+                    <li><strong>v</strong> = wave speed (km/year or similar units)</li>
+                    <li><strong>R₀</strong> = basic reproduction number</li>
+                    <li><strong>D</strong> = diffusion coefficient (related to average dispersal distance²/time)</li>
+                </ul>
+            </div>
+
+            <h3>Key Insights from Fisher's Equation</h3>
+            <ul>
+                <li><strong>R₀ dependence:</strong> Wave speed increases with the square root of R₀. Doubling R₀ increases speed by √2 ≈ 1.41×</li>
+                <li><strong>Dispersal dependence:</strong> Wave speed increases with √D. Greater movement accelerates spread</li>
+                <li><strong>Combined effect:</strong> Both transmission intensity (R₀) and mobility (D) independently drive spread</li>
+                <li><strong>Control implications:</strong> Reducing either R₀ or D slows the wave, with the effect being proportional to the square root</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Critical Insight: The Square Root Relationship</h4>
+                <p>The square root in Fisher's equation has important consequences: To halve epidemic wave speed requires reducing R₀ × D to one-quarter of its original value. This means control measures must be aggressive - modest reductions in R₀ or mobility produce only marginal slowdowns in spatial spread.</p>
+            </div>
+
+            <h3>Visualizing Traveling Waves</h3>
+            <p>A traveling wave in disease spread shows three distinct zones moving through space:</p>
+            <ul>
+                <li><strong>Healthy/Susceptible zone:</strong> Ahead of the wave, populations remain uninfected</li>
+                <li><strong>Infected zone:</strong> The wave front contains actively infectious individuals</li>
+                <li><strong>Recovered/Resistant zone:</strong> Behind the wave, populations have acquired immunity or died</li>
+            </ul>
+
+            <p>As the wave advances, these three zones shift across the landscape at constant speed v (assuming homogeneous environment).</p>
+
+            <div class="simulation-box">
+                <h4>Interactive Simulation: Epidemic Wave Propagation</h4>
+                <p><strong>How this simulation works:</strong> This simulation demonstrates traveling wave dynamics using a spatial SEIR model. Each location can be Susceptible (green), Exposed (yellow), Infected (red), or Recovered (blue). The disease starts at one location and spreads to neighbors based on the dispersal kernel. Watch how the infection wave moves from left to right, leaving recovered individuals in its wake. Adjust R₀ to see how it affects wave speed per Fisher's equation, and modify the dispersal distance to observe changes in spread rate.</p>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="r0Wave">R₀: <output id="r0WaveOut">2.5</output></label>
+                        <input type="range" id="r0Wave" min="1" max="5" value="2.5" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label for="dispersal">Dispersal Distance: <output id="dispersalOut">2</output></label>
+                        <input type="range" id="dispersal" min="1" max="5" value="2" step="0.5">
+                    </div>
+                </div>
+                <button onclick="runWaveSimulation()">Run Simulation</button>
+                <button onclick="resetWaveSimulation()">Reset</button>
+                <div class="canvas-container">
+                    <canvas id="waveChart"></canvas>
+                </div>
+                <div class="explanation-box">
+                    <h5>Understanding Wave Dynamics:</h5>
+                    <p><strong>Green zone (susceptible):</strong> Uninfected population ahead of the wave</p>
+                    <p><strong>Yellow zone (exposed):</strong> Recently infected but not yet infectious</p>
+                    <p><strong>Red zone (infected):</strong> Actively transmitting the disease - this is the wave front</p>
+                    <p><strong>Blue zone (recovered):</strong> Immune population left behind the wave</p>
+                    <p><strong>Wave speed prediction:</strong> According to Fisher's equation with R₀ = <span id="r0Display">2.5</span> and D ∝ <span id="dispDisplay">2</span>², expected relative speed ∝ √(<span id="r0Display2">2.5</span> × <span id="dSquared">4</span>) = <span id="speedPrediction">3.16</span></p>
+                </div>
+            </div>
+
+            <h3>When Fisher's Equation Breaks Down</h3>
+            <p>Fisher's simple wave speed formula assumes:</p>
+            <ul>
+                <li>Homogeneous environment (all locations identical)</li>
+                <li>Normal dispersal kernel (no long-distance jumps)</li>
+                <li>Continuous space (no barriers or discrete patches)</li>
+                <li>Constant parameters (R₀ and D don't change)</li>
+            </ul>
+
+            <p>In reality, these assumptions are often violated, leading to:</p>
+            <ul>
+                <li><strong>Wave deceleration:</strong> Environmental heterogeneity can slow waves (as seen in rabies crossing rivers)</li>
+                <li><strong>Wave acceleration:</strong> Long-distance dispersal can speed waves beyond Fisher's prediction</li>
+                <li><strong>Irregular wave fronts:</strong> Geographic barriers create complex spatial patterns</li>
+                <li><strong>Wave stalling:</strong> In fragmented landscapes, waves may fail to propagate at all</li>
+            </ul>
+
+            <div class="acronym">
+                <strong>FISHER Framework</strong> for Traveling Waves:<br>
+                <strong>F</strong>ront moves at constant speed v<br>
+                <strong>I</strong>ncreases with √(R₀ × D)<br>
+                <strong>S</strong>usceptibles ahead, recovered behind<br>
+                <strong>H</strong>omogeneity assumption critical<br>
+                <strong>E</strong>nvironmental barriers slow waves<br>
+                <strong>R</strong>are long jumps can accelerate spread
+            </div>
+        </div>
+
+        <div class="concept-card" id="fmd">
+            <h2>Case Study: Foot-and-Mouth Disease in the UK (2001)</h2>
+            
+            <p>The 2001 FMD outbreak in the United Kingdom provides a dramatic example of spatial disease dynamics and the challenges of controlling rapidly spreading infections in dense agricultural landscapes.</p>
+
+            <h3>Disease Background</h3>
+            <p><strong>Foot-and-Mouth Disease (FMD)</strong> is a highly contagious viral disease affecting cloven-hoofed animals (cattle, pigs, sheep, goats). While rarely fatal, FMD causes severe economic losses through reduced productivity and trade restrictions.</p>
+            
+            <p><strong>Transmission characteristics:</strong></p>
+            <ul>
+                <li>R₀ = 5-20 depending on host species and farm density</li>
+                <li>Incubation period: 2-14 days</li>
+                <li>Highly infectious via direct contact, fomites, and airborne transmission</li>
+                <li>No effective treatment; vaccines exist but were not used initially in 2001</li>
+            </ul>
+
+            <h3>Outbreak Timeline and Spatial Spread</h3>
+            <p>The outbreak began in February 2001 and spread rapidly across the UK:</p>
+            <ul>
+                <li><strong>Index case:</strong> Detected at an abattoir in Essex on February 19, 2001</li>
+                <li><strong>Peak:</strong> April 2001 with 50+ new cases per day</li>
+                <li><strong>Duration:</strong> 7 months (ended September 30, 2001)</li>
+                <li><strong>Geographic extent:</strong> 2,030 confirmed cases across England, Scotland, Wales</li>
+                <li><strong>Control cost:</strong> £8 billion, with 6 million animals culled</li>
+            </ul>
+
+            <h3>Spatial Patterns and Dispersal Kernel</h3>
+            <p>Analysis revealed a leptokurtic dispersal kernel with two components:</p>
+            <ul>
+                <li><strong>Local transmission (90%):</strong> Most spread occurred within 3 km</li>
+                <li><strong>Long-range transmission (10%):</strong> Occasional spread up to 20 km via livestock movements, vehicles, or airborne transmission in favorable wind conditions</li>
+            </ul>
+
+            <div class="case-
