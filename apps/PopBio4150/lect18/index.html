@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infectious Diseases in Structured Populations: Metapopulations</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .objectives ul {
+            margin-left: 1.5rem;
+        }
+
+        .objectives li {
+            margin-bottom: 0.5rem;
+        }
+
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .concept-card h2 {
+            color: #2c5530;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .key-insight {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .key-insight strong {
+            color: #856404;
+        }
+
+        .acronym {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
+        .acronym h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+
+        .simulation-box {
+            background: white;
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .simulation-box h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .controls {
+            margin: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .control-group label {
+            min-width: 150px;
+            font-weight: 600;
+        }
+
+        .control-group input[type="range"] {
+            flex: 1;
+        }
+
+        .control-group span {
+            min-width: 60px;
+            text-align: right;
+        }
+
+        button {
+            background-color: #4a7c59;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2c5530;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .case-study h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .takeaway {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .takeaway strong {
+            color: #155724;
+        }
+
+        canvas {
+            max-width: 100%;
+            margin: 1rem 0;
+        }
+
+        .explanation-box {
+            background-color: #e7f3ff;
+            border-left: 5px solid #0066cc;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Infectious Diseases in Structured Populations: Metapopulations</h1>
+        <p>Population Biology of Infectious Diseases - Course 6150</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#ccs">Critical Community Size</a></li>
+            <li><a href="#rescue">Rescue Effect</a></li>
+            <li><a href="#gravity">Gravity Networks</a></li>
+            <li><a href="#measles">Measles Case Studies</a></li>
+            <li><a href="#wns">White Nose Syndrome</a></li>
+            <li><a href="#ebola">Ebola</a></li>
+            <li><a href="#summary">Summary</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the metapopulation concept and its application to infectious disease dynamics</li>
+                <li>Define and calculate Critical Community Size (CCS) for disease persistence</li>
+                <li>Explain the rescue effect and its role in maintaining disease persistence across connected populations</li>
+                <li>Analyze spatial synchrony patterns and their impact on disease fadeouts</li>
+                <li>Apply gravity network models to predict disease spread across landscapes</li>
+                <li>Compare measles dynamics in different geographic and demographic contexts (Europe vs. Africa)</li>
+                <li>Evaluate the role of vaccination in altering spatial disease dynamics</li>
+                <li>Apply metapopulation frameworks to emerging diseases (White Nose Syndrome, Ebola)</li>
+            </ul>
+        </div>
+
+        <div class="concept-card" id="intro">
+            <h2>Spatial Disease Dynamics: Mechanisms for Parasite Persistence</h2>
+            
+            <h3>The Metapopulation Framework</h3>
+            <p>A metapopulation is a collection of partially isolated host populations connected by occasional movement of hosts or pathogens. In infectious disease ecology, this framework helps us understand how diseases persist regionally even when they cannot persist in individual local populations.</p>
+
+            <div class="acronym">
+                <h4>MARS Framework for Metapopulation Persistence</h4>
+                <p><strong>M</strong>ovement between patches<br>
+                <strong>A</strong>synchronous epidemics<br>
+                <strong>R</strong>ecolonization after fadeouts<br>
+                <strong>S</strong>patial spread patterns</p>
+            </div>
+
+            <h3>Two Modes of Disease Persistence</h3>
+            
+            <p><strong>Non-Spatial Persistence:</strong> In a single, well-mixed population, diseases persist through continuous replenishment of susceptible individuals via:</p>
+            <ul>
+                <li><strong>New births:</strong> Newborns enter the susceptible class, providing fuel for continued transmission</li>
+                <li><strong>Loss of immunity:</strong> Recovered individuals may lose immunity and return to the susceptible class</li>
+            </ul>
+
+            <div class="equation-box">
+                <p>For endemic persistence: <em>R</em><sub>0</sub> &gt; 1</p>
+                <p>Where <em>R</em><sub>0</sub> = β<em>N</em> / (γ + μ)</p>
+                <p><em>β</em> = transmission rate, <em>N</em> = population size, <em>γ</em> = recovery rate, μ = death rate</p>
+            </div>
+
+            <p><strong>Regional (Spatial) Persistence:</strong> When individual populations are too small for local persistence, the disease can persist regionally through:</p>
+            <ul>
+                <li><strong>Spatial transmission:</strong> Movement of infected individuals or pathogens between populations creates spatial spread patterns</li>
+                <li><strong>Asynchronous epidemics:</strong> Different populations experience epidemic peaks at different times</li>
+                <li><strong>Recolonization:</strong> Populations where the disease has faded out are reinfected from other populations</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Key Insight:</strong> Spatial structure transforms disease dynamics from a binary outcome (persist or go extinct) to a dynamic equilibrium where local extinctions are balanced by recolonizations. This is the essence of metapopulation persistence.
+            </div>
+
+            <h3>Visual Memory Anchor: The Patchwork Quilt</h3>
+            <p>Imagine a quilt with many patches, each representing a population. Some patches are "lit up" with infection (colored bright red), while others are dark (disease-free). Over time, the pattern of lit patches shifts and changes, but the overall quilt never goes completely dark. Individual patches flicker on and off, but the regional pattern persists. This is metapopulation dynamics.</p>
+        </div>
+
+        <div class="concept-card" id="ccs">
+            <h2>Critical Community Size (CCS)</h2>
+            
+            <h3>Definition and Significance</h3>
+            <p>The Critical Community Size (CCS) is the smallest population of susceptible hosts below which a disease will eventually go extinct (fadeout), and above which the disease can persist endemically. This threshold was first systematically studied by M.S. Bartlett in 1956 for measles in urban populations.</p>
+
+            <div class="equation-box">
+                <p>CCS Threshold: <em>N</em><sub>crit</sub> ≈ 300,000-500,000 (for measles)</p>
+                <p>Fadeout probability ∝ 1 / <em>N</em></p>
+            </div>
+
+            <h3>The Biology Behind CCS</h3>
+            <p>Why does population size matter for disease persistence? The answer lies in stochastic fadeout:</p>
+            
+            <ul>
+                <li><strong>Small populations:</strong> During epidemic troughs, the number of infected individuals becomes very small (e.g., 5-10 people). Random chance can easily drive this number to zero, causing fadeout.</li>
+                <li><strong>Large populations:</strong> Even during troughs, enough infected individuals remain to maintain transmission chains. The probability of all chains dying out simultaneously becomes vanishingly small.</li>
+                <li><strong>Susceptible recruitment rate:</strong> Larger populations have more births per unit time, providing a steadier stream of new susceptibles to fuel transmission.</li>
+            </ul>
+
+            <div class="acronym">
+                <h4>FADES Framework for Understanding Fadeouts</h4>
+                <p><strong>F</strong>ew infecteds during troughs<br>
+                <strong>A</strong>ll chains can die by chance<br>
+                <strong>D</strong>epletion of susceptibles<br>
+                <strong>E</strong>pidemic cycles create risk<br>
+                <strong>S</strong>tochastic extinction events</p>
+            </div>
+
+            <h3>Epidemic Patterns by Population Size</h3>
+            <p>Choisy et al. (2007) identified three distinct patterns based on population size:</p>
+            
+            <div class="case-study">
+                <h3>Type I Dynamics: Small Populations (N &lt; CCS)</h3>
+                <p><strong>Pattern:</strong> Frequent fadeouts with long inter-epidemic periods (months to years)</p>
+                <p><strong>Mechanism:</strong> After each epidemic burns through the susceptible population, the disease goes extinct. It only returns when reintroduced from elsewhere.</p>
+                <p><strong>Example:</strong> Iceland (population ~300,000) showed measles fadeouts lasting 1-3 years between epidemics</p>
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> In populations below CCS, measles behaves as a series of isolated epidemic invasions rather than a continuously circulating endemic disease.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h3>Type II Dynamics: Intermediate Populations (N ≈ CCS)</h3>
+                <p><strong>Pattern:</strong> Regular annual or biennial epidemics with occasional fadeouts</p>
+                <p><strong>Mechanism:</strong> Population is large enough to support regular cycles driven by seasonal forcing (school terms), but still small enough that stochastic events can occasionally cause fadeout</p>
+                <p><strong>Example:</strong> Denmark (population ~5 million) showed regular biennial cycles with occasional fadeouts</p>
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> Near the CCS threshold, disease dynamics are highly variable and influenced by both deterministic cycles and stochastic effects.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h3>Type III Dynamics: Large Populations (N &gt;&gt; CCS)</h3>
+                <p><strong>Pattern:</strong> Stable endemic persistence with regular seasonal peaks</p>
+                <p><strong>Mechanism:</strong> Large population maintains multiple overlapping transmission chains. Even if some chains die out, others continue.</p>
+                <p><strong>Example:</strong> United Kingdom (population ~60 million) showed continuous circulation with predictable annual peaks</p>
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> In large populations well above CCS, measles behaves as a predictable endemic disease with seasonal fluctuations but no fadeouts.
+                </div>
+            </div>
+
+            <div class="simulation-box">
+                <h4>Interactive Simulation: CCS and Fadeout Dynamics</h4>
+                <div class="explanation-box">
+                    <strong>How this simulation works:</strong> This model simulates a simplified SIR (Susceptible-Infected-Recovered) epidemic in populations of different sizes. The simulation runs multiple epidemic cycles and tracks how often the disease goes extinct (fadeouts). Larger populations show fewer fadeouts because they maintain more infected individuals even during epidemic troughs. The birth rate determines how quickly new susceptibles enter the population, affecting both epidemic frequency and fadeout risk.
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Population Size:</label>
+                        <input type="range" id="popSize" min="50000" max="2000000" step="50000" value="500000">
+                        <span id="popSizeVal">500,000</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Birth Rate (per 1000/year):</label>
+                        <input type="range" id="birthRate" min="10" max="40" step="1" value="20">
+                        <span id="birthRateVal">20</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Transmission Rate (β):</label>
+                        <input type="range" id="beta" min="200" max="600" step="10" value="400">
+                        <span id="betaVal">400</span>
+                    </div>
+                    <button onclick="runCCSSimulation()">Run Simulation</button>
+                </div>
+                <canvas id="ccsChart" width="800" height="400"></canvas>
+                <div id="fadeoutStats" style="margin-top: 1rem; font-weight: bold;"></div>
+            </div>
+        </div>
+
+        <div class="concept-card" id="rescue">
+            <h2>The Rescue Effect: Asynchrony Enables Persistence</h2>
+            
+            <h3>Conceptual Foundation</h3>
+            <p>The rescue effect describes how spatially separated populations experiencing asynchronous (out-of-phase) epidemics can collectively maintain disease persistence even when no single population is large enough to maintain the disease alone. This is a cornerstone concept in metapopulation disease ecology.</p>
+
+            <div class="acronym">
+                <h4>RESCUE Principle</h4>
+                <p><strong>R</strong>eintroduction from neighboring populations<br>
+                <strong>E</strong>pidemic asynchrony is essential<br>
+                <strong>S</strong>patial coupling connects populations<br>
+                <strong>C</strong>ontinuous regional circulation<br>
+                <strong>U</strong>nlikely simultaneous fadeouts<br>
+                <strong>E</strong>xtinction risk reduced regionally</p>
+            </div>
+
+            <h3>The Mathematics of Rescue</h3>
+            <p>Consider two connected populations:</p>
+            
+            <div class="equation-box">
+                <p>Probability of regional extinction = P(fadeout<sub>1</sub>) × P(fadeout<sub>2</sub>) × (1 - P(rescue))</p>
+                <p>When epidemics are synchronized: P(fadeout<sub>1</sub> AND fadeout<sub>2</sub>) is HIGH</p>
+                <p>When epidemics are asynchronous: P(fadeout<sub>1</sub> AND fadeout<sub>2</sub>) is LOW</p>
+            </div>
+
+            <h3>Synchrony vs. Asynchrony: A Tale of Two Scenarios</h3>
+            
+            <div class="case-study">
+                <h3>Scenario 1: Synchronized Epidemics (High Fadeout Risk)</h3>
+                <p>Imagine two towns with perfectly synchronized measles epidemics. Both experience peaks in January and troughs in June simultaneously.</p>
+                <p><strong>What happens during the trough:</strong></p>
+                <ul>
+                    <li>Both populations have very few infected individuals (say 2-5 people each)</li>
+                    <li>In both towns, random chance can drive infections to zero</li>
+                    <li>When Town A experiences fadeout in June, Town B is also at its trough and likely to fade out</li>
+                    <li>No rescue possible because both populations are vulnerable simultaneously</li>
+                </ul>
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> Synchrony creates regional vulnerability. All populations are "down" at the same time, allowing regional extinction.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h3>Scenario 2: Asynchronous Epidemics (Low Fadeout Risk)</h3>
+                <p>Now imagine the same two towns, but with epidemics 6 months out of phase. Town A peaks in January (trough in June), while Town B peaks in July (trough in January).</p>
+                <p><strong>What happens during troughs:</strong></p>
+                <ul>
+                    <li>When Town A is at its trough in June (high fadeout risk), Town B is peaking</li>
+                    <li>If Town A experiences fadeout, infected individuals from Town B can reintroduce the disease</li>
+                    <li>When Town B reaches its trough in January, Town A is peaking and can rescue Town B</li>
+                    <li>At any given time, at least one population maintains high infection levels</li>
+                </ul>
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> Asynchrony creates regional resilience. When one population is vulnerable, another is strong and can provide rescue through spatial coupling.
+                </div>
+            </div>
+
+            <h3>Visual Memory Anchor: The Seesaw Effect</h3>
+            <p>Picture two children on a seesaw. When synchronized, both go up and down together, and both are on the ground simultaneously (vulnerable). When asynchronous, as one goes down (trough, vulnerable), the other is up (peak, strong) and can "rescue" by tossing a ball (infected individuals) to the other side. The seesaw never stops moving because the two sides support each other in alternation.</p>
+
+            <div class="simulation-box">
+                <h4>Interactive Simulation: Rescue Effect Dynamics</h4>
+                <div class="explanation-box">
+                    <strong>How this simulation works:</strong> This model simulates two connected populations experiencing epidemic cycles. You control the coupling strength (how much movement occurs between populations) and initial phase difference (whether epidemics start in-phase or out-of-phase). The simulation shows how strong coupling increases synchrony, while weak coupling with phase differences enables asynchronous dynamics and the rescue effect. Watch how fadeout risk changes with synchrony.
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Coupling Strength:</label>
+                        <input type="range" id="coupling" min="0" max="0.1" step="0.01" value="0.02">
+                        <span id="couplingVal">0.02</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Phase Difference (months):</label>
+                        <input type="range" id="phase" min="0" max="12" step="1" value="6">
+                        <span id="phaseVal">6</span>
+                    </div>
+                    <button onclick="runRescueSimulation()">Run Simulation</button>
+                </div>
+                <canvas id="rescueChart" width="800" height="400"></canvas>
+                <div id="syncStats" style="margin-top: 1rem; font-weight: bold;"></div>
+            </div>
+        </div>
+
+        <div class="concept-card" id="gravity">
+            <h2>Gravity Networks and Epidemiological Isolation</h2>
+            
+            <h3>The Gravity Model Framework</h3>
+            <p>Gravity models, borrowed from physics and economics, describe how the strength of connection between two populations depends on their sizes and the distance between them. In disease ecology, this models how likely disease transmission is between locations.</p>
+
+            <div class="equation-box">
+                <p>Force of coupling: Φ<sub>ij</sub> = k × (N<sub>i</sub><sup>α</sup> × N<sub>j</sub><sup>β</sup>) / d<sub>ij</sub><sup>γ</sup></p>
+                <p>Where:</p>
+                <p>Φ<sub>ij</sub> = coupling strength between populations <em>i</em> and <em>j</em></p>
+                <p>N<sub>i</sub>, N<sub>j</sub> = population sizes</p>
+                <p>d<sub>ij</sub> = distance between populations</p>
+                <p>α, β, γ = scaling exponents (estimated from data)</p>
+                <p><em>k</em> = normalization constant</p>
+            </div>
+
+            <h3>Biological Interpretation</h3>
+            <ul>
+                <li><strong>Population size effect (N<sup>α</sup>):</strong> Larger populations generate more infected travelers. More infected individuals mean more opportunities for spatial spread.</li>
+                <li><strong>Destination size effect (N<sup>β</sup>):</strong> Larger destinations attract more travelers from source populations, creating a "gravity" pulling infections toward urban centers.</li>
+                <li><strong>Distance decay (1/d<sup>γ</sup>):</strong> Travel probability decreases with distance. Most disease spread occurs between nearby locations, but occasional long-distance jumps can occur.</li>
+            </ul>
+
+            <div class="acronym">
+                <h4>SPREAD Framework for Gravity Dynamics</h4>
+                <p><strong>S</strong>ize matters: larger populations spread more<br>
+                <strong>P</strong>roximity increases coupling<br>
+                <strong>R</strong>are long-distance dispersal events<br>
+                <strong>E</strong>xponential distance decay<br>
+                <strong>A</strong>symmetric flows toward cities<br>
+                <strong>D</strong>ensity drives transmission patterns</p>
+            </div>
+
+            <h3>Epidemiological Isolation</h3>
+            <p>Epidemiological isolation occurs when populations are sufficiently distant or weakly connected that disease cannot readily spread between them. This creates distinct spatial domains where disease dynamics are largely independent.</p>
+
+            <div class="key-insight">
+                <strong>Key Insight:</strong> The same disease can show completely different dynamics in different regions depending on population structure. Dense networks of cities create one dynamic regime (high synchrony, core-satellite structure), while sparse rural areas create another (low synchrony, frequent fadeouts, strong rescue effects).
+            </div>
+
+            <h3>Core-Satellite Dynamics</h3>
+            <p>In realistic landscapes with cities and towns of varying sizes, a hierarchical structure emerges:</p>
+            
+            <ul>
+                <li><strong>Core populations (large cities):</strong> Above CCS, maintain endemic disease, serve as persistent sources seeding outbreaks in smaller populations</li>
+                <li><strong>Satellite populations (small towns):</strong> Below CCS, experience recurrent epidemic invasions from core, disease fades out between invasions</li>
+                <li><strong>Spatial hierarchy:</strong> Disease spreads from large cities → medium towns → small villages in a predictable cascade</li>
+            </ul>
+
+            <div class="case-study">
+                <h3>Traveling Waves and Wave Speed</h3>
+                <p>When disease spreads across a landscape, it often forms traveling waves where infection moves from location to location in a spatially organized manner.</p>
+                
+                <p><strong>Wave patterns depend on landscape structure:</strong></p>
+                <ul>
+                    <li><strong>Homogeneous landscapes:</strong> Constant wave speed, regular wavefronts</li>
+                    <li><strong>Heterogeneous landscapes:</strong> Waves decelerate in sparse areas, accelerate through cities</li>
+                    <li><strong>Long-distance dispersal:</strong> Creates satellite foci ahead of main wave, leading to accelerating overall spread</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> The speed and pattern of disease spread depends critically on the spatial distribution of population sizes and distances, not just on the pathogen's biological characteristics.
+                </div>
+            </div>
+        </div>
+
+        <div class="concept-card" id="measles">
+            <h2>Case Study: Measles in Europe vs. Africa</h2>
+            
+            <h3>Measles in England and Wales</h3>
+            
+            <div class="case-study">
+                <h3>Pre-Vaccination Era (before 1968)</h3>
+                <p><strong>Context:</strong> Dense network of cities and towns with high connectivity through rail and road networks. Birth rate ~17-20 per 1000. Population well-nourished with low infant mortality.</p>
+                
+                <p><strong>Observed patterns:</strong></p>
+                <ul>
+                    <li>CCS approximately 300,000-500,000 people</li>
+                    <li>Regular biennial cycles in most cities driven by school-term forcing</li>
+                    <li>High spatial synchrony (correlation ~0.25 across the country)</li>
+                    <li>Core cities (London, Birmingham, Manchester) maintained endemic circulation</li>
+                    <li>Satellite towns experienced regular invasions from cores</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> In developed countries with high connectivity and moderate birth rates, measles showed predictable endemic dynamics with spatial structure but continuous nationwide circulation.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h3>Post-Vaccination Era (after 1968)</h3>
+                <p><strong>Context:</strong> Introduction of measles vaccine achieving ~60-80% coverage in most areas. Same population structure and connectivity as before.</p>
+                
+                <p><strong>Surprising finding: No change in CCS!</strong></p>
+                <p>Despite vaccination reducing susceptible population, the critical community size remained ~300,000-500,000. Why?</p>
+                
+                <p><strong>The vaccination paradox explained:</strong></p>
+                <ol>
+                    <li><strong>Direct effect of vaccination (increases CCS):</strong> Fewer susceptibles means smaller effective population, requiring larger actual population to maintain transmission</li>
+                    <li><strong>Indirect effect through synchrony (decreases CCS):</strong> Fewer infected individuals travel between cities, weakening spatial coupling and reducing synchrony</li>
+                    <li><strong>Lower synchrony enables stronger rescue effect:</strong> With populations less synchronized, fadeouts in one city are more likely to be rescued by epidemics in other cities</li>
+                    <li><strong>Net result:</strong> The two opposing effects cancel out, leaving CCS unchanged</li>
+                </ol>
+                
+                <div class="key-insight">
+                    <strong>Key Insight:</strong> This demonstrates that vaccination effects are not just about reducing transmission within populations, but also about altering spatial dynamics. The rescue effect can partially counteract vaccination benefits by maintaining regional persistence even as local persistence becomes harder.
+                </div>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> Spatial coupling and asynchrony can maintain disease circulation at lower levels than simple models predict. Control strategies must account for metapopulation structure, not just local dynamics.
+                </div>
+            </div>
+
+            <h3>Measles in Africa: Niamey, Niger</h3>
+            
+            <div class="case-study">
+                <h3>Context and Demographics</h3>
+                <p><strong>Setting:</strong> Niamey and surrounding towns in Niger, West Africa. Much different demographic and environmental context than Europe.</p>
+                
+                <p><strong>Key differences from Europe:</strong></p>
+                <ul>
+                    <li><strong>Birth rate:</strong> 45-50 per 1000 (vs. 17-20 in UK) - extremely high susceptible recruitment</li>
+                    <li><strong>Connectivity:</strong> Weak transportation links, rural populations poorly connected to cities</li>
+                    <li><strong>Seasonality:</strong> Driven by rainfall and agricultural cycles, not school terms. Very intense dry/wet season contrast</li>
+                    <li><strong>Vaccination coverage:</strong> Variable, often below 60%, with spatial heterogeneity</li>
+                </ul>
+                
+                <p><strong>Observed patterns (Ferrari et al. 2008):</strong></p>
+                <ul>
+                    <li>Frequent local extinctions even in relatively large towns</li>
+                    <li>Very low spatial synchrony between cities (correlation &lt; 0.1)</li>
+                    <li>Highly variable inter-epidemic intervals (1-4 years)</li>
+                    <li>Dramatic epidemic peaks when disease reintroduced after long fadeout</li>
+                    <li>Seasonality linked to rainfall patterns affecting contact rates</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> High birth rates maintain large susceptible populations, but weak spatial coupling and intense seasonality create highly variable dynamics with frequent fadeouts and explosive reintroductions.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h3>Why Africa Shows Different Dynamics</h3>
+                
+                <p><strong>The rescue effect operates differently:</strong></p>
+                <ul>
+                    <li>Weak connectivity means reintroductions are almost random rather than following predictable core-satellite patterns</li>
+                    <li>Long fadeout periods allow susceptible populations to build to very high levels</li>
+                    <li>When reintroduction occurs, the large susceptible pool fuels explosive epidemics</li>
+                    <li>After epidemic burns through population, fadeout occurs again</li>
+                </ul>
+                
+                <p><strong>Implications for control:</strong></p>
+                <ul>
+                    <li><strong>Routine vaccination alone insufficient:</strong> High birth rates rapidly replace vaccinated cohorts</li>
+                    <li><strong>Outbreak response vaccination (ORV) can be effective:</strong> When early warning signals detected, mass campaigns can prevent explosive epidemics</li>
+                    <li><strong>Targeting major population centers critical:</strong> Niamey serves as source for surrounding areas</li>
+                    <li><strong>Spatial heterogeneity matters:</strong> Must achieve coverage in poorly connected rural areas, not just cities</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> Models developed for European measles fail in African contexts. Birth rates, connectivity patterns, and seasonality drivers all differ, requiring context-specific models and control strategies. One-size-fits-all approaches to disease control can fail when spatial structure differs.
+                </div>
+            </div>
+
+            <h3>Comparing Seasonality Mechanisms</h3>
+            
+            <div class="case-study">
+                <h3>England and Wales: School-Term Forcing</h3>
+                <p>Transmission rate varies with school calendar. Children mix intensely during term time, then disperse during holidays.</p>
+                
+                <div class="equation-box">
+                    <p>β(t) = β<sub>0</sub>[1 + α × cos(2π(t - φ)/T)]</p>
+                    <p>Peak transmission during school terms, trough during summer holidays</p>
+                </div>
+                
+                <p><strong>Result:</strong> Moderate seasonality (α ~ 0.15-0.25) creates regular biennial cycles synchronized across the country by shared school calendar.</p>
+            </div>
+
+            <div class="case-study">
+                <h3>Niamey, Niger: Rainfall-Driven Seasonality</h3>
+                <p>Transmission linked to agricultural calendar and rainfall patterns affecting population movement and contact rates.</p>
+                
+                <div class="equation-box">
+                    <p>β(t) strongly correlated with rainfall patterns</p>
+                    <p>Peak transmission during dry season (increased urban density)</p>
+                    <p>Trough during wet season (dispersal to agricultural work)</p>
+                </div>
+                
+                <p><strong>Result:</strong> Intense seasonality (α ~ 0.4-0.6) creates highly variable dynamics with unpredictable epidemic timing.</p>
+            </div>
+        </div>
+
+        <div class="concept-card" id="wns">
+            <h2>Case Study: White Nose Syndrome in Bats</h2>
+            
+            <h3>Background and Context</h3>
+            <p>White Nose Syndrome (WNS) is caused by the fungal pathogen Pseudogymnoascus destructans, which infects hibernating bats in North America. First detected in New York in 2006, it has caused catastrophic mortality in multiple bat species, with some populations declining by over 90%.</p>
+            
+            <div class="case-study">
+                <h3>Disease Characteristics</h3>
+                <ul>
+                    <li><strong>Pathogen:</strong> Psychrophilic (cold-loving) fungus that grows on bats during hibernation</li>
+                    <li><strong>Transmission:</strong> Bat-to-bat contact in hibernacula (winter roosting caves) and environmental contamination</li>
+                    <li><strong>Seasonality:</strong> Infection occurs during hibernation (winter); fungus grows slowly in cold conditions</li>
+                    <li><strong>Mortality:</strong> 70-100% in affected hibernacula for susceptible species</li>
+                    <li><strong>No treatment available:</strong> No effective interventions to stop spread or reduce mortality</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> WNS represents an emerging disease with devastating impacts and no available control measures, making predictive modeling crucial for understanding future spread and identifying at-risk populations.
+                </div>
+            </div>
+
+            <h3>Applying Gravity Models to WNS Spread (Maher et al. 2012)</h3>
+            
+            <p><strong>Research question:</strong> How will WNS spread across North America, and which bat populations are most at risk?</p>
+            
+            <p><strong>Approach:</strong> Researchers used data from 2007-2011 on WNS detection in counties across the eastern United States to fit gravity models and predict future spread.</p>
+            
+            <div class="equation-box">
+                <p>P(infection<sub>j</sub> | source<sub>i</sub>) ∝ (Bat abundance<sub>i</sub> × Bat abundance<sub>j</sub>) / Distance<sub>ij</sub><sup>γ</sup> × f(Winter duration<sub>j</sub>)</p>
+            </div>
+            
+            <p><strong>Key model components:</strong></p>
+            <ul>
+                <li><strong>Gravity coupling:</strong> Spread probability increases with bat population sizes in source and destination</li>
+                <li><strong>Distance decay:</strong> Nearby counties more likely to be infected than distant counties</li>
+                <li><strong>Climate suitability:</strong> Longer, colder winters favor fungal persistence and transmission</li>
+                <li><strong>County-level resolution:</strong> Spatial units matched available surveillance data</li>
+            </ul>
+
+            <div class="case-study">
+                <h3>Model Predictions and Validation</h3>
+                <p><strong>Predictions made in 2012 for ~100 years forward:</strong></p>
+                <ul>
+                    <li>Continued westward spread at ~200-400 km/year</li>
+                    <li>Complete coverage of suitable habitat in eastern North America by 2025</li>
+                    <li>Spread into southeastern US slower due to warmer winters (less suitable climate)</li>
+                    <li>Western mountain states at high risk due to cold winters and high bat abundance</li>
+                    <li>Slowdown expected when reaching Great Plains (low bat density, unsuitable climate)</li>
+                </ul>
+                
+                <p><strong>Subsequent observations (2012-2020):</strong></p>
+                <ul>
+                    <li>WNS detected in Washington State (2016) - confirmed westward spread</li>
+                    <li>Spread rate matched predictions in northeastern and mid-Atlantic regions</li>
+                    <li>Southern spread slower than northern spread, as predicted by climate effects</li>
+                    <li>Local variation driven by cave density and bat movement patterns</li>
+                </ul>
+                
+                <div class="key-insight">
+                    <strong>Key Insight:</strong> Gravity models successfully predicted broad-scale WNS spread patterns years before they occurred. Climate suitability (winter duration) proved critical for determining which areas would sustain transmission.
+                </div>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> Even for novel emerging diseases with limited data, metapopulation models combining spatial coupling and environmental suitability can provide useful predictions for surveillance and conservation planning. The WNS predictions helped target monitoring efforts and prioritize bat populations for conservation intervention.
+                </div>
+            </div>
+
+            <h3>Biological Mechanisms Underlying WNS Gravity Dynamics</h3>
+            <p><strong>Why does gravity coupling work for a fungal bat disease?</strong></p>
+            <ul>
+                <li><strong>Bat movement between hibernacula:</strong> Bats show site fidelity but occasionally visit multiple caves, especially during fall swarming</li>
+                <li><strong>Population size effect:</strong> Larger hibernacula have more bats, increasing probability that some will visit other sites</li>
+                <li><strong>Distance decay:</strong> Bats prefer nearby caves; long-distance movements rare but possible</li>
+                <li><strong>Environmental transmission:</strong> Fungal spores persist in caves, creating "infectious sites" that can infect visiting bats</li>
+            </ul>
+
+            <div class="acronym">
+                <h4>CAVES Framework for WNS Spread</h4>
+                <p><strong>C</strong>old temperatures favor fungus<br>
+                <strong>A</strong>bundance drives coupling strength<br>
+                <strong>V</strong>isitation links hibernacula<br>
+                <strong>E</strong>nvironmental persistence in caves<br>
+                <strong>S</strong>warming behavior spreads infection</p>
+            </div>
+        </div>
+
+        <div class="concept-card" id="ebola">
+            <h2>Case Study: Ebola in West Africa (2014-2016)</h2>
+            
+            <h3>Context: The West African Ebola Epidemic</h3>
+            <p>The 2014-2016 Ebola outbreak in West Africa was the largest Ebola epidemic in history, with over 28,000 cases and 11,000 deaths primarily in Guinea, Liberia, and Sierra Leone. Unlike previous outbreaks in Central Africa (which were typically small and localized), this epidemic spread extensively across multiple countries.</p>
+
+            <div class="case-study">
+                <h3>Why Was This Outbreak Different?</h3>
+                <ul>
+                    <li><strong>Urban transmission:</strong> First major Ebola epidemic to affect large cities (Conakry, Monrovia, Freetown)</li>
+                    <li><strong>Cross-border spread:</strong> Porous borders and population movement between Guinea, Liberia, and Sierra Leone</li>
+                    <li><strong>Delayed detection:</strong> Outbreak not recognized for several months, allowing extensive spread</li>
+                    <li><strong>Healthcare system collapse:</strong> Weak health infrastructure overwhelmed, increasing transmission</li>
+                    <li><strong>Cultural practices:</strong> Funeral practices involving contact with deceased increased transmission</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> This epidemic demonstrated how Ebola could behave differently in new ecological and social contexts. Models developed for rural Central African outbreaks failed to predict West African dynamics.
+                </div>
+            </div>
+
+            <h3>Gravity Model Application (Kramer et al. 2016)</h3>
+            
+            <p><strong>Research objectives:</strong></p>
+            <ul>
+                <li>Identify mechanisms driving spatial spread between districts</li>
+                <li>Predict future spread patterns to guide intervention deployment</li>
+                <li>Evaluate effectiveness of border closures and travel restrictions</li>
+            </ul>
+
+            <div class="equation-box">
+                <p>λ<sub>ij</sub> = θ × (N<sub>i</sub> × N<sub>j</sub>) / d<sub>ij</sub><sup>γ</sup> × B<sub>ij</sub></p>
+                <p>Where:</p>
+                <p>λ<sub>ij</sub> = rate of transmission from district <em>i</em> to district <em>j</em></p>
+                <p>N<sub>i</sub>, N<sub>j</sub> = population densities</p>
+                <p>d<sub>ij</sub> = distance between districts</p>
+                <p>B<sub>ij</sub> = border closure effect (reduces transmission across international borders)</p>
+            </div>
+
+            <div class="case-study">
+                <h3>Model Findings</h3>
+                
+                <p><strong>Best-fitting model included:</strong></p>
+                <ul>
+                    <li><strong>Gravity coupling:</strong> Strong population size effects (larger cities both sent and received more cases)</li>
+                    <li><strong>Distance decay:</strong> Most transmission occurred between neighboring districts</li>
+                    <li><strong>Border effects:</strong> International border closures significantly reduced transmission</li>
+                    <li><strong>Within-country heterogeneity:</strong> Transmission rates varied between Guinea, Liberia, and Sierra Leone</li>
+                </ul>
+                
+                <p><strong>Validation against held-out data:</strong></p>
+                <ul>
+                    <li>Model trained on early outbreak data (through mid-2014)</li>
+                    <li>Predicted arrival times in previously unaffected districts</li>
+                    <li>Predictions closely matched observed arrival times (within 2-4 weeks for most districts)</li>
+                    <li>Successfully identified high-risk districts before cases detected</li>
+                </ul>
+                
+                <div class="key-insight">
+                    <strong>Key Insight:</strong> The gravity model correctly identified that border closures, while economically costly, did reduce cross-border transmission. However, within-country spread remained the primary driver of epidemic growth.
+                </div>
+            </div>
+
+            <h3>Spatial Spread Patterns Observed</h3>
+            
+            <div class="case-study">
+                <h3>Origin and Initial Spread</h3>
+                <p>The outbreak began in Guéckédou, Guinea (forest region) in December 2013. Initial spread followed roads and trade routes to:</p>
+                <ul>
+                    <li>Macenta and Kissidougou (nearby Guinean towns)</li>
+                    <li>Across border to Lofa County, Liberia</li>
+                    <li>Eventually to capital cities: Conakry (Guinea), Monrovia (Liberia), Freetown (Sierra Leone)</li>
+                </ul>
+                
+                <p><strong>Pattern:</strong> Initial spread concentrated in border region, then rapid expansion once reaching capital cities (high population density, extensive connectivity).</p>
+            </div>
+
+            <div class="case-study">
+                <h3>Urban Amplification</h3>
+                <p>Once Ebola reached capitals, dynamics changed dramatically:</p>
+                <ul>
+                    <li><strong>Monrovia, Liberia:</strong> Explosive growth in cases due to high density, overwhelmed healthcare</li>
+                    <li><strong>Freetown, Sierra Leone:</strong> Sustained transmission for months in urban slums</li>
+                    <li><strong>Conakry, Guinea:</strong> Multiple introductions from rural areas maintained transmission</li>
+                </ul>
+                
+                <p><strong>Gravity model implication:</strong> Urban centers act as "super-spreaders" in the metapopulation, similar to core cities in measles dynamics. Controlling urban transmission critical for regional control.</p>
+                
+                <div class="takeaway">
+                    <strong>Takeaway:</strong> Ebola spread followed hierarchical diffusion pattern: rural origin → regional spread → urban amplification → national distribution. This pattern mirrors measles in England & Wales (core-satellite structure) despite completely different transmission biology.
+                </div>
+            </div>
+
+            <h3>Intervention Implications</h3>
+            
+            <p><strong>Model-informed strategies that worked:</strong></p>
+            <ul>
+                <li><strong>Targeted surveillance:</strong> Model predicted high-risk districts before cases arrived, allowing preemptive deployment of surveillance teams</li>
+                <li><strong>Resource allocation:</strong> Treatment centers placed in predicted high-burden areas</li>
+                <li><strong>Border interventions:</strong> Screening at major border crossings reduced international spread</li>
+                <li><strong>Urban focus:</strong> Intensive interventions in capitals helped break transmission chains</li>
+            </ul>
+            
+            <p><strong>Limitations and challenges:</strong></p>
+            <ul>
+                <li>Model required timely case data, which was difficult to obtain during epidemic</li>
+                <li>Behavioral changes (reduced travel, community resistance) altered coupling parameters over time</li>
+                <li>Local transmission heterogeneity (superspreading events, funeral transmission) not captured by district-level model</li>
+            </ul>
+
+            <div class="acronym">
+                <h4>BORDER Framework for Understanding Ebola Gravity Dynamics</h4>
+                <p><strong>B</strong>orders reduce but don't eliminate spread<br>
+                <strong>O</strong>rigin in rural areas, amplification in cities<br>
+                <strong>R</strong>oad networks channel transmission<br>
+                <strong>D</strong>ensity drives urban transmission<br>
+                <strong>E</strong>arly predictions guide intervention<br>
+                <strong>R</strong>egional spread follows gravity patterns</p>
+            </div>
+        </div>
+
+        <div class="concept-card" id="summary">
+            <h2>Summary and Synthesis</h2>
+            
+            <h3>Core Concepts Revisited</h3>
+            
+            <div class="acronym">
+                <h4>META Framework: Key Lessons from Metapopulation Disease Ecology</h4>
+                <p><strong>M</strong>ovement between populations enables regional persistence<br>
+                <strong>E</strong>pidemic asynchrony creates rescue effect<br>
+                <strong>T</strong>hresholds (CCS) determine local persistence<br>
+                <strong>A</strong>daptation of models to context is essential</p>
+            </div>
+
+            <h3>Cross-Cutting Themes</h3>
+            
+            <div class="case-study">
+                <h3>Theme 1: Context Matters</h3>
+                <p>The same pathogen can show radically different dynamics in different settings:</p>
+                <ul>
+                    <li><strong>Measles in UK:</strong> Predictable biennial cycles, moderate synchrony, school-driven seasonality</li>
+                    <li><strong>Measles in Niger:</strong> Variable inter-epidemic intervals, low synchrony, rainfall-driven seasonality</li>
+                </ul>
+                <p><strong>Lesson:</strong> Models must be parameterized for local demographic, geographic, and social context. Direct transfer of models between contexts can fail.</p>
+            </div>
+
+            <div class="case-study">
+                <h3>Theme 2: Spatial Structure Alters Control Strategies</h3>
+                <p>Metapopulation structure creates both challenges and opportunities for disease control:</p>
+                <ul>
+                    <li><strong>Challenge:</strong> Rescue effect can maintain regional persistence despite local control</li>
+                    <li><strong>Opportunity:</strong> Targeting core populations can disrupt spatial spread</li>
+                    <li><strong>Challenge:</strong> Asynchrony makes elimination difficult (always infected somewhere)</li>
+                    <li><strong>Opportunity:</strong> Spatial models predict where disease will spread next</li>
+                </ul>
+            </div>
+
+            <div class="case-study">
+                <h3>Theme 3: Gravity Models Are Widely Applicable</h3>
+                <p>Despite very different transmission biology, gravity models successfully described spread of:</p>
+                <ul>
+                    <li><strong>Measles:</strong> Direct respiratory transmission, childhood disease</li>
+                    <li><strong>White Nose Syndrome:</strong> Fungal pathogen, bat host, environmental transmission</li>
+                    <li><strong>Ebola:</strong> Close-contact hemorrhagic fever, human-to-human transmission</li>
+                </ul>
+                <p><strong>Lesson:</strong> When disease spread is driven by host movement, gravity models capture essential dynamics regardless of specific transmission mechanism.</p>
+            </div>
+
+            <h3>Practical Applications</h3>
+            
+            <p><strong>When to use metapopulation models:</strong></p>
+            <ul>
+                <li>Disease shows frequent local fadeouts</li>
+                <li>Host populations are spatially structured with limited mixing</li>
+                <li>Regional persistence despite local extinction</li>
+                <li>Need to predict spatial spread of emerging disease</li>
+                <li>Evaluating location-specific interventions</li>
+            </ul>
+
+            <p><strong>Key parameters to estimate:</strong></p>
+            <ul>
+                <li>Critical community size (CCS) for the disease-host system</li>
+                <li>Coupling strength between populations</li>
+                <li>Distance decay parameters</li>
+                <li>Synchrony patterns and their drivers</li>
+                <li>Core vs. satellite population structure</li>
+            </ul>
+
+            <h3>Future Directions and Open Questions</h3>
+            
+            <ul>
+                <li><strong>Climate change impacts:</strong> How will changing seasonality patterns affect disease dynamics?</li>
+                <li><strong>Urbanization:</strong> What happens as more populations exceed CCS?</li>
+                <li><strong>Network structure:</strong> How do modern transportation networks differ from gravity assumptions?</li>
+                <li><strong>Behavioral adaptation:</strong> How does human behavior change in response to epidemics alter coupling?</li>
+                <li><strong>Multiple scales:</strong> How do local, regional, and global scales interact?</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Final Insight:</strong> Metapopulation thinking transforms our understanding of disease persistence from a simple question of "R₀ greater than 1?" to a complex spatial phenomenon involving thresholds, synchrony, connectivity, and rescue dynamics. Real-world disease control requires thinking about populations in space, not just populations in time.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ccsChart, rescueChart;
+
+        // CCS Simulation
+        function runCCSSimulation() {
+            const popSize = parseInt(document.getElementById('popSize').value);
+            const birthRate = parseInt(document.getElementById('birthRate').value) / 1000;
+            const beta = parseInt(document.getElementById('beta').value);
+            
+            const timePoints = [];
+            const infected = [];
+            let I = 100;
+            let S = popSize * 0.05;
+            const R = popSize - S - I;
+            const gamma = 73; // recovery rate (5 day infectious period)
+            const mu = 0.01 / 365; // death rate
+            
+            let fadeouts = 0;
+            let totalDays = 0;
+            
+            for (let day = 0; day < 3650; day++) { // 10 years
+                // SIR dynamics with births
+                const births = birthRate * popSize / 365;
+                const infections = (beta / popSize) * S * I;
+                const recoveries = gamma * I;
+                const deathsS = mu * S;
+                const deathsI = mu * I;
+                
+                S += births - infections - deathsS;
+                I += infections - recoveries - deathsI;
+                
+                // Stochastic fadeout
+                if (I < 1 && I > 0) {
+                    if (Math.random() > (I / 1)) {
+                        I = 0;
+                        fadeouts++;
+                    }
+                }
+                
+                // Reintroduction (from metapopulation)
+                if (I === 0 && Math.random() < 0.01) {
+                    I = 1;
+                }
+                
+                if (day % 30 === 0) {
+                    timePoints.push(day / 365);
+                    infected.push(Math.max(0, I));
+                }
+                
+                if (I > 0) totalDays++;
+            }
+            
+            const extinctTime = ((3650 - totalDays) / 3650 * 100).toFixed(1);
+            
+            document.getElementById('fadeoutStats').innerHTML = 
+                `Fadeout events: ${fadeouts} | Time extinct: ${extinctTime}% | Average epidemic duration: ${(totalDays / Math.max(1, fadeouts)).toFixed(0)} days`;
+            
+            if (ccsChart) ccsChart.destroy();
+            
+            const ctx = document.getElementById('ccsChart').getContext('2d');
+            ccsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timePoints,
+                    datasets: [{
+                        label: 'Infected Individuals',
+                        data: infected,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Disease Dynamics (Population: ${(popSize/1000).toFixed(0)}k, Birth Rate: ${birthRate*1000}/1000)`
+                        },
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (years)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number Infected'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Rescue Effect Simulation
+        function runRescueSimulation() {
+            const coupling = parseFloat(document.getElementById('coupling').value);
+            const phaseDiff = parseInt(document.getElementById('phase').value);
+            
+            const timePoints = [];
+            const pop1Data = [];
+            const pop2Data = [];
+            
+            let I1 = 50, I2 = 50;
+            let S1 = 2500, S2 = 2500;
+            const N = 5000;
+            const beta = 400;
+            const gamma = 73;
+            
+            // Initialize with phase difference
+            let phase1 = 0;
+            let phase2 = phaseDiff * Math.PI / 6; // Convert months to radians
+            
+            let correlation = 0;
+            let syncMeasure = 0;
+            
+            for (let day = 0; day < 1095; day++) { // 3 years
+                // Seasonal forcing
+                const seasonality1 = 1 + 0.2 * Math.cos(2 * Math.PI * day / 365 + phase1);
+                const seasonality2 = 1 + 0.2 * Math.cos(2 * Math.PI * day / 365 + phase2);
+                
+                // Population 1 dynamics
+                const infections1 = (beta * seasonality1 / N) * S1 * I1 + coupling * I2;
+                const recoveries1 = gamma * I1;
+                const births1 = 20 * N / 365 / 1000;
+                
+                S1 += births1 - infections1;
+                I1 += infections1 - recoveries1 - coupling * I1;
+                
+                // Population 2 dynamics
+                const infections2 = (beta * seasonality2 / N) * S2 * I2 + coupling * I1;
+                const recoveries2 = gamma * I2;
+                const births2 = 20 * N / 365 / 1000;
+                
+                S2 += births2 - infections2;
+                I2 += infections2 - recoveries2 - coupling * I2;
+                
+                // Prevent negatives
+                I1 = Math.max(0, I1);
+                I2 = Math.max(0, I2);
+                S1 = Math.max(0, Math.min(N, S1));
+                S2 = Math.max(0, Math.min(N, S2));
+                
+                if (day % 7 === 0) {
+                    timePoints.push(day / 365);
+                    pop1Data.push(I1);
+                    pop2Data.push(I2);
+                }
+                
+                // Calculate synchrony
+                if (day > 365) {
+                    syncMeasure += Math.abs(I1 - I2);
+                }
+            }
+            
+            syncMeasure = syncMeasure / (1095 - 365);
+            const syncPercent = Math.max(0, 100 - syncMeasure / 50 * 100).toFixed(1);
+            
+            document.getElementById('syncStats').innerHTML = 
+                `Spatial Synchrony: ${syncPercent}% | Coupling: ${coupling} | Phase Difference: ${phaseDiff} months<br>` +
+                `<em>${phaseDiff < 3 ? 'High synchrony - both populations vulnerable simultaneously' : 'Low synchrony - rescue effect operating'}</em>`;
+            
+            if (rescueChart) rescueChart.destroy();
+            
+            const ctx = document.getElementById('rescueChart').getContext('2d');
+            rescueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timePoints,
+                    datasets: [{
+                        label: 'Population 1 Infected',
+                        data: pop1Data,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: false
+                    }, {
+                        label: 'Population 2 Infected',
+                        data: pop2Data,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Two-Population Epidemic Dynamics with Coupling'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (years)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number Infected'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update slider values
+        document.getElementById('popSize').addEventListener('input', function() {
+            document.getElementById('popSizeVal').textContent = parseInt(this.value).toLocaleString();
+        });
+        
+        document.getElementById('birthRate').addEventListener('input', function() {
+            document.getElementById('birthRateVal').textContent = this.value;
+        });
+        
+        document.getElementById('beta').addEventListener('input', function() {
+            document.getElementById('betaVal').textContent = this.value;
+        });
+        
+        document.getElementById('coupling').addEventListener('input', function() {
+            document.getElementById('couplingVal').textContent = parseFloat(this.value).toFixed(3);
+        });
+        
+        document.getElementById('phase').addEventListener('input', function() {
+            document.getElementById('phaseVal').textContent = this.value;
+        });
+
+        // Initialize simulations on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            runCCSSimulation();
+            runRescueSimulation();
+        });
+    </script>
+</body>
+</html>
