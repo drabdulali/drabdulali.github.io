@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sexually Transmitted Diseases in Animal Populations</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: #90EE90;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 1.5rem;
+        }
+        
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+        
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #4a7c59;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .equation-box {
+            background: #f8f9fa;
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .equation-box .equation {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.4rem;
+            font-style: italic;
+            margin: 1rem 0;
+        }
+        
+        .key-insight {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #4a7c59;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .key-insight strong {
+            color: #2c5530;
+        }
+        
+        .case-study {
+            background: #fff;
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+        
+        .case-study h3 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .takeaway {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+        
+        .acronym {
+            background: #4a7c59;
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .simulation-box {
+            background: white;
+            border: 2px solid #4a7c59;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+        
+        .simulation-explanation {
+            background: #f0f8f0;
+            border-left: 4px solid #4a7c59;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c5530;
+        }
+        
+        .control-group input {
+            padding: 0.5rem;
+            border: 1px solid #4a7c59;
+            border-radius: 4px;
+        }
+        
+        .control-group input[type="range"] {
+            cursor: pointer;
+        }
+        
+        .value-display {
+            color: #4a7c59;
+            font-weight: bold;
+            margin-top: 0.25rem;
+        }
+        
+        canvas {
+            max-width: 100%;
+            height: 400px !important;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #2c5530;
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f0f8f0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sexually Transmitted Diseases in Animal Populations</h1>
+        <p>Population Biology of Infectious Diseases - Course 6150</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#syphilis">Syphilis Case Study</a></li>
+            <li><a href="#evolution">Virulence Evolution</a></li>
+            <li><a href="#diversity">STD Diversity</a></li>
+            <li><a href="#transmission">Transmission Dynamics</a></li>
+            <li><a href="#simulations">Interactive Models</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the unique epidemiological characteristics of sexually transmitted diseases</li>
+                <li>Analyze the evolutionary trajectory of syphilis virulence in European populations</li>
+                <li>Compare frequency-dependent versus density-dependent transmission mechanisms</li>
+                <li>Examine STD prevalence across diverse animal taxa</li>
+                <li>Evaluate how transmission mode affects disease persistence and host population dynamics</li>
+                <li>Apply mathematical models to predict STD spread under varying conditions</li>
+            </ul>
+        </section>
+        
+        <div class="concept-card" id="syphilis">
+            <h2>Syphilis: A Historical Perspective on STD Evolution</h2>
+            
+            <div class="acronym">
+                <strong>S.T.R.I.K.E.S. - Key Features of Syphilis Transmission</strong><br>
+                <strong>S</strong>exual contact primary route<br>
+                <strong>T</strong>hree stages: primary, secondary, tertiary<br>
+                <strong>R</strong>apid evolution toward reduced virulence<br>
+                <strong>I</strong>mmune evasion through nervous tissue<br>
+                <strong>K</strong>illing delayed (chronic infection)<br>
+                <strong>E</strong>volutionary origin from yaws<br>
+                <strong>S</strong>terility effects common
+            </div>
+            
+            <h3>The Disease Organism</h3>
+            <p>Syphilis is caused by the spirochete bacterium <em>Treponema pallidum pallidum</em>. This pathogen represents one of the most historically significant sexually transmitted diseases, with documented impacts on human populations dating to the late 15th century.</p>
+            
+            <div class="case-study">
+                <h3>Case Study: The Tuskegee Syphilis Study (1932-1972)</h3>
+                <p><strong>Background:</strong> Conducted by the US Public Health Service in Macon County, Alabama, this unethical study followed approximately 600 African American men (399 with syphilis, 201 controls) to observe the natural progression of untreated syphilis.</p>
+                
+                <p><strong>Key Facts:</strong></p>
+                <ul>
+                    <li>Participants were told they were receiving free healthcare for "bad blood"</li>
+                    <li>Even after penicillin became the standard treatment in 1947, participants were not offered therapy</li>
+                    <li>The study continued for 40 years until exposed by the media in 1972</li>
+                    <li>Led to major reforms in research ethics and informed consent requirements</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Takeaway for Population Biology:</strong> This study, despite its profound ethical violations, revealed the chronic nature of syphilis infection. The long infectious period (decades) and delayed mortality are characteristic features that distinguish STDs from acute infectious diseases. The data showed that untreated syphilis can persist throughout a host's lifetime, creating extended opportunities for transmission.
+                </div>
+            </div>
+            
+            <h3>Disease Progression</h3>
+            <p><strong>Primary Syphilis:</strong> Characterized by a painless chancre sore at the infection site, appearing 10-90 days post-exposure. Highly infectious but often overlooked due to lack of pain.</p>
+            
+            <p><strong>Secondary Syphilis:</strong> Develops weeks to months later with systemic symptoms including rash, lesions, and lymphadenopathy. The modern presentation is mild compared to historical descriptions.</p>
+            
+            <p><strong>Tertiary Syphilis:</strong> Can develop years to decades after initial infection if untreated. Includes gummas (soft tissue growths), cardiovascular complications, and neurosyphilis affecting the brain and spinal cord.</p>
+            
+            <h3>Historical Virulence: A Tale of Rapid Evolution</h3>
+            <p>Early descriptions of syphilis from the 1490s-1500s paint a dramatically different picture than modern clinical presentations:</p>
+            
+            <div class="equation-box">
+                <p><strong>Von Hutten, 1519:</strong></p>
+                <p>"They had Boils that stood out like Acorns, from whence issued such filthy stinking Matter, that whosoever came within the Scent, believed himself infected. The Colour of these was of a dark Green and the very Aspect as shocking as the pain itself, which yet was as if the Sick had laid upon a fire."</p>
+            </div>
+            
+            <div class="equation-box">
+                <p><strong>Modern Textbook Description (Wright & Csonka, 1996):</strong></p>
+                <p>"Inevitably there is a symmetrical, non-irritating rash and generalized painless lymphadenopathy. Constitutional symptoms are mild or absent... The rash is pale red and sometimes so faint as to be appreciated only in tangential light."</p>
+            </div>
+            
+            <div class="key-insight">
+                <strong>Critical Insight:</strong> The transformation from highly virulent to relatively mild presentation occurred within approximately 50 years, representing one of the fastest documented cases of virulence evolution in a human pathogen. This rapid evolution was driven by strong selection pressure: highly visible, painful symptoms advertised infection status to potential sexual partners, reducing transmission opportunities for virulent strains.
+            </div>
+        </div>
+        
+        <div class="concept-card" id="evolution">
+            <h2>Evolutionary Origins and Phylogenetic Analysis</h2>
+            
+            <h3>The Treponema Family Tree</h3>
+            <p>Molecular phylogenetic analysis by Harper et al. (2008) using 22 human <em>Treponema</em> strains revealed the evolutionary relationships among treponemal diseases:</p>
+            
+            <ul>
+                <li><strong>Yaws</strong> (<em>T. pallidum pertenue</em>): Ancient skin infection, non-venereal transmission through skin contact</li>
+                <li><strong>Endemic Syphilis</strong> (<em>T. pallidum endemicum</em>): Non-venereal transmission in arid climates</li>
+                <li><strong>Pinta</strong> (<em>T. caraneum</em>): Skin-only infection in Central/South America</li>
+                <li><strong>Venereal Syphilis</strong> (<em>T. pallidum pallidum</em>): Modern sexually transmitted form</li>
+            </ul>
+            
+            <div class="case-study">
+                <h3>Case Study: Genomic Evidence for New World Origin</h3>
+                <p><strong>Research Question:</strong> Did syphilis originate in the New World and arrive in Europe via Columbus's crew?</p>
+                
+                <p><strong>Evidence:</strong></p>
+                <ul>
+                    <li>Two Guyana isolates showed closest genetic match to modern venereal syphilis</li>
+                    <li>Path analysis: Old World yaws → endemic syphilis + New World yaws → modern syphilis</li>
+                    <li>Skeletal evidence of syphilis absent in pre-1495 European remains</li>
+                    <li>First European outbreak documented in 1495, shortly after Columbus's return (1493)</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Population Biology Implications:</strong> The introduction of a novel pathogen into a completely naive population (Europeans with no prior exposure) created ideal conditions for epidemic spread. The lack of individual or herd immunity allowed rapid transmission through the sexually active adult population. This represents a classic example of an emerging infectious disease following cross-continental contact.
+                </div>
+            </div>
+            
+            <h3>Why Did Virulence Decrease?</h3>
+            
+            <div class="equation-box">
+                <p><strong>Selection Pressure Mechanism</strong></p>
+                <p>For STDs, transmission success depends on:</p>
+                <p class="equation">Transmission ∝ (Sexual Activity) × (Infectious Period) × (Partner Contacts)</p>
+            </div>
+            
+            <p><strong>Factors Driving Virulence Reduction:</strong></p>
+            <ol>
+                <li><strong>Visual Advertisement Effect:</strong> Disfiguring symptoms visible to potential mates → reduced mating opportunities → reduced transmission</li>
+                <li><strong>Behavioral Modification:</strong> Extreme pain reduced infected individuals' willingness to seek sexual contact</li>
+                <li><strong>Rapid Mortality Paradox:</strong> Death within months curtailed the infectious period, limiting transmission chains</li>
+                <li><strong>Selection for Stealth:</strong> Mild, chronic infections persisted longer in hosts, creating more transmission opportunities</li>
+            </ol>
+            
+            <div class="key-insight">
+                <strong>Evolutionary Principle:</strong> STD virulence evolution differs fundamentally from vector-borne diseases. While vector-borne pathogens can afford high virulence (vectors transmit regardless of host condition), STDs require ambulatory, sexually active hosts. This creates strong selection for reduced symptom severity and extended chronic infection.
+            </div>
+        </div>
+        
+        <div class="concept-card" id="diversity">
+            <h2>STD Diversity Across Animal Taxa</h2>
+            
+            <div class="acronym">
+                <strong>S.P.R.E.A.D. - Characteristics Common to Animal STDs</strong><br>
+                <strong>S</strong>terility effects (male and female)<br>
+                <strong>P</strong>rolonged infectious periods<br>
+                <strong>R</strong>educed mortality compared to other infections<br>
+                <strong>E</strong>vasion of immune surveillance<br>
+                <strong>A</strong>cross diverse taxa (mammals, birds, insects)<br>
+                <strong>D</strong>ensity or frequency dependent transmission
+            </div>
+            
+            <h3>Taxonomic Distribution</h3>
+            <p>Lockhart, Thrall, and Antonovics (1996) documented over 200 STDs across 27 orders of hosts, including:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Host Group</th>
+                        <th>Pathogen Types</th>
+                        <th>Examples</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mammals</td>
+                        <td>Viruses, bacteria, protozoa</td>
+                        <td>HIV (primates), <em>Brucella</em> (ungulates), <em>Trypanosoma equiperdum</em> (horses)</td>
+                    </tr>
+                    <tr>
+                        <td>Birds</td>
+                        <td>Protozoa, bacteria</td>
+                        <td><em>Trichomonas gallinae</em> (pigeons, doves)</td>
+                    </tr>
+                    <tr>
+                        <td>Insects</td>
+                        <td>Mites, nematodes, bacteria</td>
+                        <td><em>Coccipolipus hippodamiae</em> (ladybugs), <em>Wolbachia</em> (various)</td>
+                    </tr>
+                    <tr>
+                        <td>Mollusks</td>
+                        <td>Protozoans</td>
+                        <td>Various snail parasites</td>
+                    </tr>
+                    <tr>
+                        <td>Annelids</td>
+                        <td>Gregarines</td>
+                        <td>Earthworm parasites</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="case-study">
+                <h3>Case Study: Dourine in Horses (<em>Trypanosoma equiperdum</em>)</h3>
+                <p><strong>Disease Characteristics:</strong></p>
+                <ul>
+                    <li>Exclusively sexually transmitted trypanosome (no insect vector required)</li>
+                    <li>Causes edema, neurological symptoms, weakness</li>
+                    <li>Chronic wasting disease with high mortality if untreated</li>
+                    <li>Caused significant economic losses to horse breeding operations historically</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Population Biology Lesson:</strong> Dourine demonstrates how STD-only transmission can be maintained without alternative routes. The pathogen evolved complete dependence on direct mucosal contact during mating, losing the ability for vector transmission present in related trypanosomes (<em>T. brucei</em>). This specialization illustrates trade-offs in transmission strategy evolution.
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h3>Case Study: Canine Transmissible Venereal Tumor (CTVT)</h3>
+                <p><strong>Unique Biology:</strong> The world's oldest known continuously propagated somatic cell lineage - a transmissible cancer originating 11,000 years ago.</p>
+                
+                <p><strong>Transmission Mechanism:</strong></p>
+                <ul>
+                    <li>Live cancer cells physically transfer during mating</li>
+                    <li>Cells implant on recipient's genital mucosa</li>
+                    <li>Tumor is an allograft (genetically distinct from host)</li>
+                    <li>Eventually rejected by immune system in most cases</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Evolutionary Perspective:</strong> CTVT represents an extreme adaptation to sexual transmission - the pathogen IS the disease. The cancer cells have evolved mechanisms to temporarily evade allograft rejection, allowing time for transmission. This demonstrates that even multi-cellular organisms can adopt STD transmission strategies.
+                </div>
+            </div>
+            
+            <h3>Contemporary Human STD Epidemiology</h3>
+            <p>United States STD statistics reveal ongoing public health challenges:</p>
+            
+            <ul>
+                <li><strong>19 million new STD cases annually</strong> (2007 data)</li>
+                <li><strong>50% occur in 15-24 year olds</strong>, despite this age group representing ~25% of sexually active population</li>
+                <li><strong>HPV, Trichomonas, and Chlamydia account for 88%</strong> of new youth STD cases</li>
+                <li><strong>Syphilis cases more than quintupled</strong> between 2000-2017</li>
+                <li><strong>Gonorrhea cases increased 140%</strong> from 2000-2017</li>
+                <li><strong>Chlamydia prevalence nearly doubled</strong> in the same period</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Epidemiological Pattern:</strong> The resurgence of bacterial STDs (syphilis, gonorrhea) from 2000-2020 suggests changes in sexual network structure, reduced condom use, or both. The COVID-19 pandemic disrupted STD testing and treatment services, potentially contributing to the spike seen in 2022 (e.g., Scotland gonorrhea data). This demonstrates how STD dynamics respond rapidly to changes in contact patterns and healthcare access.
+            </div>
+        </div>
+        
+        <div class="concept-card" id="transmission">
+            <h2>Transmission Dynamics: Frequency vs. Density Dependence</h2>
+            
+            <div class="acronym">
+                <strong>F.R.E.Q. Model - Frequency-Dependent Transmission</strong><br>
+                <strong>F</strong>ixed contact rate independent of density<br>
+                <strong>R</strong>eproductive success maintains mating rate<br>
+                <strong>E</strong>limination of threshold density<br>
+                <strong>Q</strong>uantity of hosts matters less than quality (infection status)
+            </div>
+            
+            <h3>Mathematical Framework</h3>
+            
+            <div class="equation-box">
+                <p><strong>Density-Dependent Transmission</strong></p>
+                <p class="equation">dI/dt = βSI - αI</p>
+                <p>Where: β = transmission coefficient, S = susceptible hosts, I = infected hosts, α = recovery/mortality rate</p>
+                <p>Transmission rate increases with total population density (N = S + I)</p>
+            </div>
+            
+            <div class="equation-box">
+                <p><strong>Frequency-Dependent Transmission</strong></p>
+                <p class="equation">dI/dt = β(SI/N) - αI</p>
+                <p>Where: N = total population (S + I)</p>
+                <p>Transmission rate depends on proportion infected, not absolute density</p>
+            </div>
+            
+            <h3>The Social-Sexual Crossover Point (SSCP)</h3>
+            <p>Contact rate C(N) as a function of population size determines which transmission mode dominates:</p>
+            
+            <ul>
+                <li><strong>Sexual contacts:</strong> C(N) ≈ constant (frequency-dependent)</li>
+                <li><strong>Non-sexual contacts:</strong> C(N) ≈ cN (density-dependent)</li>
+                <li><strong>SSCP:</strong> Population density where sexual contact rate equals non-sexual contact rate</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Critical Implication:</strong> Below the SSCP, STDs have transmission advantage over non-STDs. Above the SSCP, density-dependent diseases spread more efficiently. This explains why STDs can persist in low-density populations where typical infectious diseases would fade out due to inability to reach the critical community size threshold.
+            </div>
+            
+            <h3>Consequences for Disease Persistence</h3>
+            
+            <p><strong>Frequency-Dependent Transmission Allows:</strong></p>
+            <ol>
+                <li><strong>Invasion at arbitrarily low densities:</strong> No minimum host density required for pathogen establishment</li>
+                <li><strong>Persistence in fragmented populations:</strong> Small, isolated groups can maintain infection</li>
+                <li><strong>Potential for host extinction:</strong> Unlike density-dependent pathogens, frequency-dependent diseases don't automatically regulate host populations through density feedbacks</li>
+            </ol>
+            
+            <div class="case-study">
+                <h3>Case Study: Ladybug Mites Test Transmission Mode</h3>
+                <p><strong>Species:</strong> <em>Adalia bipunctata</em> (two-spotted ladybug) and <em>Coccipolipus hippodamiae</em> (parasitic mite)</p>
+                
+                <p><strong>Experimental Design (Ryder et al. 2005):</strong></p>
+                <ul>
+                    <li>Mating arenas with varied densities: 6, 12, 18, 24 individuals</li>
+                    <li>Infection prevalence: 33% or 67% of females infected</li>
+                    <li>One-hour mating observation period</li>
+                    <li>Measured: mating events and male infection acquisition</li>
+                </ul>
+                
+                <p><strong>Statistical Model Tested:</strong></p>
+                <p>β₁(SI/N) + β₂(SI) - combining both frequency and density components</p>
+                
+                <p><strong>Results:</strong></p>
+                <ul>
+                    <li>Both density and frequency of infected females influenced transmission</li>
+                    <li>Density effect was stronger (β₂ > β₁)</li>
+                    <li>At low prevalence, density strongly limited transmission</li>
+                    <li>At high prevalence, transmission approached frequency-dependence</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Biological Explanation:</strong> Ladybugs mate every 2-3 days (high frequency, short duration). In this system, higher population density increases encounter rates, elevating mating frequency beyond baseline. This creates a density component to STD transmission. The lesson: Not all STDs are purely frequency-dependent - the relationship between density and sexual activity determines transmission mode.
+                </div>
+            </div>
+        </div>
+        
+        <section id="simulations" class="simulation-box">
+            <h2>Interactive Simulation 1: STD vs. Non-STD Transmission Comparison</h2>
+            
+            <div class="simulation-explanation">
+                <h3>How This Simulation Works</h3>
+                <p>This model compares disease spread for two pathogens in the same host population:</p>
+                <ul>
+                    <li><strong>STD (Blue):</strong> Uses frequency-dependent transmission dI/dt = β(SI/N)</li>
+                    <li><strong>Non-STD (Red):</strong> Uses density-dependent transmission dI/dt = βSI</li>
+                </ul>
+                <p>Adjust the population size slider to see how each disease responds differently. The STD maintains similar infection levels regardless of population size, while the non-STD shows dramatic changes based on host density.</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="pop-size">Population Size (N): <span id="pop-size-val" class="value-display">1000</span></label>
+                    <input type="range" id="pop-size" min="100" max="5000" value="1000" step="100">
+                </div>
+                <div class="control-group">
+                    <label for="std-beta">STD Transmission (β): <span id="std-beta-val" class="value-display">0.3</span></label>
+                    <input type="range" id="std-beta" min="0.1" max="1.0" value="0.3" step="0.05">
+                </div>
+                <div class="control-group">
+                    <label for="nonstd-beta">Non-STD Transmission (β): <span id="nonstd-beta-val" class="value-display">0.0003</span></label>
+                    <input type="range" id="nonstd-beta" min="0.0001" max="0.001" value="0.0003" step="0.0001">
+                </div>
+                <div class="control-group">
+                    <label for="recovery">Recovery Rate (α): <span id="recovery-val" class="value-display">0.1</span></label>
+                    <input type="range" id="recovery" min="0.01" max="0.5" value="0.1" step="0.01">
+                </div>
+            </div>
+            
+            <canvas id="transmission-chart"></canvas>
+        </section>
+        
+        <section class="simulation-box">
+            <h2>Interactive Simulation 2: Virulence Evolution in STDs</h2>
+            
+            <div class="simulation-explanation">
+                <h3>How This Simulation Works</h3>
+                <p>This model demonstrates why STD virulence tends to decrease over evolutionary time:</p>
+                <ul>
+                    <li><strong>High Virulence Strain:</strong> Causes visible symptoms, reducing mate attraction</li>
+                    <li><strong>Low Virulence Strain:</strong> Mild/asymptomatic, allows normal mating behavior</li>
+                </ul>
+                <p>The fitness of each strain depends on: (Infectiousness) × (Mating Success) × (Infectious Period). Adjust parameters to see which strain dominates under different conditions.</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="virulent-trans">High Virulence Transmission: <span id="virulent-trans-val" class="value-display">0.5</span></label>
+                    <input type="range" id="virulent-trans" min="0.1" max="1.0" value="0.5" step="0.05">
+                </div>
+                <div class="control-group">
+                    <label for="virulent-mate">High Virulence Mating Success: <span id="virulent-mate-val" class="value-display">0.3</span></label>
+                    <input type="range" id="virulent-mate" min="0.1" max="1.0" value="0.3" step="0.05">
+                </div>
+                <div class="control-group">
+                    <label for="mild-trans">Low Virulence Transmission: <span id="mild-trans-val" class="value-display">0.3</span></label>
+                    <input type="range" id="mild-trans" min="0.1" max="1.0" value="0.3" step="0.05">
+                </div>
+                <div class="control-group">
+                    <label for="mild-mate">Low Virulence Mating Success: <span id="mild-mate-val" class="value-display">0.9</span></label>
+                    <input type="range" id="mild-mate" min="0.1" max="1.0" value="0.9" step="0.05">
+                </div>
+            </div>
+            
+            <canvas id="virulence-chart"></canvas>
+        </section>
+        
+        <section class="simulation-box">
+            <h2>Interactive Simulation 3: Social-Sexual Crossover Point</h2>
+            
+            <div class="simulation-explanation">
+                <h3>How This Simulation Works</h3>
+                <p>This visualization shows the contact rate as a function of population density:</p>
+                <ul>
+                    <li><strong>Sexual Contacts (Blue):</strong> Saturating curve approaching constant rate</li>
+                    <li><strong>Non-Sexual Contacts (Red):</strong> Linear increase with density</li>
+                    <li><strong>SSCP (Green Line):</strong> Intersection point where contact rates are equal</li>
+                </ul>
+                <p>Below the SSCP, sexual transmission dominates. Above it, non-sexual transmission becomes more efficient. This explains why STDs persist in sparse populations.</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="max-sexual">Maximum Sexual Contact Rate: <span id="max-sexual-val" class="value-display">5</span></label>
+                    <input type="range" id="max-sexual" min="1" max="20" value="5" step="0.5">
+                </div>
+                <div class="control-group">
+                    <label for="sexual-k">Sexual Contact Half-Saturation: <span id="sexual-k-val" class="value-display">500</span></label>
+                    <input type="range" id="sexual-k" min="100" max="2000" value="500" step="50">
+                </div>
+                <div class="control-group">
+                    <label for="nonsexual-slope">Non-Sexual Contact Slope: <span id="nonsexual-slope-val" class="value-display">0.01</span></label>
+                    <input type="range" id="nonsexual-slope" min="0.001" max="0.05" value="0.01" step="0.001">
+                </div>
+            </div>
+            
+            <canvas id="sscp-chart"></canvas>
+            <div id="sscp-value" style="text-align: center; font-size: 1.2rem; font-weight: bold; color: #2c5530; margin-top: 1rem;"></div>
+        </section>
+        
+        <div class="concept-card">
+            <h2>Summary: Key Principles of STD Population Biology</h2>
+            
+            <div class="acronym">
+                <strong>C.H.R.O.N.I.C. - Defining Features of STDs</strong><br>
+                <strong>C</strong>hronic infections (extended infectious periods)<br>
+                <strong>H</strong>ost density independence (frequency-dependent transmission)<br>
+                <strong>R</strong>educed virulence evolution (selection for stealth)<br>
+                <strong>O</strong>bligate sexual transmission route<br>
+                <strong>N</strong>o threshold density required<br>
+                <strong>I</strong>mmune evasion strategies common<br>
+                <strong>C</strong>astration/sterility effects frequent
+            </div>
+            
+            <h3>Fundamental Distinctions from Non-STDs</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Characteristic</th>
+                        <th>Typical STDs</th>
+                        <th>Non-STDs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Transmission Mode</td>
+                        <td>Frequency-dependent (often)</td>
+                        <td>Density-dependent</td>
+                    </tr>
+                    <tr>
+                        <td>Minimum Host Density</td>
+                        <td>None (can invade at any density)</td>
+                        <td>Threshold density required</td>
+                    </tr>
+                    <tr>
+                        <td>Virulence Evolution</td>
+                        <td>Selection for reduction</td>
+                        <td>Variable, context-dependent</td>
+                    </tr>
+                    <tr>
+                        <td>Infectious Period</td>
+                        <td>Chronic (months to lifetime)</td>
+                        <td>Acute (days to weeks) typically</td>
+                    </tr>
+                    <tr>
+                        <td>Mortality Rate</td>
+                        <td>Lower than other infections</td>
+                        <td>Can be very high</td>
+                    </tr>
+                    <tr>
+                        <td>Sterility Effects</td>
+                        <td>Common (20-40% of STDs)</td>
+                        <td>Rare</td>
+                    </tr>
+                    <tr>
+                        <td>Population Regulation</td>
+                        <td>Cannot regulate alone</td>
+                        <td>Can regulate host density</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Conservation and Management Implications</h3>
+            
+            <p><strong>STDs pose unique challenges for wildlife management:</strong></p>
+            <ol>
+                <li><strong>Persistence in small populations:</strong> Lack of threshold density means STDs can drive small, isolated populations to extinction</li>
+                <li><strong>Ineffectiveness of density reduction:</strong> Culling to reduce host density (effective for many diseases) may not control STDs</li>
+                <li><strong>Behavioral interventions required:</strong> Reducing contact rates through habitat modification or breeding management may be necessary</li>
+                <li><strong>Long-term monitoring essential:</strong> Chronic nature means population impacts may take years to manifest</li>
+            </ol>
+            
+            <div class="key-insight">
+                <strong>Final Synthesis:</strong> Sexually transmitted diseases represent a distinct epidemiological class characterized by transmission mode intimately linked to host reproductive behavior. This creates unique evolutionary pressures favoring chronic, low-virulence infections that can persist in sparse populations where typical infectious diseases would disappear. Understanding these dynamics is essential for predicting STD impacts on both human and wildlife populations, particularly in fragmented or declining populations where STDs may prevent recovery even after other threats are addressed.
+            </div>
+        </div>
+        
+        <div class="concept-card">
+            <h2>Study Questions</h2>
+            
+            <ol>
+                <li>Explain why syphilis evolved from highly virulent to mild presentation within 50 years. What specific selective pressures drove this rapid evolution?</li>
+                <li>Compare and contrast density-dependent and frequency-dependent transmission. Under what conditions does each apply to STDs?</li>
+                <li>Why do STDs commonly cause sterility rather than mortality? What evolutionary advantage does this provide to the pathogen?</li>
+                <li>Describe the genomic evidence supporting a New World origin for venereal syphilis. How does this relate to the timing of European outbreaks?</li>
+                <li>Explain the social-sexual crossover point concept. What does it predict about STD versus non-STD transmission in low versus high density populations?</li>
+                <li>The ladybug mite study showed mixed density and frequency dependence. What biological factors explain why this STD doesn't follow pure frequency-dependent transmission?</li>
+                <li>How do chronic infections and extended infectious periods benefit STD transmission? Compare this to acute infections like influenza.</li>
+                <li>Discuss why STDs can potentially drive host populations to extinction while density-dependent diseases typically cannot. What mechanisms prevent density-dependent pathogens from causing extinction?</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        // Simulation 1: STD vs Non-STD Transmission
+        let transmissionChart;
+        
+        function initTransmissionSimulation() {
+            const ctx = document.getElementById('transmission-chart').getContext('2d');
+            const N = parseInt(document.getElementById('pop-size').value);
+            const beta_std = parseFloat(document.getElementById('std-beta').value);
+            const beta_nonstd = parseFloat(document.getElementById('nonstd-beta').value);
+            const alpha = parseFloat(document.getElementById('recovery').value);
+            
+            const timeSteps = 200;
+            const dt = 0.1;
+            
+            let S_std = N - 10;
+            let I_std = 10;
+            let S_nonstd = N - 10;
+            let I_nonstd = 10;
+            
+            const timeData = [];
+            const stdData = [];
+            const nonstdData = [];
+            
+            for (let t = 0; t < timeSteps; t++) {
+                timeData.push(t * dt);
+                stdData.push(I_std);
+                nonstdData.push(I_nonstd);
+                
+                const dI_std = beta_std * (S_std * I_std / N) - alpha * I_std;
+                const dS_std = -beta_std * (S_std * I_std / N) + alpha * I_std;
+                
+                const dI_nonstd = beta_nonstd * S_nonstd * I_nonstd - alpha * I_nonstd;
+                const dS_nonstd = -beta_nonstd * S_nonstd * I_nonstd + alpha * I_nonstd;
+                
+                I_std += dI_std * dt;
+                S_std += dS_std * dt;
+                I_nonstd += dI_nonstd * dt;
+                S_nonstd += dS_nonstd * dt;
+                
+                I_std = Math.max(0, Math.min(N, I_std));
+                S_std = Math.max(0, Math.min(N, S_std));
+                I_nonstd = Math.max(0, Math.min(N, I_nonstd));
+                S_nonstd = Math.max(0, Math.min(N, S_nonstd));
+            }
+            
+            if (transmissionChart) {
+                transmissionChart.destroy();
+            }
+            
+            transmissionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData,
+                    datasets: [{
+                        label: 'STD (Frequency-Dependent)',
+                        data: stdData,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4
+                    }, {
+                        label: 'Non-STD (Density-Dependent)',
+                        data: nonstdData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Disease Spread Comparison: STD vs Non-STD',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number Infected'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Simulation 2: Virulence Evolution
+        let virulenceChart;
+        
+        function initVirulenceSimulation() {
+            const ctx = document.getElementById('virulence-chart').getContext('2d');
+            const beta_v = parseFloat(document.getElementById('virulent-trans').value);
+            const mate_v = parseFloat(document.getElementById('virulent-mate').value);
+            const beta_m = parseFloat(document.getElementById('mild-trans').value);
+            const mate_m = parseFloat(document.getElementById('mild-mate').value);
+            
+            const N = 1000;
+            const timeSteps = 300;
+            const dt = 0.1;
+            
+            let S = N - 20;
+            let I_virulent = 10;
+            let I_mild = 10;
+            
+            const timeData = [];
+            const virulentData = [];
+            const mildData = [];
+            
+            for (let t = 0; t < timeSteps; t++) {
+                timeData.push(t * dt);
+                virulentData.push(I_virulent);
+                mildData.push(I_mild);
+                
+                const totalI = I_virulent + I_mild;
+                
+                const dI_v = beta_v * mate_v * (S * I_virulent / N) - 0.15 * I_virulent;
+                const dI_m = beta_m * mate_m * (S * I_mild / N) - 0.05 * I_mild;
+                const dS = -beta_v * mate_v * (S * I_virulent / N) - beta_m * mate_m * (S * I_mild / N) + 0.15 * I_virulent + 0.05 * I_mild;
+                
+                I_virulent += dI_v * dt;
+                I_mild += dI_m * dt;
+                S += dS * dt;
+                
+                I_virulent = Math.max(0, Math.min(N, I_virulent));
+                I_mild = Math.max(0, Math.min(N, I_mild));
+                S = Math.max(0, Math.min(N, S));
+            }
+            
+            if (virulenceChart) {
+                virulenceChart.destroy();
+            }
+            
+            virulenceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData,
+                    datasets: [{
+                        label: 'High Virulence Strain',
+                        data: virulentData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4
+                    }, {
+                        label: 'Low Virulence Strain',
+                        data: mildData,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Competitive Evolution: High vs Low Virulence Strains',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Generations'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Prevalence'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Simulation 3: SSCP
+        let sscpChart;
+        
+        function initSSCPSimulation() {
+            const ctx = document.getElementById('sscp-chart').getContext('2d');
+            const maxSexual = parseFloat(document.getElementById('max-sexual').value);
+            const K = parseFloat(document.getElementById('sexual-k').value);
+            const slope = parseFloat(document.getElementById('nonsexual-slope').value);
+            
+            const densities = [];
+            const sexualContacts = [];
+            const nonsexualContacts = [];
+            
+            let sscp = null;
+            
+            for (let N = 0; N <= 2000; N += 20) {
+                densities.push(N);
+                const sexual = maxSexual * N / (K + N);
+                const nonsexual = slope * N;
+                
+                sexualContacts.push(sexual);
+                nonsexualContacts.push(nonsexual);
+                
+                if (sscp === null && nonsexual > sexual) {
+                    sscp = N;
+                }
+            }
+            
+            if (sscpChart) {
+                sscpChart.destroy();
+            }
+            
+            sscpChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: densities,
+                    datasets: [{
+                        label: 'Sexual Contact Rate',
+                        data: sexualContacts,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4
+                    }, {
+                        label: 'Non-Sexual Contact Rate',
+                        data: nonsexualContacts,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Social-Sexual Crossover Point (SSCP)',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Population Density (N)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Contact Rate C(N)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            document.getElementById('sscp-value').textContent = `Social-Sexual Crossover Point: ${sscp || 'Not reached'} individuals`;
+        }
+        
+        // Event listeners and initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all simulations
+            initTransmissionSimulation();
+            initVirulenceSimulation();
+            initSSCPSimulation();
+            
+            // Transmission simulation controls
+            ['pop-size', 'std-beta', 'nonstd-beta', 'recovery'].forEach(id => {
+                const elem = document.getElementById(id);
+                const valElem = document.getElementById(id + '-val');
+                elem.addEventListener('input', function() {
+                    valElem.textContent = this.value;
+                    initTransmissionSimulation();
+                });
+            });
+            
+            // Virulence simulation controls
+            ['virulent-trans', 'virulent-mate', 'mild-trans', 'mild-mate'].forEach(id => {
+                const elem = document.getElementById(id);
+                const valElem = document.getElementById(id + '-val');
+                elem.addEventListener('input', function() {
+                    valElem.textContent = this.value;
+                    initVirulenceSimulation();
+                });
+            });
+            
+            // SSCP simulation controls
+            ['max-sexual', 'sexual-k', 'nonsexual-slope'].forEach(id => {
+                const elem = document.getElementById(id);
+                const valElem = document.getElementById(id + '-val');
+                elem.addEventListener('input', function() {
+                    valElem.textContent = this.value;
+                    initSSCPSimulation();
+                });
+            });
+        });
+        
+        // Make functions globally available
+        window.updateTransmission = initTransmissionSimulation;
+        window.updateVirulence = initVirulenceSimulation;
+        window.updateSSCP = initSSCPSimulation;
+    </script>
+</body>
+</html>
