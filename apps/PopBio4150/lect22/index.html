@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diversity-Disease Relationships | PBID 6150</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .objectives ul {
+            margin-left: 2rem;
+        }
+
+        .objectives li {
+            margin-bottom: 0.5rem;
+        }
+
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e8f5e8;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .equation-box .equation {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: #2c5530;
+        }
+
+        .equation-box .variable {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .equation-box .variable div {
+            padding: 0.5rem;
+        }
+
+        .key-insight {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .key-insight strong {
+            color: #2c5530;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border: 2px solid #4a7c59;
+        }
+
+        .case-study h4 {
+            color: #2c5530;
+            margin-bottom: 0.8rem;
+        }
+
+        .takeaway {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .simulation-container {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+
+        .simulation-explanation {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 6px;
+            border-left: 4px solid #4a7c59;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .control-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #4a7c59;
+            border-radius: 4px;
+        }
+
+        .control-group span {
+            display: block;
+            margin-top: 0.3rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .acronym {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #ff9800;
+        }
+
+        .acronym h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+
+        .memory-anchor {
+            background: #f3e5f5;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 6px;
+            border-left: 4px solid #9c27b0;
+            font-style: italic;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        table th, table td {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #4a7c59;
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Diversity-Disease Relationships</h1>
+    <p>Population Biology of Infectious Diseases - Course 6150</p>
+</header>
+
+<nav>
+    <ul>
+        <li><a href="#objectives">Objectives</a></li>
+        <li><a href="#predators">Effects of Predators</a></li>
+        <li><a href="#lyme">Lyme Disease</a></li>
+        <li><a href="#dilution-theory">Dilution Theory</a></li>
+        <li><a href="#mechanisms">Dilution Mechanisms</a></li>
+        <li><a href="#simulations">Simulations</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+
+    <section id="objectives" class="objectives">
+        <h2>Learning Objectives</h2>
+        <p>By the end of this lecture, students should be able to:</p>
+        <ul>
+            <li>Explain how predators influence disease dynamics in prey populations through density reduction and selective predation</li>
+            <li>Understand the mechanisms underlying the dilution effect in vector-borne disease systems</li>
+            <li>Describe the relationship between biodiversity and disease risk using Lyme disease as a case study</li>
+            <li>Apply the basic reproduction number (R₀) framework to predict diversity-disease relationships</li>
+            <li>Identify key conditions under which dilution effects are likely to occur</li>
+            <li>Evaluate the role of host competence variation in disease transmission dynamics</li>
+            <li>Distinguish between different mechanisms of disease dilution including encounter reduction and host regulation</li>
+        </ul>
+    </section>
+
+    <div class="acronym">
+        <h4>PREDATOR Memory Device</h4>
+        <strong>P</strong>opulation reduction<br>
+        <strong>R</strong>emoval of infected individuals<br>
+        <strong>E</strong>nhanced herd health<br>
+        <strong>D</strong>ecrease in contact rates<br>
+        <strong>A</strong>ttenuated disease spread<br>
+        <strong>T</strong>ransmission interruption<br>
+        <strong>O</strong>verall stability improvement<br>
+        <strong>R</strong>educed R₀ values
+    </div>
+
+    <section id="predators" class="concept-card">
+        <h2>Effects of Non-Host Species: The Role of Predators</h2>
+        
+        <div class="memory-anchor">
+            <strong>Memory Anchor:</strong> Imagine a wolf pack patrolling a caribou herd like vigilant health inspectors, systematically removing the sick and weak animals before disease can spread through the population. The predators act as nature's quality control system.
+        </div>
+
+        <p>Predators play a crucial but often overlooked role in shaping disease dynamics within prey populations. Understanding predator-prey-parasite interactions requires examining how predators affect key epidemiological parameters.</p>
+
+        <h3>The Basic Reproduction Number (R₀) Framework</h3>
+        
+        <p>To understand how predators influence disease, we must first examine the basic reproduction number, R₀, which represents the average number of secondary infections produced by a single infected individual in a completely susceptible population.</p>
+
+        <div class="equation-box">
+            <p><strong>Basic Reproduction Number for Microparasites:</strong></p>
+            <div class="equation">
+                R₀ = (a × c × N) / (v + d + γ)
+            </div>
+            <div class="variable">
+                <div><strong style="color: green;">a</strong> = Probability of infection given contact</div>
+                <div><strong style="color: orange;">c</strong> = Contact rate between hosts</div>
+                <div><strong style="color: red;">N</strong> = Population size (density of hosts)</div>
+                <div><strong style="color: magenta;">v</strong> = Virulence (disease-induced mortality)</div>
+                <div><strong style="color: purple;">d</strong> = Background mortality rate</div>
+                <div><strong style="color: blue;">γ</strong> = Recovery rate</div>
+            </div>
+        </div>
+
+        <div class="key-insight">
+            <strong>Key Insight:</strong> Predators primarily affect the numerator of R₀ by reducing host population size (N) and contact rates (c), while also potentially increasing the denominator by selectively removing infected individuals (increasing effective d for infected hosts).
+        </div>
+
+        <h3>Mechanisms of Predator-Mediated Disease Suppression</h3>
+
+        <p>Predators can influence disease transmission through two primary pathways:</p>
+
+        <h4>1. Density Reduction Effect</h4>
+        <p>Predators reduce overall host density, which decreases both N and potentially c in the R₀ equation. This effect is particularly strong for density-dependent transmission, where contact rates scale with population density. When predators reduce prey populations below a critical threshold density, R₀ may fall below 1, preventing disease establishment or causing disease fadeout.</p>
+
+        <h4>2. Selective Predation on Infected Hosts</h4>
+        <p>Many parasites alter host behavior, physiology, or appearance in ways that make infected individuals more vulnerable to predation. This selective removal acts as a form of culling that:</p>
+        <ul>
+            <li>Reduces the infectious period by removing infected hosts before they can transmit</li>
+            <li>Decreases disease prevalence in the population</li>
+            <li>Can stabilize population dynamics by preventing disease-driven cycles</li>
+        </ul>
+
+        <div class="case-study">
+            <h4>Case Study: The Healthy Herds Hypothesis (Packer et al. 2003)</h4>
+            <p><strong>System:</strong> Predator-prey-parasite interactions in mammalian systems</p>
+            <p><strong>Approach:</strong> Mathematical modeling using S-I framework with selective predation. The model incorporated differential predation rates where mortality of infected hosts m'(C) exceeded mortality of susceptible hosts m(C).</p>
+            <p><strong>Key Findings:</strong></p>
+            <ul>
+                <li><strong>Microparasite Model:</strong> When predators were removed at time t=50, both total prey population and infected individuals increased dramatically. With predators present, the system maintained stable equilibrium with low infection prevalence (~4% infected) and moderate total population (~12 individuals). Without predators, infection prevalence spiked to ~60% and total population increased but became unstable.</li>
+                <li><strong>Macroparasite Model:</strong> Predator removal induced dramatic cycles in both prey population (oscillating between 10 and 10,000+ hosts per hectare) and parasite burden (mean parasites per host cycling between 100 and 1,000+). With predators present, both metrics remained stable.</li>
+                <li><strong>Stabilization Mechanism:</strong> Selective predation on heavily parasitized individuals removed the most infectious hosts from the population before they could transmit extensively, breaking the positive feedback loop between host density and parasite transmission.</li>
+            </ul>
+            <div class="takeaway">
+                <strong>Takeaway Message:</strong> Predators can act as "health regulators" in prey populations. By selectively removing diseased individuals, predators not only reduce disease prevalence but can actually increase the equilibrium size of healthy prey populations by preventing disease-driven population crashes. This challenges the simple view that predators always reduce prey populations.
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h4>Case Study: Red Grouse, Nematode Parasites, and Predators</h4>
+            <p><strong>System:</strong> Red grouse (Lagopus lagopus scotica) infected with intestinal nematode worms, subject to predation by foxes and raptors</p>
+            <p><strong>Evidence:</strong> Empirical data comparing parasite loads in randomly sampled grouse versus grouse killed by predators</p>
+            <p><strong>Key Findings:</strong></p>
+            <ul>
+                <li>Random sample of grouse: Most individuals had 0-3 worms, with distribution heavily skewed toward low parasite burdens (mean ~2-3 worms per bird)</li>
+                <li>Predator-killed grouse: Distribution shifted dramatically toward higher parasite loads, with substantial numbers carrying 10-30 worms per bird (mean ~10-12 worms)</li>
+                <li>Statistical analysis confirmed predators selectively removed the most heavily parasitized individuals from the population</li>
+                <li>Field experiments showed that when predator populations were allowed to increase, grouse population cycles were dampened, with reduced amplitude of boom-bust dynamics</li>
+            </ul>
+            <div class="takeaway">
+                <strong>Takeaway Message:</strong> Parasites make hosts more vulnerable to predation through multiple mechanisms: reduced vigilance, impaired flight performance, and altered behavior. Predators exploit this vulnerability, functionally "treating" the prey population by removing heavily infected individuals. This real-world example validates the healthy herds hypothesis with empirical evidence.
+            </div>
+        </div>
+    </section>
+
+    <section id="lyme" class="concept-card">
+        <h2>Lyme Disease and the Origin of the Dilution Effect</h2>
+
+        <div class="acronym">
+        <h4>LYME Memory Device</h4>
+        <strong>L</strong>oss of biodiversity increases risk<br>
+        <strong>Y</strong>ield of infected ticks is higher in fragments<br>
+        <strong>M</strong>ice dominate simplified communities<br>
+        <strong>E</strong>nhanced competence in degraded habitats
+    </div>
+
+        <div class="memory-anchor">
+            <strong>Memory Anchor:</strong> Picture a small forest fragment as a "mouse monoculture factory" - when larger predators and competing species disappear, white-footed mice multiply unchecked, turning every tick that feeds into a potential Lyme disease carrier. The mice become living disease amplifiers in these biodiversity deserts.
+        </div>
+
+        <h3>Lyme Disease Background</h3>
+        
+        <p>Lyme disease represents one of the most compelling examples of how biodiversity loss can increase human disease risk. Understanding this system requires knowledge of its complex transmission cycle.</p>
+
+        <h4>Disease Characteristics</h4>
+        <ul>
+            <li><strong>Causative Agent:</strong> Borrelia burgdorferi bacteria</li>
+            <li><strong>Vector:</strong> Ixodes scapularis (black-legged tick) in eastern North America</li>
+            <li><strong>Distribution:</strong> Most common vector-borne disease in the Northern Hemisphere</li>
+            <li><strong>Geographic Pattern:</strong> Highest incidence in northeastern United States (Connecticut, Massachusetts, New York, Pennsylvania) with over 30 cases per 100,000 population</li>
+            <li><strong>Clinical Manifestations:</strong> Early symptoms include erythema migrans rash, fever, and joint pain. Late-stage complications can affect the heart, nervous system, and joints, potentially causing chronic arthritis and neurological problems</li>
+            <li><strong>Epidemiological Trend:</strong> Cases have increased dramatically since the 1980s, paralleling habitat fragmentation and suburban expansion into forested areas</li>
+        </ul>
+
+        <h3>Tick Life Cycle and Transmission Dynamics</h3>
+
+        <p>Ixodes ticks have a two-year life cycle with three blood meals, each representing a potential transmission event:</p>
+
+        <ol>
+            <li><strong>Larval Stage (Spring-Summer, Year 1):</strong> Newly hatched larvae are typically uninfected. They quest for their first blood meal from small mammals, birds, or lizards. If they feed on an infected host, they acquire Borrelia bacteria.</li>
+            <li><strong>Nymphal Stage (Spring-Summer, Year 2):</strong> After overwintering, infected larvae molt into nymphs. These nymphs quest for a second blood meal and can transmit Borrelia to new hosts. This stage poses the greatest human infection risk because nymphs are small (poppy seed-sized), numerous, and actively quest during summer months when humans are outdoors.</li>
+            <li><strong>Adult Stage (Fall-Spring, Year 2-3):</strong> Nymphs molt into adults, which feed primarily on large mammals like deer. Adults can also transmit infection but are less epidemiologically important for human disease due to their larger size (easier to detect) and seasonal activity.</li>
+        </ol>
+
+        <div class="key-insight">
+            <strong>Key Insight:</strong> Ticks only acquire three blood meals during their entire lifetime. Each feeding event represents both a potential acquisition (if feeding on infected host) and transmission event (if tick is already infected). This limited number of feeding opportunities means the identity and infection status of hosts is critical for disease dynamics.
+        </div>
+
+        <h3>Host Competence Variation</h3>
+
+        <p>Not all host species are equally effective at maintaining and transmitting Borrelia bacteria. This variation in "reservoir competence" is fundamental to understanding dilution effects.</p>
+
+        <h4>High Competence Hosts</h4>
+        <p><strong>White-footed mice (Peromyscus leucopus)</strong> are exceptionally competent reservoirs:</p>
+        <ul>
+            <li>Infection prevalence in wild populations often exceeds 50-90%</li>
+            <li>High bacteremia levels ensure efficient transmission to feeding ticks</li>
+            <li>Support large tick burdens (often 30-80 larval ticks per mouse in peak season)</li>
+            <li>High tick molt success rates (40-50% of larvae successfully molt to nymphs)</li>
+            <li>Nymphal infection prevalence (NIP) from mouse-fed ticks: typically 80-95%</li>
+            <li>Ecological characteristics that enhance disease risk: abundant in disturbed habitats, generalist diet, tolerant of human-modified landscapes, reproductive output increases in fragmented forests</li>
+        </ul>
+
+        <h4>Low Competence Hosts</h4>
+        <p>Many other vertebrate species are poor reservoirs, effectively acting as "dilution hosts":</p>
+        <ul>
+            <li><strong>Deer:</strong> Support adult ticks but are not competent reservoirs (NIP ≈ 5%). Critical for tick reproduction but "dead-end" for transmission</li>
+            <li><strong>Opossums (Didelphis virginiana):</strong> Groom extensively, killing ~95% of ticks. NIP ≈ 3%</li>
+            <li><strong>Eastern chipmunks:</strong> Moderate competence, NIP ≈ 50%, support fewer ticks than mice</li>
+            <li><strong>Shrews (Sorex spp.):</strong> Poor reservoirs, NIP ≈ 50% but support very few ticks and have immunological properties that may "cure" some infections</li>
+            <li><strong>Birds:</strong> Most species are poor reservoirs, NIP ≈ 10-15%, though some ground-feeding species contribute to tick dispersal</li>
+            <li><strong>Lizards (where present):</strong> Some species appear to have borreliacidal properties in their blood that can actually cure infected ticks, NIP ≈ 0%</li>
+        </ul>
+
+        <div class="case-study">
+            <h4>Landmark Study: Ostfeld and Keesing (2000)</h4>
+            <p><strong>Research Question:</strong> Does biodiversity protect against Lyme disease risk?</p>
+            <p><strong>Approach:</strong> Cross-state analysis correlating small mammal species richness with human Lyme disease incidence across eastern United States</p>
+            <p><strong>Methods:</strong></p>
+            <ul>
+                <li>Compiled CDC data on reported Lyme disease cases per 100,000 population for each state (1982-1998)</li>
+                <li>Tallied total number of small mammal species present in each state based on range maps and museum records</li>
+                <li>Performed regression analysis to test relationship between diversity and disease</li>
+            </ul>
+            <p><strong>Key Findings:</strong></p>
+            <ul>
+                <li><strong>Strong negative correlation:</strong> States with lower mammal diversity (24-28 species) had dramatically higher disease incidence (20-30 cases per 100,000), particularly New York and Connecticut</li>
+                <li><strong>Southern states paradox:</strong> States with highest mammal diversity (38-40 species) like Georgia and South Carolina had near-zero disease incidence despite presence of ticks and bacteria</li>
+                <li><strong>Pattern consistency:</strong> Relationship held even when controlling for climate, human population density, and tick abundance</li>
+                <li><strong>Field validation:</strong> In northeastern states, within forest fragments, nymphal infection prevalence reached 30-33%, while in intact diverse forests it was typically 10-15%</li>
+            </ul>
+            <div class="takeaway">
+                <strong>Takeaway Message:</strong> This study provided the first large-scale epidemiological evidence that biodiversity loss increases disease risk in humans. The pattern suggested that when diverse mammal communities are reduced to mouse-dominated systems, disease risk amplifies dramatically. This coined the term "dilution effect" in disease ecology.
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h4>Mechanistic Study: LoGiudice et al. (2003)</h4>
+            <p><strong>Research Question:</strong> What mechanistic processes explain the biodiversity-disease relationship, and which species contribute most to disease dilution?</p>
+            <p><strong>Approach:</strong> Field experiments in New York measuring species-specific contributions to infected nymph production</p>
+            <p><strong>Methods:</strong></p>
+            <ul>
+                <li>Live-trapped vertebrates in forest patches (August-September)</li>
+                <li>Counted and collected all attached larval ticks from each individual</li>
+                <li>Allowed ticks to engorge, drop off, and molt to nymphal stage under laboratory conditions</li>
+                <li>Tested nymphs for Borrelia infection using PCR</li>
+                <li>Calculated three key parameters for each host species: (1) Mean tick burden per host, (2) Molt success rate (% larvae successfully molting to nymphs), (3) Nymphal infection prevalence (NIP - % of nymphs infected)</li>
+                <li>Combined these parameters to calculate each species' "dilution potential"</li>
+            </ul>
+            <p><strong>Species-Specific Results:</strong></p>
+            <table>
+                <tr>
+                    <th>Species</th>
+                    <th>Mean Ticks</th>
+                    <th>Molt Success</th>
+                    <th>NIP (%)</th>
+                    <th>Dilution Potential</th>
+                </tr>
+                <tr>
+                    <td>White-footed mouse</td>
+                    <td>28</td>
+                    <td>41.5%</td>
+                    <td>92%</td>
+                    <td>Baseline (0%)</td>
+                </tr>
+                <tr>
+                    <td>Eastern chipmunk</td>
+                    <td>57</td>
+                    <td>41.2%</td>
+                    <td>55%</td>
+                    <td>38%</td>
+                </tr>
+                <tr>
+                    <td>Squirrels (gray/red)</td>
+                    <td>10</td>
+                    <td>59.3%</td>
+                    <td>15%</td>
+                    <td>58%</td>
+                </tr>
+                <tr>
+                    <td>Short-tailed shrew</td>
+                    <td>42</td>
+                    <td>46.8%</td>
+                    <td>42%</td>
+                    <td>30%</td>
+                </tr>
+                <tr>
+                    <td>Sorex shrews</td>
+                    <td>8</td>
+                    <td>49.6%</td>
+                    <td>51%</td>
+                    <td>29%</td>
+                </tr>
+                <tr>
+                    <td>Opossum</td>
+                    <td>21</td>
+                    <td>44.1%</td>
+                    <td>3%</td>
+                    <td>29%</td>
+                </tr>
+                <tr>
+                    <td>Raccoon</td>
+                    <td>12</td>
+                    <td>36.5%</td>
+                    <td>1%</td>
+                    <td>15%</td>
+                </tr>
+                <tr>
+                    <td>White-tailed deer</td>
+                    <td>12</td>
+                    <td>56.3%</td>
+                    <td>5%</td>
+                    <td>12%</td>
+                </tr>
+                <tr>
+                    <td>Striped skunk</td>
+                    <td>4</td>
+                    <td>63.9%</td>
+                    <td>10%</td>
+                    <td>1%</td>
+                </tr>
+            </table>
+
+            <p><strong>Dilution Potential Interpretation:</strong> This metric represents the reduction in nymphal infection prevalence when a species is added to a mouse-only community. For example, squirrels reduced NIP by 58 percentage points compared to mice alone.</p>
+
+            <p><strong>Key Insights:</strong></p>
+            <ul>
+                <li><strong>Squirrels as super-diluters:</strong> Gray and red squirrels had the highest dilution potential despite supporting fewer ticks than mice, because their extremely low reservoir competence (15% NIP) meant most ticks feeding on them did not become infected</li>
+                <li><strong>Chipmunks' intermediate role:</strong> Eastern chipmunks supported twice as many ticks as mice but had much lower competence (55% vs 92% NIP), resulting in moderate dilution effects</li>
+                <li><strong>Opossums as tick sinks:</strong> Virginia opossums killed ~95% of ticks through grooming, dramatically reducing the molt success rate and effectively removing ticks from the transmission cycle</li>
+                <li><strong>The deer paradox:</strong> Despite being critical for adult tick reproduction, deer were weak disease diluters because they don't contribute to the larval-nymphal transmission cycle that drives human risk</li>
+            </ul>
+
+            <div class="takeaway">
+                <strong>Takeaway Message:</strong> Dilution effects depend on three biological processes: how many vectors a host supports, how well vectors survive after feeding, and how well the pathogen replicates in the host. Species like squirrels are "dilution champions" not because they support few ticks, but because ticks feeding on them rarely become infected. The most competent hosts (mice) are often the most resilient to habitat disturbance, creating a dangerous synergy where biodiversity loss amplifies disease risk.
+            </div>
+        </div>
+
+        <h3>Forest Fragmentation and Disease Amplification</h3>
+
+        <p>The relationship between biodiversity and Lyme disease risk becomes more pronounced with increasing habitat fragmentation. Small forest patches consistently show:</p>
+
+        <ul>
+            <li><strong>Mouse population explosion:</strong> Densities of 0-100 mice per hectare in small fragments versus typical densities in large forests</li>
+            <li><strong>Reduced competitor abundance:</strong> Chipmunks, squirrels, and shrews decline or disappear in fragments smaller than 2 hectares</li>
+            <li><strong>Predator exclusion:</strong> Foxes, weasels, and raptors require larger territories and are absent from small fragments</li>
+            <li><strong>Elevated nymphal infection prevalence:</strong> Can reach 500-700 infected nymphs per hectare in small fragments versus 100-200 in intact forests</li>
+        </ul>
+
+        <div class="key-insight">
+            <strong>Key Insight:</strong> The diversity-disease relationship strengthens with increasing disturbance because the most competent reservoir hosts (white-footed mice) are ecological generalists that thrive in disturbed habitats, while dilution hosts are specialists requiring intact ecosystems. This creates an "ecological ratchet" where habitat loss simultaneously increases competent host abundance and decreases dilution host abundance.
+        </div>
+    </section>
+
+    <section id="dilution-theory" class="concept-card">
+        <h2>Theory and Generality of Dilution Effects</h2>
+
+        <div class="acronym">
+            <h4>DILUTE Framework for Disease Reduction</h4>
+            <strong>D</strong>iversity of host community<br>
+            <strong>I</strong>ncompetent reservoirs present<br>
+            <strong>L</strong>ower transmission from poor hosts<br>
+            <strong>U</strong>ninfected vectors after feeding<br>
+            <strong>T</strong>ick encounters redistributed<br>
+            <strong>E</strong>quilibrium disease prevalence falls
+        </div>
+
+        <div class="memory-anchor">
+            <strong>Memory Anchor:</strong> Think of a disease transmission network as a game of telephone. When everyone in the circle is good at passing the message (high competence hosts), errors are rare and the message spreads clearly. But add people who garble or forget the message (low competence hosts), and transmission breaks down. Biodiversity adds "bad telephone players" to the transmission circle.
+        </div>
+
+        <h3>R₀ Framework Applied to Multi-Host Systems</h3>
+
+        <p>Understanding dilution effects requires extending the basic R₀ framework to account for host community composition. In the presence of alternative hosts, the effective reproduction number becomes a weighted average across host species.</p>
+
+        <div class="equation-box">
+            <p><strong>R₀ with Alternative Hosts (Simplified):</strong></p>
+            <div class="equation">
+                R₀ = Σᵢ (aᵢ × cᵢ × Nᵢ) / (v + d + γ)
+            </div>
+            <p>where i indexes different host species</p>
+            <div class="variable">
+                <div><strong>aᵢ</strong> = Species-specific transmission probability (competence)</div>
+                <div><strong>cᵢ</strong> = Species-specific contact rate with vectors</div>
+                <div><strong>Nᵢ</strong> = Density of host species i</div>
+            </div>
+        </div>
+
+        <h3>Conditions Favoring Dilution Effects</h3>
+
+        <p>Not all systems exhibit dilution effects. Theoretical and empirical work has identified key conditions that determine whether increased diversity reduces disease risk:</p>
+
+        <h4>1. Frequency-Dependent versus Density-Dependent Transmission</h4>
+        
+        <p><strong>Frequency-dependent transmission:</strong> Contact rate depends on the proportion of infected hosts, not their absolute density. Common in vector-borne systems where vectors distribute their bites proportionally across available hosts. Dilution effects are strongest under this transmission mode because adding poor reservoir hosts diverts vector bites away from competent hosts without increasing overall transmission opportunities.</p>
+
+        <p><strong>Density-dependent transmission:</strong> Contact rate scales with population density. More common in directly transmitted pathogens. Dilution effects are weaker or absent because adding hosts increases contact rates, potentially offsetting reductions in competence.</p>
+
+        <div class="key-insight">
+            <strong>Key Insight:</strong> Lyme disease exhibits frequency-dependent transmission because ticks have limited mobility and distribute their bites based on host encounter rates rather than absolute host densities. This makes the system particularly susceptible to dilution effects.
+        </div>
+
+        <h4>2. Variation in Reservoir Competence</h4>
+
+        <p>Dilution requires substantial variation among host species in their ability to maintain and transmit pathogens. If all hosts are equally competent, adding species simply adds transmission opportunities. The Lyme system shows extreme competence variation:</p>
+
+        <ul>
+            <li>White-footed mice: Reservoir competence ≈ 0.92 (92% of ticks become infected)</li>
+            <li>Eastern chipmunks: Reservoir competence ≈ 0.55</li>
+            <li>Squirrels: Reservoir competence ≈ 0.15</li>
+            <li>Opossums: Reservoir competence ≈ 0.03</li>
+        </ul>
+
+        <p>This 30-fold range in competence creates strong potential for dilution.</p>
+
+        <h4>3. Selective Loss of Poor Reservoir Hosts</h4>
+
+        <p>Dilution effects manifest when biodiversity loss preferentially removes poor reservoir hosts while leaving competent hosts intact. This pattern, often called the "dilution effect assumption," occurs when:</p>
+
+        <ul>
+            <li>Competent hosts are ecological generalists (broad habitat tolerances, flexible diets, rapid reproduction)</li>
+            <li>Poor reservoir hosts are specialists (narrow requirements, slow reproduction, large home ranges)</li>
+            <li>Habitat disturbance favors generalists over specialists</li>
+        </ul>
+
+        <p>In the Lyme system, white-footed mice are extreme generalists that thrive in disturbed habitats, while many dilution hosts (flying squirrels, shrews) are specialists requiring intact forest structure.</p>
+
+        <h4>4. Host Regulation Effects</h4>
+
+        <p>Alternative hosts can reduce disease through competition or predation on competent hosts, even if the alternative hosts themselves are not involved in transmission. This mechanism operates independently of reservoir competence.</p>
+
+        <div class="case-study">
+            <h4>Case Study: Testing Dilution Effect Generality (Meta-Analysis)</h4>
+            <p><strong>Question:</strong> How common are dilution effects across different disease systems?</p>
+            <p><strong>Approach:</strong> Multiple meta-analyses have compiled evidence across pathogen types and transmission modes</p>
+            <p><strong>Key Findings from Civitello et al. (2015) Nature:</strong></p>
+            <ul>
+                <li>Analyzed 202 effect sizes from 61 host-pathogen systems</li>
+                <li>Found negative diversity-disease relationships in 67% of cases</li>
+                <li>Effect strength varied by transmission mode: strongest in vector-borne systems (Lyme, West Nile virus), moderate in trophically transmitted parasites, weakest in directly transmitted pathogens</li>
+                <li>Dilution effects were most consistent when: (1) The most competent host was also the most abundant in low-diversity communities, (2) Transmission was frequency-dependent, (3) Studies controlled for sampling effort</li>
+            </ul>
+            <div class="takeaway">
+                <strong>Takeaway Message:</strong> Dilution effects are common but not universal. They are most reliable in vector-borne zoonotic diseases where competent hosts are generalists and transmission is frequency-dependent. The Lyme system represents an ideal case, but the principle applies to other diseases including West Nile virus, Hantavirus, and some plant pathogens.
+            </div>
+        </div>
+    </section>
+
+    <section id="mechanisms" class="concept-card">
+        <h2>Mechanisms of Dilution Effects</h2>
+
+        <div class="memory-anchor">
+            <strong>Memory Anchor:</strong> Imagine disease transmission as a pinball game. In a simple machine (low diversity) with just mice as bumpers, every ball (vector) hits a high-scoring target. Add diverse bumpers (other host species) - some that score low, some that trap balls, some that deflect them entirely - and suddenly fewer balls reach the high-scoring targets. The game's overall score (disease risk) plummets.
+        </div>
+
+        <p>Keesing et al. (2006) synthesized dilution mechanisms into a comprehensive framework. Understanding these mechanisms helps predict when and how biodiversity will affect disease risk.</p>
+
+        <h3>Mechanism 1: Encounter Reduction (Encounter Dilution)</h3>
+
+        <p>Alternative hosts intercept vectors that would otherwise contact competent hosts, reducing the encounter rate between vectors and high-quality reservoirs.</p>
+
+        <div class="equation-box">
+            <p><strong>Effect on R₀:</strong></p>
+            <div class="equation">
+                R₀ = a × <span style="color: orange; font-weight: bold;">c↓</span> × N / (v + d + γ)
+            </div>
+            <p>Contact rate (c) decreases as vectors distribute bites across more host species</p>
+        </div>
+
+        <p><strong>How it works:</strong> Vectors have limited dispersal and search time. In diverse communities, vectors encounter many host species and distribute bites accordingly. If alternative hosts are less competent reservoirs, each bite diverted to them represents a "wasted" feeding opportunity from the pathogen's perspective.</p>
+
+        <p><strong>Lyme disease example:</strong> In forests with squirrels, opossums, and shrews, larval ticks feed on all available hosts. Approximately 40-60% of larval meals occur on non-mouse hosts in diverse communities versus 80-90% on mice in simple communities. This redistribution dramatically reduces the proportion of nymphs infected with Borrelia.</p>
+
+        <p><strong>Quantitative impact:</strong> If mice comprise 80% of the host community, and 90% of ticks feeding on mice become infected, the community-wide NIP is approximately 0.80 × 0.90 = 72%. If adding species reduces mouse encounters to 40% of total, NIP falls to 0.40 × 0.90 + 0.60 × 0.15 = 45% (assuming other hosts have 15% competence on average).</p>
+
+        <h3>Mechanism 2: Transmission Reduction</h3>
+
+        <p>Some alternative hosts are incompetent reservoirs that fail to transmit pathogens to vectors even after becoming exposed. This effectively removes pathogens from circulation.</p>
+
+        <div class="equation-box">
+            <p><strong>Effect on R₀:</strong></p>
+            <div class="equation">
+                R₀ = <span style="color: green; font-weight: bold;">a↓</span> × c × N / (v + d + γ)
+            </div>
+            <p>Transmission probability (a) decreases at the community level when incompetent hosts are present</p>
+        </div>
+
+        <p><strong>How it works:</strong> Low competence hosts may become exposed but fail to develop sufficient pathogen loads for transmission. In extreme cases, hosts may have immunological or biochemical properties that kill pathogens.</p>
+
+        <p><strong>Lyme disease example:</strong> Western fence lizards (Sceloporus occidentalis) in California have complement proteins in their blood that are borreliacidal. Ticks feeding on lizards not only fail to acquire infection but may actually be "cured" of existing infections. This discovery led to proposals to introduce lizards to northeastern forests as biological control agents.</p>
+
+        <p><strong>Opossums as transmission reducers:</strong> Beyond grooming that kills ticks (encounter reduction), opossums that do allow ticks to feed have extremely low reservoir competence (~3% NIP). Their immune systems rapidly clear Borrelia infections, making them transmission dead-ends.</p>
+
+        <h3>Mechanism 3: Susceptible Host Regulation</h3>
+
+        <p>Alternative species regulate populations of competent hosts through competition or predation, reducing their density and thereby lowering disease transmission potential.</p>
+
+        <div class="equation-box">
+            <p><strong>Effect on R₀:</strong></p>
+            <div class="equation">
+                R₀ = a × c × <span style="color: red; font-weight: bold;">N↓</span> / (v + d + γ)
+            </div>
+            <p>Population size (N) of competent hosts decreases due to ecological interactions</p>
+        </div>
+
+        <p><strong>How it works:</strong> Competent hosts don't exist in isolation - they compete for resources and are subject to predation. Species that compete with or prey upon competent hosts reduce their abundance, thereby reducing transmission even without directly encountering vectors.</p>
+
+        <p><strong>Lyme disease example:</strong> Red foxes and raptors prey heavily on white-footed mice. In forest fragments where these predators are absent, mouse densities can reach 80-100 per hectare. In intact forests with predators, densities remain around 20-40 per hectare. Since transmission increases nonlinearly with host density (R₀ ∝ N), this represents a substantial reduction in transmission potential.</p>
+
+        <p><strong>Competitive regulation:</strong> Eastern chipmunks and gray squirrels compete with mice for mast resources (acorns, hickory nuts). In diverse communities, mice populations are resource-limited and show dampened population fluctuations. In simple communities, mice experience boom-bust cycles tied to mast production, with peak densities 3-4 times higher than in diverse forests.</p>
+
+        <h3>Mechanism 4: Infected Host Mortality</h3>
+
+        <p>Predators or parasites that selectively kill infected hosts remove infectious individuals from the population, shortening the infectious period and reducing transmission.</p>
+
+        <div class="equation-box">
+            <p><strong>Effect on R₀:</strong></p>
+            <div class="equation">
+                R₀ = a × c × N / (v + <span style="color: purple; font-weight: bold;">d↑</span> + γ)
+            </div>
+            <p>Mortality rate (d) increases for infected individuals when predators selectively remove them</p>
+        </div>
+
+        <p><strong>How it works:</strong> Many parasites alter host behavior or physiology in ways that increase predation risk. Predators capitalize on these vulnerabilities, functioning as selective mortality agents that disproportionately remove infected individuals.</p>
+
+        <p><strong>Connection to predator effects:</strong> This mechanism links back to the "healthy herds hypothesis" discussed earlier. In the Lyme system, this mechanism is less important than encounter reduction because Borrelia infections don't substantially alter mouse behavior or vulnerability to predation.</p>
+
+        <h3>Mechanism 5: Recovery Augmentation</h3>
+
+        <p>Some hosts or interactions facilitate recovery from infection, either through immune boosting, cross-protection from related microbes, or other mechanisms.</p>
+
+        <div class="equation-box">
+            <p><strong>Effect on R₀:</strong></p>
+            <div class="equation">
+                R₀ = a × c × N / (v + d + <span style="color: blue; font-weight: bold;">γ↑</span>)
+            </div>
+            <p>Recovery rate (γ) increases in diverse communities</p>
+        </div>
+
+        <p><strong>How it works:</strong> Diverse microbial communities or immune stimulation from multiple parasites may enhance host resistance or recovery. This mechanism is least well-documented and controversial.</p>
+
+        <p><strong>Lyme relevance:</strong> Limited evidence suggests that co-infection with multiple tick-borne pathogens might modulate Borrelia infection dynamics, but this mechanism appears minor compared to encounter and transmission reduction.</p>
+
+        <div class="key-insight">
+            <strong>Key Insight:</strong> Multiple mechanisms can operate simultaneously. In the Lyme system, encounter reduction (mechanism 1) and transmission reduction (mechanism 2) are primary drivers, amplified by host regulation (mechanism 3). The relative importance of mechanisms varies across disease systems and can be predicted from basic biological knowledge of host-pathogen-vector interactions.
+        </div>
+    </section>
+
+    <section id="simulations" class="simulation-container">
+        <h2>Interactive Simulations</h2>
+
+        <h3>Simulation 1: Predator Effects on Disease Dynamics</h3>
+        
+        <div class="simulation-explanation">
+            <strong>How this simulation works:</strong> This model implements an SI (Susceptible-Infected) framework for a prey population subject to predation. The model tracks susceptible (S) and infected (I) prey over time. Predators reduce both populations but can selectively target infected individuals at a higher rate. Key parameters include transmission rate (β), background mortality (d), virulence (v), predation rate on susceptible hosts (m), and the selectivity coefficient (s) that determines how much more likely predators are to kill infected versus susceptible hosts. The differential equations are:
+            <br><br>
+            dS/dt = -β×S×I - d×S - m×C×S
+            <br>
+            dI/dt = β×S×I - (d+v)×I - m×(1+s)×C×I
+            <br><br>
+            where C is predator density. When s > 0, predators preferentially remove infected individuals, implementing the "healthy herds" mechanism. The simulation uses Euler's method with small time steps for numerical integration.
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="predator-density">Predator Density:</label>
+                <input type="range" id="predator-density" min="0" max="5" step="0.1" value="0">
+                <span id="predator-value">0.0</span>
+            </div>
+            <div class="control-group">
+                <label for="selectivity">Predator Selectivity (s):</label>
+                <input type="range" id="selectivity" min="0" max="3" step="0.1" value="1">
+                <span id="selectivity-value">1.0</span>
+                <p style="font-size: 0.85rem; margin-top: 0.5rem;">Infected hosts are (1+s) times more likely to be killed</p>
+            </div>
+            <div class="control-group">
+                <label for="transmission">Transmission Rate (β):</label>
+                <input type="range" id="transmission" min="0.001" max="0.01" step="0.001" value="0.005">
+                <span id="transmission-value">0.005</span>
+            </div>
+            <div class="control-group">
+                <label for="virulence">Virulence (v):</label>
+                <input type="range" id="virulence" min="0" max="0.5" step="0.01" value="0.1">
+                <span id="virulence-value">0.1</span>
+            </div>
+        </div>
+
+        <canvas id="predator-chart"></canvas>
+    </section>
+
+    <section class="simulation-container">
+        <h3>Simulation 2: Dilution Effect in Multi-Host System</h3>
+        
+        <div class="simulation-explanation">
+            <strong>How this simulation works:</strong> This model simulates a vector-borne disease system with multiple host species varying in abundance and reservoir competence. It calculates the Nymphal Infection Prevalence (NIP) based on the formula:
+            <br><br>
+            NIP = Σᵢ (pᵢ × cᵢ) / Σᵢ pᵢ
+            <br><br>
+            where pᵢ is the proportion of host species i in the community and cᵢ is its reservoir competence (probability a vector becomes infected after feeding). As you adjust host community composition, watch how NIP changes. High-competence hosts (like mice at 90% competence) drive high NIP when they dominate. Adding low-competence hosts (squirrels at 15%, opossums at 5%) dilutes transmission. The "Species Diversity" measure uses Simpson's diversity index: D = 1 - Σpᵢ². The simulation demonstrates encounter reduction: vectors distribute bites proportionally across hosts, so adding poor reservoirs diverts transmission opportunities.
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="mouse-prop">White-footed Mice (90% competence):</label>
+                <input type="range" id="mouse-prop" min="0" max="100" step="1" value="80">
+                <span id="mouse-prop-value">80%</span>
+            </div>
+            <div class="control-group">
+                <label for="chipmunk-prop">Eastern Chipmunks (50% competence):</label>
+                <input type="range" id="chipmunk-prop" min="0" max="100" step="1" value="10">
+                <span id="chipmunk-prop-value">10%</span>
+            </div>
+            <div class="control-group">
+                <label for="squirrel-prop">Squirrels (15% competence):</label>
+                <input type="range" id="squirrel-prop" min="0" max="100" step="1" value="5">
+                <span id="squirrel-prop-value">5%</span>
+            </div>
+            <div class="control-group">
+                <label for="opossum-prop">Opossums (5% competence):</label>
+                <input type="range" id="opossum-prop" min="0" max="100" step="1" value="5">
+                <span id="opossum-prop-value">5%</span>
+            </div>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 6px; margin: 1rem 0;">
+            <p><strong>Nymphal Infection Prevalence (NIP):</strong> <span id="nip-display" style="font-size: 1.5rem; color: #2c5530; font-weight: bold;">--</span></p>
+            <p><strong>Species Diversity Index:</strong> <span id="diversity-display" style="font-size: 1.2rem; color: #4a7c59;">--</span></p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem; color: #666;">Note: Proportions are automatically normalized to sum to 100%</p>
+        </div>
+
+        <canvas id="dilution-chart"></canvas>
+    </section>
+
+    <section class="concept-card">
+        <h2>Summary and Take-Home Messages</h2>
+
+        <div class="key-insight">
+            <strong>Core Principle:</strong> Biodiversity can protect against disease, but this protection is context-dependent and requires specific ecological conditions. The dilution effect is not universal but emerges predictably when competent hosts are generalists and transmission is frequency-dependent.
+        </div>
+
+        <h3>Key Takeaways for Population Biology of Infectious Diseases</h3>
+
+        <ol>
+            <li><strong>Predators as disease regulators:</strong> Predators influence disease in prey through density reduction and selective predation on infected individuals. When predators preferentially remove diseased prey, they can decrease infection prevalence, stabilize population dynamics, and paradoxically increase total prey population size by preventing disease-driven crashes. The "healthy herds hypothesis" demonstrates that predators function as selective mortality agents that maintain population health.</li>
+
+            <li><strong>The Lyme paradigm:</strong> Lyme disease provides the archetypal example of dilution effects. Forest fragmentation creates mouse-dominated communities with elevated nymphal infection prevalence (500-700 infected nymphs/hectare) compared to diverse forests (100-200 infected nymphs/hectare). This pattern emerges because white-footed mice are both highly competent reservoirs (90% NIP) and ecological generalists that thrive in disturbed habitats.</li>
+
+            <li><strong>Not all hosts are equal:</strong> Reservoir competence varies 30-fold among Lyme disease hosts. Squirrels contribute 58 percentage points of dilution potential despite supporting fewer ticks than mice, because 85% of ticks feeding on squirrels remain uninfected. Opossums provide dilution through both grooming (killing 95% of ticks) and low competence (3% NIP). Species identity matters more than species richness per se.</li>
+
+            <li><strong>Transmission mode matters:</strong> Dilution effects are strongest in vector-borne systems with frequency-dependent transmission, where vectors distribute bites proportionally across available hosts. Adding poor reservoir hosts diverts transmission opportunities without increasing overall contact rates. In contrast, directly transmitted pathogens with density-dependent transmission may show weaker or absent dilution effects.</li>
+
+            <li><strong>Multiple mechanisms, simultaneous operation:</strong> Dilution effects arise through encounter reduction (vectors feed on incompetent hosts), transmission reduction (hosts fail to infect vectors), host regulation (alternative species suppress competent host populations), and selective mortality (predators remove infected hosts). These mechanisms can operate simultaneously and have multiplicative effects on disease risk.</li>
+
+            <li><strong>Conservation implications:</strong> Maintaining biodiversity, particularly of poor reservoir hosts, may reduce disease risk in humans and wildlife. However, this requires preserving not just species richness but functional diversity - the specific species that contribute dilution services. Small habitat fragments that exclude large-bodied animals, predators, and specialist species create conditions favoring disease amplification.</li>
+
+            <li><strong>R₀ framework integration:</strong> Dilution effects can be understood mechanistically through effects on R₀ components. Alternative hosts primarily reduce contact rates (c) and population sizes (N) of competent hosts, while some hosts reduce transmission probability (a). Understanding these mechanisms allows prediction of when dilution will occur without requiring exhaustive empirical testing.</li>
+
+            <li><strong>The generalist-specialist trade-off:</strong> Dilution effects depend on asymmetric extinction risk. When biodiversity loss preferentially removes specialist species (poor reservoirs requiring intact habitats) while leaving generalist species (competent reservoirs tolerating disturbance), disease risk increases. This pattern appears common across emerging zoonotic diseases where habitat disturbance precedes disease emergence.</li>
+        </ol>
+
+        <div class="memory-anchor">
+            <strong>Final Memory Story:</strong> Imagine a medieval castle under siege. The castle (human population) is protected by multiple walls (host species). The outer walls are tall but porous - squirrels, opossums, and shrews that vectors must cross but rarely breach. The inner wall is short but dense - white-footed mice that vectors easily penetrate. When the outer walls are destroyed (biodiversity loss), every arrow (tick) sails straight into the inner wall, reaching the castle. But when outer walls stand (biodiversity maintained), most arrows lodge harmlessly in the outer defenses, never threatening the castle. Conservation of biodiversity maintains our outer defensive walls against disease.
+        </div>
+    </section>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Simulation 1: Predator Effects
+    const predatorCtx = document.getElementById('predator-chart').getContext('2d');
+    let predatorChart = null;
+    
+    window.updatePredatorSim = function() {
+        const C = parseFloat(document.getElementById('predator-density').value);
+        const s = parseFloat(document.getElementById('selectivity').value);
+        const beta = parseFloat(document.getElementById('transmission').value);
+        const v = parseFloat(document.getElementById('virulence').value);
+        
+        document.getElementById('predator-value').textContent = C.toFixed(1);
+        document.getElementById('selectivity-value').textContent = s.toFixed(1);
+        document.getElementById('transmission-value').textContent = beta.toFixed(3);
+        document.getElementById('virulence-value').textContent = v.toFixed(2);
+        
+        // Model parameters
+        const d = 0.1; // background mortality
+        const m = 0.05; // predation rate coefficient
+        const dt = 0.1; // time step
+        const tMax = 200; // simulation time
+        
+        // Initial conditions
+        let S = 100;
+        let I = 5;
+        const timePoints = [];
+        const totalPop = [];
+        const infected = [];
+        
+        // Euler integration
+        for (let t = 0; t < tMax; t += dt) {
+            timePoints.push(t);
+            totalPop.push(S + I);
+            infected.push(I);
+            
+            // Calculate derivatives
+            const dS = -beta * S * I - d * S - m * C * S;
+            const dI = beta * S * I - (d + v) * I - m * (1 + s) * C * I;
+            
+            // Update with bounds checking
+            S = Math.max(0, S + dS * dt);
+            I = Math.max(0, I + dI * dt);
+            
+            // Prevent numerical instability
+            if (S < 0.01) S = 0;
+            if (I < 0.01) I = 0;
+        }
+        
+        // Update chart
+        if (predatorChart) {
+            predatorChart.destroy();
+        }
+        
+        predatorChart = new Chart(predatorCtx, {
+            type: 'line',
+            data: {
+                labels: timePoints.filter((t, i) => i % 10 === 0),
+                datasets: [
+                    {
+                        label: 'Total Population (S+I)',
+                        data: totalPop.filter((val, i) => i % 10 === 0),
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 2,
+                        fill: true
+                    },
+                    {
+                        label: 'Infected (I)',
+                        data: infected.filter((val, i) => i % 10 === 0),
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Prey Population Dynamics with Predation',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Time' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Population Size' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    };
+    
+    // Simulation 2: Dilution Effect
+    const dilutionCtx = document.getElementById('dilution-chart').getContext('2d');
+    let dilutionChart = null;
+    
+    window.updateDilutionSim = function() {
+        let mouse = parseFloat(document.getElementById('mouse-prop').value);
+        let chipmunk = parseFloat(document.getElementById('chipmunk-prop').value);
+        let squirrel = parseFloat(document.getElementById('squirrel-prop').value);
+        let opossum = parseFloat(document.getElementById('opossum-prop').value);
+        
+        // Normalize proportions to sum to 100
+        const total = mouse + chipmunk + squirrel + opossum;
+        if (total === 0) {
+            mouse = 100;
+        } else {
+            mouse = (mouse / total) * 100;
+            chipmunk = (chipmunk / total) * 100;
+            squirrel = (squirrel / total) * 100;
+            opossum = (opossum / total) * 100;
+        }
+        
+        // Update display values
+        document.getElementById('mouse-prop-value').textContent = mouse.toFixed(1) + '%';
+        document.getElementById('chipmunk-prop-value').textContent = chipmunk.toFixed(1) + '%';
+        document.getElementById('squirrel-prop-value').textContent = squirrel.toFixed(1) + '%';
+        document.getElementById('opossum-prop-value').textContent = opossum.toFixed(1) + '%';
+        
+        // Reservoir competence values
+        const mouseComp = 0.90;
+        const chipmunkComp = 0.50;
+        const squirrelComp = 0.15;
+        const opossumComp = 0.05;
+        
+        // Calculate weighted NIP
+        const nip = (mouse/100 * mouseComp + chipmunk/100 * chipmunkComp + 
+                     squirrel/100 * squirrelComp + opossum/100 * opossumComp) * 100;
+        
+        // Calculate Simpson's diversity index
+        const p1 = mouse / 100;
+        const p2 = chipmunk / 100;
+        const p3 = squirrel / 100;
+        const p4 = opossum / 100;
+        const diversity = 1 - (p1*p1 + p2*p2 + p3*p3 + p4*p4);
+        
+        document.getElementById('nip-display').textContent = nip.toFixed(1) + '%';
+        document.getElementById('diversity-display').textContent = diversity.toFixed(3);
+        
+        // Create bar chart showing composition and competence
+        if (dilutionChart) {
+            dilutionChart.destroy();
+        }
+        
+        dilutionChart = new Chart(dilutionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['White-footed Mice', 'Eastern Chipmunks', 'Squirrels', 'Opossums'],
+                datasets: [
+                    {
+                        label: 'Community Composition (%)',
+                        data: [mouse, chipmunk, squirrel, opossum],
+                        backgroundColor: ['#ff6b6b', '#ffd93d', '#6bcf7f', '#a29bfe'],
+                        borderColor: ['#c92a2a', '#f08c00', '#2f9e44', '#6c5ce7'],
+                        borderWidth: 2,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Reservoir Competence (%)',
+                        data: [mouseComp * 100, chipmunkComp * 100, squirrelComp * 100, opossumComp * 100],
+                        backgroundColor: 'rgba(44, 85, 48, 0.3)',
+                        borderColor: '#2c5530',
+                        borderWidth: 2,
+                        type: 'line',
+                        yAxisID: 'y1',
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Host Community Composition and Reservoir Competence',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Community Composition (%)' },
+                        beginAtZero: true,
+                        max: 100
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Reservoir Competence (%)' },
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+    };
+    
+    // Event listeners for Simulation 1
+    document.getElementById('predator-density').addEventListener('input', window.updatePredatorSim);
+    document.getElementById('selectivity').addEventListener('input', window.updatePredatorSim);
+    document.getElementById('transmission').addEventListener('input', window.updatePredatorSim);
+    document.getElementById('virulence').addEventListener('input', window.updatePredatorSim);
+    
+    // Event listeners for Simulation 2
+    document.getElementById('mouse-prop').addEventListener('input', window.updateDilutionSim);
+    document.getElementById('chipmunk-prop').addEventListener('input', window.updateDilutionSim);
+    document.getElementById('squirrel-prop').addEventListener('input', window.updateDilutionSim);
+    document.getElementById('opossum-prop').addEventListener('input', window.updateDilutionSim);
+    
+    // Initialize simulations
+    window.updatePredatorSim();
+    window.updateDilutionSim();
+});
+</script>
+
+</body>
+</html>
