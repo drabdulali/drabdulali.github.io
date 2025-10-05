@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conservation and Extinction of Hosts and Parasites</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            color: #2c5530;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #4a7c59;
+        }
+
+        h3 {
+            color: #2c5530;
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 2rem;
+            border-radius: 8px;
+            border-left: 5px solid #4a7c59;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .objectives h3 {
+            margin-top: 0;
+        }
+
+        .objectives ul {
+            margin-left: 1.5rem;
+        }
+
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #2c5530;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .key-insight {
+            background-color: #fff8dc;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 5px solid #ffa500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .key-insight strong {
+            color: #d2691e;
+        }
+
+        .acronym-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 2px solid #4a7c59;
+        }
+
+        .acronym-box h4 {
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+
+        .memory-anchor {
+            background-color: #fff0f5;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 5px solid #ff69b4;
+            font-style: italic;
+        }
+
+        .case-study {
+            background-color: #f0f8ff;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 5px solid #4169e1;
+        }
+
+        .case-study h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .simulation-container {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .simulation-explanation {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a7c59;
+            cursor: pointer;
+        }
+
+        .value-display {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: #2c5530;
+            color: white;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+        }
+
+        canvas {
+            max-width: 100%;
+            margin: 1rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #2c5530;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            border: 3px solid #4a7c59;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Conservation and Extinction of Hosts and Parasites</h1>
+        <p>Population Biology of Infectious Diseases - BIOL 6150</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#dual-nature">Dual Nature of Parasites</a></li>
+            <li><a href="#case-studies">Major Case Studies</a></li>
+            <li><a href="#threats">Parasites as Threats</a></li>
+            <li><a href="#role-extinction">Role in Extinction</a></li>
+            <li><a href="#conservation">Conserving Parasites</a></li>
+            <li><a href="#coextinction">Co-Extinction</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="objectives" class="section">
+            <div class="objectives">
+                <h3>Learning Objectives</h3>
+                <p>By the end of this lecture, students should be able to:</p>
+                <ul>
+                    <li>Explain the dual nature of parasites as both beneficial ecosystem components and threats to host populations</li>
+                    <li>Analyze specific case studies demonstrating parasite-mediated population declines in amphibians, bats, and birds</li>
+                    <li>Evaluate the characteristics of parasites most likely to threaten endangered wildlife</li>
+                    <li>Describe the role of disease as a contributing factor to contemporary species extinctions</li>
+                    <li>Assess the relationship between domesticated animals and disease threats to wildlife</li>
+                    <li>Justify the conservation of parasite biodiversity from ecological, economic, and evolutionary perspectives</li>
+                    <li>Understand the concept of co-extinction and its implications for parasite conservation</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="dual-nature" class="section">
+            <h2>The Dual Nature of Parasites: Good, Bad, and Really Bad</h2>
+
+            <div class="acronym-box">
+                <h4>Memory Acronym: B.I.G. MESS</h4>
+                <p><strong>B</strong>iodiversity contributors<br>
+                <strong>I</strong>mmune system trainers<br>
+                <strong>G</strong>enetic variation maintainers<br>
+                <strong>M</strong>ortality drivers<br>
+                <strong>E</strong>xtinction catalysts<br>
+                <strong>S</strong>pecies endangerment<br>
+                <strong>S</strong>ystem destabilizers</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Parasites Can Be Good</h3>
+                <p>Parasites provide numerous positive ecosystem services that are often overlooked due to their negative reputation. Understanding their beneficial roles is crucial for conservation biology.</p>
+
+                <h4>Ecosystem Services Provided by Parasites:</h4>
+                <ul>
+                    <li><strong>Biodiversity Enhancement:</strong> Parasites themselves represent a substantial proportion of Earth's biodiversity, potentially accounting for more than half of all species. Their removal would dramatically reduce global species richness.</li>
+                    <li><strong>Food Web Complexity:</strong> Parasites create additional trophic links, increasing food web connectance and stability. They can constitute significant biomass in ecosystems, sometimes exceeding that of top predators.</li>
+                    <li><strong>Host Genetic Diversity:</strong> Parasites maintain balanced polymorphisms in host populations through frequency-dependent selection, preventing fixation of single genotypes and preserving immune system diversity.</li>
+                    <li><strong>Population Regulation:</strong> Parasites can regulate host populations, preventing overexploitation of resources and maintaining ecological balance.</li>
+                    <li><strong>Immune System Benefits:</strong> The "hygiene hypothesis" suggests that reduced parasite exposure in modern human populations has led to increased autoimmune diseases and allergies.</li>
+                </ul>
+
+                <div class="memory-anchor">
+                    <strong>Visual Memory Anchor:</strong> Picture a coral reef teeming with life. Remove all the parasites, and you have not just removed organisms—you have removed the invisible scaffolding that maintains genetic diversity, regulates populations, and adds countless hidden connections in the food web. The reef looks the same but functions fundamentally differently.
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Parasites Can Be Bad</h3>
+                <p>While parasites play beneficial ecological roles, they also impose fitness costs on individual hosts and can destabilize host populations.</p>
+
+                <h4>Negative Impacts on Hosts:</h4>
+                <ul>
+                    <li><strong>Reduced Individual Fitness:</strong> Parasites extract resources, causing reduced growth, reproduction, and survival in infected individuals.</li>
+                    <li><strong>Population Instability:</strong> High parasite burdens can create boom-bust population cycles, reducing long-term population stability.</li>
+                    <li><strong>Behavioral Manipulation:</strong> Some parasites alter host behavior, increasing predation risk or reducing reproductive success.</li>
+                    <li><strong>Energy Drain:</strong> Immune responses to parasites are metabolically expensive, diverting energy from growth and reproduction.</li>
+                </ul>
+
+                <div class="simulation-container">
+                    <div class="simulation-explanation">
+                        <h4>Simulation: Host-Parasite Population Dynamics</h4>
+                        <p>This simulation demonstrates how parasites create oscillating population dynamics. As host populations increase, parasite transmission accelerates. High parasite prevalence reduces host fitness, causing population decline. With fewer hosts, parasites decline, allowing host recovery. Adjust virulence to see how parasite-induced mortality affects cycle amplitude and stability.</p>
+                    </div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Transmission Rate (β): <span id="beta-value" class="value-display">0.001</span></label>
+                            <input type="range" id="beta" min="0.0001" max="0.005" step="0.0001" value="0.001">
+                        </div>
+                        <div class="control-group">
+                            <label>Virulence (α): <span id="alpha-value" class="value-display">0.1</span></label>
+                            <input type="range" id="alpha" min="0.01" max="0.5" step="0.01" value="0.1">
+                        </div>
+                        <div class="control-group">
+                            <label>Recovery Rate (γ): <span id="gamma-value" class="value-display">0.05</span></label>
+                            <input type="range" id="gamma" min="0.01" max="0.2" step="0.01" value="0.05">
+                        </div>
+                    </div>
+
+                    <canvas id="hostParasiteChart"></canvas>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Parasites Can Be Really Bad: Threats to Endangered Species</h3>
+                <p>For already threatened species with small population sizes, limited genetic diversity, and restricted ranges, parasites can push populations toward extinction.</p>
+
+                <h4>Why Endangered Species Are Vulnerable:</h4>
+                <ul>
+                    <li><strong>Small Population Size:</strong> Allee effects mean that population impacts are magnified—loss of even a few individuals can be catastrophic.</li>
+                    <li><strong>Reduced Genetic Diversity:</strong> Population bottlenecks reduce immunogenetic variation, limiting ability to respond to novel pathogens.</li>
+                    <li><strong>Stress and Immunosuppression:</strong> Habitat loss and human disturbance cause chronic stress, weakening immune defenses.</li>
+                    <li><strong>Limited Range:</strong> Species confined to small areas cannot escape epidemic outbreaks through migration.</li>
+                    <li><strong>Synergistic Threats:</strong> Disease interacts multiplicatively with other stressors like habitat loss, climate change, and pollution.</li>
+                </ul>
+
+                <div class="key-insight">
+                    <strong>Key Insight:</strong> The transition from "bad" to "really bad" often occurs at a threshold population size. When host populations drop below critical densities, even moderate parasite virulence can drive extinction. This threshold effect explains why disease suddenly emerges as a major threat for species already classified as endangered.
+                </div>
+            </div>
+        </section>
+
+        <section id="case-studies" class="section">
+            <h2>Major Case Studies: When Parasites Drive Decline</h2>
+
+            <div class="case-study">
+                <h4>Case Study 1: Avian Malaria and Hawaiian Honeycreepers</h4>
+                
+                <p><strong>Background:</strong> The Hawaiian honeycreepers represent one of the most spectacular examples of adaptive radiation, with approximately 40 species evolving from a single colonizing ancestor. These endemic birds occupied diverse ecological niches across the Hawaiian archipelago and had no evolutionary exposure to avian malaria (Plasmodium relictum) or its mosquito vector (Culex quinquefasciatus).</p>
+
+                <p><strong>The Invasion:</strong> Mosquitoes were accidentally introduced to Hawaii in 1826, arriving on ships carrying water barrels. Avian malaria likely arrived later with introduced birds. The disease spread rapidly through native bird populations that lacked immunological defenses.</p>
+
+                <p><strong>Impact:</strong></p>
+                <ul>
+                    <li>50 percent of honeycreeper species are now extinct</li>
+                    <li>50 percent of remaining species are threatened or endangered</li>
+                    <li>Disease acts synergistically with habitat loss and introduced predators</li>
+                    <li>Surviving populations are restricted to high elevations above 1,500 meters where cooler temperatures limit mosquito development</li>
+                    <li>Climate warming is allowing mosquitoes to expand upslope, threatening remaining refugia</li>
+                </ul>
+
+                <p><strong>Population Biology Insights:</strong> This case demonstrates how naive hosts experience near 100 percent susceptibility to novel generalist pathogens. The elevational gradient creates a natural experiment showing how environmental limits on vector populations can protect hosts. Mathematical models predict that continued climate warming will eliminate high-elevation refugia within decades, potentially causing additional extinctions.</p>
+
+                <div class="key-insight">
+                    <strong>Take-Home Message:</strong> Introduced generalist parasites pose the greatest extinction risk to island endemics. Geographic isolation that facilitated speciation also prevented co-evolution with parasites, leaving species immunologically naive. Conservation requires both habitat protection AND control of disease vectors—habitat alone is insufficient when novel parasites are present.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study 2: Chytrid Fungus (Batrachochytrium dendrobatidis) and Global Amphibian Declines</h4>
+                
+                <p><strong>The Pathogen:</strong> Batrachochytrium dendrobatidis (Bd) is a chytrid fungus that infects amphibian skin. Infected frogs accumulate fungal thalli in keratinized skin layers, disrupting osmoregulation and electrolyte balance. Death occurs from cardiac arrest due to severe electrolyte imbalance.</p>
+
+                <p><strong>Global Spread:</strong> Phylogenetic analyses suggest Bd originated in Asia and spread globally through the international amphibian trade. The fungus can persist on introduced American bullfrogs (Rana catesbeiana), which show high infection prevalence but low mortality—classic reservoir dynamics.</p>
+
+                <p><strong>Catastrophic Decline in Panama (Lips et al. 2006):</strong></p>
+                <ul>
+                    <li>Researchers identified pristine sites in Panama where Bd had not yet arrived</li>
+                    <li>Established baseline population surveys beginning in 1998</li>
+                    <li>Bd wave arrived in October 2004</li>
+                    <li>Mortality increased dramatically through January 2005, with up to 19 dead frogs found per day</li>
+                    <li>By January 2005, 47 of 67 amphibian species (70 percent) tested positive for Bd</li>
+                    <li>Most species showed precipitous population declines, with some experiencing local extinction</li>
+                </ul>
+
+                <p><strong>The Harlequin Frog Crisis:</strong> The genus Atelopus has been particularly devastated. Two-thirds of harlequin frog species have vanished since the 1980s. These brightly colored frogs inhabit streams in montane cloud forests—precisely the cool, moist environment where Bd thrives.</p>
+
+                <p><strong>Geographic Wave Pattern:</strong> Bd spread through Central America as a detectable wave, moving approximately 15-43 kilometers per year. This traveling epidemic front left behind collapsed amphibian communities.</p>
+
+                <div class="equation-box">
+                    <h4>Basic Reproduction Number for Bd:</h4>
+                    <p style="font-size: 1.3rem; margin: 1rem 0;">
+                        R₀ = (β × S × L) / (μ + γ + α)
+                    </p>
+                    <p style="font-size: 0.95rem;">
+                        Where:<br>
+                        β = transmission rate (contact × infection probability)<br>
+                        S = susceptible host density<br>
+                        L = lifespan of infectious stage in environment<br>
+                        μ = host natural mortality<br>
+                        γ = recovery rate<br>
+                        α = disease-induced mortality (virulence)
+                    </p>
+                </div>
+
+                <p><strong>Why Bd Is So Devastating:</strong></p>
+                <ul>
+                    <li><strong>Generalist:</strong> Infects hundreds of amphibian species across orders</li>
+                    <li><strong>Environmental Persistence:</strong> Can survive in water and moist soil without hosts</li>
+                    <li><strong>High R₀:</strong> In susceptible populations, R₀ often exceeds 10</li>
+                    <li><strong>Temperature Optimum:</strong> Thrives at 17-25°C, perfectly matching many amphibian habitats</li>
+                    <li><strong>Reservoir Hosts:</strong> Some species carry high loads without mortality, maintaining transmission</li>
+                </ul>
+
+                <div class="key-insight">
+                    <strong>Take-Home Message:</strong> Bd represents a "perfect storm" pathogen—generalist host range, environmental persistence, high virulence in naive hosts, and human-mediated spread. The Panama study provided rare real-time documentation of an extinction event. Conservation responses include captive breeding of highly susceptible species, antifungal treatments, and attempts to breed disease resistance. However, the most effective strategy would have been preventing the initial global spread through the pet trade.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study 3: White-Nose Syndrome (Pseudogymnoascus destructans) in North American Bats</h4>
+                
+                <p><strong>The Pathogen:</strong> Pseudogymnoascus destructans is a psychrophilic (cold-loving) fungus that grows optimally at 12-16°C—precisely the temperature of hibernacula where bats overwinter. The fungus invades wing membranes, causing characteristic white fuzz on the nose and wings of infected bats.</p>
+
+                <p><strong>Discovery and Spread:</strong> First detected near Albany, New York in 2006, WNS spread rapidly across eastern North America. Genetic analyses indicate the fungus was introduced from Europe, where bats show infection but not mass mortality (again, reservoir dynamics).</p>
+
+                <p><strong>Catastrophic Impact (Frick et al. 2010):</strong></p>
+                <ul>
+                    <li>More than 7 million bats died in the first decade</li>
+                    <li>Seven species exhibit clinical white-nose syndrome; 2 are endangered, 1 is threatened</li>
+                    <li>Little brown bat (Myotis lucifugus) populations declined by 95-99 percent at affected sites</li>
+                    <li>Hibernating colonies that formerly numbered 30,000 individuals now contain only hundreds</li>
+                    <li>Regional extinctions have occurred across the northeastern United States</li>
+                </ul>
+
+                <p><strong>Pathophysiology:</strong> The fungus disrupts hibernation by causing infected bats to arouse more frequently. Each arousal depletes fat reserves needed to survive winter. Bats die from starvation and dehydration, often found flying during daytime in winter—highly abnormal behavior indicating physiological desperation.</p>
+
+                <p><strong>Population Dynamics:</strong> Population trajectory modeling suggests that without intervention, several species will face extinction within 20 years. The little brown bat, once among North America's most common mammals, may experience range-wide population collapse.</p>
+
+                <div class="memory-anchor">
+                    <strong>Visual Memory Anchor:</strong> Imagine a cave in February, traditionally silent except for the soft breathing of thousands of hibernating bats. Now picture the cave floor carpeted with dead and dying bats, survivors flying desperately in subzero temperatures outside, burning their last energy reserves. This scene has repeated across thousands of hibernacula throughout the northeastern United States.
+                </div>
+
+                <p><strong>Conservation Responses:</strong></p>
+                <ul>
+                    <li>Cave closures to prevent human-mediated fungal spread</li>
+                    <li>Decontamination protocols for cavers</li>
+                    <li>Experimental treatments including UV light, probiotic bacteria, and antifungal compounds</li>
+                    <li>Monitoring for evolutionary resistance in surviving populations</li>
+                    <li>Captive populations as insurance against extinction</li>
+                </ul>
+
+                <div class="key-insight">
+                    <strong>Take-Home Message:</strong> WNS demonstrates how introduced psychrophilic fungi can devastate naive bat populations during vulnerable hibernation periods. The contrast between European resistance and North American susceptibility suggests evolutionary history determines outbreak severity. Conservation requires both limiting spread and investigating mechanisms of resistance in source populations for potential resistance breeding or probiotic applications. Economic impacts are also severe—insectivorous bats provide billions of dollars in pest control services.
+                </div>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study 4: Ribeiroia Trematodes and Amphibian Deformities</h4>
+                
+                <p><strong>The Parasite:</strong> Ribeiroia ondatrae is a trematode (parasitic flatworm) with a complex life cycle requiring three hosts: snails (first intermediate), amphibians (second intermediate), and birds (definitive host). Cercariae (larval stage) released from infected snails encyst in developing tadpole limb buds.</p>
+
+                <p><strong>Pathology:</strong> Metacercariae (encysted larvae) in limb buds disrupt normal development, causing supernumerary limbs, missing limbs, and malformed limbs. Deformed frogs experience drastically reduced survival and reproductive success.</p>
+
+                <p><strong>Ecological Context (Piet Johnson's Research):</strong></p>
+                <ul>
+                    <li>Deformity rates have increased dramatically in recent decades</li>
+                    <li>Eutrophication (nutrient pollution) boosts snail populations, amplifying parasite transmission</li>
+                    <li>Agricultural runoff creates ideal conditions for snail population explosions</li>
+                    <li>Some ponds now show deformity rates exceeding 50 percent</li>
+                </ul>
+
+                <p><strong>Population-Level Impacts:</strong> While individual deformed frogs are unlikely to survive to reproduction, the broader population impacts are substantial. High infection rates reduce recruitment (successful metamorphosis of juveniles), potentially driving population declines. This represents an indirect effect of agricultural practices on wildlife health.</p>
+
+                <div class="equation-box">
+                    <h4>Trematode Transmission Intensity:</h4>
+                    <p style="font-size: 1.3rem; margin: 1rem 0;">
+                        I = (Nₛ × Pₛ × C × λ) / (μ + δ)
+                    </p>
+                    <p style="font-size: 0.95rem;">
+                        Where:<br>
+                        I = infection intensity in amphibians<br>
+                        Nₛ = snail density (increases with eutrophication)<br>
+                        Pₛ = prevalence in snails<br>
+                        C = cercariae production per infected snail<br>
+                        λ = amphibian encounter rate<br>
+                        μ = amphibian mortality<br>
+                        δ = encystment decay rate
+                    </p>
+                </div>
+
+                <div class="key-insight">
+                    <strong>Take-Home Message:</strong> Ribeiroia demonstrates how human-induced environmental changes (eutrophication) can amplify natural host-parasite interactions to pathological levels. The complex life cycle means that conservation requires ecosystem-level thinking—protecting amphibians requires controlling nutrient runoff and managing snail populations. This illustrates that some "emerging" diseases are actually natural parasites responding to altered environmental conditions, not novel introductions.
+                </div>
+            </div>
+
+            <div class="acronym-box">
+                <h4>Case Study Summary Acronym: I.D.E.A.S.</h4>
+                <p><strong>I</strong>ntroduced parasites from other regions (Bd, WNS)<br>
+                <strong>D</strong>evastating impacts on naive populations<br>
+                <strong>E</strong>cosystem changes amplifying natural parasites (Ribeiroia)<br>
+                <strong>A</strong>mplification by reservoir hosts (bullfrogs, European bats)<br>
+                <strong>S</strong>ynergistic interactions with other stressors</p>
+            </div>
+        </section>
+
+        <section id="threats" class="section">
+            <h2>Characteristics of Parasites That Threaten Wildlife</h2>
+
+            <div class="concept-card">
+                <h3>Analysis of Mammalian Threats (Pedersen et al. 2007)</h3>
+                
+                <p>Pedersen and colleagues conducted a comprehensive analysis of the IUCN Red List, examining all 4,864 mammal species listed in 2006. They identified which species were listed as "threatened due to disease" and characterized the parasites involved.</p>
+                <h4>Key Findings:</h4>
+                <ul>
+                    <li><strong>54 mammal species</strong> were threatened due to disease (6% of all threatened mammals, 1.5% of all mammals)</li>
+                    <li><strong>Taxonomic bias:</strong> Carnivores and Artiodactyls were disproportionately affected
+                        <ul>
+                            <li>32% of threatened Artiodactyls (even-toed ungulates) were threatened by disease</li>
+                            <li>20% of threatened Carnivores were threatened by disease</li>
+                        </ul>
+                    </li>
+                    <li><strong>Domestic animal connection:</strong> Over 96% of parasites threatening wild mammals also infect domesticated species (cattle, pigs, goats, sheep, cats, dogs)</li>
+                </ul>
+
+                <p><strong>Most Threatened Families:</strong></p>
+                <ul>
+                    <li><strong>Canidae (dogs/wolves):</strong> Threatened by canine distemper virus, rabies, parvovirus</li>
+                    <li><strong>Felidae (cats):</strong> Threatened by feline calicivirus, panleukopenia</li>
+                    <li><strong>Bovidae (cattle/antelope):</strong> Threatened by rinderpest, foot-and-mouth disease, anthrax</li>
+                    <li><strong>Cervidae (deer):</strong> Threatened by various bacterial and viral pathogens shared with livestock</li>
+                </ul>
+
+                <div class="memory-anchor">
+                    <strong>Story-Based Explanation:</strong> Picture the evolutionary tree of mammals. Now highlight all species that humans have domesticated—dogs, cats, cattle, pigs, sheep, goats. Draw circles around their wild relatives on the tree. These circles mark the danger zones. African wild dogs are close to domestic dogs? They get canine distemper. Wild cervids near cattle? They get bovine tuberculosis. Phylogenetic proximity to domesticated animals is like living downwind from a disease factory—the closer you are, the more pathogens drift your way.
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Parasite Type Analysis</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parasite Type</th>
+                            <th>Percentage</th>
+                            <th>Characteristics</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Viruses</td>
+                            <td>70%</td>
+                            <td>RNA viruses with high mutation rates, broad host ranges</td>
+                            <td>Canine distemper, rabies, rinderpest, foot-and-mouth</td>
+                        </tr>
+                        <tr>
+                            <td>Bacteria</td>
+                            <td>15%</td>
+                            <td>Environmental persistence, zoonotic potential</td>
+                            <td>Anthrax, tuberculosis, pasteurellosis</td>
+                        </tr>
+                        <tr>
+                            <td>Helminths</td>
+                            <td>8%</td>
+                            <td>Complex life cycles, density-dependent transmission</td>
+                            <td>Lungworms, heartworm, kidney worms</td>
+                        </tr>
+                        <tr>
+                            <td>Protozoa</td>
+                            <td>5%</td>
+                            <td>Vector-borne, systemic infections</td>
+                            <td>Toxoplasma</td>
+                        </tr>
+                        <tr>
+                            <td>Other</td>
+                            <td>2%</td>
+                            <td>Fungi, arthropods</td>
+                            <td>Sarcoptic mange, encephalitozoonosis</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="key-insight">
+                    <strong>Key Insight:</strong> The dominance of viruses (especially RNA viruses) reflects their rapid evolution and ability to jump between host species. Single-stranded RNA viruses lack proofreading mechanisms during replication, generating high mutation rates (approximately 10⁻⁴ to 10⁻⁶ mutations per nucleotide per replication). This mutational flexibility allows rapid host adaptation—a virus circulating in domestic dogs can acquire mutations enabling infection of wild canids within a few transmission cycles.
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Transmission Mode Analysis</h3>
+
+                <p><strong>Finding:</strong> 75% of parasites threatening wild mammals are transmitted by close contact (direct transmission or aerosol).</p>
+
+                <p><strong>Why This Matters:</strong></p>
+                <ul>
+                    <li><strong>Wildlife-Livestock Interface:</strong> Shared water sources, overlapping ranges, and habitat fragmentation force contact between wild and domestic animals</li>
+                    <li><strong>High R₀ Potential:</strong> Direct transmission allows efficient spread in dense populations</li>
+                    <li><strong>No Vector Control Option:</strong> Vector-borne diseases can be controlled by targeting vectors; direct transmission requires separating hosts</li>
+                    <li><strong>Difficult to Prevent:</strong> Physical barriers or buffer zones are required but difficult to maintain across large landscapes</li>
+                </ul>
+
+                <div class="simulation-container">
+                    <div class="simulation-explanation">
+                        <h4>Simulation: Spillover from Domestic to Wild Populations</h4>
+                        <p>This simulation models pathogen spillover from a large domestic animal reservoir to a small wild population. The domestic population maintains high pathogen prevalence. Contact rate between populations determines spillover frequency. Adjust contact rate to see how habitat overlap affects wild population persistence. Notice how even low contact rates can maintain infection in wild populations when the domestic reservoir is large.</p>
+                    </div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Contact Rate (domestic→wild): <span id="contact-value" class="value-display">0.01</span></label>
+                            <input type="range" id="contact-rate" min="0" max="0.1" step="0.001" value="0.01">
+                        </div>
+                        <div class="control-group">
+                            <label>Wild Population Size: <span id="wildpop-value" class="value-display">500</span></label>
+                            <input type="range" id="wild-pop" min="100" max="2000" step="100" value="500">
+                        </div>
+                        <div class="control-group">
+                            <label>Domestic Prevalence: <span id="domprev-value" class="value-display">0.3</span></label>
+                            <input type="range" id="dom-prev" min="0.1" max="0.9" step="0.1" value="0.3">
+                        </div>
+                    </div>
+
+                    <canvas id="spilloverChart"></canvas>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Host Specificity Patterns</h3>
+
+                <p>Parasites threatening endangered wildlife show a critical pattern: they are <strong>generalists</strong> in transmission but their impact varies by host phylogeny.</p>
+
+                <h4>The Generalist Paradox:</h4>
+                <p>While classic ecological theory predicts specialists should pose greater extinction risk (specialist parasites should go extinct with their single host species), empirical data shows the opposite—<strong>generalist parasites cause most wildlife extinctions</strong>.</p>
+
+                <p><strong>Why Generalists Are More Dangerous:</strong></p>
+                <ul>
+                    <li><strong>Reservoir Dynamics:</strong> Generalists persist in abundant reservoir hosts (often domestic animals) even when rare wildlife hosts decline</li>
+                    <li><strong>Sustained Transmission:</strong> Large reservoir populations maintain high pathogen pressure on small wildlife populations</li>
+                    <li><strong>No Evolutionary Feedback:</strong> Parasites don't experience selection for reduced virulence in wildlife hosts because fitness is determined by success in reservoirs</li>
+                    <li><strong>Multiple Introduction Events:</strong> Each spillover event is independent, preventing local extinction of the parasite</li>
+                </ul>
+
+                <div class="equation-box">
+                    <h4>Spillover Threshold for Wildlife Persistence:</h4>
+                    <p style="font-size: 1.3rem; margin: 1rem 0;">
+                        N*<sub>wild</sub> = (α + μ) / (β<sub>within</sub> - β<sub>spillover</sub> × N<sub>domestic</sub> × P<sub>domestic</sub>)
+                    </p>
+                    <p style="font-size: 0.95rem;">
+                        Where:<br>
+                        N*<sub>wild</sub> = minimum viable population of wild hosts<br>
+                        α = disease-induced mortality in wild hosts<br>
+                        μ = natural mortality rate<br>
+                        β<sub>within</sub> = transmission within wild population<br>
+                        β<sub>spillover</sub> = spillover transmission from domestic animals<br>
+                        N<sub>domestic</sub> = domestic animal population size<br>
+                        P<sub>domestic</sub> = prevalence in domestic animals<br><br>
+                        <strong>Critical Insight:</strong> As spillover increases (larger domestic populations or higher prevalence), N* increases. Eventually, N* exceeds the actual wild population size, predicting extinction.
+                    </p>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3>Quick Comprehension Check</h3>
+                <p><strong>Question 1:</strong> Invasive mammals leave behind approximately ___% of their parasites when colonizing new areas, and the parasites they retain are typically _____.</p>
+                <p><em>Answer: 90% ; generalists</em></p>
+                <p><strong>Explanation:</strong> The "enemy release hypothesis" predicts that introduced species leave most co-evolved specialists behind. Only generalists with flexible life cycles and broad host tolerance successfully establish in new ranges.</p>
+
+                <p><strong>Question 2:</strong> From the Hawaiian bird study, the avian malaria pathogen is:</p>
+                <p>(a) A virus - <em>FALSE</em></p>
+                <p>(b) Virulent in native Hawaiian birds - <em>TRUE</em></p>
+                <p>(c) A generalist that infects multiple bird species - <em>TRUE</em></p>
+                <p><strong>Explanation:</strong> Avian malaria is caused by Plasmodium relictum, a protozoan parasite. It shows high virulence in immunologically naive Hawaiian honeycreepers but low virulence in continental birds with evolutionary exposure. This is a classic example of phylogeographic variation in host resistance.</p>
+            </div>
+        </section>
+
+        <section id="role-extinction" class="section">
+            <h2>The Role of Disease in Contemporary Extinctions</h2>
+
+            <div class="concept-card">
+                <h3>Historical Perspective: Disease as a Minor Threat</h3>
+
+                <p>A influential 1998 study by Wilcove and colleagues analyzed factors contributing to species endangerment in the United States. Their findings showed:</p>
+
+                <ul>
+                    <li>Habitat loss: ~85% of endangered species</li>
+                    <li>Alien species: ~49% of endangered species</li>
+                    <li>Pollution: ~24% of endangered species</li>
+                    <li>Overexploitation: ~17% of endangered species</li>
+                    <li><strong>Disease: ~3% of endangered species</strong></li>
+                </ul>
+
+                <p>This led to the perception that disease was a relatively minor conservation concern. However, this conclusion was based on 1990s data and failed to account for:</p>
+                <ul>
+                    <li><strong>Underdetection:</strong> Many declines attributed to "unknown causes" were likely disease-related</li>
+                    <li><strong>Synergistic effects:</strong> Disease interacts with other stressors but was analyzed as an independent factor</li>
+                    <li><strong>Emerging diseases:</strong> The amphibian chytrid and white-nose syndrome were not yet recognized</li>
+                    <li><strong>Taxonomic bias:</strong> Analysis focused heavily on vertebrates in developed countries with better monitoring</li>
+                </ul>
+            </div>
+
+            <div class="concept-card">
+                <h3>Contemporary View: Disease as an Escalating Threat</h3>
+
+                <p>More recent analyses (Heard et al. 2013) using updated IUCN Red List data reveal a different picture:</p>
+
+                <h4>Percentage of Species Threatened by Disease (by IUCN Category):</h4>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Threat Category</th>
+                            <th>Amphibians</th>
+                            <th>Mammals</th>
+                            <th>Birds</th>
+                            <th>All Species</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Least Concern</td>
+                            <td>0.5%</td>
+                            <td>1.8%</td>
+                            <td>0.4%</td>
+                            <td>0.6%</td>
+                        </tr>
+                        <tr>
+                            <td>Near Threatened</td>
+                            <td>1.8%</td>
+                            <td>3.4%</td>
+                            <td>1.8%</td>
+                            <td>1.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Vulnerable</td>
+                            <td>1.5%</td>
+                            <td>2.4%</td>
+                            <td>1.5%</td>
+                            <td>1.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Endangered</td>
+                            <td>2.7%</td>
+                            <td>6.3%</td>
+                            <td>2.6%</td>
+                            <td>3.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Critically Endangered</strong></td>
+                            <td><strong>6.5%</strong></td>
+                            <td><strong>6.3%</strong></td>
+                            <td><strong>6.5%</strong></td>
+                            <td><strong>5.6%</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="key-insight">
+                    <strong>Key Pattern:</strong> The percentage of species threatened by disease increases systematically with extinction risk category. For critically endangered species, disease affects approximately 6% across all vertebrate taxa. This suggests disease becomes increasingly important as populations decline—a classic Allee effect where small populations become vulnerable to threats that were manageable at larger sizes.
+                </div>
+
+                <h4>Why Disease Threat Increases with Endangerment:</h4>
+                <ul>
+                    <li><strong>Small Population Vulnerability:</strong> Genetic bottlenecks reduce immunogenetic diversity (MHC alleles, TLR variants)</li>
+                    <li><strong>Inbreeding Depression:</strong> Reduces overall fitness including immune function</li>
+                    <li><strong>Stress Effects:</strong> Habitat loss, human disturbance, and climate change cause chronic stress, suppressing immune responses</li>
+                    <li><strong>Increased Surveillance:</strong> Critically endangered species receive more veterinary attention, increasing disease detection</li>
+                    <li><strong>Allee Effects:</strong> At low densities, even moderate mortality becomes population-level threat</li>
+                </ul>
+            </div>
+
+            <div class="concept-card">
+                <h3>Geographic and Taxonomic Patterns</h3>
+
+                <p><strong>Amphibians:</strong> Show highest disease threat, primarily due to chytridiomycosis. The global spread of Bd has elevated disease from a minor to a major driver of amphibian endangerment.</p>
+
+                <p><strong>Mammals:</strong> Carnivores and artiodactyls are disproportionately affected due to phylogenetic proximity to domesticated species. Island endemics face elevated risk.</p>
+
+                <p><strong>Birds:</strong> Show moderate disease threat overall, but certain groups (Hawaiian honeycreepers, Galapagos birds) experience extreme disease-driven declines.</p>
+
+                <div class="memory-anchor">
+                    <strong>Visual Memory Anchor - The Extinction Vortex:</strong> Picture a whirlpool. At the outer edges, water moves slowly—healthy populations with genetic diversity resist disease like boats resist slow currents. As you spiral inward, currents accelerate—declining populations with reduced genetic diversity are increasingly vulnerable. Near the center, the vortex spins violently—critically endangered species face a perfect storm where disease, genetics, and demography create an inescapable pull toward extinction. Disease isn't just one factor; it's the accelerating force that intensifies as populations shrink.
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Synergistic Threats: Disease × Other Stressors</h3>
+
+                <p>Disease rarely acts alone. It operates synergistically with other conservation threats:</p>
+
+                <h4>Disease × Habitat Loss:</h4>
+                <ul>
+                    <li>Habitat fragmentation forces contact between wildlife and livestock at remnant edges</li>
+                    <li>Stress from habitat degradation suppresses immune function</li>
+                    <li>Small remaining populations are vulnerable to stochastic disease outbreaks</li>
+                    <li>Example: Ethiopian wolves forced onto livestock pastures due to habitat loss contract rabies and distemper from domestic dogs</li>
+                </ul>
+
+                <h4>Disease × Climate Change:</h4>
+                <ul>
+                    <li>Warming temperatures allow vectors and pathogens to expand ranges (e.g., mosquitoes moving upslope in Hawaii)</li>
+                    <li>Climate stress weakens host immunity</li>
+                    <li>Altered precipitation affects pathogen survival in environment</li>
+                    <li>Example: Chytrid fungus may become more or less problematic depending on regional temperature changes</li>
+                </ul>
+
+                <h4>Disease × Introduced Species:</h4>
+                <ul>
+                    <li>Novel parasites arrive with introduced hosts</li>
+                    <li>Introduced species serve as disease reservoirs</li>
+                    <li>Native species lack co-evolved defenses</li>
+                    <li>Example: American bullfrogs carrying Bd into western United States</li>
+                </ul>
+
+                <div class="equation-box">
+                    <h4>Synergistic Mortality Model:</h4>
+                    <p style="font-size: 1.3rem; margin: 1rem 0;">
+                        λ = λ<sub>0</sub> × (1 - m<sub>disease</sub>) × (1 - m<sub>habitat</sub>) × (1 - m<sub>climate</sub>)
+                    </p>
+                    <p style="font-size: 0.95rem;">
+                        Where:<br>
+                        λ = population growth rate<br>
+                        λ<sub>0</sub> = maximum growth rate<br>
+                        m<sub>i</sub> = proportional mortality from threat i<br><br>
+                        <strong>Key Insight:</strong> Mortality sources multiply rather than add. A species experiencing 20% disease mortality, 20% habitat loss mortality, and 20% climate mortality doesn't lose 60% (additive) but rather:<br>
+                        1 - (0.8 × 0.8 × 0.8) = 1 - 0.512 = 48.8% mortality<br>
+                        This multiplicative effect explains why disease can push species "over the edge" even when each individual stressor seems manageable.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="conservation" class="section">
+            <h2>The Case for Conserving Parasites</h2>
+
+            <div class="acronym-box">
+                <h4>Why Conserve Parasites? E.E.E. Principle</h4>
+                <p><strong>E</strong>cological value - ecosystem function and food web complexity<br>
+                <strong>E</strong>conomic value - pharmaceuticals, biocontrol, research<br>
+                <strong>E</strong>volutionary value - maintain host genetic diversity and co-evolutionary dynamics</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Ecological Value of Parasites</h3>
+
+                <h4>Biodiversity Component:</h4>
+                <p>Parasites may represent more than 40% of species on Earth. If we care about biodiversity, we must care about parasites. Conservative estimates suggest:</p>
+                <ul>
+                    <li>Every free-living species hosts multiple parasite species</li>
+                    <li>Many parasites are host-specific</li>
+                    <li>Parasite species richness often exceeds free-living species richness in ecosystems</li>
+                </ul>
+
+                <p><strong>Example - Carpinteria Salt Marsh (California):</strong></p>
+                <ul>
+                    <li>At least 190 bird species use the marsh</li>
+                    <li>Bird diversity can be assessed by surveying larval trematodes in snails</li>
+                    <li>Each trematode species has a specific bird definitive host</li>
+                    <li>Trematode diversity serves as a proxy for bird biodiversity</li>
+                    <li>This approach detects rare and transient bird species that direct observation might miss</li>
+                </ul>
+
+                <div class="key-insight">
+                    <strong>Key Insight:</strong> Parasites serve as biological indicators of ecosystem health. High parasite diversity indicates complex food webs, high host diversity, and intact ecological interactions. Conversely, parasite loss signals ecosystem degradation even before free-living species disappear. Think of parasites as the canary in the coal mine for ecosystem function.
+                </div>
+
+                <h4>Biomass and Energy Flow:</h4>
+                <p>Research by Hechinger et al. (2008) in California salt marshes revealed that trematode biomass equals or exceeds biomass of many vertebrate groups:</p>
+                <ul>
+                    <li>Trematode biomass approximately 3 kg/hectare</li>
+                    <li>This exceeds biomass of resident fish, birds, and some invertebrate groups</li>
+                    <li>Trematodes represent significant energy transfer in food webs</li>
+                    <li>Birds feeding on infected snails gain substantial energy from parasite biomass</li>
+                </ul>
+
+                <h4>Food Web Complexity:</h4>
+                <p>Lafferty et al. (2006) demonstrated that including parasites in food web analyses:</p>
+                <ul>
+                    <li>Doubles the number of trophic links</li>
+                    <li>Increases food web connectance</li>
+                    <li>Changes network topology and stability properties</li>
+                    <li>Reveals "hidden" interactions between species</li>
+                </ul>
+
+                <p>Without parasites, food web models miss the majority of interactions and fail to predict ecosystem responses to perturbations accurately.</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Economic Value of Parasites</h3>
+
+                <h4>Pharmaceutical Applications:</h4>
+                <p>Parasites have evolved sophisticated biochemical mechanisms to:</p>
+                <ul>
+                    <li>Evade host immune systems</li>
+                    <li>Manipulate host physiology</li>
+                    <li>Prevent blood clotting</li>
+                    <li>Suppress inflammation</li>
+                </ul>
+
+                <p><strong>Example - Tick Saliva:</strong> Ticks produce anticoagulants, vasodilators, and immunosuppressants to feed successfully. These compounds have pharmaceutical applications:</p>
+                <ul>
+                    <li><strong>Calrticulin:</strong> Prevents blood clots, used in treating thrombosis and heart disease in dogs</li>
+                    <li><strong>Immunosuppressants:</strong> Potential applications in organ transplant and autoimmune disease</li>
+                    <li><strong>Anti-inflammatory compounds:</strong> Being investigated for arthritis treatment</li>
+                </ul>
+
+                <p>Losing tick species means losing potential drug sources. Bioprospecting in parasites may yield treatments for human diseases.</p>
+
+                <h4>Biological Control:</h4>
+                <p>Parasites are used to control pest species:</p>
+                <ul>
+                    <li>Parasitoid wasps control agricultural pests</li>
+                    <li>Myxoma virus controlled invasive rabbits in Australia (initially)</li>
+                    <li>Parasitic nematodes control insect pests</li>
+                </ul>
+
+                <h4>Research Models:</h4>
+                <p>Parasites serve as research models for:</p>
+                <ul>
+                    <li>Co-evolutionary dynamics</li>
+                    <li>Immune system function</li>
+                    <li>Host behavior manipulation</li>
+                    <li>Speciation mechanisms</li>
+                </ul>
+            </div>
+
+            <div class="concept-card">
+                <h3>Evolutionary Value of Parasites</h3>
+
+                <h4>Maintaining Host Genetic Diversity:</h4>
+                <p>Parasites drive balancing selection on host immune genes through:</p>
+
+                <ul>
+                    <li><strong>Negative Frequency-Dependent Selection:</strong> Common host genotypes are targeted by adapted parasites, giving rare genotypes advantage</li>
+                    <li><strong>Red Queen Dynamics:</strong> Hosts and parasites co-evolve in endless arms race, maintaining variation</li>
+                    <li><strong>MHC Diversity:</strong> Parasite pressure maintains multiple MHC (Major Histocompatibility Complex) alleles in populations</li>
+                </ul>
+
+                <div class="equation-box">
+                    <h4>Red Queen Model for Host-Parasite Co-evolution:</h4>
+                    <p style="font-size: 1.1rem; margin: 1rem 0;">
+                        Δp = p(1-p) × s × [f(parasite|match) - f(parasite|mismatch)]
+                    </p>
+                    <p style="font-size: 0.95rem;">
+                        Where:<br>
+                        Δp = change in frequency of host allele<br>
+                        p = current allele frequency<br>
+                        s = selection coefficient<br>
+                        f(parasite|match) = parasite success with matching genotype<br>
+                        f(parasite|mismatch) = parasite success with mismatched genotype<br><br>
+                        This model predicts stable polymorphisms where multiple host and parasite genotypes coexist through negative frequency-dependent selection. Remove parasites, and host populations lose genetic diversity through drift or directional selection.
+                    </p>
+                </div>
+
+                <p><strong>Evidence:</strong> Florida panthers (Puma concolor coryi) lost genetic diversity through bottleneck, including loss of parasite resistance alleles. Genetic rescue through introduction of Texas pumas restored diversity and improved disease resistance.</p>
+
+                <h4>Sexual Selection and Mating Systems:</h4>
+                <p>The "Hamilton-Zuk hypothesis" proposes that sexual ornaments signal parasite resistance:</p>
+                <ul>
+                    <li>Bright coloration, large antlers, elaborate songs indicate health</li>
+                    <li>Females choose mates based on ornaments, gaining parasite-resistant genes for offspring</li>
+                    <li>Remove parasites, and sexual selection may weaken</li>
+                </ul>
+
+                <p>This means parasite removal could alter mating systems and sexual selection regimes, with unknown evolutionary consequences.</p>
+
+                <h4>Preserving Evolutionary Information:</h4>
+                <p>Parasite phylogenies reveal host evolutionary history:</p>
+                <ul>
+                    <li>Host-specific parasites track host speciation events</li>
+                    <li>Parasite distributions reveal historical host migrations</li>
+                    <li>Co-phylogenetic analyses reconstruct host-parasite evolutionary history</li>
+                </ul>
+
+                <p><strong>Example:</strong> Lice phylogenies have been used to reconstruct human migration patterns and clothing use. Losing parasites means losing this evolutionary record.</p>
+            </div>
+
+            <div class="case-study">
+                <h4>Case Study: Should We Conserve Ticks?</h4>
+                
+                <p>Ticks seem like obvious candidates for eradication—they transmit Lyme disease, Rocky Mountain spotted fever, and other serious human diseases. However, consider:</p>
+
+                <p><strong>Ecological Roles:</strong></p>
+                <ul>
+                    <li>Ticks are important food for oxpeckers, cattle egrets, and other tick-feeding birds</li>
+                    <li>Some bird species depend heavily on ticks for nutrition</li>
+                    <li>Tick abundance affects bird distribution and breeding success</li>
+                </ul>
+
+                <p><strong>Economic Value:</strong></p>
+                <ul>
+                    <li>Tick saliva contains numerous bioactive compounds</li>
+                    <li>Anticoagulants from ticks are used in veterinary medicine</li>
+                    <li>Immunosuppressants being investigated for human applications</li>
+                    <li>Estimated value: potentially billions in pharmaceutical development</li>
+                </ul>
+
+                <p><strong>Research Value:</strong></p>
+                <ul>
+                    <li>Model organisms for vector biology</li>
+                    <li>Studies of pathogen transmission</li>
+                    <li>Understanding blood-feeding adaptations</li>
+                </ul>
+
+                <div class="key-insight">
+                    <strong>Take-Home Message:</strong> Even organisms that cause human disease may warrant conservation. The question is not "eradicate or conserve" but rather "how do we manage populations to minimize human harm while preserving ecological function and evolutionary potential?" For ticks, this might mean controlling populations near human habitation while preserving them in wilderness areas.
+                </div>
+            </div>
+
+            <div class="memory-anchor">
+                <strong>Story-Based Connection:</strong> Imagine scientists discover that a certain tick species produces a compound that cures Alzheimer's disease. But this species went extinct 20 years ago when we eradicated all ticks from a nature reserve. We eliminated a disease threat, yes, but we also eliminated an unknown medical treasure. Every parasite extinction is like burning a page from a book we haven't finished reading—we don't know what information we're losing until it's gone forever.
+            </div>
+        </section>
+
+        <section id="coextinction" class="section">
+            <h2>The Problem of Co-Extinction</h2>
+
+            <div class="concept-card">
+                <h3>Understanding Co-Extinction</h3>
+
+                <p><strong>Definition:</strong> Co-extinction occurs when the extinction of one species (typically a host) causes extinction of dependent species (parasites, commensals, mutualists).</p>
+
+                <p><strong>The Scale of the Problem:</strong></p>
+                <ul>
+                    <li>Every host species typically harbors multiple parasite species</li>
+                    <li>Many parasites are host-specific, depending on single host species</li>
+                    <li>For every host extinction, we may lose 5-10+ parasite species</li>
+                    <li>Parasite extinctions are rarely documented or noticed</li>
+                </ul>
+
+                <div class="key-insight">
+                    <strong>Key Insight:</strong> We are experiencing a "hidden extinction crisis." When we count species losses, we typically count only free-living species. But for every charismatic vertebrate that goes extinct, we silently lose its entire parasite community. The true extinction rate may be several-fold higher than commonly reported.
+                </div>
+
+                <h4>Why Parasites Are Vulnerable to Co-Extinction:</h4>
+                <ul>
+                   <li><strong>Host Specialization:</strong> Specialist parasites cannot survive without their specific host species</li>
+                    <li><strong>Complex Life Cycles:</strong> Parasites requiring multiple hosts face extinction if any host species is lost</li>
+                    <li><strong>Small Effective Population Sizes:</strong> Even when hosts persist, small host populations cannot maintain viable parasite populations</li>
+                    <li><strong>Transmission Thresholds:</strong> Below critical host densities, parasite transmission fails and populations go extinct</li>
+                </ul>
+
+                <div class="equation-box">
+                    <h4>Critical Host Density for Parasite Persistence:</h4>
+                    <p style="font-size: 1.3rem; margin: 1rem 0;">
+                        N<sub>threshold</sub> = (α + μ + γ) / β
+                    </p>
+                    <p style="font-size: 0.95rem;">
+                        Where:<br>
+                        N<sub>threshold</sub> = minimum host density for parasite persistence<br>
+                        α = disease-induced mortality<br>
+                        μ = natural host mortality<br>
+                        γ = recovery rate<br>
+                        β = transmission coefficient<br><br>
+                        <strong>Implication:</strong> As host populations decline below N<sub>threshold</sub>, parasites experience demographic stochasticity and local extinction even if some hosts survive. This means parasite extinction precedes host extinction—the parasite dies out while the host still persists at low numbers.
+                    </p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Intentional Parasite Removal from Endangered Species</h3>
+
+                <p>Conservation programs often remove parasites from endangered species brought into captivity for breeding programs. Standard veterinary protocols include:</p>
+
+                <ul>
+                    <li>Deworming (eliminates helminths)</li>
+                    <li>Ectoparasite removal (ticks, mites, lice)</li>
+                    <li>Antiprotozoal treatments</li>
+                    <li>Quarantine procedures preventing parasite transmission</li>
+                </ul>
+
+                <p><strong>Rationale:</strong> Maximize survival and reproductive success of valuable endangered individuals by eliminating fitness costs imposed by parasites.</p>
+
+                <p><strong>Unintended Consequences:</strong></p>
+                <ul>
+                    <li><strong>Parasite Extinction:</strong> Host-specific parasites confined to captive populations may go extinct</li>
+                    <li><strong>Loss of Immune Priming:</strong> Captive-born animals never develop immunity to parasites, making reintroduction problematic</li>
+                    <li><strong>Genetic Consequences:</strong> Relaxed selection on immune genes may lead to loss of resistance alleles</li>
+                    <li><strong>Behavioral Changes:</strong> Animals may not develop normal grooming and anti-parasite behaviors</li>
+                    <li><strong>Microbiome Disruption:</strong> Some "parasites" may actually be commensal or mutualistic symbionts</li>
+                </ul>
+
+                <div class="case-study">
+                    <h4>Case Study: Black-Footed Ferrets and Parasite Loss</h4>
+                    
+                    <p><strong>Background:</strong> Black-footed ferrets (Mustela nigripes) were reduced to 18 individuals in the wild by 1987. All were brought into captivity for breeding.</p>
+
+                    <p><strong>Veterinary Protocol:</strong> All ferrets were dewormed and treated for ectoparasites as part of standard captive breeding protocols. This eliminated several specialist parasite species that depended exclusively on black-footed ferrets.</p>
+
+                    <p><strong>Consequences:</strong></p>
+                    <ul>
+                        <li>Unknown number of parasite species went extinct (never fully catalogued)</li>
+                        <li>Captive-bred ferrets lacked immune experience with historical parasites</li>
+                        <li>When reintroduced, ferrets faced new parasite communities in the wild</li>
+                        <li>Debate continues about whether parasite removal was beneficial or harmful overall</li>
+                    </ul>
+
+                    <div class="key-insight">
+                        <strong>Take-Home Message:</strong> The black-footed ferret case illustrates a fundamental dilemma: short-term individual health versus long-term evolutionary fitness. Removing parasites maximizes survival and reproduction in captivity, but may compromise reintroduction success and eliminates parasite biodiversity. There is no easy answer—each case requires weighing immediate conservation needs against long-term ecological and evolutionary consequences.
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3>Should There Be a "Parasite Red List"?</h3>
+
+                <p>Conservation prioritization typically focuses on free-living species. The IUCN Red List includes very few parasite species. Arguments for and against parasite conservation:</p>
+
+                <h4>Arguments FOR Parasite Conservation:</h4>
+                <ul>
+                    <li><strong>Biodiversity completeness:</strong> If we value biodiversity, we must include parasites</li>
+                    <li><strong>Ecological function:</strong> Parasites play crucial roles in ecosystem processes</li>
+                    <li><strong>Evolutionary preservation:</strong> Maintain co-evolutionary dynamics</li>
+                    <li><strong>Unknown value:</strong> Potential pharmaceutical and research applications</li>
+                    <li><strong>Intrinsic value:</strong> All species have inherent right to exist</li>
+                </ul>
+
+                <h4>Arguments AGAINST Dedicated Parasite Conservation:</h4>
+                <ul>
+                    <li><strong>Limited resources:</strong> Conservation funding is scarce; should focus on hosts</li>
+                    <li><strong>Public perception:</strong> Difficult to generate support for parasite conservation</li>
+                    <li><strong>Indirect conservation:</strong> Protecting hosts automatically protects their parasites</li>
+                    <li><strong>Human health concerns:</strong> Some parasites cause disease</li>
+                    <li><strong>Practical difficulties:</strong> Hard to assess parasite population status</li>
+                </ul>
+
+                <div class="memory-anchor">
+                    <strong>Philosophical Question:</strong> Consider two species: (1) A charismatic panda with 1,800 individuals remaining, (2) A tapeworm found only in that panda species. Both face extinction. Conservation resources are limited. Which should we prioritize? Most people instinctively choose the panda. But is this rational, or is it aesthetic bias? The tapeworm is equally unique evolutionarily, may play important roles we don't understand, and may contain biochemical innovations valuable to science. Yet it lacks the appeal to generate donations. This dilemma epitomizes the challenge of parasite conservation.
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <div class="simulation-explanation">
+                    <h4>Simulation: Co-Extinction Dynamics</h4>
+                    <p>This simulation models host and parasite populations where parasites are obligate specialists. As host populations decline due to habitat loss or other factors, observe when parasites experience extinction. Note that parasites typically go extinct before hosts due to transmission thresholds. Adjust host decline rate to see how gradual versus sudden declines affect co-extinction timing. The simulation demonstrates why parasite extinctions may be occurring unnoticed as host populations shrink.</p>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Host Decline Rate: <span id="decline-value" class="value-display">0.02</span></label>
+                        <input type="range" id="decline-rate" min="0" max="0.1" step="0.01" value="0.02">
+                    </div>
+                    <div class="control-group">
+                        <label>Transmission Efficiency: <span id="transeff-value" class="value-display">0.002</span></label>
+                        <input type="range" id="trans-eff" min="0.0005" max="0.005" step="0.0005" value="0.002">
+                    </div>
+                    <div class="control-group">
+                        <label>Parasite Recovery Rate: <span id="recovery-value" class="value-display">0.05</span></label>
+                        <input type="range" id="recovery" min="0.01" max="0.15" step="0.01" value="0.05">
+                    </div>
+                </div>
+
+                <canvas id="coextinctionChart"></canvas>
+            </div>
+
+            <div class="concept-card">
+                <h3>Summary: The Hidden Extinction Crisis</h3>
+
+                <p>The key messages about co-extinction:</p>
+
+                <ol>
+                    <li><strong>Magnitude:</strong> For every recorded host extinction, multiple parasite species likely go extinct unnoticed</li>
+                    <li><strong>Timing:</strong> Parasites go extinct before their hosts due to transmission thresholds</li>
+                    <li><strong>Documentation:</strong> We lack baseline data on most parasite species, making extinction assessment impossible</li>
+                    <li><strong>Prevention:</strong> Conserving hosts is necessary but not sufficient—maintaining host population sizes above transmission thresholds is critical</li>
+                    <li><strong>Captive breeding:</strong> Standard veterinary protocols may inadvertently cause parasite extinctions</li>
+                </ol>
+
+                <div class="key-insight">
+                    <strong>Final Perspective:</strong> The extinction crisis is larger than we acknowledge. Traditional conservation metrics focusing on free-living species grossly underestimate true biodiversity loss. Every endangered mammal, bird, or amphibian species represents not just one species at risk, but an entire community of dependent parasites facing co-extinction. Comprehensive conservation must consider not just charismatic hosts, but the entire web of interactions—including the unseen, unloved, but ecologically vital parasites.
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Take-Home Messages and Course Integration</h2>
+
+            <div class="concept-card">
+                <h3>Core Concepts Summary</h3>
+
+                <div class="acronym-box">
+                    <h4>Master Framework: D.I.L.E.M.M.A.</h4>
+                    <p><strong>D</strong>ual nature of parasites (good and bad)<br>
+                    <strong>I</strong>ntroduced generalist parasites cause most wildlife extinctions<br>
+                    <strong>L</strong>ivestock proximity increases disease risk for wildlife<br>
+                    <strong>E</strong>ndangered species face escalating disease threats<br>
+                    <strong>M</strong>ultiple ecological roles justify parasite conservation<br>
+                    <strong>M</strong>aintaining co-evolutionary dynamics requires parasite preservation<br>
+                    <strong>A</strong>cknowledge co-extinction as hidden biodiversity crisis</p>
+                </div>
+
+                <h3>Connecting to Population Biology Principles</h3>
+
+                <p>This lecture connects to earlier course concepts:</p>
+
+                <ul>
+                    <li><strong>Threshold Dynamics (R₀):</strong> Disease emergence in wildlife requires R₀ > 1 in reservoir populations, enabling spillover to rare hosts</li>
+                    <li><strong>Density-Dependent Transmission:</strong> Small endangered populations fall below transmission thresholds, paradoxically protecting them from some parasites while making them vulnerable to spillover from large reservoir populations</li>
+                    <li><strong>Virulence Evolution:</strong> Generalist parasites evolving in domestic reservoirs experience no selection for reduced virulence in wildlife hosts, maintaining high virulence</li>
+                    <li><strong>Metapopulation Dynamics:</strong> Fragmented wildlife populations create metapopulation structures where local disease outbreaks can cause regional extinctions</li>
+                    <li><strong>Co-evolution:</strong> Host-parasite co-evolution maintains genetic diversity; disrupting these interactions has evolutionary consequences</li>
+                </ul>
+            </div>
+
+            <div class="concept-card">
+                <h3>Management Implications</h3>
+
+                <h4>For Protecting Endangered Hosts:</h4>
+                <ol>
+                    <li><strong>Buffer Zones:</strong> Create separation between endangered wildlife and domestic animal reservoirs</li>
+                    <li><strong>Vaccination:</strong> Vaccinate domestic animals to reduce reservoir prevalence (e.g., canine distemper vaccination protects wild canids)</li>
+                    <li><strong>Population Size:</strong> Maintain host populations large enough to support natural parasite communities while avoiding epidemic spread</li>
+                    <li><strong>Genetic Management:</strong> Preserve immunogenetic diversity through careful breeding programs</li>
+                    <li><strong>Disease Monitoring:</strong> Implement surveillance systems to detect emerging diseases early</li>
+                </ol>
+
+                <h4>For Conserving Parasite Biodiversity:</h4>
+                <ol>
+                    <li><strong>Host Protection:</strong> Maintain viable host populations</li>
+                    <li><strong>Ecosystem Preservation:</strong> Protect complex life cycles by maintaining all required hosts</li>
+                    <li><strong>Documentation:</strong> Survey and catalogue parasite diversity before it's lost</li>
+                    <li><strong>Captive Breeding Protocols:</strong> Consider selective parasite retention in some breeding programs</li>
+                    <li><strong>Reintroduction Planning:</strong> Address parasite-naive status of captive-bred animals before release</li>
+                </ol>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Initialize all simulations after DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initHostParasiteSimulation();
+            initSpilloverSimulation();
+            initCoextinctionSimulation();
+        });
+
+        // Simulation 1: Host-Parasite Population Dynamics
+        function initHostParasiteSimulation() {
+            const ctx = document.getElementById('hostParasiteChart');
+            if (!ctx) return;
+            
+            const betaSlider = document.getElementById('beta');
+            const alphaSlider = document.getElementById('alpha');
+            const gammaSlider = document.getElementById('gamma');
+            
+            const betaValue = document.getElementById('beta-value');
+            const alphaValue = document.getElementById('alpha-value');
+            const gammaValue = document.getElementById('gamma-value');
+
+            let chart = null;
+
+            function updateSimulation() {
+                const beta = parseFloat(betaSlider.value);
+                const alpha = parseFloat(alphaSlider.value);
+                const gamma = parseFloat(gammaSlider.value);
+
+                betaValue.textContent = beta.toFixed(4);
+                alphaValue.textContent = alpha.toFixed(2);
+                gammaValue.textContent = gamma.toFixed(2);
+
+                // SIR model simulation
+                let S = 950;
+                let I = 50;
+                let R = 0;
+                const N = 1000;
+                const generations = 200;
+                
+                const susceptible = [S];
+                const infected = [I];
+                const recovered = [R];
+                const labels = [0];
+
+                for (let t = 1; t <= generations; t++) {
+                    const newInfections = beta * S * I;
+                    const deaths = alpha * I;
+                    const recoveries = gamma * I;
+
+                    S = Math.max(0, S - newInfections + 0.05 * N); // birth rate
+                    I = Math.max(0, I + newInfections - deaths - recoveries);
+                    R = Math.max(0, R + recoveries - 0.01 * R); // waning immunity
+
+                    // Normalize if needed
+                    const total = S + I + R;
+                    if (total > N * 1.5) {
+                        S = S * N / total;
+                        I = I * N / total;
+                        R = R * N / total;
+                    }
+
+                    susceptible.push(S);
+                    infected.push(I);
+                    recovered.push(R);
+                    labels.push(t);
+                }
+
+                const data = {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Susceptible Hosts',
+                            data: susceptible,
+                            borderColor: '#4a7c59',
+                            backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Infected Hosts',
+                            data: infected,
+                            borderColor: '#dc143c',
+                            backgroundColor: 'rgba(220, 20, 60, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Recovered Hosts',
+                            data: recovered,
+                            borderColor: '#4169e1',
+                            backgroundColor: 'rgba(65, 105, 225, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                };
+
+                if (chart) {
+                    chart.destroy();
+                }
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Host-Parasite Population Dynamics (SIR Model)',
+                                font: { size: 16 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Generation'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Individuals'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            betaSlider.addEventListener('input', updateSimulation);
+            alphaSlider.addEventListener('input', updateSimulation);
+            gammaSlider.addEventListener('input', updateSimulation);
+
+            updateSimulation();
+        }
+
+        // Simulation 2: Spillover Dynamics
+        function initSpilloverSimulation() {
+            const ctx = document.getElementById('spilloverChart');
+            if (!ctx) return;
+            
+            const contactSlider = document.getElementById('contact-rate');
+            const wildPopSlider = document.getElementById('wild-pop');
+            const domPrevSlider = document.getElementById('dom-prev');
+            
+            const contactValue = document.getElementById('contact-value');
+            const wildPopValue = document.getElementById('wildpop-value');
+            const domPrevValue = document.getElementById('domprev-value');
+
+            let chart = null;
+
+            function updateSimulation() {
+                const contactRate = parseFloat(contactSlider.value);
+                const wildPop = parseInt(wildPopSlider.value);
+                const domPrev = parseFloat(domPrevSlider.value);
+
+                contactValue.textContent = contactRate.toFixed(3);
+                wildPopValue.textContent = wildPop;
+                domPrevValue.textContent = domPrev.toFixed(1);
+
+                const domesticPop = 5000; // large domestic population
+                let wildSusceptible = wildPop;
+                let wildInfected = 0;
+                const generations = 150;
+                
+                const wildS = [wildSusceptible];
+                const wildI = [wildInfected];
+                const labels = [0];
+
+                for (let t = 1; t <= generations; t++) {
+                    // Spillover from domestic reservoir
+                    const spillover = contactRate * wildSusceptible * domesticPop * domPrev;
+                    
+                    // Within-wild transmission
+                    const withinTransmission = 0.0005 * wildSusceptible * wildInfected;
+                    
+                    // Disease-induced mortality in wild
+                    const mortality = 0.15 * wildInfected;
+                    
+                    // Recovery
+                    const recovery = 0.08 * wildInfected;
+
+                    wildSusceptible = Math.max(0, wildSusceptible - spillover - withinTransmission + recovery);
+                    wildInfected = Math.max(0, wildInfected + spillover + withinTransmission - mortality - recovery);
+
+                    wildS.push(wildSusceptible);
+                    wildI.push(wildInfected);
+                    labels.push(t);
+                }
+
+                const data = {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Wild Population (Susceptible)',
+                            data: wildS,
+                            borderColor: '#2c5530',
+                            backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Wild Population (Infected)',
+                            data: wildI,
+                            borderColor: '#ff6347',
+                            backgroundColor: 'rgba(255, 99, 71, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                };
+
+                if (chart) {
+                    chart.destroy();
+                }
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Spillover from Domestic to Wild Populations',
+                                font: { size: 16 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Generation'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Wild Individuals'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            contactSlider.addEventListener('input', updateSimulation);
+            wildPopSlider.addEventListener('input', updateSimulation);
+            domPrevSlider.addEventListener('input', updateSimulation);
+
+            updateSimulation();
+        }
+
+        // Simulation 3: Co-extinction Dynamics
+        function initCoextinctionSimulation() {
+            const ctx = document.getElementById('coextinctionChart');
+            if (!ctx) return;
+            
+            const declineSlider = document.getElementById('decline-rate');
+            const transEffSlider = document.getElementById('trans-eff');
+            const recoverySlider = document.getElementById('recovery');
+            
+            const declineValue = document.getElementById('decline-value');
+            const transEffValue = document.getElementById('transeff-value');
+            const recoveryValue = document.getElementById('recovery-value');
+
+            let chart = null;
+
+            function updateSimulation() {
+                const declineRate = parseFloat(declineSlider.value);
+                const transEff = parseFloat(transEffSlider.value);
+                const recoveryRate = parseFloat(recoverySlider.value);
+
+                declineValue.textContent = declineRate.toFixed(2);
+                transEffValue.textContent = transEff.toFixed(4);
+                recoveryValue.textContent = recoveryRate.toFixed(2);
+
+                let hostPop = 1000;
+                let parasitePrev = 0.3;
+                const generations = 200;
+                
+                const hosts = [hostPop];
+                const parasites = [hostPop * parasitePrev];
+                const labels = [0];
+
+                for (let t = 1; t <= generations; t++) {
+                    // Host decline due to habitat loss
+                    hostPop = hostPop * (1 - declineRate);
+                    
+                    // Parasite transmission dynamics
+                    const infectedHosts = hostPop * parasitePrev;
+                    const susceptibleHosts = hostPop * (1 - parasitePrev);
+                    
+                    // Transmission threshold effect
+                    if (hostPop < 200) {
+                        // Below threshold, transmission fails
+                        parasitePrev = Math.max(0, parasitePrev - 0.1);
+                    } else {
+                        const newInfections = transEff * susceptibleHosts * infectedHosts;
+                        const losses = recoveryRate * infectedHosts + 0.05 * infectedHosts; // recovery + mortality
+                        
+                        const netChange = newInfections - losses;
+                        parasitePrev = Math.max(0, Math.min(1, (infectedHosts + netChange) / hostPop));
+                    }
+
+                    hosts.push(hostPop);
+                    parasites.push(hostPop * parasitePrev);
+                    labels.push(t);
+                }
+
+                const data = {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Host Population',
+                            data: hosts,
+                            borderColor: '#2c5530',
+                            backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Infected Hosts (Parasite Population)',
+                            data: parasites,
+                            borderColor: '#8b0000',
+                            backgroundColor: 'rgba(139, 0, 0, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        }
+                    ]
+                };
+
+                if (chart) {
+                    chart.destroy();
+                }
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Co-Extinction: Parasites Go Extinct Before Hosts',
+                                font: { size: 16 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Generation'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Individuals'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            declineSlider.addEventListener('input', updateSimulation);
+            transEffSlider.addEventListener('input', updateSimulation);
+            recoverySlider.addEventListener('input', updateSimulation);
+
+            updateSimulation();
+        }
+    </script>
+</body>
+</html>
