@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Managing Infectious Diseases in Wildlife | Population Biology 6150</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .objectives ul {
+            margin-left: 2rem;
+        }
+
+        .objectives li {
+            margin: 0.5rem 0;
+        }
+
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .equation-box .equation {
+            font-size: 1.3rem;
+            color: #2c5530;
+            margin: 0.5rem 0;
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, #fff3cd, #fffaeb);
+            border-left: 5px solid #ff9800;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
+        .key-insight strong {
+            color: #e65100;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #e3f2fd, #f0f7ff);
+            border-left: 5px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .case-study h4 {
+            color: #1565c0;
+            margin-bottom: 0.75rem;
+        }
+
+        .simulation-box {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid #4a7c59;
+        }
+
+        .simulation-explanation {
+            background: #f0f8f0;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 6px;
+            border-left: 4px solid #4a7c59;
+        }
+
+        .controls {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .control-group {
+            margin: 1rem 0;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+
+        .control-group input[type="number"] {
+            width: 100px;
+            padding: 0.5rem;
+            border: 1px solid #4a7c59;
+            border-radius: 4px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .acronym {
+            background: #e8f5e8;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 6px;
+            border-left: 4px solid #4a7c59;
+        }
+
+        .acronym strong {
+            color: #2c5530;
+            font-size: 1.2rem;
+        }
+
+        .memory-anchor {
+            background: linear-gradient(135deg, #fff3e0, #fffaf0);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 6px;
+            border-left: 4px solid #ff9800;
+            font-style: italic;
+        }
+
+        canvas {
+            max-width: 100%;
+            margin: 1rem 0;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: #4a7c59;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Managing Infectious Diseases in Wildlife</h1>
+        <p>Population Biology of Infectious Diseases | Course 6150</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#ferrets">Black-Footed Ferrets</a></li>
+            <li><a href="#management">Disease Management Strategies</a></li>
+            <li><a href="#rabies">Rabies in Serengeti</a></li>
+            <li><a href="#culling">Culling Strategies</a></li>
+            <li><a href="#simulations">Interactive Simulations</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the three primary approaches to wildlife disease management: eradication, control, and prevention</li>
+                <li>Analyze case studies of disease management in endangered species populations</li>
+                <li>Evaluate the effectiveness of vaccination strategies in reservoir versus target populations</li>
+                <li>Examine the ecological consequences of culling programs on disease dynamics</li>
+                <li>Apply concepts of basic reproductive number (R₀) and threshold density (Nт) to wildlife disease management</li>
+                <li>Critically assess the trade-offs between different management interventions</li>
+            </ul>
+        </section>
+
+        <section id="introduction" class="concept-card">
+            <h2>Introduction to Wildlife Disease Management</h2>
+            
+            <p>Managing infectious diseases in wildlife populations presents unique challenges compared to domestic animal or human disease control. Wildlife populations are inherently difficult to access, monitor, and treat. Additionally, disease management must balance conservation goals, economic concerns, public health risks, and ethical considerations.</p>
+
+            <div class="acronym">
+                <strong>ECP Framework</strong> - The three pillars of wildlife disease management:<br>
+                <strong>E</strong>radicate - Complete elimination of the pathogen<br>
+                <strong>C</strong>ontrol - Reduction of disease impact or spread<br>
+                <strong>P</strong>revent - Proactive measures to avoid disease introduction or establishment
+            </div>
+
+            <h3>Why Wildlife Disease Management Matters</h3>
+            <p>Wildlife diseases have far-reaching impacts beyond the affected animal populations:</p>
+            <ul>
+                <li><strong>Conservation Threats:</strong> Diseases can drive endangered species toward extinction, as seen with black-footed ferrets and rabies</li>
+                <li><strong>Economic Impacts:</strong> Wildlife reservoirs can maintain diseases that affect livestock and agriculture, causing substantial economic losses</li>
+                <li><strong>Zoonotic Risk:</strong> Many wildlife diseases can spillover to human populations, creating public health emergencies</li>
+                <li><strong>Ecosystem Disruption:</strong> Disease outbreaks can alter predator-prey dynamics, competitive relationships, and community structure</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Key Insight:</strong> Most wildlife disease management is reactive rather than proactive. Prevention is the most cost-effective strategy but requires predictive knowledge and political will to implement before crises occur.
+            </div>
+        </section>
+
+        <section id="ferrets" class="concept-card">
+            <h2>Case Study 1: Black-Footed Ferrets - A Conservation Crisis</h2>
+
+            <h3>Species Background</h3>
+            <p>The black-footed ferret (Mustela nigripes) is a member of the mustelid family (weasels) and represents one of North America's most endangered mammals. This nocturnal predator is highly specialized, depending almost exclusively on prairie dog colonies for food and shelter.</p>
+
+            <div class="case-study">
+                <h4>Historical Range and Decline</h4>
+                <p><strong>Original Range:</strong> Black-footed ferrets historically occupied approximately 100 million acres across the Great Plains, corresponding to the range of all three prairie dog species (black-tailed, white-tailed, and Gunnison's prairie dogs).</p>
+                
+                <p><strong>The Catastrophic Decline (1900-1978):</strong></p>
+                <ul>
+                    <li>Between 1900 and 1960, approximately 98% of prairie dog populations were destroyed through poisoning campaigns, agricultural conversion, and recreational shooting</li>
+                    <li>As prairie dog towns vanished, so did the ferrets that depended on them</li>
+                    <li>By 1978, when the first recovery plan was approved, wild ferrets were considered functionally extinct - none could be located in the wild</li>
+                </ul>
+
+                <p><strong>The Meeteetse Discovery (1981):</strong> A ranch dog killed a black-footed ferret near Meeteetse, Wyoming, leading to the discovery of the last known wild population of approximately 130 individuals.</p>
+            </div>
+
+            <h3>The Double Disease Threat</h3>
+            
+            <div class="memory-anchor">
+                "Picture the prairie as a multi-story apartment building: prairie dogs live in the basement burrows, and ferrets rent the top floors. When plague strikes the basement tenants, the whole building collapses. When distemper infects the ferrets directly, it's like a fire on the top floors - there's nowhere to escape."
+            </div>
+
+            <h4>Sylvatic Plague (Yersinia pestis)</h4>
+            <p>Sylvatic plague is the wildlife form of the same bacterium that caused the Black Death in medieval Europe. Introduced to North America around 1900 through infected rats on ships, it has become endemic in western rodent populations.</p>
+
+            <p><strong>Impact on the Ferret-Prairie Dog System:</strong></p>
+            <ul>
+                <li>Plague is transmitted by fleas that infest prairie dogs</li>
+                <li>Prairie dogs are highly susceptible - mortality rates often exceed 90% during outbreaks</li>
+                <li>Entire prairie dog colonies can be eliminated within weeks during epizootic events</li>
+                <li>Ferrets lose both their food source and shelter simultaneously</li>
+                <li>Ferrets themselves can contract plague from consuming infected prey or through flea bites</li>
+            </ul>
+
+            <div class="equation-box">
+                <div class="equation">Ferret Dietary Dependence = 90% prairie dogs</div>
+                <p>Black-footed ferrets obtain approximately 90% of their diet from prairie dogs, consuming one prairie dog every 3-4 days.</p>
+            </div>
+
+            <h4>Canine Distemper Virus (CDV)</h4>
+            <p>Canine distemper is a viral disease that affects carnivores. For black-footed ferrets, it is nearly 100% fatal once clinical signs appear.</p>
+
+            <p><strong>The 1985-1986 Crisis:</strong></p>
+            <ul>
+                <li>In 1985, plague struck the prairie dog colonies supporting the Meeteetse ferret population</li>
+                <li>Ferret numbers declined rapidly as their prey base collapsed</li>
+                <li>Six ferrets were captured for a captive breeding program but died of canine distemper</li>
+                <li>The outbreak was traced to contact with domestic dogs or wild carnivores (coyotes, foxes)</li>
+                <li>By 1986, only 18 ferrets remained - all were brought into captivity</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Critical Bottleneck:</strong> The entire species' genetic diversity was reduced to 18 individuals in 1986. This extreme bottleneck created lasting consequences for genetic variability and disease resistance. All black-footed ferrets alive today descend from these 18 founders.
+            </div>
+
+            <h3>Recovery Through Captive Breeding and Disease Management</h3>
+
+            <div class="case-study">
+                <h4>Population Recovery Timeline</h4>
+                <ul>
+                    <li><strong>1986:</strong> 18 individuals (the bottleneck year)</li>
+                    <li><strong>1991:</strong> 311 individuals (captive breeding success)</li>
+                    <li><strong>2007:</strong> 750 individuals across multiple reintroduction sites</li>
+                    <li><strong>Release Sites:</strong> Wyoming, Montana, South Dakota, Arizona, Utah, Colorado, Kansas, and Mexico</li>
+                </ul>
+
+                <h4>Disease Management Components</h4>
+                <p><strong>1. Vaccination Against Canine Distemper:</strong></p>
+                <ul>
+                    <li>Developing safe vaccines for ferrets proved challenging - many traditional vaccines contained live attenuated virus that could cause disease in ferrets</li>
+                    <li>Killed-virus vaccines provide immunity but require multiple doses</li>
+                    <li>All captive-bred ferrets are vaccinated before release</li>
+                    <li>Challenge: Vaccine immunity may wane over time in the wild</li>
+                </ul>
+
+                <p><strong>2. Plague Management in Prairie Dog Colonies:</strong></p>
+                <ul>
+                    <li>Dusting burrows with insecticide to kill fleas (the plague vector)</li>
+                    <li>Oral vaccine baits for prairie dogs (experimental) - deltrap vaccine shows promise</li>
+                    <li>Monitoring and early detection systems for plague outbreaks</li>
+                    <li>Maintaining multiple geographically separated populations to prevent simultaneous extinction</li>
+                </ul>
+
+                <p><strong>3. Habitat Management:</strong></p>
+                <ul>
+                    <li>Protecting and restoring prairie dog colonies</li>
+                    <li>Creating plague-free refugia through intensive flea control</li>
+                    <li>Maintaining colonies of sufficient size to support ferret populations</li>
+                </ul>
+            </div>
+
+            <div class="key-insight">
+                <strong>Take-Home Message:</strong> The black-footed ferret case demonstrates that successful reintroduction requires addressing BOTH the direct disease threats to the target species AND the diseases affecting their critical prey base. Multi-pronged disease management strategies must be sustained indefinitely - this is not a one-time intervention but an ongoing commitment. Without continued heavy management (vaccination, plague control, habitat protection), the species would likely decline toward extinction again.
+            </div>
+
+            <div class="memory-anchor">
+                "Think of black-footed ferret recovery as maintaining a house of cards in a windstorm. You need multiple hands (disease management strategies) constantly working to keep it standing: one hand vaccinating against distemper, another dusting burrows against plague, another protecting prairie dog habitat. Remove any hand, and the structure collapses."
+            </div>
+        </section>
+
+        <section id="management" class="concept-card">
+            <h2>Wildlife Disease Management Strategies</h2>
+
+            <h3>1. Eradication - The Ideal That's Rarely Achievable</h3>
+            
+            <p>Eradication means the complete elimination of a pathogen from a defined area. While this is the ultimate goal, it is rarely feasible for wildlife diseases due to logistical, ecological, and economic constraints.</p>
+
+            <div class="acronym">
+                <strong>RARE Principles</strong> - When eradication might succeed:<br>
+                <strong>R</strong>ecent introduction (early detection)<br>
+                <strong>A</strong>rea restricted (limited geographic spread)<br>
+                <strong>R</strong>₀ low (basic reproductive number close to 1)<br>
+                <strong>E</strong>fficient surveillance and rapid response
+            </div>
+
+            <h4>When Is Eradication Feasible?</h4>
+            <ul>
+                <li><strong>Low R₀:</strong> When each infected individual produces only slightly more than one new infection, breaking transmission chains is achievable</li>
+                <li><strong>Recent Introductions:</strong> Newly introduced pathogens haven't had time to spread widely or adapt to multiple host species</li>
+                <li><strong>Limited Geographic Range:</strong> Infections restricted to small, accessible areas can be completely eliminated</li>
+                <li><strong>Rapid Detection and Response:</strong> Surveillance systems must detect cases quickly, and authorities must mobilize immediately</li>
+                <li><strong>No Environmental Reservoir:</strong> Pathogens that don't persist in soil, water, or vectors are easier to eliminate</li>
+            </ul>
+
+            <div class="case-study">
+                <h4>Success Story: Sabellid Polychaete Worm Eradication in California Abalone</h4>
+                
+                <p><strong>Background:</strong></p>
+                <ul>
+                    <li>Native to South Africa</li>
+                    <li>Accidentally imported with abalone stock in the 1980s</li>
+                    <li>First discovered in California in 1993</li>
+                    <li>The parasitic worm burrows into abalone shells, causing deformities and reducing market value</li>
+                </ul>
+
+                <p><strong>Why Eradication Succeeded:</strong></p>
+                <ul>
+                    <li><strong>Early Detection:</strong> Discovered soon after introduction before widespread establishment</li>
+                    <li><strong>Limited Host Range:</strong> Primarily affected abalone and a few other gastropod species</li>
+                    <li><strong>Accessible Population:</strong> Concentrated in nearshore waters that could be systematically surveyed</li>
+                    <li><strong>Known Life Cycle:</strong> The worm's biology was understood, allowing targeted intervention</li>
+                </ul>
+
+                <p><strong>Eradication Strategy (1998):</strong></p>
+                <ul>
+                    <li>Removed approximately 1.5 million adult abalone from affected areas</li>
+                    <li>Reduced host density below the threshold for parasite persistence (Nт)</li>
+                    <li>Monitored for recolonization by pelagic larvae</li>
+                    <li>Implemented strict quarantine on abalone movements</li>
+                </ul>
+
+                <p><strong>Outcome:</strong> Successfully eliminated the parasite from California waters through sustained host removal that drove the host population below the critical community size needed for parasite transmission.</p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation">Eradication Condition: Reduce N < Nт</div>
+                <p>Where:</p>
+                <p>N = Current host population density</p>
+                <p>Nт = Threshold density below which R₀ < 1</p>
+                <div class="equation">Nт = (γ + μ + α) / (β)</div>
+                <p>Where β = transmission rate, γ = recovery rate, μ = natural mortality, α = disease-induced mortality</p>
+            </div>
+
+            <div class="key-insight">
+                <strong>Take-Home Message from Sabellid Eradication:</strong> This rare success story demonstrates that eradication requires: (1) early detection before widespread establishment, (2) a parasite with no long-lived environmental stage, (3) ability to access and remove/treat the entire affected host population, and (4) sustained vigilance to prevent reintroduction. These conditions are seldom met for wildlife diseases in free-ranging populations.
+            </div>
+
+            <h3>2. Control - Reducing Impact Without Elimination</h3>
+
+            <p>Control strategies aim to reduce disease prevalence, slow transmission, or minimize impacts on target populations without necessarily eliminating the pathogen. This is the most common approach for established wildlife diseases.</p>
+
+            <div class="acronym">
+                <strong>VCT Methods</strong> - Primary control approaches:<br>
+                <strong>V</strong>accination - Creating immune hosts<br>
+                <strong>C</strong>ulling - Reducing susceptible population density<br>
+                <strong>T</strong>reatment - Clearing infections from individuals
+            </div>
+
+            <h4>Vaccination Strategies</h4>
+
+            <p>Vaccination can target either the reservoir host species (to reduce transmission) or the conservation target species (to protect at-risk individuals).</p>
+
+            <div class="equation-box">
+                <div class="equation">Critical Vaccination Proportion: pc = 1 - (1/R₀)</div>
+                <p>This equation determines the minimum proportion of the population that must be vaccinated to achieve herd immunity and prevent epidemic spread.</p>
+                <p>Example: If R₀ = 2.15 (as for rabies in dogs), then pc = 1 - (1/2.15) = 0.535 or approximately 54%</p>
+            </div>
+
+            <p><strong>Challenges in Wildlife Vaccination:</strong></p>
+            <ul>
+                <li>Capturing sufficient numbers of animals for individual vaccination</li>
+                <li>Developing oral vaccines that can be delivered via bait</li>
+                <li>Ensuring vaccine uptake across age classes and social groups</li>
+                <li>Maintaining immunity over time (booster vaccinations)</li>
+                <li>Overcoming maternal antibody interference in young animals</li>
+                <li>Vaccine safety - live vaccines may cause disease in immunocompromised or stressed wildlife</li>
+            </ul>
+
+            <h4>Culling Strategies</h4>
+
+            <p>Culling involves selective removal of individuals to reduce disease transmission. This can be random (indiscriminate culling) or targeted (test-and-remove, ring culling around outbreaks).</p>
+
+            <p><strong>Theoretical Basis:</strong> Culling reduces host density below the threshold density (Nт), theoretically driving R₀ below 1 and causing disease fade-out.</p>
+
+            <p><strong>Why Culling Often Fails:</strong></p>
+            <ul>
+                <li><strong>Compensatory Recruitment:</strong> Reduced population density often triggers increased birth rates or juvenile survival</li>
+                <li><strong>Immigration:</strong> Removal of residents creates vacant territories that attract immigrants (potentially infected)</li>
+                <li><strong>Behavioral Changes:</strong> Disruption of social structure can increase contact rates and disease transmission</li>
+                <li><strong>Perturbation Effect:</strong> Disturbance increases movement and mixing, spreading disease to new areas</li>
+                <li><strong>Inadequate Coverage:</strong> Partial culling may not reduce density sufficiently to affect transmission</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Paradoxical Effect:</strong> Culling can sometimes INCREASE disease in non-culled areas by disrupting social structure and promoting movement of infected individuals into previously unaffected populations. This "perturbation effect" has been well-documented in badger culling for bovine tuberculosis control.
+            </div>
+
+            <h4>Treatment Approaches</h4>
+
+            <p>Treating wild animals is challenging but may be feasible for small, endangered populations or when dealing with treatable parasites.</p>
+
+            <ul>
+                <li>Antibiotics delivered via baits (limited to certain bacterial diseases)</li>
+                <li>Anthelminthics for parasite control (e.g., treating mange in wolves)</li>
+                <li>Antiviral treatments (rarely practical for wildlife)</li>
+            </ul>
+
+            <h3>3. Prevention - The Most Cost-Effective Strategy</h3>
+
+            <p>Prevention aims to stop pathogen introduction or establishment before disease problems arise. While cheapest in the long run, prevention requires foresight, political will, and investment before crises occur.</p>
+
+            <p><strong>Prevention Strategies:</strong></p>
+            <ul>
+                <li><strong>Biosecurity and Quarantine:</strong> Preventing pathogen introduction through trade restrictions, import quarantines, and screening</li>
+                <li><strong>Habitat Management:</strong> Reducing contact between wildlife, livestock, and humans</li>
+                <li><strong>Surveillance Systems:</strong> Early detection networks to identify emerging threats</li>
+                <li><strong>Reserve Design:</strong> Creating buffer zones and minimizing wildlife-livestock interfaces</li>
+                <li><strong>Addressing Anthropogenic Stressors:</strong> Reducing pollution, habitat fragmentation, and climate stressors that increase disease susceptibility</li>
+            </ul>
+
+            <div class="memory-anchor">
+                "Prevention is like maintaining a fence around your garden - it seems expensive and unnecessary until rabbits (or in this case, pathogens) devastate your crops. Once the invaders are established, you're fighting an endless, costly battle. The fence was cheaper."
+            </div>
+        </section>
+
+        <section id="rabies" class="concept-card">
+            <h2>Case Study 2: Rabies in the Serengeti Ecosystem</h2>
+
+            <h3>Background and Setting</h3>
+
+            <p>The Serengeti ecosystem in Tanzania encompasses the Serengeti National Park and surrounding districts (Serengeti District, Ngorongoro Conservation Area). This landscape contains an extraordinary diversity of wildlife alongside pastoral and agropastoral human communities with large domestic dog populations.</p>
+
+            <div class="case-study">
+                <h4>The Human-Dog Population Explosion</h4>
+                <p><strong>Zimbabwe Data (representative of East African trends):</strong></p>
+                <ul>
+                    <li>1954: Human population ~3 million, Human:Dog ratio ~14:1</li>
+                    <li>1994: Human population ~11 million, Human:Dog ratio ~6:1</li>
+                    <li>The dog population grew even faster than the human population, resulting in a higher density of potential rabies hosts</li>
+                </ul>
+
+                <p>This demographic shift created ideal conditions for rabies maintenance in domestic dog populations, which then served as a source of spillover infections to wildlife and humans.</p>
+            </div>
+
+            <h3>The Multi-Host Question: Who Maintains Rabies?</h3>
+
+            <p>A critical question in disease ecology is identifying the reservoir host - the species in which a pathogen can maintain itself without continual reintroduction. For rabies in the Serengeti, multiple carnivore species could potentially serve as reservoirs:</p>
+
+            <ul>
+                <li>Domestic dogs (Canis familiaris)</li>
+                <li>African wild dogs (Lycaon pictus)</li>
+                <li>Jackals (several species)</li>
+                <li>Spotted hyenas (Crocuta crocuta)</li>
+                <li>Bat-eared foxes (Otocyon megalotis)</li>
+                <li>Honey badgers (Mellivora capensis)</li>
+                <li>Various mongoose species</li>
+                <li>Large felids (lions, leopards)</li>
+            </ul>
+
+            <div class="memory-anchor">
+                "Imagine rabies transmission as a fire spreading through a forest. The question isn't just 'what trees can burn?' but 'which trees can sustain a fire without external embers?' Some species are tinder - they burn hot and fast but can't maintain fire long-term (spillover hosts). Others are like damp logs that rarely ignite (dead-end hosts). The reservoir is the dry kindling that can keep the fire burning indefinitely."
+            </div>
+
+            <h3>Evidence: Domestic Dogs as the Maintenance Host</h3>
+
+            <p>Researchers Katie Hampson, Tiziana Lembo, and Sarah Cleaveland conducted long-term epidemiological studies to identify the rabies reservoir through multiple lines of evidence:</p>
+
+            <h4>1. Temporal Pattern Analysis (1995-2007)</h4>
+
+            <p>Analysis of rabies cases across species revealed that:</p>
+            <ul>
+                <li>Domestic dog cases showed continuous, endemic transmission with regular epidemic waves</li>
+                <li>Wildlife cases (jackals, hyenas, bat-eared foxes, etc.) occurred sporadically and always temporally associated with dog outbreaks</li>
+                <li>Wildlife cases appeared as "echoes" following dog epidemic peaks - suggesting spillover rather than independent maintenance</li>
+                <li>No wildlife species showed the sustained, continuous pattern characteristic of a reservoir host</li>
+            </ul>
+
+            <h4>2. Human Exposure Data</h4>
+
+            <div class="case-study">
+                <h4>Species Responsible for Human Rabies Exposures</h4>
+                <table style="width:100%; border-collapse: collapse; margin: 1rem 0;">
+                    <tr style="background: #2c5530; color: white;">
+                        <th style="padding: 0.5rem; border: 1px solid #ddd;">Species</th>
+                        <th style="padding: 0.5rem; border: 1px solid #ddd;">Serengeti</th>
+                        <th style="padding: 0.5rem; border: 1px solid #ddd;">Ngorongoro</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">Domestic dogs</td>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">461 (85.5%)</td>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">82 (70.1%)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">All wildlife combined</td>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">44 (8.2%)</td>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">25 (21.4%)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">Hyenas</td>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">4</td>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">11</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">Jackals</td>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">22</td>
+                        <td style="padding: 0.5rem; border: 1px solid #ddd;">0</td>
+                    </tr>
+                </table>
+                <p>Domestic dogs were overwhelmingly responsible for human exposures, even in areas with high wildlife density like Ngorongoro.</p>
+            </div>
+
+            <h4>3. Spatial Distribution Analysis</h4>
+
+            <p>Mapping rabies cases from 1995-2007 revealed:</p>
+            <ul>
+                <li>Highest case density in areas with highest domestic dog populations (around villages)</li>
+                <li>Wildlife cases concentrated near human settlements, not in remote wilderness areas</li>
+                <li>Disease spread patterns followed patterns of dog movement and human settlement, not wildlife corridors</li>
+            </ul>
+
+            <h4>4. Genetic and Phylogenetic Evidence</h4>
+
+            <p>Viral sequencing showed that rabies strains from all species (dogs, jackals, hyenas, wild dogs) were genetically similar, indicating a single epidemiological unit centered on domestic dogs rather than multiple independent wildlife cycles.</p>
+
+            <h3>Rabies Transmission Dynamics</h3>
+
+            <div class="equation-box">
+                <div class="equation">R₀ for Canine Rabies ≈ 2.15</div>
+                <p>Mean number of secondary infections per rabid dog: 2.15</p>
+                <p>Variance: 5.6 (high variance indicates superspreading events)</p>
+                <p>Distribution: Most rabid dogs bite 0-2 others, but some bite many more (up to 20+)</p>
+            </div>
+
+            <p><strong>Key Transmission Features:</strong></p>
+            <ul>
+                <li><strong>Overdispersion:</strong> The high variance relative to mean indicates that most transmission is driven by a few highly infectious individuals (superspreaders)</li>
+                <li><strong>Behavioral Changes:</strong> Rabies induces behavioral changes that increase biting - infected dogs become aggressive or lose fear</li>
+                <li><strong>Fatal Outcome:</strong> Rabies is virtually 100% fatal once clinical signs appear, limiting the infectious period but ensuring highly symptomatic transmission</li>
+            </ul>
+
+            <h3>The Critical Insight: Dogs as the Actionable Target</h3>
+
+            <div class="key-insight">
+                <strong>Key Management Implication:</strong> Since domestic dogs maintain rabies and wildlife cases result from spillover, controlling rabies in dogs will eliminate disease from the entire multi-host system, including humans and endangered wildlife like African wild dogs.
+            </div>
+
+            <h3>Mass Dog Vaccination Campaign</h3>
+
+            <p>Based on the evidence that dogs are the reservoir, researchers and public health officials implemented mass dog vaccination campaigns throughout the Serengeti ecosystem.</p>
+
+            <h4>Campaign Design and Implementation</h4>
+
+            <div class="case-study">
+                <h4>Vaccination Strategy</h4>
+                
+                <p><strong>Target Coverage:</strong></p>
+                <div class="equation-box">
+                    <div class="equation">pc = 1 - (1/R₀) = 1 - (1/2.15) = 0.535 ≈ 54%</div>
+                    <p>Theoretical minimum coverage needed to prevent epidemics</p>
+                    <p>Campaign aimed for 70% coverage to provide safety margin</p>
+                </div>
+
+                <p><strong>Logistical Details:</strong></p>
+                <ul>
+                    <li><strong>Cost:</strong> $0.80-$2.70 per dog in agropastoral areas; $1.30-$1.80 in urban areas</li>
+                    <li><strong>Delivery:</strong> Central point vaccination stations in villages</li>
+                    <li><strong>Compliance:</strong> High community engagement - people traveled up to 10 km to reach vaccination points</li>
+                    <li><strong>Coverage Achieved:</strong> 60-90% in most areas, exceeding the critical threshold</li>
+                    <li><strong>Equity:</strong> Coverage was high across socioeconomic strata - rich and poor households equally participated</li>
+                </ul>
+
+                <p><strong>Why Such High Participation?</strong></p>
+                <ul>
+                    <li>Free vaccine delivery</li>
+                    <li>Community education about rabies risks to humans (especially children)</li>
+                    <li>Cultural value of dogs as property and working animals</li>
+                    <li>Visible rabies mortality in dogs increased perceived risk</li>
+                    <li>Simple, accessible delivery points</li>
+                </ul>
+            </div>
+
+            <h4>Documented Impacts</h4>
+
+            <p><strong>1. Reduction in Dog Rabies Cases:</strong></p>
+            <ul>
+                <li>Sharp decline in confirmed dog rabies cases in vaccinated areas</li>
+                <li>Outbreak size decreased from 20-50 cases to fewer than 5 cases per outbreak</li>
+                <li>Outbreak duration shortened significantly</li>
+            </ul>
+
+            <p><strong>2. Reduction in Human Exposures:</strong></p>
+            <ul>
+                <li>Post-exposure prophylaxis (PEP) demand dropped by approximately 50% in vaccinated zones</li>
+                <li>Monthly incidence of bites from suspected rabid dogs decreased from 3-4 per 100,000 to <0.5 per 100,000</li>
+                <li>Human rabies deaths declined (though rare to begin with due to PEP availability)</li>
+            </ul>
+
+            <p><strong>3. Protection of Wildlife:</strong></p>
+            <ul>
+                <li>Wildlife rabies cases declined in parallel with dog cases</li>
+                <li>No sustained wildlife outbreaks occurred independent of dog epidemics</li>
+                <li>Protected endangered African wild dogs from rabies exposure</li>
+            </ul>
+
+            <div class="memory-anchor">
+                "Picture rabies transmission as a fountain: dogs are the pump that keeps water (virus) circulating. Wildlife are just splashes - they get wet (infected) when standing near the fountain, but they can't pump water themselves. Turn off the pump (vaccinate dogs), and the splashing stops too."
+            </div>
+
+            <h3>Challenges and Sustainability</h3>
+
+            <p>While highly successful, dog vaccination requires sustained commitment:</p>
+
+            <ul>
+                <li><strong>Annual Campaigns:</strong> New puppies are born constantly, creating a new susceptible cohort each year</li>
+                <li><strong>Immigration:</strong> Unvaccinated dogs may move into vaccinated areas</li>
+                <li><strong>Vaccine Waning:</strong> Immunity may decline after 1-3 years, requiring boosters</li>
+                <li><strong>Coverage Maintenance:</strong> Must maintain >54% coverage continuously to prevent re-establishment</li>
+                <li><strong>Political and Financial Will:</strong> Requires ongoing funding and governmental support</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Take-Home Message from Serengeti Rabies Control:</strong> Identifying the true reservoir host is critical for designing effective interventions. Despite rabies infecting many species, targeting dogs alone can protect the entire ecosystem because dogs maintain the disease and other species are spillover hosts. This success story demonstrates that reservoir-focused vaccination can be more effective and cost-efficient than attempting to vaccinate or cull multiple wildlife species. The key lessons are: (1) invest in surveillance to identify the reservoir, (2) design interventions based on transmission ecology not just disease occurrence, and (3) sustain interventions long-term since discontinuation allows rapid disease re-emergence.
+            </div>
+        </section>
+
+        <section id="culling" class="concept-card">
+            <h2>Case Study 3: Badger Culling for Bovine Tuberculosis Control</h2>
+
+            <h3>The Bovine TB Problem in the United Kingdom</h3>
+
+            <p>Bovine tuberculosis (bTB), caused by Mycobacterium bovis, has been a persistent problem in British cattle herds despite decades of test-and-slaughter programs in cattle. The disease causes substantial economic losses through:</p>
+
+            <ul>
+                <li>Slaughter of infected cattle (compensation costs)</li>
+                <li>Movement restrictions on infected farms</li>
+                <li>Trade limitations</li>
+                <li>Lost productivity</li>
+                <li>Costs exceed £100 million annually in the UK</li>
+            </ul>
+
+            <h3>European Badgers: Reservoir or Scapegoat?</h3>
+
+            <p>The European badger (Meles meles) became implicated as a wildlife reservoir for bTB in the 1970s. Badgers can contract and transmit M. bovis, but the question remained: Are badgers maintaining the disease independently, or are they spillover hosts from cattle?</p>
+
+            <p><strong>Evidence Suggesting Badgers as Reservoirs:</strong></p>
+            <ul>
+                <li>bTB-infected badgers found near infected cattle herds</li>
+                <li>Badgers can shed bacteria in urine, feces, and respiratory secretions</li>
+                <li>Disease can spread within badger social groups</li>
+                <li>Badgers use shared latrines, creating environmental contamination</li>
+                <li>Cattle can contract infection from contaminated pastures</li>
+            </ul>
+
+            <p><strong>Evidence Against Simple Reservoir Model:</strong></p>
+            <ul>
+                <li>bTB prevalence in badgers generally low (5-30% depending on area)</li>
+                <li>Disease more common in areas with infected cattle (chicken-and-egg problem)</li>
+                <li>Infection patterns suggest cattle-to-badger transmission also occurs</li>
+                <li>Historical records suggest cattle brought bTB to Britain, not badgers</li>
+            </ul>
+
+            <h3>The Randomized Badger Culling Trial (1998-2005)</h3>
+
+            <p>To resolve the controversy scientifically, the UK government funded the largest field trial in wildlife disease ecology: the Randomized Badger Culling Trial (RBCT).</p>
+
+            <div class="case-study">
+                <h4>Experimental Design</h4>
+                
+                <p><strong>Study Areas:</strong> 10 triplets of 100 km² areas across England, each triplet containing:</p>
+                <ul>
+                    <li><strong>Proactive Culling:</strong> Repeated culling over ~150 km² area for 5 years</li>
+                    <li><strong>Reactive Culling:</strong> Culling only around confirmed bTB cattle breakdowns</li>
+                    <li><strong>Survey Only (Control):</strong> No culling, monitoring only</li>
+                </ul>
+
+                <p><strong>Culling Methods:</strong></p>
+                <ul>
+                    <li>Cage trapping (live capture)</li>
+                    <li>Euthanasia of captured badgers</li>
+                    <li>Proactive areas: systematic repeated culling over entire area</li>
+                    <li>Approximately 70-80% of badgers removed from proactive areas</li>
+                </ul>
+
+                <p><strong>Outcome Measured:</strong> Confirmed bTB breakdowns in cattle herds (after initial test-positive herds were removed)</p>
+            </div>
+
+            <h3>Results: A Culling Paradox</h3>
+
+            <div class="equation-box">
+                <div class="equation">Inside Proactive Culling Areas: -23% bTB incidence</div>
+                <div class="equation">Outside Proactive Areas (0-2 km buffer): +25% bTB incidence</div>
+                <div class="equation">Net Effect: Marginal or negative</div>
+            </div>
+
+            <p><strong>Key Findings (Donnelly et al. 2006, Nature):</strong></p>
+
+            <ul>
+                <li><strong>Inside Culling Zones:</strong> bTB incidence in cattle decreased by approximately 23% - suggesting badgers do contribute to cattle infection</li>
+                <li><strong>Adjacent to Culling Zones:</strong> bTB incidence INCREASED by approximately 25% in areas surrounding culled zones (up to 2 km outside boundary)</li>
+                <li><strong>Reactive Culling:</strong> INCREASED bTB incidence by 27% - worse than doing nothing</li>
+                <li><strong>Overall Cost-Benefit:</strong> The positive effect inside was offset by negative effects outside, making widespread culling ineffective</li>
+            </ul>
+
+            <h3>Why Did Culling Increase Disease Outside Culling Zones?</h3>
+
+            <p>The "perturbation effect" - culling disrupts badger social structure and territoriality, causing behavioral changes that increase disease spread:</p>
+
+            <div class="case-study">
+                <h4>The Perturbation Mechanism</h4>
+
+                <p><strong>Normal Badger Behavior:</strong></p>
+                <ul>
+                    <li>Badgers live in stable social groups of 4-12 individuals</li>
+                    <li>Groups defend exclusive territories (clans)</li>
+                    <li>Low movement between territories due to territorial defense</li>
+                    <li>Disease transmission primarily within social groups</li>
+                    <li>Infected groups may die out, creating local disease fade-out</li>
+                </ul>
+
+                <p><strong>After Culling Disruption:</strong></p>
+                <ul>
+                    <li>Territorial boundaries break down when dominant individuals removed</li>
+                    <li>Badgers range more widely (mean range increased by ~65%)</li>
+                    <li>Increased contact between previously separate groups</li>
+                    <li>Immigration from surrounding areas into depopulated zones</li>
+                    <li>Immigrants may carry infection to new areas</li>
+                    <li>Young, dispersing badgers (more likely infected) travel farther</li>
+                </ul>
+
+                <p><strong>Evidence from Radio-Tracking (Woodroffe et al. 2006):</strong></p>
+                <ul>
+                    <li>Badgers in culled areas showed 65% greater ranging distances</li>
+                    <li>Territory overlap between clans increased significantly</li>
+                    <li>Badgers in areas adjacent to culling zones also increased movement</li>
+                    <li>The "edge effect" extended 2-3 km from culling boundaries</li>
+                </ul>
+            </div>
+
+            <div class="memory-anchor">
+                "Imagine badger territories as a grid of walled gardens. Disease spreads slowly because walls keep neighbors apart. Culling is like demolishing random walls - instead of isolating disease in one garden, you create open pathways for infected badgers to wander into previously protected areas. You've traded localized disease for widespread contamination."
+            </div>
+
+            <h3>Mathematical Understanding</h3>
+
+            <p>The perturbation effect can be understood through modifications to the basic transmission equation:</p>
+
+            <div class="equation-box">
+                <div class="equation">R₀ = β × c × D / (γ + α + μ)</div>
+                <p>Where:</p>
+                <p>β = probability of transmission per contact</p>
+                <p>c = contact rate between individuals</p>
+                <p>D = duration of infectiousness</p>
+                <p>γ = recovery rate, α = disease mortality, μ = natural mortality</p>
+                
+                <p style="margin-top: 1rem;"><strong>Culling Effects:</strong></p>
+                <p>✓ Reduces population density initially</p>
+                <p>✗ Increases contact rate (c) through increased ranging</p>
+                <p>✗ Increases immigration of potentially infected individuals</p>
+                <p>✗ May reduce age at first reproduction, increasing turnover</p>
+                
+                <div class="equation" style="margin-top: 1rem;">Net Effect: Reduction in density may be offset by increased contact rate</div>
+            </div>
+
+            <h3>Why Reactive Culling Was Even Worse</h3>
+
+            <p>Reactive culling (only around TB breakdowns) combined the worst of both approaches:</p>
+
+            <ul>
+                <li>Created maximum disruption with minimal density reduction</li>
+                <li>Focused culling on areas with existing infection (greatest perturbation)</li>
+                <li>Created many small "edge zones" with high perturbation effects</li>
+                <li>Timing of culling (response to breakdowns) meant targeting already-infected areas</li>
+            </ul>
+
+            <h3>Alternative Interpretations and Ongoing Debate</h3>
+
+            <p>The RBCT results remain controversial, with several competing interpretations:</p>
+
+            <p><strong>Alternative Hypothesis 1: Cattle-to-Cattle Transmission</strong></p>
+            <ul>
+                <li>Perhaps badgers play minimal role; cattle-to-cattle transmission dominates</li>
+                <li>Observed patterns could reflect undetected cattle movements</li>
+                <li>Counter-evidence: Spatial clustering of badger infection with cattle breakdowns</li>
+            </ul>
+
+            <p><strong>Alternative Hypothesis 2: Environmental Contamination</strong></p>
+            <ul>
+                <li>M. bovis persists in soil, water, and pasture for months</li>
+                <li>Badger latrines concentrate bacterial shedding</li>
+                <li>Cattle may contract infection from environment rather than live badgers</li>
+                <li>Culling may increase environmental contamination through carcass disposal</li>
+            </ul>
+
+            <p><strong>Alternative Hypothesis 3: Imperfect Cattle Testing</strong></p>
+            <ul>
+                <li>Cattle TB tests have imperfect sensitivity (~80%)</li>
+                <li>Undetected infected cattle may drive apparent patterns</li>
+                <li>Test-and-slaughter may be insufficient without complementary badger control</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Take-Home Message from Badger Culling:</strong> This case study demonstrates that wildlife disease control is not simply about reducing host density. Ecological and behavioral responses to intervention can have unintended consequences that negate or reverse intended benefits. Key lessons: (1) Consider indirect effects - disruption of social structure can increase transmission, (2) Edge effects matter - boundaries between treated and untreated areas create zones of increased risk, (3) Partial or reactive interventions may be worse than no intervention, and (4) Large-scale field experiments are essential for evidence-based policy rather than assumptions based on simple theory.
+            </div>
+
+            <div class="acronym">
+                <strong>DICE Framework</strong> - Culling considerations:<br>
+                <strong>D</strong>ensity reduction - Must exceed threshold to affect transmission<br>
+                <strong>I</strong>mmigration - Vacant territories attract new (potentially infected) individuals<br>
+                <strong>C</strong>ompensation - Population regrowth through increased reproduction<br>
+                <strong>E</strong>dge effects - Perturbation at boundaries between culled/unculled areas
+            </div>
+
+            <h3>Current Policy and Ongoing Controversy</h3>
+
+            <p>Despite the RBCT evidence, badger culling continues in parts of England through licensed culls, reflecting the tension between:</p>
+
+            <ul>
+                <li>Scientific evidence of limited effectiveness</li>
+                <li>Political pressure from farming communities</li>
+                <li>Economic costs of persistent bTB</li>
+                <li>Lack of alternative solutions</li>
+                <li>Public opposition to culling a protected species</li>
+            </ul>
+
+            <p><strong>Emerging Alternatives:</strong></p>
+            <ul>
+                <li>Badger vaccination with BCG vaccine (labor-intensive, expensive)</li>
+                <li>Improved cattle testing and rapid removal</li>
+                <li>Biosecurity measures on farms</li>
+                <li>Cattle vaccination (under development - regulatory hurdles exist)</li>
+            </ul>
+        </section>
+
+        <section id="simulations" class="concept-card">
+            <h2>Interactive Simulations</h2>
+
+            <div class="simulation-box">
+                <h3>Simulation 1: Vaccination Coverage and Disease Control</h3>
+                
+                <div class="simulation-explanation">
+                    <h4>How This Simulation Works:</h4>
+                    <p>This simulation models disease transmission in a population where you can control vaccination coverage. The model uses a simple SIR framework:</p>
+                    <ul>
+                        <li><strong>S (Susceptible):</strong> Individuals who can become infected</li>
+                        <li><strong>I (Infected):</strong> Currently infectious individuals</li>
+                        <li><strong>R (Recovered/Removed):</strong> No longer susceptible (recovered or vaccinated)</li>
+                    </ul>
+                    <p>Vaccination reduces the susceptible pool. When enough individuals are vaccinated (reaching the critical proportion pc = 1 - 1/R₀), herd immunity prevents epidemics.</p>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Basic Reproductive Number (R₀): <span class="value-display" id="r0Value">2.15</span></label>
+                        <input type="range" id="r0Slider" min="1.1" max="5.0" step="0.1" value="2.15">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Vaccination Coverage (%): <span class="value-display" id="vaccValue">0</span></label>
+                        <input type="range" id="vaccSlider" min="0" max="100" step="5" value="0">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Initial Infected: <span class="value-display" id="initInfValue">10</span></label>
+                        <input type="range" id="initInfSlider" min="1" max="50" step="1" value="10">
+                    </div>
+
+                    <button onclick="runVaccinationSim()">Run Simulation</button>
+                </div>
+
+                <canvas id="vaccinationChart" width="800" height="400"></canvas>
+
+                <div id="vaccResult" style="margin-top: 1rem; padding: 1rem; background: #f0f8f0; border-radius: 6px;"></div>
+            </div>
+
+            <div class="simulation-box">
+                <h3>Simulation 2: Culling with Perturbation Effects</h3>
+                
+                <div class="simulation-explanation">
+                    <h4>How This Simulation Works:</h4>
+                    <p>This simulation models the complex effects of culling on disease transmission, including:</p>
+                    <ul>
+                        <li><strong>Direct Effect:</strong> Reduction in host population density</li>
+                        <li><strong>Perturbation Effect:</strong> Increased contact rates due to social disruption</li>
+                        <li><strong>Immigration:</strong> Movement of individuals into culled areas</li>
+                        <li><strong>Edge Effects:</strong> Increased transmission at boundaries</li>
+                    </ul>
+                    <p>The model demonstrates why culling can sometimes increase disease prevalence despite reducing population size.</p>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Culling Intensity (%): <span class="value-display" id="cullIntValue">0</span></label>
+                        <input type="range" id="cullIntSlider" min="0" max="90" step="10" value="0">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Perturbation Factor (contact rate increase): <span class="value-display" id="perturbValue">1.0</span></label>
+                        <input type="range" id="perturbSlider" min="1.0" max="2.5" step="0.1" value="1.0">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Immigration Rate: <span class="value-display" id="immigValue">0.05</span></label>
+                        <input type="range" id="immigSlider" min="0" max="0.2" step="0.01" value="0.05">
+                    </div>
+
+                    <button onclick="runCullingSim()">Run Simulation</button>
+                </div>
+
+                <canvas id="cullingChart" width="800" height="400"></canvas>
+
+                <div id="cullResult" style="margin-top: 1rem; padding: 1rem; background: #f0f8f0; border-radius: 6px;"></div>
+            </div>
+
+            <div class="simulation-box">
+                <h3>Simulation 3: Reservoir vs. Spillover Dynamics</h3>
+                
+                <div class="simulation-explanation">
+                    <h4>How This Simulation Works:</h4>
+                    <p>This simulation models disease transmission between a reservoir host population (e.g., domestic dogs) and a spillover host population (e.g., wildlife). It demonstrates:</p>
+                    <ul>
+                        <li><strong>Reservoir Maintenance:</strong> Disease persists in reservoir even without spillover hosts</li>
+                        <li><strong>Spillover Events:</strong> Occasional transmission from reservoir to spillover hosts</li>
+                        <li><strong>Dead-end Transmission:</strong> Limited or no transmission within spillover population</li>
+                        <li><strong>Intervention Effect:</strong> Controlling disease in reservoir eliminates spillover</li>
+                    </ul>
+                    <p>This mirrors the rabies situation in Serengeti where dogs are the reservoir and wildlife are spillover hosts.</p>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Reservoir R₀: <span class="value-display" id="resR0Value">2.0</span></label>
+                        <input type="range" id="resR0Slider" min="1.1" max="4.0" step="0.1" value="2.0">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Spillover R₀: <span class="value-display" id="spillR0Value">0.8</span></label>
+                        <input type="range" id="spillR0Slider" min="0.1" max="1.5" step="0.1" value="0.8">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Spillover Rate (reservoir → spillover): <span class="value-display" id="spillRateValue">0.01</span></label>
+                        <input type="range" id="spillRateSlider" min="0" max="0.1" step="0.01" value="0.01">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Control Reservoir (Vaccination %): <span class="value-display" id="resControlValue">0</span></label>
+                        <input type="range" id="resControlSlider" min="0" max="100" step="10" value="0">
+                    </div>
+
+                    <button onclick="runReservoirSim()">Run Simulation</button>
+                </div>
+
+                <canvas id="reservoirChart" width="800" height="400"></canvas>
+
+                <div id="resResult" style="margin-top: 1rem; padding: 1rem; background: #f0f8f0; border-radius: 6px;"></div>
+            </div>
+        </section>
+
+        <section class="concept-card">
+            <h2>Summary and Key Takeaways</h2>
+
+            <div class="acronym">
+                <strong>SAVED Framework</strong> - Principles for wildlife disease management:<br>
+                <strong>S</strong>urveillance - Early detection and monitoring are essential<br>
+                <strong>A</strong>ssess reservoir - Identify true maintenance hosts before intervening<br>
+                <strong>V</strong>accination - Often more effective than culling when feasible<br>
+                <strong>E</strong>cological consequences - Consider indirect effects of interventions<br>
+                <strong>D</strong>uration - Sustained effort required; one-time interventions rarely succeed
+            </div>
+
+            <h3>Comparative Summary of Case Studies</h3>
+
+            <table style="width:100%; border-collapse: collapse; margin: 1.5rem 0;">
+                <tr style="background: #2c5530; color: white;">
+                    <th style="padding: 0.75rem; border: 1px solid #ddd;">Case Study</th>
+                    <th style="padding: 0.75rem; border: 1px solid #ddd;">Disease/Pathogen</th>
+                    <th style="padding: 0.75rem; border: 1px solid #ddd;">Primary Strategy</th>
+                    <th style="padding: 0.75rem; border: 1px solid #ddd;">Outcome</th>
+                    <th style="padding: 0.75rem; border: 1px solid #ddd;">Key Lesson</th>
+                </tr>
+                <tr>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Black-Footed Ferrets</strong></td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Plague (Yersinia pestis) & Canine Distemper Virus</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Target vaccination + Prey base protection</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Population recovered from 18 to 750+ with intensive management</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Must address both direct threats and prey/habitat diseases; requires sustained management</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Sabellid Eradication</strong></td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Sabellid polychaete worm</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Host removal (eradication)</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Successful elimination from California waters</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Eradication possible with early detection, limited host range, and ability to reduce N < NT</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Serengeti Rabies</strong></td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Rabies virus</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Reservoir vaccination (domestic dogs)</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">50% reduction in human exposures; protection of wildlife</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Identify true reservoir; vaccinating reservoir eliminates spillover to wildlife and humans</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;"><strong>Badger Culling</strong></td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Bovine TB (Mycobacterium bovis)</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Culling (control)</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">23% reduction inside, 25% increase outside culling zones</td>
+                    <td style="padding: 0.75rem; border: 1px solid #ddd;">Perturbation effects can negate benefits; edge effects matter; consider behavioral responses</td>
+                </tr>
+            </table>
+
+            <h3>Final Reflections</h3>
+
+            <p>Wildlife disease management sits at the intersection of ecology, epidemiology, conservation biology, veterinary medicine, economics, and public policy. Success requires:</p>
+
+            <ul>
+                <li><strong>Evidence-Based Decision Making:</strong> Large-scale field trials like the RBCT are expensive but essential for avoiding ineffective or counterproductive interventions</li>
+                <li><strong>Ecological Literacy:</strong> Understanding population dynamics, social structure, and behavioral ecology prevents unintended consequences</li>
+                <li><strong>Long-Term Commitment:</strong> One-time interventions rarely succeed; sustainable programs require ongoing funding and political will</li>
+                <li><strong>Multi-Disciplinary Collaboration:</strong> Effective programs integrate wildlife biologists, epidemiologists, veterinarians, social scientists, and local communities</li>
+                <li><strong>Adaptive Management:</strong> Monitor outcomes, learn from failures, and adjust strategies based on evidence</li>
+            </ul>
+
+            <div class="key-insight">
+                <strong>Overarching Principle:</strong> Prevention is always cheaper than control, which is cheaper than recovery from near-extinction. Investing in surveillance, biosecurity, and early intervention systems saves resources and lives in the long term, even though these investments may seem unnecessary during disease-free periods.
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Initialize all slider displays
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSliderDisplays();
+            
+            // Add event listeners to all sliders
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                slider.addEventListener('input', updateSliderDisplays);
+            });
+        });
+
+        function updateSliderDisplays() {
+            // Vaccination simulation sliders
+            if (document.getElementById('r0Slider')) {
+                document.getElementById('r0Value').textContent = document.getElementById('r0Slider').value;
+                document.getElementById('vaccValue').textContent = document.getElementById('vaccSlider').value;
+                document.getElementById('initInfValue').textContent = document.getElementById('initInfSlider').value;
+            }
+            
+            // Culling simulation sliders
+            if (document.getElementById('cullIntSlider')) {
+                document.getElementById('cullIntValue').textContent = document.getElementById('cullIntSlider').value;
+                document.getElementById('perturbValue').textContent = document.getElementById('perturbSlider').value;
+                document.getElementById('immigValue').textContent = document.getElementById('immigSlider').value;
+            }
+            
+            // Reservoir simulation sliders
+            if (document.getElementById('resR0Slider')) {
+                document.getElementById('resR0Value').textContent = document.getElementById('resR0Slider').value;
+                document.getElementById('spillR0Value').textContent = document.getElementById('spillR0Slider').value;
+                document.getElementById('spillRateValue').textContent = document.getElementById('spillRateSlider').value;
+                document.getElementById('resControlValue').textContent = document.getElementById('resControlSlider').value;
+            }
+        }
+
+        // Vaccination Simulation
+        let vaccinationChart = null;
+
+        function runVaccinationSim() {
+            const R0 = parseFloat(document.getElementById('r0Slider').value);
+            const vaccCoverage = parseFloat(document.getElementById('vaccSlider').value) / 100;
+            const initialInfected = parseInt(document.getElementById('initInfSlider').value);
+            
+            const N = 1000; // Total population
+            const criticalProp = 1 - (1/R0);
+            
+            // SIR model parameters
+            const beta = R0 * 0.1; // Transmission rate
+            const gamma = 0.1; // Recovery rate
+            const dt = 0.5; // Time step
+            const days = 200;
+            
+            let S = N * (1 - vaccCoverage) - initialInfected;
+            let I = initialInfected;
+            let R = N * vaccCoverage;
+            
+            const timeData = [];
+            const susceptibleData = [];
+            const infectedData = [];
+            const recoveredData = [];
+            
+            for (let t = 0; t < days; t += dt) {
+                timeData.push(t);
+                susceptibleData.push(S);
+                infectedData.push(I);
+                recoveredData.push(R);
+                
+                const newInfections = (beta * S * I / N) * dt;
+                const newRecoveries = gamma * I * dt;
+                
+                S -= newInfections;
+                I += newInfections - newRecoveries;
+                R += newRecoveries;
+                
+                if (I < 0.5) I = 0;
+            }
+            
+            // Calculate results
+            const peakInfected = Math.max(...infectedData);
+            const totalCases = N * (1 - vaccCoverage) - S;
+            const percentInfected = (totalCases / N * 100).toFixed(1);
+            
+            // Update result display
+            let resultText = `<strong>Simulation Results:</strong><br>`;
+            resultText += `Critical vaccination proportion (pc): ${(criticalProp * 100).toFixed(1)}%<br>`;
+            resultText += `Your coverage: ${(vaccCoverage * 100).toFixed(0)}%<br>`;
+            resultText += `Peak infected: ${peakInfected.toFixed(0)} individuals<br>`;
+            resultText += `Total attack rate: ${percentInfected}% of population<br>`;
+            
+            if (vaccCoverage >= criticalProp) {
+                resultText += `<strong style="color: #2c5530;">✓ Herd immunity achieved! Epidemic prevented.</strong>`;
+            } else {
+                resultText += `<strong style="color: #c62828;">✗ Below threshold. Epidemic occurs.</strong>`;
+            }
+            
+            document.getElementById('vaccResult').innerHTML = resultText;
+            
+            // Create chart
+            const ctx = document.getElementById('vaccinationChart').getContext('2d');
+            
+            if (vaccinationChart) {
+                vaccinationChart.destroy();
+            }
+            
+            vaccinationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData.filter((_, i) => i % 5 === 0),
+                    datasets: [{
+                        label: 'Susceptible',
+                        data: susceptibleData.filter((_, i) => i % 5 === 0),
+                        borderColor: '#2196F3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Infected',
+                        data: infectedData.filter((_, i) => i % 5 === 0),
+                        borderColor: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Recovered/Vaccinated',
+                        data: recoveredData.filter((_, i) => i % 5 === 0),
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Disease Dynamics with Vaccination',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Days' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Number of Individuals' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Culling Simulation
+        let cullingChart = null;
+
+        function runCullingSim() {
+            const cullIntensity = parseFloat(document.getElementById('cullIntSlider').value) / 100;
+            const perturbFactor = parseFloat(document.getElementById('perturbSlider').value);
+            const immigRate = parseFloat(document.getElementById('immigSlider').value);
+            
+            const N0 = 1000;
+            const baseR0 = 1.8;
+            const baseContactRate = 0.15;
+            const gamma = 0.1;
+            const dt = 0.5;
+            const days = 300;
+            
+            // Three zones: inside cull, edge, outside
+            const zones = ['Inside Cull Zone', 'Edge Zone (0-2km)', 'Control Zone'];
+            const zoneData = {
+                'Inside Cull Zone': { S: [], I: [], prevalence: [] },
+                'Edge Zone (0-2km)': { S: [], I: [], prevalence: [] },
+                'Control Zone': { S: [], I: [], prevalence: [] }
+            };
+            
+            // Initial conditions for each zone
+            let insideS = N0 * (1 - cullIntensity) - 10;
+            let insideI = 10;
+            let edgeS = N0 - 10;
+            let edgeI = 10;
+            let controlS = N0 - 10;
+            let controlI = 10;
+            
+            const timeData = [];
+            
+            for (let t = 0; t < days; t += dt) {
+                timeData.push(t);
+                
+                // Inside cull zone - reduced density but increased contact
+                const insideContact = baseContactRate * perturbFactor;
+                const insideN = insideS + insideI;
+                const insideBeta = (baseR0 * gamma) * (insideContact / baseContactRate);
+                
+                let insideNewInf = (insideBeta * insideS * insideI / Math.max(insideN, 1)) * dt;
+                let insideNewRec = gamma * insideI * dt;
+                let insideImmig = immigRate * N0 * cullIntensity * dt * 0.05; // Small fraction infected
+                
+                insideS -= insideNewInf;
+                insideS += immigRate * N0 * cullIntensity * dt * 0.95; // Most immigrants susceptible
+                insideI += insideNewInf - insideNewRec + insideImmig;
+                
+                // Edge zone - perturbation from adjacent culling
+                const edgeContact = baseContactRate * Math.sqrt(perturbFactor);
+                const edgeN = edgeS + edgeI;
+                const edgeBeta = (baseR0 * gamma) * (edgeContact / baseContactRate);
+                
+                let edgeNewInf = (edgeBeta * edgeS * edgeI / edgeN) * dt;
+                let edgeNewRec = gamma * edgeI * dt;
+                let edgeSpillover = 0.02 * insideI * dt; // Spillover from inside zone
+                
+                edgeS -= edgeNewInf;
+                edgeI += edgeNewInf - edgeNewRec + edgeSpillover;
+                
+                // Control zone - normal transmission
+                const controlN = controlS + controlI;
+                const controlBeta = baseR0 * gamma;
+                
+                let controlNewInf = (controlBeta * controlS * controlI / controlN) * dt;
+                let controlNewRec = gamma * controlI * dt;
+                
+                controlS -= controlNewInf;
+                controlI += controlNewInf - controlNewRec;
+                
+                // Bounds checking
+                insideS = Math.max(0, insideS);
+                insideI = Math.max(0, insideI);
+                edgeS = Math.max(0, edgeS);
+                edgeI = Math.max(0, edgeI);
+                controlS = Math.max(0, controlS);
+                controlI = Math.max(0, controlI);
+                
+                // Store data
+                zoneData['Inside Cull Zone'].S.push(insideS);
+                zoneData['Inside Cull Zone'].I.push(insideI);
+                zoneData['Inside Cull Zone'].prevalence.push((insideI / (insideS + insideI)) * 100);
+                
+                zoneData['Edge Zone (0-2km)'].S.push(edgeS);
+                zoneData['Edge Zone (0-2km)'].I.push(edgeI);
+                zoneData['Edge Zone (0-2km)'].prevalence.push((edgeI / (edgeS + edgeI)) * 100);
+                
+                zoneData['Control Zone'].S.push(controlS);
+                zoneData['Control Zone'].I.push(controlI);
+                zoneData['Control Zone'].prevalence.push((controlI / (controlS + controlI)) * 100);
+            }
+            
+            // Calculate results
+            const insidePeak = Math.max(...zoneData['Inside Cull Zone'].I);
+            const edgePeak = Math.max(...zoneData['Edge Zone (0-2km)'].I);
+            const controlPeak = Math.max(...zoneData['Control Zone'].I);
+            
+            const insideChange = ((insidePeak - controlPeak) / controlPeak * 100).toFixed(1);
+            const edgeChange = ((edgePeak - controlPeak) / controlPeak * 100).toFixed(1);
+            
+            let resultText = `<strong>Simulation Results:</strong><br>`;
+            resultText += `Peak infected - Control: ${controlPeak.toFixed(0)}<br>`;
+            resultText += `Peak infected - Inside Cull: ${insidePeak.toFixed(0)} (${insideChange > 0 ? '+' : ''}${insideChange}%)<br>`;
+            resultText += `Peak infected - Edge Zone: ${edgePeak.toFixed(0)} (${edgeChange > 0 ? '+' : ''}${edgeChange}%)<br><br>`;
+            
+            if (parseFloat(insideChange) < -10 && parseFloat(edgeChange) < 10) {
+                resultText += `<strong style="color: #2c5530;">Culling reduces disease inside with minimal edge effects</strong>`;
+            } else if (parseFloat(edgeChange) > 15) {
+                resultText += `<strong style="color: #c62828;">Strong perturbation effect: Disease increases in edge zones!</strong>`;
+            } else {
+                resultText += `<strong style="color: #ff9800;">Mixed results: Benefits inside offset by edge effects</strong>`;
+            }
+            
+            document.getElementById('cullResult').innerHTML = resultText;
+            
+            // Create chart
+            const ctx = document.getElementById('cullingChart').getContext('2d');
+            
+            if (cullingChart) {
+                cullingChart.destroy();
+            }
+            
+            cullingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData.filter((_, i) => i % 5 === 0),
+                    datasets: [{
+                        label: 'Inside Cull Zone',
+                        data: zoneData['Inside Cull Zone'].I.filter((_, i) => i % 5 === 0),
+                        borderColor: '#2196F3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Edge Zone (0-2km)',
+                        data: zoneData['Edge Zone (0-2km)'].I.filter((_, i) => i % 5 === 0),
+                        borderColor: '#ff9800',
+                        backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Control Zone',
+                        data: zoneData['Control Zone'].I.filter((_, i) => i % 5 === 0),
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Culling Effects: Infected Individuals by Zone',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Days' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Number Infected' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Reservoir-Spillover Simulation
+        let reservoirChart = null;
+
+        function runReservoirSim() {
+            const resR0 = parseFloat(document.getElementById('resR0Slider').value);
+            const spillR0 = parseFloat(document.getElementById('spillR0Slider').value);
+            const spilloverRate = parseFloat(document.getElementById('spillRateSlider').value);
+            const resControl = parseFloat(document.getElementById('resControlSlider').value) / 100;
+            
+            const N_res = 1000; // Reservoir population
+            const N_spill = 500; // Spillover population
+            
+            const gamma = 0.1;
+            const beta_res = resR0 * gamma;
+            const beta_spill = spillR0 * gamma;
+            const dt = 0.5;
+            const days = 300;
+            
+            // Apply vaccination to reservoir
+            let S_res = N_res * (1 - resControl) - 10;
+            let I_res = 10;
+            let R_res = N_res * resControl;
+            
+            let S_spill = N_spill - 2;
+            let I_spill = 2;
+            let R_spill = 0;
+            
+            const timeData = [];
+            const resInfData = [];
+            const spillInfData = [];
+            const totalInfData = [];
+            
+            for (let t = 0; t < days; t += dt) {
+                timeData.push(t);
+                resInfData.push(I_res);
+                spillInfData.push(I_spill);
+                totalInfData.push(I_res + I_spill);
+                
+                // Reservoir dynamics
+                const newInf_res = (beta_res * S_res * I_res / N_res) * dt;
+                const newRec_res = gamma * I_res * dt;
+                
+                S_res -= newInf_res;
+                I_res += newInf_res - newRec_res;
+                R_res += newRec_res;
+                
+                // Spillover events from reservoir
+                const spilloverEvents = spilloverRate * I_res * (S_spill / N_spill) * dt;
+                
+                // Spillover dynamics
+                const newInf_spill = (beta_spill * S_spill * I_spill / N_spill) * dt;
+                const newRec_spill = gamma * I_spill * dt;
+                
+                S_spill -= newInf_spill + spilloverEvents;
+                I_spill += newInf_spill + spilloverEvents - newRec_spill;
+                R_spill += newRec_spill;
+                
+                // Bounds
+                S_res = Math.max(0, S_res);
+                I_res = Math.max(0, I_res);
+                S_spill = Math.max(0, S_spill);
+                I_spill = Math.max(0, I_spill);
+                
+                if (I_spill < 0.5) I_spill = 0; // Fade out in spillover if R0 < 1
+            }
+            
+            // Results
+            const resPeak = Math.max(...resInfData);
+            const spillPeak = Math.max(...spillInfData);
+            const spillTotal = N_spill - S_spill;
+            
+            let resultText = `<strong>Simulation Results:</strong><br>`;
+            resultText += `Reservoir R₀: ${resR0} ${resR0 > 1 ? '(can maintain disease)' : '(cannot maintain)'}<br>`;
+            resultText += `Spillover R₀: ${spillR0} ${spillR0 > 1 ? '(can maintain disease)' : '(cannot maintain)'}<br>`;
+            resultText += `Reservoir peak infected: ${resPeak.toFixed(0)}<br>`;
+            resultText += `Spillover peak infected: ${spillPeak.toFixed(0)}<br>`;
+            resultText += `Total spillover cases: ${spillTotal.toFixed(0)}<br><br>`;
+            
+            if (resControl >= (1 - 1/resR0) && resControl > 0) {
+                resultText += `<strong style="color: #2c5530;">✓ Reservoir vaccination successful! Disease eliminated from both populations.</strong>`;
+            } else if (spillPeak > 50 && spillR0 < 1) {
+                resultText += `<strong style="color: #ff9800;">Spillover cases occur despite R₀ < 1 in spillover hosts. Disease maintained by reservoir.</strong>`;
+            } else {
+                resultText += `<strong style="color: #c62828;">Disease persists in reservoir and causes spillover to wildlife.</strong>`;
+            }
+            
+            document.getElementById('resResult').innerHTML = resultText;
+            
+            // Create chart
+            const ctx = document.getElementById('reservoirChart').getContext('2d');
+            
+            if (reservoirChart) {
+                reservoirChart.destroy();
+            }
+            
+            reservoirChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData.filter((_, i) => i % 5 === 0),
+                    datasets: [{
+                        label: 'Reservoir Host Infected (e.g., Dogs)',
+                        data: resInfData.filter((_, i) => i % 5 === 0),
+                        borderColor: '#2196F3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Spillover Host Infected (e.g., Wildlife)',
+                        data: spillInfData.filter((_, i) => i % 5 === 0),
+                        borderColor: '#ff5722',
+                        backgroundColor: 'rgba(255, 87, 34, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Reservoir vs. Spillover Host Dynamics',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Days' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Number Infected' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Make functions globally available
+        window.runVaccinationSim = runVaccinationSim;
+        window.runCullingSim = runCullingSim;
+        window.runReservoirSim = runReservoirSim;
+    </script>
+</body>
+</html>
