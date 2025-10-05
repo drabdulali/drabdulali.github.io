@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Epidemiology 2: Multi-host Pathogens & Predators</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 2rem;
+        }
+        
+        .objectives li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.4rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .equation-box .equation {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            font-size: 1.3rem;
+            margin: 0.8rem 0;
+            font-style: italic;
+        }
+        
+        .key-insight {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .key-insight strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .acronym-box {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border-left: 5px solid #17a2b8;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .acronym-box strong {
+            color: #0c5460;
+            font-size: 1.1rem;
+        }
+        
+        .visual-anchor {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-left: 5px solid #dc3545;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+            font-style: italic;
+        }
+        
+        .case-study {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+        
+        .case-study h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .takeaway {
+            background: #fff;
+            border-left: 4px solid #2c5530;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+        
+        .simulation-box {
+            background: white;
+            border: 2px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+        
+        .simulation-explanation {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            border-left: 4px solid #4a7c59;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-group label {
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+            color: #2c5530;
+        }
+        
+        .control-group input {
+            padding: 0.5rem;
+            border: 1px solid #4a7c59;
+            border-radius: 4px;
+        }
+        
+        .control-group output {
+            font-weight: bold;
+            color: #4a7c59;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .matrix-table {
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th, td {
+            padding: 1rem;
+            border: 1px solid #4a7c59;
+            text-align: center;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .formula {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Community Epidemiology 2</h1>
+        <p>Multi-host Pathogens & Predators</p>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Course 6150: Population Biology of Infectious Diseases</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Learning Objectives</a></li>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#squirrel-case">Squirrel Case Study</a></li>
+            <li><a href="#apparent-competition">Apparent Competition</a></li>
+            <li><a href="#multihost-traits">Multi-host Traits</a></li>
+            <li><a href="#mathematical-framework">Mathematical Framework</a></li>
+            <li><a href="#consequences">Consequences</a></li>
+            <li><a href="#simulations">Interactive Simulations</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the prevalence and importance of multi-host pathogen systems in nature</li>
+                <li>Explain the concept of apparent competition and its role in community dynamics</li>
+                <li>Identify pathogen and host traits that facilitate multi-host transmission</li>
+                <li>Develop mathematical models for multi-host pathogen systems using WAIFW matrices</li>
+                <li>Analyze the consequences of multi-host parasites including spillover, dilution effects, and extinction dynamics</li>
+                <li>Apply the P* rule to predict outcomes of apparent competition</li>
+                <li>Evaluate control strategies for multi-host pathogen systems</li>
+            </ul>
+        </section>
+        
+        <section id="introduction" class="concept-card">
+            <h2>Introduction: Beyond Single Host-Pathogen Systems</h2>
+            
+            <div class="acronym-box">
+                <strong>SIMPLE to COMPLEX: Remember the progression</strong><br>
+                <strong>S</strong>ingle host systems (stereotypical)<br>
+                <strong>I</strong>nteractions multiply with more hosts<br>
+                <strong>M</strong>ulti-host pathogens dominate reality<br>
+                <strong>P</strong>redators and parasites shape communities<br>
+                <strong>L</strong>inking species through shared enemies<br>
+                <strong>E</strong>cological outcomes become unpredictable
+            </div>
+            
+            <p>Traditionally, infectious disease ecology has focused on simple one host-one pathogen systems. Classic examples include seal-PDV (phocine distemper virus), human-measles, rabbit-myxomatosis, and Soay sheep-nematodes. While these systems have provided fundamental insights into disease dynamics, they represent an oversimplification of nature.</p>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong>
+                The reality is far more complex: approximately 60 percent of human pathogens and 80 percent of domestic animal pathogens can infect multiple host species. Multi-host pathogens are the norm, not the exception.
+            </div>
+            
+            <h3>Community Epidemiology Framework</h3>
+            
+            <p>Community epidemiology examines multi-host and multi-parasite interactions within an ecological community context. This lecture focuses on three primary interaction types:</p>
+            
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>Multi-host parasites:</strong> One pathogen infecting multiple host species</li>
+                <li><strong>Host-predator-prey dynamics:</strong> How predators influence disease in their prey</li>
+                <li><strong>Coinfection:</strong> Multiple parasites within a single host (covered previously)</li>
+            </ul>
+            
+            <div class="visual-anchor">
+                <strong>Visual Memory Anchor:</strong> Picture a web, not a chain. In single-host systems, we have a simple chain: Susceptible → Infected → Recovered. In multi-host systems, imagine a spider web where each node is a different species, and disease threads connect them in complex, overlapping patterns. One infected spider (host species) can send vibrations (pathogens) throughout the entire web, affecting species that never directly touch each other.
+            </div>
+        </section>
+        
+        <section id="squirrel-case" class="concept-card">
+            <h2>Case Study 1: The Great British Squirrel Replacement</h2>
+            
+            <div class="case-study">
+                <h4>The Invasion of Grey Squirrels and Squirrelpox Virus</h4>
+                
+                <p><strong>Background:</strong> The red squirrel (Sciurus vulgaris) is native to Britain and has inhabited UK woodlands for millennia. In the late 19th century, grey squirrels (Sciurus carolinensis) were introduced from North America as ornamental species. What followed was one of the most dramatic examples of disease-mediated competitive exclusion in modern ecology.</p>
+                
+                <p><strong>The Pathogen: Squirrelpox Virus</strong></p>
+                <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                    <li>Causes minimal disease in grey squirrels (native North American host)</li>
+                    <li>Produces severe lesions, discharge, and scabs in red squirrels</li>
+                    <li>Kills red squirrels rapidly within 5-7 days of infection</li>
+                    <li>Serological evidence: 60 percent of grey squirrels have antibodies versus only 3 percent of red squirrels</li>
+                </ul>
+                
+                <p><strong>Transmission Routes:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Direct contact:</strong> Through infected skin lesions during territorial disputes or mating</li>
+                    <li><strong>Vector-borne:</strong> Mosquitoes serve as passive mechanical vectors, transferring virus on mouthparts</li>
+                    <li><strong>Environmental:</strong> Virus persists on bird feeders and other fomites where both species feed</li>
+                </ul>
+                
+                <p><strong>Observational Evidence:</strong> Long-term monitoring data (1960-1982) tracked the number of 5 km × 5 km grid squares occupied by each species across Britain. The data revealed a striking pattern: as grey squirrel range expanded, red squirrel range collapsed far faster than could be explained by resource competition alone.</p>
+                
+                <p><strong>Mathematical Modeling (Tompkins et al. 2002, 2003):</strong> Researchers developed two models:</p>
+                <ol style="margin-left: 2rem;">
+                    <li><strong>Resource competition only:</strong> Predicted gradual red squirrel decline over decades</li>
+                    <li><strong>Resource competition + shared virus:</strong> Predicted rapid red squirrel collapse matching observed data</li>
+                </ol>
+                
+                <p>The model with both competition and disease accurately predicted the observed 25-fold acceleration in red squirrel decline.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> This case demonstrates that a shared pathogen can act as a "biological weapon" in species interactions. Grey squirrels function as a disease reservoir—maintaining high pathogen prevalence with minimal fitness costs—while red squirrels suffer catastrophic mortality. The virus converts what might have been gradual competitive exclusion into rapid ecological replacement. This is apparent competition in action: the two species compete not for resources, but through their differential ability to tolerate a shared natural enemy.
+                </div>
+            </div>
+            
+            <h3>Control Implications for Red Squirrel Conservation</h3>
+            
+            <p>Understanding the disease-mediated mechanism of red squirrel decline has important management implications:</p>
+            
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>Grey squirrel culling:</strong> Models suggest a 60 percent reduction in grey squirrel populations would be necessary to halt red squirrel decline—a logistically challenging target</li>
+                <li><strong>Vaccination:</strong> Developing an oral vaccine for red squirrels could provide immunity without capturing individuals</li>
+                <li><strong>Natural recovery:</strong> Field observations indicate occasional natural recovery from infection, suggesting some red squirrels possess resistance alleles</li>
+                <li><strong>Biological control via predation:</strong> Pine martens (Martes martes) preferentially prey on grey squirrels because they are slower and spend more time on the ground. Areas with recovering pine marten populations have shown red squirrel population stability</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong>
+                The pine marten example reveals how predators can indirectly benefit one prey species by selectively removing another. This demonstrates that community epidemiology must consider not just hosts and pathogens, but the entire food web.
+            </div>
+        </section>
+        
+        <section id="apparent-competition" class="concept-card">
+            <h2>Apparent Competition: When Parasites Mediate Host Interactions</h2>
+            
+            <div class="acronym-box">
+                <strong>WEAPON: Understanding Apparent Competition</strong><br>
+                <strong>W</strong>eapon—shared parasites act as biological weapons<br>
+                <strong>E</strong>nemy—hosts linked through a shared natural enemy<br>
+                <strong>A</strong>dditional mortality—one host amplifies parasite abundance<br>
+                <strong>P</strong>* rule—species tolerating highest parasite load wins<br>
+                <strong>O</strong>utcome—often extirpation of less tolerant host<br>
+                <strong>N</strong>o direct competition—hosts may not compete for resources
+            </div>
+            
+            <h3>Defining Apparent Competition</h3>
+            
+            <p>Apparent competition is a negative interaction between two host species mediated by a shared natural enemy (parasite, pathogen, parasitoid, or predator). Unlike traditional resource competition where species directly compete for limiting resources (food, space, mates), apparent competition operates indirectly: the presence of one host species decreases the fitness of another species solely through its effect on the abundance of their shared enemy.</p>
+            
+            <div class="equation-box">
+                <div><strong>The P* Rule for Apparent Competition</strong></div>
+                <div class="equation">
+                    The species that can tolerate the highest equilibrium parasite abundance (P*) will exclude other hosts through apparent competition
+                </div>
+                <div style="margin-top: 1rem;">
+                    If Host 1's P*₁ > Host 2's P*₂, then Host 1 wins
+                </div>
+            </div>
+            
+            <h3>Mechanism of Apparent Competition</h3>
+            
+            <p>Consider two host species (H₁ and H₂) sharing a parasite (P):</p>
+            
+            <ol style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>Parasite amplification:</strong> H₂ supports high parasite reproduction, increasing environmental parasite load</li>
+                <li><strong>Spillover effect:</strong> Elevated parasite abundance from H₂ increases infection pressure on H₁</li>
+                <li><strong>Differential mortality:</strong> If H₁ suffers higher parasite-induced mortality than H₂, H₁ populations decline</li>
+                <li><strong>Positive feedback:</strong> As H₁ declines, H₂ may expand (less competition), further amplifying parasites</li>
+                <li><strong>Extirpation:</strong> H₁ may be locally eliminated even if it could persist with the parasite alone</li>
+            </ol>
+            
+            <div class="visual-anchor">
+                <strong>Visual Memory Anchor:</strong> Imagine two castles (host species) under siege by an army (parasites). Castle A (grey squirrels) has thick walls and can withstand prolonged attack while its citizens continue reproducing soldiers for the enemy army. Castle B (red squirrels) has weak walls and rapidly crumbles under assault. The paradox: Castle A's resilience makes it a parasite factory, producing the very forces that overwhelm Castle B. Castle B would survive a siege alone, but Castle A's presence ensures Castle B's destruction.
+            </div>
+            
+            <h3>Case Study 2: Experimental Demonstration with Parasitoid Wasps</h3>
+            
+            <div class="case-study">
+                <h4>Bonsall and Hassell's Moth-Parasitoid System</h4>
+                
+                <p><strong>Experimental Design (Bonsall & Hassell 1998, Journal of Animal Ecology):</strong></p>
+                
+                <p>Researchers established population cages (30 cm × 30 cm × 30 cm) with three species:</p>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Host 1:</strong> Ephestia kuehniella (flour moth)</li>
+                    <li><strong>Host 2:</strong> Plodia interpunctella (Indian meal moth)</li>
+                    <li><strong>Shared parasitoid:</strong> Venturia canescens (ichneumonid wasp)</li>
+                </ul>
+                
+                <p>The cage was divided by nylon mesh that allowed the tiny parasitoid to pass but restricted moth movement, ensuring controlled encounter rates.</p>
+                
+                <p><strong>Results:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Ephestia + Venturia alone:</strong> Both populations persisted in stable oscillations for 60+ weeks</li>
+                    <li><strong>Plodia + Venturia alone:</strong> Both populations persisted in stable oscillations for 60+ weeks</li>
+                    <li><strong>All three species together:</strong> Ephestia went extinct by week 40, while Plodia and Venturia persisted</li>
+                </ul>
+                
+                <p><strong>Mechanism:</strong> Plodia supported higher parasitoid reproduction rates, creating an elevated parasitoid abundance that Ephestia could not tolerate. This demonstrates the P* rule: Plodia's higher tolerance for parasitoid attack allowed it to win apparent competition.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> This elegant experiment proves that apparent competition is a real ecological force. Two host species that can each coexist with a parasitoid individually cannot necessarily coexist together. The species that amplifies parasitoid abundance more effectively (Plodia) drives the other to extinction. This has profound implications for biological control, invasive species management, and conservation biology.
+                </div>
+            </div>
+        </section>
+        
+        <section id="multihost-traits" class="concept-card">
+            <h2>What Makes a Multi-host Parasite?</h2>
+            
+            <div class="visual-anchor">
+                <strong>Visual Memory Anchor:</strong> Think of parasites as locks and hosts as keys. Specialists are high-security locks requiring one perfect key. Generalists are master locks with simpler mechanisms that many keys can open. The question is: what makes a parasite willing to accept multiple keys?
+            </div>
+            
+            <h3>The Conventional View: Parasites Should Specialize</h3>
+            
+            <p>Theory suggests parasites should evolve host specificity for several reasons:</p>
+            
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>Intimate association:</strong> Parasitism requires precise molecular interactions between parasite and host cells</li>
+                <li><strong>Host defense evolution:</strong> Even within a species, not all host genotypes are susceptible (recall matching alleles and gene-for-gene models)</li>
+                <li><strong>Host-specific machinery:</strong> Cellular receptors, immune responses, and physiological conditions vary among host species</li>
+                <li><strong>Trade-off hypothesis:</strong> Selection for high performance in one host should reduce performance in others</li>
+                <li><strong>Jack-of-all-trades, master of none:</strong> Generalists should be outcompeted by specialists</li>
+            </ul>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong>
+                Despite theoretical expectations of specialization, empirical data reveal the opposite: 60 percent of human pathogens (n=1,415) and 80 percent of domestic animal pathogens (n=616) are multi-host parasites. Examples include Nipah virus, West Nile virus, Ebola, influenza, rinderpest, and Mycobacterium bovis.
+            </div>
+            
+            <h3>Parasite Traits Facilitating Multi-host Transmission</h3>
+            
+            <div class="acronym-box">
+                <strong>VECTOR: Traits of Multi-host Pathogens</strong><br>
+                <strong>V</strong>ector-borne or environmental transmission<br>
+                <strong>E</strong>volutionary flexibility (high mutation)<br>
+                <strong>C</strong>ross-species encounters enabled<br>
+                <strong>T</strong>ransmission modes that bypass host specificity<br>
+                <strong>O</strong>ften viral (short generation time)<br>
+                <strong>R</strong>apid adaptation to new hosts
+            </div>
+            
+            <p><strong>1. Transmission Strategy</strong></p>
+            
+            <p>Transmission mode strongly predicts host range. Vector-borne and environmentally-transmitted pathogens show broader host ranges because:</p>
+            
+            <ul style="margin-left: 2rem;">
+                <li><strong>Reduced host specificity requirements:</strong> Vectors (mosquitoes, ticks) mechanically transfer pathogens between species without requiring precise host-pathogen molecular matching</li>
+                <li><strong>Environmental persistence:</strong> Pathogens with free-living stages (water-borne, fecal-oral) can infect any host encountering contaminated environments</li>
+                <li><strong>Bridging species barriers:</strong> Vectors feeding on multiple host species create transmission networks spanning phylogenetically distant taxa</li>
+            </ul>
+            
+            <p>In contrast, sexually transmitted and vertically transmitted parasites show narrow host ranges due to intimate contact requirements and reproductive compatibility constraints.</p>
+            
+            <p><strong>2. Pathogen Type: The Viral Advantage</strong></p>
+            
+            <p>Viruses are overrepresented among multi-host pathogens due to:</p>
+            
+            <ul style="margin-left: 2rem;">
+                <li><strong>Short generation times:</strong> Viral replication occurs in hours to days versus months for macroparasites</li>
+                <li><strong>High mutation rates:</strong> RNA viruses especially lack proofreading, generating 10⁻⁴ to 10⁻⁶ mutations per nucleotide per replication</li>
+                <li><strong>Large population sizes:</strong> Billions of virions produced per infection provide vast genetic variation</li>
+                <li><strong>Rapid adaptation:</strong> The combination creates evolutionary potential to overcome new host defenses within single infections</li>
+            </ul>
+            
+            <h3>Host Traits Facilitating Multi-host Sharing</h3>
+            
+            <p><strong>1. Geographic Range Overlap</strong></p>
+            
+            <p>Species that overlap spatially share more parasites. This reflects:</p>
+            <ul style="margin-left: 2rem;">
+                <li><strong>Encounter opportunity:</strong> Co-occurrence increases cross-species contact rates</li>
+                <li><strong>Shared vectors:</strong> Overlapping ranges mean shared mosquito, tick, and flea populations</li>
+                <li><strong>Environmental contamination:</strong> Shared water sources, feeding sites, and territorial boundaries</li>
+            </ul>
+            
+            <p><strong>2. Evolutionary Similarity (Phylogenetic Distance)</strong></p>
+            
+            <div class="equation-box">
+                <div><strong>Phylogenetic Constraint on Host Range</strong></div>
+                <div class="equation">
+                    Parasite sharing ∝ 1 / Phylogenetic Distance
+                </div>
+                <div style="margin-top: 1rem;">
+                    Closely related species share more parasites than distant relatives
+                </div>
+            </div>
+            
+            <p>This pattern arises because related species share:</p>
+            <ul style="margin-left: 2rem;">
+                <li><strong>Ancestral parasites:</strong> Parasites inherited from common ancestors diversify with their hosts</li>
+                <li><strong>Similar cellular machinery:</strong> Receptor molecules, cell surface proteins, and intracellular environments</li>
+                <li><strong>Comparable immune responses:</strong> Related species employ similar immune molecules and pathways</li>
+                <li><strong>Physiological compatibility:</strong> Body temperature, pH, and metabolic conditions</li>
+            </ul>
+            
+            <p>Davies and Pedersen (2008) demonstrated that mammal species within the same family share on average 5-10 times more parasite species than mammals from different orders. For example, red squirrels and grey squirrels (both genus Sciurus) readily share parapoxvirus, whereas transmission between squirrels and ungulates would be virtually impossible.</p>
+        </section>
+        
+        <section id="mathematical-framework" class="concept-card">
+            <h2>Mathematical Framework for Multi-host Systems</h2>
+            
+            <h3>From Single Host to Multi-host Models</h3>
+            
+            <p>We begin with the familiar single-host SIS (Susceptible-Infected-Susceptible) framework and progressively add complexity.</p>
+            
+            <div class="equation-box">
+                <div><strong>Single Host SIS Model</strong></div>
+                <div class="equation">
+                    dS/dt = -β S I
+                </div>
+                <div class="equation">
+                    dI/dt = β S I - δ I
+                </div>
+                <div style="margin-top: 1rem;">
+                    Where: β = transmission rate, δ = recovery or death rate
+                </div>
+            </div>
+            
+            <p>This model tracks susceptible (S) and infected (I) individuals within a single host species. Infection occurs at rate β through contact between S and I individuals, while infected individuals are removed at rate δ through recovery or disease-induced mortality.</p>
+            
+            <h3>Two-Host System with Isolated Transmission</h3>
+            
+            <p>The simplest multi-host model considers two host species with pathogen transmission only within species (no cross-species transmission):</p>
+            
+            <div class="equation-box">
+                <div><strong>Host Species 1</strong></div>
+                <div class="equation">
+                    dS₁/dt = -β₁₁ S₁ I₁
+                </div>
+                <div class="equation">
+                    dI₁/dt = β₁₁ S₁ I₁ - δ₁ I₁
+                </div>
+                <div style="margin-top: 1.5rem;"><strong>Host Species 2</strong></div>
+                <div class="equation">
+                    dS₂/dt = -β₂₂ S₂ I₂
+                </div>
+                <div class="equation">
+                    dI₂/dt = β₂₂ S₂ I₂ - δ₂ I₂
+                </div>
+            </div>
+            
+            <p>Here β₁₁ and β₂₂ represent within-species transmission rates, while δ₁ and δ₂ capture species-specific mortality/recovery. At this stage, the two host populations are epidemiologically independent.</p>
+            
+            <h3>Two-Host System with Cross-Species Transmission</h3>
+            
+            <p>The critical feature of multi-host systems is cross-species transmission, represented by β₁₂ (transmission from species 2 to species 1) and β₂₁ (transmission from species 1 to species 2):</p>
+            
+            <div class="equation-box">
+                <div><strong>Host Species 1</strong></div>
+                <div class="equation">
+                    dS₁/dt = -β₁₁ I₁ S₁ - β₂₁ I₂ S₁
+                </div>
+                <div class="equation">
+                    dI₁/dt = β₁₁ I₁ S₁ + β₂₁ I₂ S₁ - δ₁ I₁
+                </div>
+                <div style="margin-top: 1.5rem;"><strong>Host Species 2</strong></div>
+                <div class="equation">
+                    dS₂/dt = -β₂₂ I₂ S₂ - β₁₂ I₁ S₂
+                </div>
+                <div class="equation">
+                    dI₂/dt = β₂₂ I₂ S₂ + β₁₂ I₁ S₂ - δ₂ I₂
+                </div>
+            </div>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong>
+                Notice that species 1's infection rate now includes two terms: within-species transmission (β₁₁ I₁ S₁) and cross-species transmission from species 2 (β₂₁ I₂ S₁). This coupling means the epidemiological dynamics of the two hosts are inextricably linked.
+            </div>
+            
+            <h3>The WAIFW Matrix: Who Acquires Infection From Whom</h3>
+            
+            <div class="acronym-box">
+                <strong>WAIFW: The Transmission Contact Matrix</strong><br>
+                <strong>W</strong>ho acquires infection<br>
+                <strong>A</strong>nd from whom<br>
+                <strong>I</strong>nfection flows<br>
+                <strong>F</strong>rom all sources<br>
+                <strong>W</strong>ithin and among species
+            </div>
+            
+            <p>For systems with n host species, we organize transmission rates into a matrix W where element W_ij represents the transmission rate from species j to species i:</p>
+            
+            <div class="matrix-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th colspan="2">Transmission FROM</th>
+                        </tr>
+                        <tr>
+                            <th>Transmission TO</th>
+                            <th>Species 1</th>
+                            <th>Species 2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>Species 1</th>
+                            <td><span class="formula">β₁₁</span> (within)</td>
+                            <td><span class="formula">β₁₂</span> (among)</td>
+                        </tr>
+                        <tr>
+                            <th>Species 2</th>
+                            <td><span class="formula">β₂₁</span> (among)</td>
+                            <td><span class="formula">β₂₂</span> (within)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <p>Diagonal elements (β₁₁, β₂₂) represent within-species transmission, while off-diagonal elements (β₁₂, β₂₁) represent cross-species transmission. This framework generalizes to any number of host species.</p>
+            
+            <h3>Basic Reproduction Number for Multi-host Systems</h3>
+            
+            <p>Dobson (2004, American Naturalist) derived R₀ for multi-host systems. For a two-host system:</p>
+            
+            <div class="equation-box">
+                <div><strong>Multi-host R₀</strong></div>
+                <div class="equation">
+                    R₀ = ½[(R₀₁ + R₀₂) + √((R₀₁ + R₀₂)² - 4(R₀₁R₀₂ - R₀₁₂R₀₂₁))]
+                </div>
+                <div style="margin-top: 1rem;">
+                    Where:
+                </div>
+                <div class="equation">
+                    R₀₁ = β₁₁S₁/δ₁ (within-species R₀ for host 1)
+                </div>
+                <div class="equation">
+                    R₀₂ = β₂₂S₂/δ₂ (within-species R₀ for host 2)
+                </div>
+                <div class="equation">
+                    R₀₁₂ = β₁₂S₂/δ₁ (cross-species contribution)
+                </div>
+                <div class="equation">
+                    R₀₂₁ = β₂₁S₁/δ₂ (cross-species contribution)
+                </div>
+            </div>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong>
+                The multi-host R₀ exceeds the maximum of individual host R₀ values when cross-species transmission occurs. Even if R₀₁ < 1 (pathogen cannot persist in species 1 alone), the pathogen may persist in the system if R₀₂ > 1 and cross-species transmission maintains infection in species 1. This is the mathematical basis for reservoir hosts and spillover dynamics.
+            </div>
+        </section>
+        
+        <section id="consequences" class="concept-card">
+            <h2>Consequences of Multi-host Parasite Systems</h2>
+            
+            <h3>1. Apparent Competition and Extirpation</h3>
+            
+            <p>We've already explored apparent competition with squirrels and moths. The key prediction from models (Rushton et al. 2000) is that apparent competition leads to extirpation when:</p>
+            
+            <ul style="margin-left: 2rem;">
+                <li>Encounter rates between host species are moderate to high</li>
+                <li>Cross-species transmission rates (β₁₂, β₂₁) are substantial</li>
+                <li>One host species has significantly lower tolerance (higher δ)</li>
+            </ul>
+            
+            <h3>2. Spillover: Reservoir Hosts and Dead-end Hosts</h3>
+            
+            <div class="case-study">
+                <h4>Defining Spillover Events</h4>
+                
+                <p>Spillover occurs when a pathogen is transmitted from one host population (typically its primary or reservoir host) to another host population (typically a secondary or dead-end host). Fenton and Pedersen (2005) proposed a framework classifying multi-host systems:</p>
+                
+                <p><strong>True Multi-host Pathogen:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>High exposure/susceptibility in multiple host species (criterion ii)</li>
+                    <li>Persistent transmission within all host species (criterion a)</li>
+                    <li>Example: Influenza A virus in waterfowl, swine, and humans</li>
+                </ul>
+                
+                <p><strong>Spillover from Reservoir:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>High exposure/susceptibility in secondary host (criterion ii)</li>
+                    <li>Non-persistent in secondary host—cannot sustain transmission alone (criterion b)</li>
+                    <li>Example: Rabies virus from bats/raccoons to humans</li>
+                </ul>
+                
+                <p><strong>Dead-end Spillover:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>Low exposure/susceptibility in secondary host (criterion i)</li>
+                    <li>Non-persistent (criterion b)</li>
+                    <li>Example: West Nile virus in humans (mosquito-bird cycle with incidental human infection)</li>
+                </ul>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Understanding whether a pathogen is a true multi-host generalist versus a specialist with occasional spillover has profound implications for control. True multi-host pathogens require coordinated intervention across all competent host species, whereas controlling reservoir hosts alone may eliminate spillover events.
+                </div>
+            </div>
+            
+            <h3>3. Dilution Effects: When Biodiversity Reduces Disease</h3>
+            
+            <p>Counter to the intuition that more host species increase disease risk, the dilution effect hypothesis proposes that biodiversity can reduce disease in focal hosts. This occurs when:</p>
+            
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>Poor amplifiers present:</strong> Additional host species are less competent—they become infected but transmit poorly</li>
+                <li><strong>Wasted transmission:</strong> Vectors or free-living stages contact non-competent hosts, reducing transmission to competent hosts</li>
+                <li><strong>Encounter reduction:</strong> Higher species diversity reduces encounter rates between competent hosts</li>
+            </ul>
+            
+            <div class="visual-anchor">
+                <strong>Visual Memory Anchor:</strong> Picture a disease as a ball being thrown in a crowd. In a crowd of all basketball players (competent hosts), every throw reaches someone tall who catches it easily and throws it far. Now add many children (poor hosts) to the crowd. The ball still gets thrown, but often lands with someone who can barely catch it and throws weakly. The overall transmission network weakens despite more potential hosts.
+            </div>
+            
+            <p>The most famous dilution effect example is Lyme disease in North America. White-footed mice are highly competent reservoirs, while opossums, squirrels, and many bird species are poor reservoirs. Forest fragments with low diversity are dominated by mice and show high nymphal tick infection prevalence, while diverse forests show lower prevalence.</p>
+            
+            <div class="key-insight">
+                <strong>Key Insight:</strong>
+                The dilution effect remains controversial because it depends on specific community composition. Adding more host species can increase, decrease, or have no effect on disease depending on the competence of added species. Generalization requires knowing the host competence hierarchy.
+            </div>
+        </section>
+        
+        <section id="simulations" class="concept-card">
+            <h2>Interactive Simulations</h2>
+            
+            <div class="simulation-box">
+                <div class="simulation-explanation">
+                    <strong>Simulation 1: Two-Host SIS Model with Apparent Competition</strong>
+                    <p>This simulation models two host species sharing a pathogen. Adjust the transmission rates and mortality rates to explore when apparent competition leads to exclusion of one host species. The simulation solves the differential equations numerically using Euler's method and displays population dynamics over time.</p>
+                    
+                    <p><strong>How it works:</strong></p>
+                    <ul style="margin-left: 2rem;">
+                        <li>Green line = Host 1 infected individuals (I₁)</li>
+                        <li>Blue line = Host 2 infected individuals (I₂)</li>
+                        <li>Higher within-species transmission (β₁₁, β₂₂) increases infection persistence</li>
+                        <li>Cross-species transmission (β₁₂, β₂₁) couples the two populations</li>
+                        <li>Higher mortality (δ₁, δ₂) reduces equilibrium infection levels</li>
+                    </ul>
+                    
+                    <p><strong>Try this:</strong> Set β₂₂ = 0.5, δ₂ = 0.1 (Host 2 is a good reservoir) and β₁₁ = 0.3, δ₁ = 0.3 (Host 1 is vulnerable). Increase β₂₁ to see Host 1 driven to extinction through apparent competition.</p>
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="beta11">β₁₁ (Host 1 within-transmission): <output id="beta11-val">0.4</output></label>
+                        <input type="range" id="beta11" min="0" max="1" step="0.05" value="0.4">
+                    </div>
+                    <div class="control-group">
+                        <label for="beta22">β₂₂ (Host 2 within-transmission): <output id="beta22-val">0.4</output></label>
+                        <input type="range" id="beta22" min="0" max="1" step="0.05" value="0.4">
+                    </div>
+                    <div class="control-group">
+                        <label for="beta12">β₁₂ (2→1 cross-transmission): <output id="beta12-val">0.1</output></label>
+                        <input type="range" id="beta12" min="0" max="0.5" step="0.05" value="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label for="beta21">β₂₁ (1→2 cross-transmission): <output id="beta21-val">0.1</output></label>
+                        <input type="range" id="beta21" min="0" max="0.5" step="0.05" value="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label for="delta1">δ₁ (Host 1 mortality/recovery): <output id="delta1-val">0.2</output></label>
+                        <input type="range" id="delta1" min="0.05" max="0.5" step="0.05" value="0.2">
+                    </div>
+                    <div class="control-group">
+                        <label for="delta2">δ₂ (Host 2 mortality/recovery): <output id="delta2-val">0.2</output></label>
+                        <input type="range" id="delta2" min="0.05" max="0.5" step="0.05" value="0.2">
+                    </div>
+                </div>
+                
+                <button onclick="window.updateMultiHostSim()" style="margin: 1rem 0;">Run Simulation</button>
+                
+                <canvas id="multiHostChart" style="max-height: 400px;"></canvas>
+            </div>
+            
+            <div class="simulation-box" style="margin-top: 2rem;">
+                <div class="simulation-explanation">
+                    <strong>Simulation 2: R₀ Calculator for Multi-host Systems</strong>
+                    <p>This calculator computes the basic reproduction number (R₀) for a two-host pathogen system using Dobson's formula. It shows how cross-species transmission can allow pathogen persistence even when within-species R₀ values are below the epidemic threshold.</p>
+                    
+                    <p><strong>How it works:</strong></p>
+                    <ul style="margin-left: 2rem;">
+                        <li>Individual R₀ values calculated as: R₀ᵢ = βᵢᵢ × Sᵢ / δᵢ</li>
+                        <li>System R₀ incorporates cross-species transmission terms</li>
+                        <li>If system R₀ > 1, pathogen can invade and persist</li>
+                        <li>Compare individual vs. system R₀ to see amplification effects</li>
+                    </ul>
+                    
+                    <p><strong>Try this:</strong> Set both individual R₀ values below 1 but include moderate cross-species transmission. Watch the system R₀ exceed 1, demonstrating how multi-host dynamics can maintain pathogens that couldn't persist in either host alone.</p>
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="r0_beta11">β₁₁: <output id="r0_beta11-val">0.3</output></label>
+                        <input type="range" id="r0_beta11" min="0" max="1" step="0.05" value="0.3">
+                    </div>
+                    <div class="control-group">
+                        <label for="r0_s1">S₁ (initial susceptibles): <output id="r0_s1-val">100</output></label>
+                        <input type="range" id="r0_s1" min="10" max="200" step="10" value="100">
+                    </div>
+                    <div class="control-group">
+                        <label for="r0_delta1">δ₁: <output id="r0_delta1-val">0.2</output></label>
+                        <input type="range" id="r0_delta1" min="0.05" max="0.5" step="0.05" value="0.2">
+                    </div>
+                    <div class="control-group">
+                        <label for="r0_beta22">β₂₂: <output id="r0_beta22-val">0.3</output></label>
+                        <input type="range" id="r0_beta22" min="0" max="1" step="0.05" value="0.3">
+                    </div>
+                    <div class="control-group">
+                        <label for="r0_s2">S₂ (initial susceptibles): <output id="r0_s2-val">100</output></label>
+                        <input type="range" id="r0_s2" min="10" max="200" step="10" value="100">
+                    </div>
+                    <div class="control-group">
+                        <label for="r0_delta2">δ₂: <output id="r0_delta2-val">0.2</output></label>
+                        <input type="range" id="r0_delta2" min="0.05" max="0.5" step="0.05" value="0.2">
+                    </div>
+                    <div class="control-group">
+                        <label for="r0_beta12">β₁₂: <output id="r0_beta12-val">0.1</output></label>
+                        <input type="range" id="r0_beta12" min="0" max="0.5" step="0.05" value="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label for="r0_beta21">β₂₁: <output id="r0_beta21-val">0.1</output></label>
+                        <input type="range" id="r0_beta21" min="0" max="0.5" step="0.05" value="0.1">
+                    </div>
+                </div>
+                
+                <button onclick="window.calculateR0()" style="margin: 1rem 0;">Calculate R₀</button>
+                
+                <div id="r0-results" style="background: linear-gradient(135deg, #e8f5e8, #f0f8f0); padding: 1.5rem; border-radius: 8px; margin-top: 1rem; display: none;">
+                    <h4 style="color: #2c5530; margin-bottom: 1rem;">Results:</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div>
+                            <strong>Host 1 R₀:</strong> <span id="r01-result" style="color: #4a7c59; font-size: 1.2rem;"></span>
+                        </div>
+                        <div>
+                            <strong>Host 2 R₀:</strong> <span id="r02-result" style="color: #4a7c59; font-size: 1.2rem;"></span>
+                        </div>
+                        <div>
+                            <strong>System R₀:</strong> <span id="r0system-result" style="color: #2c5530; font-size: 1.3rem; font-weight: bold;"></span>
+                        </div>
+                    </div>
+                    <div id="r0-interpretation" style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 4px;"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="concept-card">
+            <h2>Summary and Key Concepts</h2>
+            
+            <div class="acronym-box">
+                <strong>COMMUNITY: Synthesizing Multi-host Epidemiology</strong><br>
+                <strong>C</strong>ommon in nature—most pathogens infect multiple hosts<br>
+                <strong>O</strong>utcomes depend on host competence hierarchy<br>
+                <strong>M</strong>athematical models require WAIFW matrices<br>
+                <strong>M</strong>ediated competition through shared enemies<br>
+                <strong>U</strong>nexpected persistence via reservoir hosts<br>
+                <strong>N</strong>egative or positive effects on focal species<br>
+                <strong>I</strong>mportance for conservation and public health<br>
+                <strong>T</strong>ransmission mode predicts host range<br>
+                <strong>Y</strong>ielding insights for disease control
+            </div>
+            
+            <h3>Major Take-Home Messages</h3>
+            
+            <ol style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>Multi-host pathogens are the norm:</strong> Contrary to traditional single-host models, 60-80 percent of pathogens infect multiple species, necessitating community-level approaches.</li>
+                
+                <li><strong>Apparent competition is a powerful ecological force:</strong> Shared parasites can drive host species to extinction even without resource competition, with the outcome determined by differential tolerance (P* rule).</li>
+                
+                <li><strong>Vector-borne and environmental transmission favor generalism:</strong> Transmission modes that bypass intimate contact enable broader host ranges.</li>
+                
+                <li><strong>Phylogenetic relatedness constrains but doesn't determine host range:</strong> Closely related hosts share more parasites, but long-range jumps occur, especially for rapidly evolving viruses.</li>
+                
+                <li><strong>Mathematical coupling through cross-species transmission:</strong> Multi-host models show that epidemiological dynamics become interdependent, creating emergent system behaviors not predictable from single-species models.</li>
+                
+                <li><strong>System R₀ exceeds component R₀ values:</strong> Cross-species transmission can maintain pathogens in hosts where they couldn't persist alone, explaining reservoir dynamics and spillover.</li>
+                
+                <li><strong>Biodiversity effects on disease are context-dependent:</strong> More species can increase disease (amplification) or decrease disease (dilution) depending on the competence of added species.</li>
+                
+                <li><strong>Control requires multi-species strategies:</strong> Interventions must consider all competent hosts in the transmission network, not just focal species.</li>
+            </ol>
+            
+            <div class="key-insight" style="margin-top: 2rem;">
+                <strong>Final Insight:</strong>
+                Community epidemiology reveals that understanding infectious disease requires understanding ecology. Pathogen dynamics emerge from complex species interactions, food webs, competition, predation, and biodiversity. The boundary between disease ecology and community ecology dissolves—they are inseparable perspectives on the same biological reality.
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        // Initialize all slider outputs
+        document.addEventListener('DOMContentLoaded', function() {
+            // Multi-host sim sliders
+            const sliders = ['beta11', 'beta22', 'beta12', 'beta21', 'delta1', 'delta2'];
+            sliders.forEach(id => {
+                const slider = document.getElementById(id);
+                const output = document.getElementById(id + '-val');
+                slider.oninput = function() {
+                    output.textContent = this.value;
+                };
+            });
+            
+            // R0 calculator sliders
+            const r0Sliders = ['r0_beta11', 'r0_s1', 'r0_delta1', 'r0_beta22', 'r0_s2', 'r0_delta2', 'r0_beta12', 'r0_beta21'];
+            r0Sliders.forEach(id => {
+                const slider = document.getElementById(id);
+                const output = document.getElementById(id + '-val');
+                slider.oninput = function() {
+                    output.textContent = this.value;
+                };
+            });
+            
+            // Run initial simulation
+            window.updateMultiHostSim();
+        });
+        
+        // Global variables for chart
+        let multiHostChart = null;
+        
+        // Multi-host simulation function
+        window.updateMultiHostSim = function() {
+            const beta11 = parseFloat(document.getElementById('beta11').value);
+            const beta22 = parseFloat(document.getElementById('beta22').value);
+            const beta12 = parseFloat(document.getElementById('beta12').value);
+            const beta21 = parseFloat(document.getElementById('beta21').value);
+            const delta1 = parseFloat(document.getElementById('delta1').value);
+            const delta2 = parseFloat(document.getElementById('delta2').value);
+            
+            // Initial conditions
+            let S1 = 100, I1 = 5;
+            let S2 = 100, I2 = 5;
+            
+            const dt = 0.1;
+            const tMax = 200;
+            const steps = Math.floor(tMax / dt);
+            
+            const timeData = [];
+            const I1Data = [];
+            const I2Data = [];
+            
+            // Euler's method integration
+            for (let i = 0; i < steps; i++) {
+                const t = i * dt;
+                
+                // Record data every 10 steps for performance
+                if (i % 10 === 0) {
+                    timeData.push(t);
+                    I1Data.push(I1);
+                    I2Data.push(I2);
+                }
+                
+                // Calculate derivatives
+                const dS1 = -beta11 * S1 * I1 - beta21 * S1 * I2;
+                const dI1 = beta11 * S1 * I1 + beta21 * S1 * I2 - delta1 * I1;
+                const dS2 = -beta22 * S2 * I2 - beta12 * S2 * I1;
+                const dI2 = beta22 * S2 * I2 + beta12 * S2 * I1 - delta2 * I2;
+                
+                // Update populations
+                S1 += dS1 * dt;
+                I1 += dI1 * dt;
+                S2 += dS2 * dt;
+                I2 += dI2 * dt;
+                
+                // Prevent negatives
+                S1 = Math.max(0, S1);
+                I1 = Math.max(0, I1);
+                S2 = Math.max(0, S2);
+                I2 = Math.max(0, I2);
+            }
+            
+            // Create or update chart
+            const ctx = document.getElementById('multiHostChart').getContext('2d');
+            
+            if (multiHostChart) {
+                multiHostChart.destroy();
+            }
+            
+            multiHostChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData,
+                    datasets: [
+                        {
+                            label: 'Host 1 Infected (I₁)',
+                            data: I1Data,
+                            borderColor: '#4a7c59',
+                            backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Host 2 Infected (I₂)',
+                            data: I2Data,
+                            borderColor: '#17a2b8',
+                            backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Two-Host SIS Dynamics Over Time',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Infected Individuals'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        };
+        
+        // R0 calculation function
+        window.calculateR0 = function() {
+            const beta11 = parseFloat(document.getElementById('r0_beta11').value);
+            const S1 = parseFloat(document.getElementById('r0_s1').value);
+            const delta1 = parseFloat(document.getElementById('r0_delta1').value);
+            
+            const beta22 = parseFloat(document.getElementById('r0_beta22').value);
+            const S2 = parseFloat(document.getElementById('r0_s2').value);
+            const delta2 = parseFloat(document.getElementById('r0_delta2').value);
+            
+            const beta12 = parseFloat(document.getElementById('r0_beta12').value);
+            const beta21 = parseFloat(document.getElementById('r0_beta21').value);
+            
+            // Calculate individual R0 values
+            const R01 = (beta11 * S1) / delta1;
+            const R02 = (beta22 * S2) / delta2;
+            
+            // Calculate cross-species contributions
+            const R012 = (beta12 * S2) / delta1;
+            const R021 = (beta21 * S1) / delta2;
+            
+            // Calculate system R0 using Dobson's formula
+            const sum = R01 + R02;
+            const product = R01 * R02;
+            const crossProduct = R012 * R021;
+            
+            const discriminant = sum * sum - 4 * (product - crossProduct);
+            const R0system = 0.5 * (sum + Math.sqrt(discriminant));
+            
+            // Display results
+            document.getElementById('r01-result').textContent = R01.toFixed(3);
+            document.getElementById('r02-result').textContent = R02.toFixed(3);
+            document.getElementById('r0system-result').textContent = R0system.toFixed(3);
+            
+            // Interpretation
+            let interpretation = '';
+            
+            if (R0system > 1) {
+                interpretation += '<strong style="color: #dc3545;">Pathogen can invade and persist in the system.</strong><br><br>';
+            } else {
+                interpretation += '<strong style="color: #28a745;">Pathogen cannot invade—will die out.</strong><br><br>';
+            }
+            
+            if (R01 < 1 && R02 < 1 && R0system > 1) {
+                interpretation += 'Note: Even though neither host can sustain the pathogen alone (both individual R₀ < 1), cross-species transmission allows system persistence. This demonstrates the <strong>reservoir effect</strong>—each host maintains low-level infection that spills over to the other species.';
+            } else if (R01 > 1 && R02 < 1) {
+                interpretation += 'Host 1 is the primary reservoir (R₀₁ > 1) and can maintain the pathogen independently. Host 2 experiences <strong>spillover infection</strong> from Host 1.';
+            } else if (R02 > 1 && R01 < 1) {
+                interpretation += 'Host 2 is the primary reservoir (R₀₂ > 1) and can maintain the pathogen independently. Host 1 experiences <strong>spillover infection</strong> from Host 2.';
+            } else if (R01 > 1 && R02 > 1) {
+                interpretation += 'Both hosts can independently sustain the pathogen. This is a <strong>true multi-host system</strong>. Cross-species transmission amplifies overall pathogen abundance: System R₀ = ' + R0system.toFixed(3) + ' > max(R₀₁, R₀₂) = ' + Math.max(R01, R02).toFixed(3);
+            }
+            
+            const ampFactor = R0system / Math.max(R01, R02);
+            if (ampFactor > 1.2) {
+                interpretation += '<br><br>Multi-host amplification factor: ' + ampFactor.toFixed(2) + 'x. The system R₀ is ' + ((ampFactor - 1) * 100).toFixed(0) + '% higher than the best single-host R₀.';
+            }
+            
+            document.getElementById('r0-interpretation').innerHTML = interpretation;
+            document.getElementById('r0-results').style.display = 'block';
+        };
+    </script>
+</body>
+</html>
