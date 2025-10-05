@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parasite Macroecology - ECOL 6150</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: #a8d5ba;
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 5px solid #4a7c59;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 1.5rem;
+        }
+        
+        .objectives li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .concept-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-top: 4px solid #4a7c59;
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 2px solid #4a7c59;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        
+        .equation-box .equation {
+            font-size: 1.3rem;
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            margin: 1rem 0;
+            color: #2c5530;
+        }
+        
+        .key-insight {
+            background: #fff9e6;
+            border-left: 5px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .key-insight h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .case-study {
+            background: #f0f7ff;
+            border-left: 5px solid #0066cc;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .case-study h4 {
+            color: #004080;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .acronym-box {
+            background: linear-gradient(135deg, #fff3e0, #ffe8cc);
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-weight: 600;
+            color: #e65100;
+        }
+        
+        .visual-anchor {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-style: italic;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .story-connection {
+            background: #fce4ec;
+            border-left: 5px solid #e91e63;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        
+        .story-connection strong {
+            color: #880e4f;
+        }
+        
+        footer {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .concept-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Parasite Macroecology</h1>
+        <p>ECOL 4150/6150 - Population Biology of Infectious Diseases</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#specialism">Specialism vs Generalism</a></li>
+            <li><a href="#conservation">Conservation Threats</a></li>
+            <li><a href="#virulence">Virulence & Host Jumps</a></li>
+            <li><a href="#invasive">Invasive Hosts</a></li>
+            <li><a href="#summary">Summary</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <div class="objectives" id="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the ecological and evolutionary advantages and disadvantages of parasite host specialization and generalization</li>
+                <li>Recognize how parasite specialism and generalism impact conservation biology and species threat status</li>
+                <li>Explain the relationship between phylogenetic distance and virulence in host-parasite systems</li>
+                <li>Analyze patterns of parasite retention and acquisition in invasive host species</li>
+                <li>Apply the trade-off theory to predict virulence outcomes in emerging infectious diseases</li>
+                <li>Evaluate the role of generalist parasites in driving species extinction and endangerment</li>
+            </ul>
+        </div>
+        
+        <div class="concept-card" id="specialism">
+            <h2>Parasite Specialism and Generalism: The Host Range Spectrum</h2>
+            
+            <div class="acronym-box">
+                <strong>S.E.R.C.</strong> - Specialist's Edge Reduces Competition<br>
+                <strong>G.R.A.B.</strong> - Generalist's Range Allows Buffering
+            </div>
+            
+            <h3>Defining Host Specificity</h3>
+            <p>Parasite host specificity exists along a continuum from extreme specialists that infect only a single host species to broad generalists that can infect dozens or hundreds of host species. This fundamental trait shapes nearly every aspect of parasite ecology, evolution, and impact on host populations. Host specificity is primarily measured by counting the number of host species a parasite can successfully infect, though the phylogenetic relatedness of those hosts also provides important context.</p>
+            
+            <p>The biological basis of host specificity stems from complex molecular interactions between parasite surface proteins and host cell receptors, immune recognition systems, and physiological compatibility. Specialists have evolved highly optimized mechanisms for exploiting their particular host, while generalists maintain more flexible molecular machinery that works across diverse host environments.</p>
+            
+            <h3>The Specialist Strategy: Deep Adaptation to Narrow Niches</h3>
+            
+            <p>Specialist parasites have evolved to exploit their host species with remarkable efficiency. Through millions of years of coevolution with a single host or closely related host group, specialists have fine-tuned their life cycles, transmission strategies, immune evasion mechanisms, and resource exploitation to match their host's biology precisely.</p>
+            
+            <div class="key-insight">
+                <h4>Key Insight: Efficient Exploitation</h4>
+                <p>Specialists achieve higher within-host reproduction rates, more efficient transmission, and better immune evasion in their target hosts compared to generalists attempting to infect the same species. This efficiency comes from molecular-level adaptations, such as surface proteins that bind perfectly to host cell receptors and enzymes that precisely match host metabolic pathways.</p>
+            </div>
+            
+            <p>The competitive advantage of specialists becomes apparent in resource partitioning. When multiple parasite species co-occur, specialists can dominate their particular host niche because their specialized adaptations give them superior performance. This is analogous to ecological character displacement in free-living species, where specialists outcompete generalists in stable environments.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Colobus Monkey Dietary Specialization</h4>
+                <p><strong>Species:</strong> Red colobus (dietary specialist) vs. Black-and-white colobus (dietary generalist)</p>
+                <p><strong>Context:</strong> Despite being close evolutionary relatives living in similar African forest habitats, these two colobus species have diverged dramatically in their feeding ecology.</p>
+                <p><strong>Findings:</strong> The red colobus, as a dietary specialist consuming specific young leaves and seeds, requires a home range of approximately 70 hectares to find sufficient food resources. This large territory requirement reflects the patchy distribution of their preferred food items and the need to track seasonal availability of specific plant parts.</p>
+                <p>In contrast, the black-and-white colobus, which can consume a wide variety of leaves, shoots, and fruits, maintains a much smaller home range of only 15 hectares. Their dietary flexibility allows them to find adequate nutrition within a more compact area because they can exploit whatever vegetation is locally abundant.</p>
+                <p><strong>Take-home message:</strong> This case study parallels parasite ecology by demonstrating that specialization often requires access to specific, sometimes rare resources. For parasites, specialists may face similar constraints - they need contact with their specific host species, which may be patchily distributed or seasonally variable. Generalist parasites, like the generalist colobus, can persist in more situations because they can exploit whatever hosts are available, reducing their dependency on any single species.</p>
+            </div>
+            
+            <div class="visual-anchor">
+                Picture two lock-and-key systems: The specialist has a perfectly machined key that opens one lock instantly and smoothly. The generalist has a bump key that can open many locks, but takes more jiggling and doesn't work quite as smoothly on any particular lock.
+            </div>
+            
+            <h3>The Generalist Strategy: Flexibility Across Host Species</h3>
+            
+            <p>Generalist parasites sacrifice efficiency for breadth. They maintain the molecular and physiological flexibility to infect multiple, often distantly related host species. This strategy provides insurance against host population fluctuations, local extinctions, and environmental change. When one host species declines, generalists can shift to alternative hosts and maintain their populations.</p>
+            
+            <div class="key-insight">
+                <h4>Key Insight: Ready Access to Resources</h4>
+                <p>Generalists benefit from constant resource availability. Because they can infect multiple host species, there is almost always a suitable host nearby. This is particularly advantageous in fragmented landscapes, during seasonal host migrations, or when host populations fluctuate cyclically. The generalist never puts all its eggs in one basket.</p>
+            </div>
+            
+            <p>The evolutionary path to generalism requires maintaining genetic variation for host recognition and infection machinery. Generalists often show geographic variation in their host preferences, with different parasite populations locally adapted to the most common hosts in their area while retaining the ability to infect alternative species. This "jack of all trades, master of none" phenotype represents a fundamentally different evolutionary strategy than the specialist's extreme optimization.</p>
+            
+            <h3>The Trade-offs: Why Not All Generalists?</h3>
+            
+            <p>If generalism provides such flexibility, why do specialists persist? The answer lies in fundamental trade-offs between efficiency and breadth. Maintaining the molecular machinery to infect diverse hosts is metabolically expensive and genetically complex. Specialists can streamline their genomes and metabolism by discarding unnecessary genes for alternative hosts, freeing resources for more efficient exploitation of their primary host.</p>
+            
+            <div class="equation-box">
+                <h4>Specialist vs Generalist Fitness Trade-off</h4>
+                <p class="equation">
+                    Fitness<sub>specialist</sub> = r<sub>max</sub> × P(host encounter)<br><br>
+                    Fitness<sub>generalist</sub> = r<sub>avg</sub> × Σ P(host encounters)
+                </p>
+                <p>Where r<sub>max</sub> > r<sub>avg</sub>, but Σ P(host encounters) > P(host encounter)</p>
+            </equation-box>
+            
+            <p>In stable environments where the preferred host is consistently abundant, specialists win because their superior reproduction rate (r<sub>max</sub>) outweighs the generalist's advantage in host availability. In variable or disturbed environments, generalists win because their ability to exploit multiple hosts provides more consistent transmission opportunities, even though each individual infection is less productive.</p>
+            
+            <div class="story-connection">
+                <strong>Story Link:</strong> Think of specialists as highly trained surgeons who are the absolute best at one procedure, while generalists are general practitioners who can handle many conditions reasonably well. In a hospital with a constant stream of heart surgery patients (stable, abundant host), you want the cardiac specialist. In a rural clinic with varied, unpredictable cases (variable host availability), you need the generalist.
+            </div>
+        </div>
+        
+        <div class="concept-card" id="conservation">
+            <h2>Parasites as Conservation Threats: The Dark Side of Generalism</h2>
+            
+            <div class="acronym-box">
+                <strong>V.G.T.</strong> - Viruses as Generalists Threaten (conservation)<br>
+                <strong>S.P.I.L.L.</strong> - Specialist Parasites Imperiled when Losing Limited hosts
+            </div>
+            
+            <h3>The Global Pattern: Parasites and Endangerment</h3>
+            
+            <p>Infectious diseases represent an under-appreciated threat to biodiversity. Analysis across multiple taxonomic groups reveals that parasites contribute substantially to the threat status of endangered and critically endangered species. This pattern emerges clearly from IUCN Red List assessments, which document disease as a contributing factor to population declines in mammals, birds, amphibians, reptiles, and even some invertebrate groups.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Pedersen et al. (2007) - Diseases Threaten Endangered Species</h4>
+                <p><strong>Research Question:</strong> How frequently do infectious diseases contribute to species' threatened status across diverse taxonomic groups?</p>
+                <p><strong>Methodology:</strong> Comprehensive analysis of IUCN Red List data for threatened and endangered species, examining documented disease threats across vertebrate and invertebrate taxa.</p>
+                <p><strong>Key Findings:</strong> The proportion of species threatened by parasites varies significantly by taxonomic group. For carnivores, approximately 56% of threatened species face disease-related threats. In artiodactyls (hoofed mammals), this figure reaches similar levels. Birds show intermediate levels, while some invertebrate groups show lower percentages but still substantial absolute numbers of species affected.</p>
+                <p>Critically, the study revealed that as species move from "least concern" to "near threatened" to "vulnerable" to "endangered" to "critically endangered," the proportion of species for which disease is listed as a threat factor increases substantially. This pattern holds across mammals, birds, and amphibians.</p>
+                <p><strong>Take-home message:</strong> Disease becomes an increasingly important threat as populations decline. Small, fragmented populations are more vulnerable to disease-driven extinction through several mechanisms: genetic bottlenecks reduce immune diversity, small population size increases the impact of each mortality event, and spatial crowding in limited habitat fragments can increase transmission rates. This creates a positive feedback loop where population decline increases disease susceptibility, which further reduces population size.</p>
+            </div>
+            
+            <h3>The Taxonomic Pattern: Viruses and Bacteria Dominate</h3>
+            
+            <p>When examining which types of parasites pose the greatest conservation threats, a clear pattern emerges: generalist viruses and bacteria are disproportionately represented among disease threats to endangered species. This contrasts sharply with the overall diversity of parasites, where helminths (parasitic worms), arthropods, and protozoans are also common.</p>
+            
+            <div class="key-insight">
+                <h4>Key Insight: Generalist Microparasites as Conservation Threats</h4>
+                <p>For artiodactyls (hoofed mammals), viruses comprise 29% of disease threats, with bacteria adding another 17%. Helminths contribute 12%, while arthropods (like ticks) account for 12%. For carnivores, the pattern is even more striking: viruses represent 56% of disease threats, while bacteria add 6%. This overwhelming dominance of viral threats reflects the tendency of viruses to be generalists capable of jumping between host species.</p>
+            </div>
+            
+            <p>The biological explanation for this pattern relates to the molecular simplicity of viruses and bacteria compared to complex parasites like helminths. Viruses particularly can more readily evolve to recognize and infect new host species because they rely primarily on binding to cellular receptors that may be conserved across host taxa. Helminths, with their complex life cycles and morphological specializations, are more constrained in their host range.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parasite Type</th>
+                        <th>Typical Host Specificity</th>
+                        <th>Conservation Threat Level</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Viruses</td>
+                        <td>Often generalist</td>
+                        <td>Very High (29-56% of threats)</td>
+                        <td>Canine distemper virus</td>
+                    </tr>
+                    <tr>
+                        <td>Bacteria</td>
+                        <td>Variable, many generalist</td>
+                        <td>Moderate-High (6-17% of threats)</td>
+                        <td>Anthrax</td>
+                    </tr>
+                    <tr>
+                        <td>Helminths</td>
+                        <td>Often specialist</td>
+                        <td>Low-Moderate (12% of threats)</td>
+                        <td>Lungworms</td>
+                    </tr>
+                    <tr>
+                        <td>Arthropods</td>
+                        <td>Variable</td>
+                        <td>Low-Moderate (12-13% of threats)</td>
+                        <td>Ticks</td>
+                    </tr>
+                    <tr>
+                        <td>Protozoa</td>
+                        <td>Variable</td>
+                        <td>Moderate (varies by taxa)</td>
+                        <td>Toxoplasma</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="case-study">
+                <h4>Case Study: Heard et al. (2013) - Disease Threat Escalates with Endangerment</h4>
+                <p><strong>Research Focus:</strong> Quantifying how disease importance changes across IUCN threat categories.</p>
+                <p><strong>Key Pattern:</strong> Species with evidence of disease threats show a striking pattern across threat categories. For "Least Concern" species, disease is rarely mentioned as a significant factor. As we move through "Near Threatened" and "Vulnerable" categories, disease threats become progressively more prominent. For "Endangered" and "Critically Endangered" species, disease is mentioned as a threat factor at the highest rates.</p>
+                <p><strong>Mechanism:</strong> This escalation pattern reflects several ecological and evolutionary processes. First, small populations experience stronger genetic drift, potentially losing immune gene diversity. Second, species with restricted ranges may be forced into suboptimal habitats where stress reduces immune function. Third, conservation interventions that increase population density (captive breeding, protected reserves) can inadvertently increase transmission rates. Fourth, threatened species may have increased contact with humans and domestic animals, facilitating pathogen spillover.</p>
+                <p><strong>Take-home message:</strong> Disease is both a cause and consequence of endangerment. As other factors (habitat loss, overharvesting, climate change) reduce populations, disease becomes an increasingly potent threat multiplier. Conservation strategies must proactively address disease risks, not just assume healthy populations will be disease-resistant. This is particularly important for generalist pathogens that can be maintained in reservoir hosts and repeatedly spill over into declining target populations.</p>
+            </div>
+            
+            <div class="visual-anchor">
+                Imagine a fortress under siege: When the garrison is strong and well-supplied (large, healthy population), occasional disease cases are manageable. But as the fortress weakens from hunger and exhaustion (population decline from other threats), even minor infections become catastrophic, potentially leading to total collapse.
+            </div>
+        </div>
+        
+        <div class="concept-card" id="virulence">
+            <h2>Virulence Evolution and Phylogenetic Distance in Host Jumps</h2>
+            
+            <div class="acronym-box">
+                <strong>E.V.O.L.V.E.</strong> - Evolution Values Optimal, Largely Variable Endpoints<br>
+                <strong>J.U.M.P.S.</strong> - Jumps Undergo Maladaptation, Producing Severe outcomes
+            </div>
+            
+            <h3>The Virulence Trade-off Theory</h3>
+            
+            <p>Classical evolutionary theory predicts that parasite virulence (the harm caused to the host) should evolve toward an intermediate optimum that balances transmission benefits against the costs of killing the host too quickly. This "trade-off theory" or "enlightened self-interest theory" recognizes that parasites face a fundamental dilemma: they need the host alive for transmission, but within-host replication (which generates transmissible stages) often damages the host.</p>
+            
+            <div class="equation-box">
+                <h4>Transmission-Virulence Trade-off</h4>
+                <p class="equation">
+                    Fitness = β × Duration of Infection<br><br>
+                    where:<br>
+                    β = transmission rate (increases with parasite load)<br>
+                    Duration = 1 / (μ + α + γ)<br>
+                    μ = host natural mortality<br>
+                    α = disease-induced mortality (virulence)<br>
+                    γ = host recovery rate
+                </p>
+                <p>Optimal virulence maximizes: β(α) × [1/(μ + α + γ)]</p>
+            </div>
+            
+            <p>The mathematical formulation reveals why intermediate virulence is often optimal. Low virulence means low within-host replication, producing few transmissible stages and low β. High virulence means high α, leading to rapid host death and short infection duration. The optimal strategy typically lies somewhere between these extremes, though the exact position depends on host density, alternative transmission routes, and environmental persistence of the parasite.</p>
+            
+            <div class="key-insight">
+                <h4>Key Insight: Optimal Virulence in Native Hosts</h4>
+                <p>In well-established host-parasite relationships, virulence has evolved to maximize parasite fitness, not to minimize harm to the host. However, because parasite fitness depends on transmission opportunities, which require living (or at least not-yet-dead) hosts, natural selection pushes virulence toward values that balance replication and transmission. This explains why many endemic parasites cause chronic, debilitating infections rather than rapid mortality.</p>
+            </div>
+            
+            <h3>When Parasites Jump: The Phylogenetic Distance Effect</h3>
+            
+            <p>The orderly predictions of trade-off theory break down when parasites jump to new host species. Host jumps represent evolutionary "accidents" where a parasite encounters and successfully infects a host with which it shares no coevolutionary history. The virulence exhibited in these novel host species reflects maladaptation, not optimization.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Farrell & Davies (2019) - Phylogenetic Distance and Virulence</h4>
+                <p><strong>Research Question:</strong> Does virulence in host jump events depend on the evolutionary distance between donor and recipient host species?</p>
+                <p><strong>Hypothesis:</strong> Two competing hypotheses exist. First, the "lack of specialization" hypothesis suggests that jumps to distantly related hosts will show high virulence because the parasite is simply not adapted to function in that host environment, leading to dysregulated replication. Second, the "loss of resistance" hypothesis suggests that closely related hosts might show high virulence if they recently lost resistance mechanisms that were present in ancestors.</p>
+                <p><strong>Methodology:</strong> The researchers compiled a database of documented parasite spillover events across mammals, quantifying both mortality rates and the phylogenetic distance between donor and recipient hosts. Phylogenetic distance was measured as the time since the most recent common ancestor, estimated from molecular phylogenies.</p>
+                <p><strong>Measuring Evolutionary Isolation:</strong> The researchers developed a metric of "host evolutionary isolation" that accounts for which other host species the parasite can infect. A recipient host is considered more evolutionarily isolated if the parasite must jump across a large phylogenetic distance from its current host range to infect it.</p>
+                <p><strong>Key Findings:</strong> The data revealed a clear positive relationship between evolutionary isolation and virulence. Host species that were closely related to the parasite's existing host range (evolutionary isolation 0-50 million years) showed lower mortality rates, often below 20%. For example, <em>Mycoplasma mycoides</em> in goats (closely related to cattle reservoir) caused only 7% mortality.</p>
+                <p>In contrast, host species at intermediate evolutionary distances (51-100 MYA) showed elevated mortality. At the greatest evolutionary distances (151-200 MYA), mortality rates were often catastrophically high. Rabies virus in goats (isolated by 181.9 MY from its canid reservoirs) caused 98% mortality - essentially a death sentence.</p>
+                <p><strong>Take-home message:</strong> Large phylogenetic jumps between host species tend to produce maladaptively high virulence. This pattern suggests that most cross-species transmission events that span large evolutionary distances will be dead-ends for the parasite precisely because they kill the new host too quickly for sustained transmission. The pandemics we should fear most are those from moderately distant hosts, where virulence is high enough to cause significant mortality but not so extreme as to immediately burn out.</p>
+            </div>
+            
+            <div class="visual-anchor">
+                Think of host jumps like trying to use appliances designed for different electrical systems: A device designed for 120V US power might work adequately in 100V Japan (close relatives), but plug it into 240V European power (distant relatives) and you'll likely get sparks, smoke, and rapid destruction of both the device and potentially the outlet.
+            </div>
+            
+            <h3>The Mechanisms of Maladaptive Virulence</h3>
+            
+            <p>Why do large host jumps produce extreme virulence? Several non-exclusive mechanisms contribute. First, parasites may lack the regulatory mechanisms that normally limit their replication in adapted hosts. In the native host, various molecular signals indicate when replication should slow down to avoid killing the host prematurely. In a phylogenetically distant host, these signals may be absent or unrecognizable.</p>
+            
+            <p>Second, the new host's immune system may be poorly calibrated to respond to the novel parasite. Immunopathology - tissue damage caused by the immune response rather than directly by the parasite - often drives virulence in novel host species. The immune system, having never encountered this parasite's molecular patterns, may overreact or target the wrong cellular pathways, causing collateral damage.</p>
+            
+            <p>Third, the parasite may exploit cellular pathways in the new host that have unexpected consequences. For example, a virus that hijacks ribosomal machinery optimized for one host species may cause protein synthesis imbalances in another species with different ribosomal kinetics, leading to cellular stress and death.</p>
+            
+            <div class="key-insight">
+                <h4>Key Insight: Small Outbreaks, High Virulence</h4>
+                <p>The Farrell & Davies study also revealed that high virulence was associated with small outbreak sizes. This makes epidemiological sense: parasites that kill hosts rapidly have limited time for transmission, resulting in small, self-limiting outbreaks. This relationship provides some reassurance that the most virulent cross-species jumps are unlikely to become pandemics. However, it also means that conservation threats from highly virulent parasites may be underestimated because they cause local population crashes without spreading widely enough to gain scientific attention.</p>
+            </div>
+            
+            <h3>Implications for Emerging Infectious Diseases</h3>
+            
+            <p>The phylogenetic distance-virulence relationship has profound implications for predicting and managing emerging infectious diseases. It suggests that surveillance efforts should focus particularly on parasites circulating in hosts at intermediate phylogenetic distances from humans (other primates, then other mammals). Parasites from very distant hosts may be either unable to infect us or so virulent they self-limit, while parasites from closely related hosts may have already adapted to spillover and represent ongoing endemic risks.</p>
+            
+            <div class="story-connection">
+                <strong>Story Link:</strong> The COVID-19 pandemic exemplifies these principles. SARS-CoV-2 likely originated in bats, jumped to an intermediate host (possibly pangolins), and then to humans. Each jump involved adaptation, with virulence and transmissibility being shaped by the phylogenetic distance between successive hosts. The resulting virulence in humans - significant but not catastrophically high - represents exactly the "Goldilocks zone" that allows pandemic spread.
+            </div>
+        </div>
+        
+        <div class="concept-card" id="invasive">
+            <h2>Invasive Hosts and Parasite Dynamics: Enemy Release and Spillover</h2>
+            
+            <div class="acronym-box">
+                <strong>E.R.S.</strong> - Enemy Release aids invasive Success<br>
+                <strong>S.K.I.P.</strong> - Specialists Kept, Invasion Proceeds<br>
+                <strong>G.A.P.</strong> - Generalists Acquired from new Populations
+            </div>
+            
+            <h3>The Enemy Release Hypothesis</h3>
+            
+            <p>Invasive species represent one of the greatest threats to global biodiversity, and understanding their success requires considering their parasites. The Enemy Release Hypothesis posits that invasive species gain a competitive advantage in their new ranges because they escape from the specialized natural enemies (including parasites) that regulate their populations in their native ranges. When a small founding population establishes in a new geographic region, it typically carries only a fraction of its original parasite fauna.</p>
+            
+            <p>This hypothesis predicts that invasive hosts should be healthier, grow faster, and reproduce more successfully than their native-range counterparts because they no longer bear the costs of parasitism. Freed from parasite-induced mortality and morbidity, invasive populations can invest more energy in growth and reproduction, potentially explaining their demographic success.</p>
+            
+            <div class="key-insight">
+                <h4>Key Insight: The 90% Rule</h4>
+                <p>Empirical studies consistently show that invasive hosts leave behind approximately 90% of their original parasite species when they establish in new ranges. This dramatic parasite loss occurs through multiple mechanisms: small founding population size means rare parasites are unlikely to be present in founding individuals, geographic barriers prevent parasite transmission during transport, and ecological differences in the new range may eliminate necessary intermediate hosts or vectors for complex parasite life cycles.</p>
+            </div>
+            
+            <h3>Which Parasites Do Invasive Hosts Retain?</h3>
+            
+            <div class="case-study">
+                <h4>Case Study: Schatz & Park (2023) - Parasite Retention Patterns</h4>
+                <p><strong>Research Question:</strong> When invasive hosts lose 90% of their parasites, is this loss random, or do certain types of parasites preferentially persist?</p>
+                <p><strong>Hypothesis:</strong> Specialist parasites, which are completely dependent on their particular host species, should be more likely to persist through the invasion process than generalist parasites, which can exploit multiple host species and thus may not colonize with the invading host if alternative hosts are unavailable in the new range.</p>
+                <p><strong>Methodology:</strong> Comprehensive meta-analysis of parasite retention in invasive vertebrate hosts, comparing parasite host specificity (measured as the number of host species infected) between retained and lost parasites across multiple parasite taxonomic groups.</p>
+                <p><strong>Key Findings:</strong> The results strongly supported the specialist retention hypothesis across all parasite groups examined. For arthropod parasites, retained parasites had significantly more specialist characteristics (negative z-score values indicating specialization) compared to lost parasites. The pattern held consistently across bacteria, helminths, protozoa, and viruses.</p>
+                <p><strong>Z-score Interpretation:</strong> The z-score metric quantifies how specialist or generalist each parasite is relative to others in its taxonomic group. Negative z-scores indicate specialization (fewer host species), while positive z-scores indicate generalism (more host species). Retained parasites consistently showed z-scores between -1.0 and -1.5 for most groups, while the overall parasite fauna before invasion was centered near the average (z-score ≈ 0).</p>
+                <p><strong>Take-home message:</strong> Invasive hosts selectively retain their specialist parasites while losing generalists. This creates a double-edged sword for conservation. On one hand, the invasive host benefits from enemy release because it sheds many parasites. On the other hand, the specialists that do make the journey remain entirely dependent on the invasive host and may build up to high densities in the absence of native competing parasites. These retained specialists can then spill over to native hosts, particularly closely related species.</p>
+            </div>
+            
+            <div class="visual-anchor">
+                Imagine a pioneer family moving to a new continent: They bring their loyal family dog (specialist parasite completely dependent on the family) but leave behind the neighborhood cats that sometimes visit (generalist parasites that have many alternative hosts). The dog must come because it has nowhere else to go; the cats stay because they have other food sources.
+            </div>
+            
+            <h3>Do Invasive Hosts Acquire New Parasites?</h3>
+            
+            <p>While invasive hosts lose most of their native-range parasites, they don't remain parasite-free indefinitely. Over time, they may acquire parasites from the native host community in their invaded range. The question of whether this acquisition is random or follows predictable patterns based on parasite host specificity has major implications for disease dynamics.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Schatz & Park (2023) - Parasite Acquisition Patterns</h4>
+                <p><strong>Research Question:</strong> Do invasive hosts randomly acquire parasites from native hosts, or are generalist parasites preferentially able to colonize invasive hosts?</p>
+                <p><strong>Predictions:</strong> Two contrasting predictions emerge. First, if phylogenetic barriers are strong, invasive hosts should rarely acquire parasites regardless of specificity because they lack the coevolutionary history necessary for infection. Second, if generalist parasites can readily exploit novel hosts due to their broad host range capabilities, acquisition should be biased toward generalists.</p>
+                <p><strong>Findings for Closely Related Hosts (0-50 MYA):</strong> When invasive hosts are closely related to native hosts (within approximately 50 million years of evolutionary divergence), parasite acquisition showed a clear bias toward generalist parasites. Arthropods, bacteria, helminths, protozoa, and viruses all showed the same pattern: acquired parasites had positive z-scores (indicating generalism) while non-acquired parasites had negative z-scores (indicating specialism).</p>
+                <p><strong>The Absence of Phylogenetic Barriers:</strong> For closely related host pairs, generalist parasites moved readily onto invasive hosts. This represents a cost of the generalist strategy - while generalists benefit from having many host options, this flexibility also means they may waste transmission effort on invasive hosts that don't contribute to their population growth.</p>
+                <p><strong>Findings for Distantly Related Hosts (51-200 MYA):</strong> As phylogenetic distance increased, the acquisition patterns changed dramatically. For moderately distant hosts (51-100 MYA), acquisition rates dropped substantially, and the generalist bias weakened or disappeared for some parasite groups. For the most distantly related hosts (151-200 MYA), particularly for viruses, acquisition became rare, and specialists and generalists showed similar (low) acquisition rates.</p>
+                <p><strong>The Presence of Phylogenetic Barriers:</strong> At large phylogenetic distances, even generalist parasites struggle to infect invasive hosts. This represents a cost of specialism - specialist parasites dependent on native hosts in clades far from the invasive host have essentially zero probability of acquiring this new, abundant host resource.</p>
+                <p><strong>Take-home message:</strong> Parasite acquisition by invasive hosts is not random but follows predictable rules based on host phylogenetic relationships and parasite host specificity. Generalists can readily exploit closely related invasive hosts, potentially leading to their decline through increased parasite pressure. However, phylogenetic distance creates barriers that protect invasive hosts from acquisition when they are distantly related to native fauna. These patterns help explain why some invasive hosts remain relatively disease-free while others become heavily parasitized in their new ranges.</p>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Host Relatedness</th>
+                        <th>Retention Pattern</th>
+                        <th>Acquisition Pattern</th>
+                        <th>Implication</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0-50 MYA (Close)</td>
+                        <td>Specialists retained</td>
+                        <td>Generalists acquired</td>
+                        <td>Enemy release + spillover risk to native hosts</td>
+                    </tr>
+                    <tr>
+                        <td>51-100 MYA (Moderate)</td>
+                        <td>Specialists retained</td>
+                        <td>Reduced acquisition</td>
+                        <td>Strong enemy release, limited spillback</td>
+                    </tr>
+                    <tr>
+                        <td>101-150 MYA (Distant)</td>
+                        <td>Specialists retained</td>
+                        <td>Rare acquisition</td>
+                        <td>Maximum enemy release benefit</td>
+                    </tr>
+                    <tr>
+                        <td>151-200 MYA (Very Distant)</td>
+                        <td>Specialists retained</td>
+                        <td>Very rare acquisition</td>
+                        <td>Strong phylogenetic barriers protect both ways</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>The Dual Threat: Enemy Release Plus Parasite Spillover</h3>
+            
+            <p>The retention and acquisition patterns documented by Schatz and Park reveal a particularly insidious consequence of biological invasions. Invasive hosts benefit from enemy release (losing 90% of parasites) while simultaneously posing a spillover threat to native hosts (through retained specialists that can jump to related native species). This combination can devastate native species that are already struggling with other anthropogenic stressors.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Red-eared Slider Turtles and Lungworm Spillover</h4>
+                <p><strong>Context:</strong> Red-eared slider turtles (Trachemys scripta elegans), native to the southern United States, have become one of the world's most widespread invasive reptiles due to the pet trade. Populations now exist on every continent except Antarctica.</p>
+                <p><strong>Parasite Dynamics:</strong> Red-eared sliders brought with them several specialist parasites, including lungworms that are adapted specifically to freshwater turtle hosts. These lungworms successfully established in invasive slider populations.</p>
+                <p><strong>Spillover Events:</strong> In several invaded regions, these lungworms have jumped from invasive sliders to native turtle species, particularly those in the same family (Emydidae). Because native turtles lack coevolutionary experience with these particular lungworms, infections can be severe.</p>
+                <p><strong>Population-Level Impacts:</strong> Some native turtle populations experiencing spillover show reduced body condition, impaired breathing (lungworms damage respiratory tissue), and elevated mortality. When combined with other threats like habitat loss and collection for food markets, these parasite-mediated effects can push populations toward local extinction.</p>
+                <p><strong>Take-home message:</strong> Invasive species don't just compete for resources and habitat - they also introduce novel parasites that can devastate native species. The enemy release hypothesis explains why invasive hosts thrive, but we must also consider the threats they pose through parasite spillover. Conservation strategies must account for disease dynamics, potentially including parasite surveillance and biosecurity measures to prevent introduction of invasive hosts and their parasites.</p>
+            </div>
+            
+            <div class="story-connection">
+                <strong>Story Link:</strong> This dynamic parallels human colonization patterns throughout history. European colonizers often survived better than indigenous peoples partly because they brought diseases (like smallpox and measles) to which they had some immunity but which were devastating to naive populations. The colonizers benefited from "enemy release" in terms of escaping European diseases that required high population densities, while simultaneously introducing parasites catastrophic to indigenous peoples. The ecological parallels are striking and sobering.
+            </div>
+            
+            <h3>Climate Change and Parasite Macroecology</h3>
+            
+            <p>The patterns documented in invasion biology have direct relevance for predicting disease dynamics under climate change. As species shift their ranges poleward and upward in elevation in response to warming, they undergo essentially the same processes as intentional introductions: founder effects, loss of parasites, potential acquisition of new parasites, and opportunities for spillover.</p>
+            
+            <div class="key-insight">
+                <h4>Key Insight: Climate Change as Assisted Invasion</h4>
+                <p>Climate-driven range shifts can be viewed through the lens of invasion biology. Species expanding into newly suitable climatic zones will likely leave behind specialist parasites that cannot track their hosts due to different thermal tolerances or dispersal limitations. However, they may acquire generalist parasites from resident species if they are phylogenetically similar. The costs of specialism versus generalism identified in the Schatz and Park studies thus provide a framework for predicting which parasites will successfully track their hosts under climate change and which will be left behind.</p>
+            </div>
+            
+            <p>For conservation planning, this framework suggests that specialists pose the greatest risk for host species already near range limits or in fragmented landscapes. If a host population cannot shift its range because suitable habitat is unavailable, but its specialist parasites can persist in degraded conditions, parasite pressure may increase even as host condition declines. Conversely, hosts that successfully shift ranges may experience enemy release, potentially contributing to their establishment success in new regions.</p>
+        </div>
+        
+        <div class="concept-card" id="summary">
+            <h2>Summary and Synthesis: The Macroecology of Host-Parasite Interactions</h2>
+            
+            <div class="acronym-box">
+                <strong>S.P.E.C.I.A.L.I.S.M.</strong> - Specialists: Perfected Efficiency, Constrained by Isolation, Advantage in Limitation<br>
+                <strong>G.E.N.E.R.A.L.I.S.M.</strong> - Generalists: Everywhere, Never Expertise, Readiness Allows Luck
+            </div>
+            
+            <h3>Core Principles of Parasite Macroecology</h3>
+            
+            <p>The study of parasite host specificity at large spatial and taxonomic scales reveals fundamental ecological and evolutionary principles that shape disease dynamics, conservation threats, and emergence risks. These principles represent the integration of molecular biology, population ecology, evolutionary theory, and biogeography.</p>
+            
+            <h3>Principle 1: Host Specificity Represents a Fundamental Life History Trade-off</h3>
+            
+            <p>Parasites exist along a continuum from extreme specialists to broad generalists, with each strategy conferring distinct advantages and costs. Specialists achieve higher fitness when their preferred host is abundant and predictable, benefiting from efficient resource exploitation and reduced competition. Their molecular, physiological, and behavioral adaptations are finely tuned to their particular host, allowing superior performance in that specific environment.</p>
+            
+            <p>Generalists sacrifice per-host efficiency for breadth, maintaining the flexibility to exploit multiple host species. This bet-hedging strategy provides insurance against host population fluctuations, extinctions, and environmental variability. The optimal position along this spectrum depends on host ecology, environmental predictability, and the competitive landscape.</p>
+            
+            <h3>Principle 2: Generalist Pathogens Disproportionately Threaten Biodiversity</h3>
+            
+            <p>Analysis of threatened and endangered species reveals that disease threats come predominantly from generalist viruses and bacteria, not from the specialist helminths and arthropods that comprise much of parasite diversity. This pattern reflects the ability of generalist microparasites to maintain populations in common reservoir hosts while repeatedly spilling over into rare, declining target species.</p>
+            
+            <p>The conservation significance of this pattern is profound: protecting endangered species requires managing not just the species themselves but also the entire host community that maintains generalist pathogen populations. Simple population augmentation or captive breeding may inadvertently increase disease transmission rates if not accompanied by parasite management.</p>
+            
+            <h3>Principle 3: Phylogenetic Distance Predicts Virulence in Novel Hosts</h3>
+            
+            <p>When parasites jump to new host species, virulence in the recipient host depends strongly on phylogenetic distance between donor and recipient. Close phylogenetic relatives show virulence similar to the native host, reflecting conserved physiology and immunity. Distant phylogenetic relatives show maladaptively high virulence, reflecting the parasite's inability to regulate replication appropriately and the host's poorly calibrated immune response.</p>
+            
+            <p>This relationship provides a framework for predicting emergence risks. Parasites from moderately distant hosts represent the greatest pandemic threat because they are virulent enough to cause significant mortality but not so extreme as to prevent sustained transmission. Surveillance and intervention efforts should prioritize these intermediate-distance host-parasite pairs.</p>
+            
+            <h3>Principle 4: Invasive Hosts Retain Specialists and Acquire Generalists</h3>
+            
+            <p>Biological invasions provide natural experiments in parasite community assembly. Invasive hosts consistently lose approximately 90% of their native-range parasites, with retention strongly biased toward specialists. These retained specialists have nowhere else to go - they are completely dependent on their invasive host and must colonize the new range or face extinction.</p>
+            
+            <p>In the invaded range, acquisition of native parasites follows the opposite pattern: generalist parasites readily colonize closely related invasive hosts, while specialists remain constrained to their native hosts. This asymmetry creates enemy release for the invader (loss of 90% of parasites) while creating spillover risks for native species (from retained specialists).</p>
+            
+            <h3>Principle 5: Phylogenetic Barriers Modulate Host Shifts</h3>
+            
+            <p>The ability of parasites to acquire new hosts or of hosts to acquire new parasites depends critically on phylogenetic distance. At short phylogenetic distances (0-50 million years), barriers are weak or absent, and generalist parasites move readily between hosts. At intermediate distances (51-150 MY), barriers strengthen, and acquisition becomes less common. At large distances (151-200 MY), even generalist parasites rarely succeed in colonizing new hosts.</p>
+            
+            <p>These phylogenetic barriers represent the cumulative effect of divergence in cellular receptors, immune recognition systems, physiological conditions, and countless other molecular incompatibilities that accumulate over evolutionary time. Understanding where these barriers fall for particular host-parasite systems allows prediction of spillover risks and invasion outcomes.</p>
+            
+            <h3>Applications to Climate Change and Emerging Diseases</h3>
+            
+            <p>The principles of parasite macroecology provide essential tools for predicting and managing disease dynamics in a changing world. As climate change drives species range shifts, the patterns documented in invasion biology will play out repeatedly across landscapes and taxa. Species moving into new climatic zones will likely experience enemy release from specialists with different climatic tolerances while potentially acquiring generalists from resident hosts.</p>
+            
+            <p>For emerging infectious diseases, the phylogenetic distance-virulence relationship helps identify high-risk scenarios. Intensified contact between humans and wildlife due to habitat destruction, bushmeat hunting, and agricultural expansion creates opportunities for spillover. The parasites most likely to cause the next pandemic are those currently circulating in mammals at intermediate phylogenetic distances from humans - particularly primates, bats, and ungulates.</p>
+            
+            <div class="key-insight">
+                <h4>Integration: The Predictive Power of Macroecology</h4>
+                <p>Parasite macroecology reveals that disease dynamics at large scales follow predictable patterns based on host specificity, phylogenetic relationships, and ecological context. These patterns allow us to move beyond case-by-case descriptions toward general predictive frameworks. Such frameworks are essential for proactive management of conservation threats, emerging diseases, and climate-driven disease shifts.</p>
+            </div>
+            
+            <h3>Future Directions and Unanswered Questions</h3>
+            
+            <p>Despite substantial progress, major questions remain. How do parasite communities reassemble in invaded ranges over decades and centuries? Do invasive hosts eventually regain parasite diversity, or does enemy release persist indefinitely? How quickly can parasites adapt to new hosts, and what genomic changes facilitate such adaptation? Can we predict which specific parasite species will successfully make large phylogenetic jumps?</p>
+            
+            <p>Addressing these questions requires integrating macroecological patterns with genomic, immunological, and experimental approaches. Long-term monitoring of invasive species and their parasites, coupled with experimental infections and genomic sequencing of parasites before and after host shifts, will provide critical insights into the mechanisms underlying the patterns documented here.</p>
+            
+            <div class="visual-anchor">
+                The macroecology of parasites reveals the forest through the trees - individual infections and outbreaks represent data points in much larger patterns governed by host specificity, evolutionary history, and ecological context. Like a satellite view revealing mountain ranges and river systems invisible from ground level, macroecology shows us the fundamental structures organizing disease across scales of space, time, and taxonomy.
+            </div>
+        </div>
+        
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 ECOL 4150/6150 - Population Biology of Infectious Diseases</p>
+        <p>University of Georgia - Odum School of Ecology</p>
+    </footer>
+</body>
+</html>
