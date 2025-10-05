@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-infection and Parasite Interactions - PBID 6150</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: #4a7c59;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .objectives {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border-left: 5px solid #4a7c59;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 2rem;
+        }
+        
+        .objectives li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+        
+        .concept-card h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px solid #4a7c59;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        
+        .equation-box .equation {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c5530;
+            margin: 1rem 0;
+        }
+        
+        .equation-box .variable {
+            font-style: italic;
+        }
+        
+        .key-insight {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 5px solid #ffc107;
+            margin: 1.5rem 0;
+        }
+        
+        .key-insight h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .case-study {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border-left: 5px solid #2196f3;
+        }
+        
+        .case-study h3 {
+            color: #1565c0;
+            margin-bottom: 1rem;
+        }
+        
+        .acronym-box {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border-left: 5px solid #9c27b0;
+        }
+        
+        .acronym-box h4 {
+            color: #6a1b9a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .visual-anchor {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border-left: 5px solid #4caf50;
+            font-style: italic;
+        }
+        
+        .simulation-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border: 2px solid #4a7c59;
+        }
+        
+        .simulation-explanation {
+            background: #f0f8f0;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 3px solid #4a7c59;
+        }
+        
+        .controls {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-group label {
+            display: inline-block;
+            width: 200px;
+            font-weight: bold;
+            color: #2c5530;
+        }
+        
+        .control-group input[type="range"] {
+            width: 300px;
+        }
+        
+        .control-group span {
+            margin-left: 1rem;
+            color: #4a7c59;
+            font-weight: bold;
+        }
+        
+        canvas {
+            max-width: 100%;
+            margin-top: 1rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #2c5530;
+            color: white;
+        }
+        
+        tr:hover {
+            background: #f0f8f0;
+        }
+        
+        .variable-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .variable-item {
+            background: #f0f8f0;
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 3px solid #4a7c59;
+        }
+        
+        .variable-item strong {
+            color: #2c5530;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Co-infection and Interactions Between Parasite Species</h1>
+        <p>Population Biology of Infectious Diseases - Course 6150</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#cdv-babesia">CDV-Babesia Case</a></li>
+            <li><a href="#detection">Detecting Interactions</a></li>
+            <li><a href="#mechanisms">Interaction Mechanisms</a></li>
+            <li><a href="#case-studies">Human Health Cases</a></li>
+            <li><a href="#consequences">Consequences</a></li>
+            <li><a href="#buffalo-tb">Buffalo-TB Study</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand the difference between single-pathogen and multi-pathogen systems in disease ecology</li>
+                <li>Identify and explain the mechanisms by which different parasite species interact within a host</li>
+                <li>Distinguish between top-down (immune-mediated) and bottom-up (resource-based) parasite interactions</li>
+                <li>Analyze how co-infections affect individual host fitness, disease severity, and population-level dynamics</li>
+                <li>Evaluate the consequences of parasite interactions for disease control strategies</li>
+                <li>Apply concepts of parasite community structure to understand infracommunities and component communities</li>
+                <li>Interpret case studies demonstrating facilitative and antagonistic parasite interactions</li>
+                <li>Predict how parasite interactions influence R₀ and disease transmission dynamics</li>
+            </ul>
+        </section>
+        
+        <section id="introduction" class="concept-card">
+            <h2>Introduction to Community Epidemiology</h2>
+            
+            <div class="acronym-box">
+                <h4>MICE Framework for Co-infection</h4>
+                <p><strong>M</strong>ulti-pathogen systems<br>
+                <strong>I</strong>nteractions matter<br>
+                <strong>C</strong>onsequences for hosts<br>
+                <strong>E</strong>cological and evolutionary outcomes</p>
+            </div>
+            
+            <h3>The Reality of Multi-Pathogen Systems</h3>
+            <p>Traditional infectious disease ecology has often focused on single host-single pathogen systems, such as humans and measles, seals and phocine distemper virus, or rabbits and myxomatosis. This simplified approach has yielded valuable insights into disease dynamics, but it overlooks a critical reality: most hosts harbor multiple parasite species simultaneously.</p>
+            
+            <p><strong>Community epidemiology</strong> represents a paradigm shift in how we study infectious diseases. Rather than isolating individual pathogen-host pairs, this field examines multi-host and multi-parasite interactions within an ecological community context. This broader perspective reveals that parasites do not exist in isolation within their hosts. Instead, they interact with other parasite species, competing for resources, modulating immune responses, and ultimately affecting disease outcomes in ways that single-pathogen models cannot predict.</p>
+            
+            <h3>Three Major Frameworks in Community Epidemiology</h3>
+            
+            <table>
+                <tr>
+                    <th>Framework</th>
+                    <th>Key Features</th>
+                    <th>Examples</th>
+                </tr>
+                <tr>
+                    <td><strong>Co-infection</strong></td>
+                    <td>Multiple parasite species within a single host; focus on within-host interactions</td>
+                    <td>HIV and tuberculosis; helminths and viral pathogens</td>
+                </tr>
+                <tr>
+                    <td><strong>Multi-host Parasites</strong></td>
+                    <td>Single parasite species infecting multiple host species; focus on spillover and reservoir dynamics</td>
+                    <td>Rabies in carnivores; avian influenza across bird species</td>
+                </tr>
+                <tr>
+                    <td><strong>Host-Predator-Prey</strong></td>
+                    <td>Parasites affecting predator-prey relationships and trophic interactions</td>
+                    <td>Toxoplasma affecting rodent behavior and predation by cats</td>
+                </tr>
+            </table>
+            
+            <div class="visual-anchor">
+                <p><strong>Visual Memory Anchor:</strong> Think of a host as a battleground where multiple armies (parasites) fight not just the host's defenses, but also each other. Some armies form alliances (facilitation), while others engage in direct combat (antagonism). The outcome determines whether the host fortress falls or survives.</p>
+            </div>
+            
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>The transition from single-pathogen to community-level thinking fundamentally changes our understanding of disease dynamics, control strategies, and evolutionary pressures on both hosts and parasites.</p>
+            </div>
+        </section>
+        
+        <section id="cdv-babesia" class="concept-card">
+            <h2>Case Study: Canine Distemper Virus and Babesia in Serengeti Lions</h2>
+            
+            <div class="case-study">
+                <h3>The 1994 and 2001 Epidemics</h3>
+                <p><strong>Background:</strong> In 1994 and again in 2001, catastrophic epidemics of canine distemper virus (CDV) swept through lion populations in the Serengeti and Ngorongoro Crater. These outbreaks killed approximately one-third of the lion population, raising urgent questions about the factors driving such high mortality.</p>
+                
+                <p><strong>The Puzzle:</strong> CDV was known to circulate episodically in lion populations every 5-13 years (evidence from retrospective serological studies showing antibodies in surviving lions). However, most CDV outbreaks did not result in such devastating mortality. What made the 1994 and 2001 epidemics different?</p>
+                
+                <p><strong>The Critical Clue:</strong> Both deadly epidemics followed severe droughts in the ecosystem.</p>
+            </div>
+            
+            <h3>Unraveling the Mystery: The Role of Babesia</h3>
+            
+            <p>When researchers examined anesthetized lions during the 2001 Crater epidemic, they observed a constellation of clinical signs beyond typical CDV symptoms:</p>
+            <ul>
+                <li><strong>Severe dehydration:</strong> Consistent with drought conditions reducing water availability</li>
+                <li><strong>Fly infestations:</strong> Indicating immunocompromised or weakened individuals</li>
+                <li><strong>Severe anemia:</strong> A critical clue pointing to blood parasites</li>
+                <li><strong>High tick burdens:</strong> Lions were covered with unprecedented numbers of ticks</li>
+            </ul>
+            
+            <p>Laboratory analysis revealed that <strong>Babesia</strong> levels in infected lions were 37-60 fold higher than normal. Babesia is a tick-borne protozoan blood parasite that typically infects lions at low levels without compromising health. Under normal conditions, lions tolerate chronic Babesia infections with minimal clinical signs.</p>
+            
+            <h3>The Drought-Tick-Parasite Connection</h3>
+            
+            <p>The severe drought created a cascade of ecological changes:</p>
+            
+            <ol>
+                <li><strong>Prey Stress:</strong> Buffalo and other prey species became stressed and weakened, making them more susceptible to heavy tick infestations</li>
+                <li><strong>Tick Proliferation:</strong> Drought conditions can paradoxically favor tick survival in certain microhabitats, and concentrated prey around limited water sources increased tick-host contact rates</li>
+                <li><strong>Lion Exposure:</strong> Lions feeding on tick-infested carcasses acquired exceptionally high tick burdens</li>
+                <li><strong>Elevated Babesia Transmission:</strong> More ticks meant more Babesia transmission, resulting in parasite loads 37-60 times higher than baseline</li>
+            </ol>
+            
+            <h3>The Synergistic Interaction: CDV and Babesia</h3>
+            
+            <div class="equation-box">
+                <p><strong>Conceptual Model of Synergistic Mortality</strong></p>
+                <div class="equation">Mortality Risk = CDV Effects + Babesia Effects + (CDV × Babesia Interaction)</div>
+                <p>Where the interaction term (CDV × Babesia) represents the synergistic increase in mortality beyond additive effects</p>
+            </div>
+            
+            <p><strong>Why did CDV become so deadly in co-infected lions?</strong></p>
+            
+            <p>CDV, like other morbilliviruses including measles in humans, attacks T lymphocytes and causes <strong>immune amnesia</strong>. This means the virus depletes immune cells and erases immunological memory, leaving the host vulnerable to secondary infections. When CDV-infected lions also carried extremely high Babesia burdens:</p>
+            
+            <ul>
+                <li>CDV suppressed the immune system's ability to control Babesia replication</li>
+                <li>Babesia parasites, normally held in check, proliferated unchecked</li>
+                <li>The combination of CDV-induced immunosuppression and massive Babesia parasitemia caused severe anemia</li>
+                <li>Anemia reduced oxygen-carrying capacity, further weakening lions already battling viral infection</li>
+                <li>The cumulative stress proved fatal for approximately one-third of the population</li>
+            </ul>
+            
+            <div class="acronym-box">
+                <h4>DEAD Framework for CDV-Babesia Interaction</h4>
+                <p><strong>D</strong>rought triggers ecological changes<br>
+                <strong>E</strong>levated tick burdens on prey and predators<br>
+                <strong>A</strong>mplified Babesia transmission (37-60× normal)<br>
+                <strong>D</strong>istemper virus causes immune amnesia, unleashing Babesia</p>
+            </div>
+            
+            <div class="visual-anchor">
+                <p><strong>Story-Based Memory:</strong> Picture a lion pride during drought. Water holes shrink, forcing buffalo to crowd together, becoming living tick factories. Lions feast on these tick-laden buffalo, acquiring massive tick burdens. Then CDV sweeps through, shutting down the lions' immune systems like turning off a security system. The Babesia parasites, previously held at bay, explode in numbers. The lion's blood becomes a parasite breeding ground, and with CDV already weakening them, the double assault proves lethal.</p>
+            </div>
+            
+            <div class="key-insight">
+                <h4>Take-Home Message</h4>
+                <p>The CDV-Babesia case demonstrates that environmental stressors (drought) can alter parasite communities and transmission dynamics in ways that fundamentally change disease outcomes. Co-infections can be synergistic rather than simply additive, and what appears to be a viral epidemic may actually be driven by complex multi-pathogen interactions. This case illustrates why understanding co-infections is essential for predicting and managing disease in wildlife populations.</p>
+            </div>
+        </section>
+        
+        <section id="detection" class="concept-card">
+            <h2>Detecting Parasite Interactions</h2>
+            
+            <h3>Parasite Community Structure</h3>
+            
+            <p>Before we can detect interactions among parasites, we must understand how parasitologists describe parasite communities:</p>
+            
+            <div class="variable-list">
+                <div class="variable-item">
+                    <strong>Component Community</strong>
+                    <p>All parasite species present across a host population. This represents the full diversity of parasites that could potentially interact.</p>
+                </div>
+                <div class="variable-item">
+                    <strong>Infracommunity</strong>
+                    <p>All parasite species present within a single host individual. This is where actual interactions occur, making it the fundamental unit for studying co-infection dynamics.</p>
+                </div>
+            </div>
+            
+            <h3>The Null Hypothesis: Random Assembly</h3>
+            
+            <p>To determine whether parasites interact, we need a baseline expectation. The null hypothesis of parasite community ecology is the <strong>random assembly model</strong>:</p>
+            
+            <p><strong>If parasites do not interact</strong>, infracommunities should be random subsets of the component community. Each host individual would acquire parasites independently based solely on exposure rates, with no influence from parasites already present.</p>
+            
+            <p><strong>If parasites do interact</strong>, infracommunities will deviate systematically from random expectations. We would observe either:</p>
+            <ul>
+                <li><strong>Negative associations:</strong> Co-infection occurs less frequently than expected by chance (antagonistic interactions)</li>
+                <li><strong>Positive associations:</strong> Co-infection occurs more frequently than expected by chance (facilitative interactions)</li>
+            </ul>
+            
+            <h3>Quantifying Expected Co-infection Under Independence</h3>
+            
+            <div class="equation-box">
+                <p><strong>Probability of Co-infection Under Independence</strong></p>
+                <div class="equation">P(A and B) = P(A) × P(B)</div>
+                <p>If two parasites each have prevalence of 50% and are independent:</p>
+                <div class="equation">P(co-infection) = 0.5 × 0.5 = 0.25</div>
+                <p>We would expect 25% of hosts to be co-infected</p>
+            </div>
+            
+
+            
+            <h3>Evidence from Field Studies</h3>
+            
+            <p>Population-level approaches examining parasite communities have revealed that:</p>
+            <ul>
+                <li><strong>Many parasite communities appear random:</strong> In numerous host-parasite systems, infracommunities do not deviate significantly from random assembly expectations, suggesting weak or no interactions</li>
+                <li><strong>Some communities show clear structure:</strong> Certain systems exhibit strong non-random patterns, indicating significant parasite interactions</li>
+                <li><strong>Context matters:</strong> The same parasites may interact strongly in some host populations but not others, depending on environmental conditions, host condition, and parasite abundances</li>
+            </ul>
+            
+            <p><strong>Experimental Approaches:</strong> Beyond observational studies, experimental removal of one parasite species followed by monitoring of others provides direct evidence of interactions. For example, anthelmintic treatment that removes gastrointestinal worms can reveal whether their presence was suppressing or facilitating other infections.</p>
+            
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>Detecting parasite interactions requires moving beyond single-infection studies to examine patterns of co-occurrence. However, observational patterns alone cannot reveal mechanisms. We must combine statistical detection with experimental manipulation and mechanistic studies to truly understand how and why parasites interact.</p>
+            </div>
+        </section>
+        
+        <section id="mechanisms" class="concept-card">
+            <h2>Mechanisms of Parasite Interactions</h2>
+            
+            <div class="acronym-box">
+                <h4>FAST Classification of Interaction Mechanisms</h4>
+                <p><strong>F</strong>acilitation via immune suppression<br>
+                <strong>A</strong>ntagonism via cross-protection<br>
+                <strong>S</strong>pace and resource competition<br>
+                <strong>T</strong>op-down vs. bottom-up processes</p>
+            </div>
+            
+            <h3>Top-Down (Immune-Mediated) Interactions</h3>
+            
+            <p>Top-down mechanisms are mediated by the host immune system. Parasites induce immune responses that can affect other parasite species, even if those parasites occupy different tissues or life stages.</p>
+            
+            <h4>1. Facilitation via Immune Suppression</h4>
+            
+            <p>Many parasites actively suppress host immune function to promote their own survival. This immunosuppression can inadvertently benefit other co-infecting parasites.</p>
+            
+            <p><strong>Classic Examples:</strong></p>
+            <ul>
+                <li><strong>HIV and Opportunistic Infections:</strong> HIV depletes CD4+ T cells, the coordinators of adaptive immunity. This creates a permissive environment for normally controlled infections like Pneumocystis pneumonia, Toxoplasma, Candida, and many others</li>
+                <li><strong>CDV and Babesia (discussed above):</strong> Morbilliviruses attack T lymphocytes, causing immune amnesia that allows blood parasites to proliferate</li>
+                <li><strong>Helminths and Viral Pathogens:</strong> Many helminth infections skew immune responses toward Th2-type immunity, potentially suppressing Th1-mediated responses needed to control intracellular pathogens</li>
+            </ul>
+            
+            <h4>2. Antagonism via Cross-Protection and Immune Priming</h4>
+            
+            <p>Conversely, infection with one parasite can enhance immune responses that inhibit other parasites.</p>
+            
+            <p><strong>Cross-Protection in Vertebrates:</strong> Prior infection with one pathogen can confer partial or complete protection against related pathogens. This is the principle underlying vaccination.</p>
+            
+            <p><strong>Example:</strong> Infection with one strain of influenza can provide cross-reactive immunity against related strains. Similarly, if you contract one variant of COVID-19 (such as Omicron), your immune system develops antibodies and memory cells that provide some protection against other variants (like Delta).</p>
+            
+            <p><strong>Immune Priming in Invertebrates:</strong> Even though invertebrates lack adaptive immunity, they can exhibit immune priming, where prior exposure to pathogens enhances resistance to subsequent infections through innate immune memory.</p>
+            
+            <h3>Bottom-Up (Resource-Based) Interactions</h3>
+            
+            <p>Bottom-up mechanisms arise from competition for limited resources or space within the host. These interactions do not require immune mediation.</p>
+            
+            <h4>1. Competition for Host Resources</h4>
+            
+            <p>Parasites require nutrients from the host. When multiple parasite species draw from the same resource pool, competition can limit parasite growth and survival.</p>
+            
+            <p><strong>Evidence:</strong> Experimental studies adding nutrients to hosts sometimes alleviate competitive suppression among parasites, demonstrating resource limitation.</p>
+            
+            <h4>2. Competition for Space (Niche Partitioning)</h4>
+            
+            <div class="case-study">
+                <h3>Case Study: Helminth Competition in Flying Squirrels</h3>
+                <p>Patrick (1991) experimentally infected flying squirrels with two gastrointestinal nematode species: <em>Capillaria americana</em> and <em>Strongyloides robustus</em>.</p>
+                
+                <p><strong>Single-species infections:</strong> When <em>Strongyloides robustus</em> infected squirrels alone, worms distributed throughout the small intestine, extending far down the gut.</p>
+                
+                <p><strong>Mixed infections:</strong> When both species were present, <em>Capillaria americana</em> dominated the upper small intestine (near the pylorus), while <em>Strongyloides robustus</em> was displaced to the lower regions.</p>
+                
+                <p><strong>Interpretation:</strong> The altered distribution in mixed infections demonstrates interference competition for attachment sites. The species partition the gut spatially to reduce direct competition, a phenomenon called niche partitioning.</p>
+            </div>
+            
+            <h4>3. Ecological Interference via Host Death</h4>
+            
+            <p>A highly virulent parasite that kills the host quickly reduces transmission opportunities for co-infecting parasites. This creates indirect antagonism: parasite A harms parasite B not through direct interaction, but by destroying their shared habitat (the host).</p>
+            
+            <h3>Context-Dependent Interactions</h3>
+            
+            <div class="case-study">
+                <h3>Case Study: Fungal Pathogen Interactions in Tall Fescue (Halliday et al. 2017)</h3>
+                <p>Three fungal pathogens infect leaves of tall fescue grass: Anthracnose (<em>Colletotrichum cereale</em>), Brown Patch (<em>Rhizoctonia solani</em>), and Crown Rust (<em>Puccinia coronata</em>).</p>
+                
+                <p><strong>Phenology Matters:</strong> Researchers manipulated which pathogen infected first by deploying plants at different times during the growing season.</p>
+                
+                <p><strong>Key Finding:</strong> When Anthracnose infected first, it strongly suppressed both Brown Patch and Crown Rust. This competitive advantage likely resulted from Anthracnose occupying leaf tissue and depleting resources before other pathogens arrived.</p>
+                
+                <p><strong>Priority Effects:</strong> The identity of the first colonizer determined the outcome of multispecies interactions. This demonstrates that the timing of infection can be as important as the parasites' intrinsic competitive abilities.</p>
+            </div>
+            
+            <div class="case-study">
+                <h3>Case Study: Host Condition and Viral Co-infections (Strauss et al. 2021)</h3>
+                <p>Researchers examined how nitrogen (N) and phosphorus (P) availability affects interactions among three Barley/Cereal Yellow Dwarf Viruses (B/CYDV) in grass hosts.</p>
+                
+                <p><strong>Experimental Design:</strong> Plants were grown with factorial combinations of N and P (3 levels each), then exposed to either single virus species or all three viruses simultaneously via aphid vectors.</p>
+                
+                <p><strong>Key Findings:</strong> The nature and strength of viral interactions depended critically on host nutrient status:</p>
+                <ul>
+                    <li><strong>RPV showed competition:</strong> In co-infection, RPV prevalence was lower than in single infections, and this competitive effect strengthened with increasing nutrients</li>
+                    <li><strong>SGV showed facilitation:</strong> Co-infection enhanced SGV prevalence, particularly at intermediate nutrient levels</li>
+                    <li><strong>PAV showed weak interactions:</strong> This virus was largely unaffected by co-infection across nutrient gradients</li>
+                </ul>
+                
+                <p><strong>Interpretation:</strong> Host condition (nutrient availability) modulates parasite interactions. What appears as facilitation under one set of conditions may shift to competition or neutrality under different conditions.</p>
+            </div>
+            
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>Parasite interactions are not fixed properties of the parasites themselves. Instead, they are context-dependent, varying with host condition, infection timing, parasite densities, and environmental factors. This complexity makes predicting disease outcomes challenging but also provides potential intervention points for disease management.</p>
+            </div>
+        </section>
+        
+        <section id="case-studies" class="concept-card">
+            <h2>Co-infection in Human Health</h2>
+            
+            <h3>The Global Burden of Co-infection</h3>
+            
+            <p>Co-infection is not merely an ecological curiosity—it represents a critical public health challenge, particularly in the developing world where multiple endemic pathogens overlap geographically.</p>
+            
+            <div class="case-study">
+                <h3>Case Study: Tuberculosis and HIV—A Synergistic Pandemic</h3>
+                
+                <p><strong>The Scale of the Problem:</strong> In 2008, approximately 9.4 million people developed active tuberculosis (TB) globally. Of these incident cases, 15% occurred in people living with HIV. However, when examining TB-related deaths, the picture became even more stark: HIV-positive individuals accounted for 29% of all TB deaths despite representing only 15% of cases.</p>
+                
+                <p><strong>What these numbers reveal:</strong></p>
+                <ul>
+                    <li>HIV-positive individuals with TB had a case fatality rate of 37%</li>
+                    <li>HIV-negative individuals with TB had a case fatality rate of 16%</li>
+                    <li>HIV infection more than doubled the mortality risk from TB</li>
+                </ul>
+                
+                <h4>Bidirectional Interactions</h4>
+                
+                <p><strong>HIV facilitates TB progression:</strong></p>
+                <ul>
+                    <li>HIV depletes CD4+ T cells, which are essential for controlling <em>Mycobacterium tuberculosis</em></li>
+                    <li>Latent TB infections (which would normally remain dormant for life) reactivate in HIV-infected individuals</li>
+                    <li>Primary TB infections progress more rapidly to active disease</li>
+                    <li>TB presents with atypical clinical features in HIV patients, complicating diagnosis</li>
+                </ul>
+                
+                <p><strong>TB accelerates HIV progression:</strong></p>
+                <ul>
+                    <li>TB infection activates immune cells, providing more targets for HIV infection</li>
+                    <li>Chronic immune activation from TB increases HIV viral replication</li>
+                    <li>HIV viral loads increase during active TB disease</li>
+                    <li>TB accelerates the progression from HIV to AIDS</li>
+                </ul>
+                
+                <div class="visual-anchor">
+                    <p><strong>Story-Based Memory:</strong> Imagine HIV as a saboteur dismantling a city's defense system, specifically targeting the command centers (CD4+ T cells) that coordinate responses against intruders. Meanwhile, TB is a slow-burning invasion force that the city's defenses normally contain in isolated bunkers (granulomas). When the saboteur dismantles the command structure, the invasion force breaks free from containment. Worse, the chaos of the invasion creates more command centers for the saboteur to infiltrate. The two threats amplify each other in a deadly feedback loop.</p>
+                </div>
+            </div>
+            
+            <div class="case-study">
+                <h3>Case Study: Helminths and HIV—The Worm Effect</h3>
+                
+                <p>Intestinal helminths (parasitic worms) and HIV co-occur extensively in sub-Saharan Africa and other regions where both are endemic. Research by Wolday et al. (2002) revealed a concerning relationship between helminth burden and HIV disease progression.</p>
+                
+                <p><strong>Key Findings:</strong></p>
+                <ul>
+                    <li>HIV-positive individuals with higher helminth egg loads (measured in feces) had significantly higher HIV viral loads in their blood</li>
+                    <li>The relationship was dose-dependent: more worms correlated with more HIV virus</li>
+                    <li>When helminth-infected individuals received anthelmintic treatment to remove worms, their HIV viral loads decreased significantly</li>
+                    <li>Individuals whose deworming treatment failed (worms remained) showed no decrease in HIV viral load</li>
+                    <li>Uninfected controls showed no change, confirming the effect was specific to helminth removal</li>
+                </ul>
+                
+                <p><strong>Mechanism:</strong> Helminths induce strong Th2 immune responses and regulatory T cell activation, creating an anti-inflammatory environment that benefits the worms. This immune modulation appears to create conditions favorable for HIV replication, possibly by providing activated immune cells for HIV to infect and by dampening antiviral immunity.</p>
+                
+                <p><strong>Public Health Implications:</strong> These findings suggest that mass deworming programs in HIV-endemic areas could slow HIV disease progression and potentially reduce HIV transmission by lowering viral loads. However, implementation requires careful consideration of sustainability, reinfection rates, and potential unintended consequences.</p>
+            </div>
+            
+            <div class="case-study">
+                <h3>Case Study: Hookworm and Tuberculosis—Cross-Tissue Interactions</h3>
+                
+                <p>A common misconception is that parasites must occupy the same tissues to interact. Hookworms (<em>Necator americanus</em> and <em>Ancylostoma duodenale</em>) live in the gut, while <em>Mycobacterium tuberculosis</em> infects the lungs. Despite this spatial separation, evidence suggests these parasites interact through systemic immune modulation.</p>
+                
+                <p><strong>The Hypothesis:</strong> Chronic hookworm infection, which induces strong Th2 and regulatory immune responses, may suppress the Th1-mediated immunity needed to control TB.</p>
+                
+                <p><strong>Supporting Evidence:</strong></p>
+                <ul>
+                    <li>Regions with high hookworm prevalence often show higher TB incidence and severity</li>
+                    <li>Experimental models demonstrate that helminth-induced Th2 skewing can impair control of intracellular bacteria</li>
+                    <li>Deworming trials in some populations have shown improved TB treatment outcomes</li>
+                </ul>
+                
+                <p><strong>Complexity and Controversy:</strong> The hookworm-TB interaction remains incompletely understood, with some studies showing protective effects of helminths against inflammatory diseases. This highlights that parasite interactions can be context-dependent and that simple predictions may not always hold.</p>
+            </div>
+            
+            <h3>The Deworming Debate</h3>
+            
+            <div class="acronym-box">
+                <h4>PRICE Framework: Evaluating Deworming Programs</h4>
+                <p><strong>P</strong>ros: Reduced anemia, better school attendance, improved economic prospects<br>
+                <strong>R</strong>einfection risk from environmental sources<br>
+                <strong>I</strong>ncentives: Low financial incentives for pharmaceutical development<br>
+                <strong>C</strong>omplexity: Will removing one parasite allow others to proliferate?<br>
+                <strong>E</strong>conomics: Treatment costs pennies per day, highly cost-effective</p>
+            </div>
+            
+            <p><strong>Benefits of Mass Deworming:</strong></p>
+            <ul>
+                <li>Anthelmintic drugs are cheap and widely available (pennies per treatment)</li>
+                <li>Direct health benefits include reduced anemia, improved nutrition, and enhanced growth in children</li>
+                <li>Educational benefits from improved school attendance and cognitive function</li>
+                <li>Potential to improve vaccine responses and reduce susceptibility to other infections</li>
+                <li>May slow HIV progression in co-infected individuals</li>
+            </ul>
+            
+            <p><strong>Challenges and Caveats:</strong></p>
+            <ul>
+                <li>Reinfection from contaminated environments is common without improved sanitation</li>
+                <li>Low financial incentives for pharmaceutical companies to develop new anthelmintics</li>
+                <li>Ecological question: If we remove one parasite, will others expand to fill the niche?</li>
+                <li>Potential for drug resistance with widespread repeated treatment</li>
+                <li>Some evidence suggests helminths may protect against certain inflammatory and autoimmune diseases (the "hygiene hypothesis")</li>
+            </ul>
+            
+            <div class="key-insight">
+                <h4>Key Insight</h4>
+                <p>Co-infections represent major global health challenges, particularly in resource-limited settings where multiple pathogens are endemic. Understanding parasite interactions is essential for designing effective interventions. Simple solutions (like mass deworming) may have complex and sometimes unexpected consequences at both individual and population scales.</p>
+            </div>
+        </section>
+        
+        <section id="consequences" class="concept-card">
+            <h2>Consequences of Parasite Interactions</h2>
+            
+            <p>Parasite interactions cascade from molecular and cellular scales to influence individual hosts, populations, and entire ecosystems. Understanding these consequences is crucial for predicting disease dynamics and designing control strategies.</p>
+            
+            <h3>Individual-Level Consequences</h3>
+            
+            <table>
+                <tr>
+                    <th>Outcome</th>
+                    <th>How Interactions Matter</th>
+                    <th>Example</th>
+                </tr>
+                <tr>
+                    <td><strong>Infection Likelihood</strong></td>
+                    <td>Prior infections can increase or decrease susceptibility to new infections</td>
+                    <td>HIV increases susceptibility to opportunistic infections; prior viral infection may reduce susceptibility to related strains via cross-protection</td>
+                </tr>
+                <tr>
+                    <td><strong>Disease Severity</strong></td>
+                    <td>Co-infections can be synergistic, causing more severe disease than single infections</td>
+                    <td>CDV-Babesia co-infection in lions causes much higher mortality than either infection alone</td>
+                </tr>
+                <tr>
+                    <td><strong>Host Survival</strong></td>
+                    <td>Interactions determine whether hosts clear infections, tolerate them chronically, or die</td>
+                    <td>TB-HIV co-infection dramatically reduces survival compared to TB alone</td>
+                </tr>
+                <tr>
+                    <td><strong>Transmission Potential</strong></td>
+                    <td>Co-infections affect pathogen shedding, host behavior, and contact rates</td>
+                    <td>Helminths increase HIV viral loads, potentially increasing transmission</td>
+                </tr>
+            </table>
+            
+            <h3>Population-Level Consequences</h3>
+            
+            <h4>1. Altered Disease Dynamics and R₀</h4>
+            
+            <p>Parasite interactions can fundamentally alter whether diseases can invade and persist in populations by changing the basic reproductive number (R₀).</p>
+            
+            <div class="equation-box">
+                <p><strong>Basic Reproductive Number for Microparasites</strong></p>
+                <div class="equation">R₀ = <span class="variable">βN</span> / (<span class="variable">γ</span> + <span class="variable">d</span> + <span class="variable">v</span>)</div>
+                <p>Where:</p>
+                <div class="variable-list">
+                    <div class="variable-item">
+                        <strong>β</strong> = transmission rate (contact rate × probability of transmission per contact)
+                    </div>
+                    <div class="variable-item">
+                        <strong>N</strong> = host population size
+                    </div>
+                    <div class="variable-item">
+                        <strong>γ</strong> = recovery rate
+                    </div>
+                    <div class="variable-item">
+                        <strong>d</strong> = background mortality rate
+                    </div>
+                    <div class="variable-item">
+                        <strong>v</strong> = disease-induced mortality rate (virulence)
+                    </div>
+                </div>
+            </div>
+            
+            <p><strong>How co-infections affect R₀:</strong></p>
+            <ul>
+                <li><strong>Numerator effects (β, N):</strong> Co-infections that increase pathogen shedding or host contact rates increase β; those that reduce host population size decrease N</li>
+                <li><strong>Denominator effects (γ, d, v):</strong> Co-infections that slow recovery increase R₀; those that increase mortality decrease R₀ by removing infectious hosts from the population</li>
+            </ul>
+            
+            <h4>2. Parasite Coexistence</h4>
+            
+            <p>How do competing parasites coexist within the same host population? Several mechanisms enable coexistence:</p>
+            
+            <ul>
+                <li><strong>Niche Partitioning:</strong> Parasites specialize on different host tissues, age classes, or physiological states (e.g., helminths in different regions of the gut)</li>
+                <li><strong>Temporal Separation:</strong> Parasites infect at different seasons or times in host life cycles (e.g., pathogens with different phenologies in plants)</li>
+                <li><strong>Aggregated Distributions:</strong> If parasites cluster in different host individuals, they rarely encounter each other directly</li>
+                <li><strong>Transient Infections:</strong> Short infection periods reduce the time window for competitive interactions</li>
+                <li><strong>Facilitative Interactions:</strong> Some parasites benefit from co-infection, promoting coexistence</li>
+                <li><strong>Priority Effects:</strong> Whichever species colonizes first gains advantage, creating a dynamic equilibrium</li>
+            </ul>
+            
+            <h4>3. Evolution of Virulence and Transmission</h4>
+            
+            <p>Co-infection creates novel selective pressures on parasites:</p>
+            
+            <ul>
+                <li><strong>Within-host competition:</strong> May select for faster-replicating, more virulent strains that can outcompete co-infecting parasites</li>
+                <li><strong>Shared fate:</strong> If one parasite kills the host quickly, co-infecting parasites suffer, potentially selecting for reduced virulence</li>
+                <li><strong>Immune evasion:</strong> Parasites may evolve to exploit immunomodulation by co-infecting species</li>
+            </ul>
+            
+            <h4>4. Implications for Disease Control</h4>
+            
+            <p>Ignoring parasite interactions can lead to unexpected outcomes of control programs:</p>
+            
+            <ul>
+                <li><strong>Replacing one problem with another:</strong> Removing one parasite may allow another to proliferate</li>
+                <li><strong>Unexpected benefits:</strong> Controlling one parasite may indirectly control another through interaction effects</li>
+                <li><strong>Backfire effects:</strong> Interventions that improve host survival may increase R₀ and disease prevalence (as demonstrated in the buffalo-TB case below)</li>
+            </ul>
+            
+            <div class="visual-anchor">
+                <p><strong>Visual Memory Anchor:</strong> Think of a parasite community as an ecosystem with predators, competitors, and facilitators. Just as removing wolves from Yellowstone caused cascading changes through the entire ecosystem (deer populations exploded, vegetation was overbrowsed, rivers changed course), removing one parasite species can trigger unpredictable cascades through the disease community.</p>
+            </div>
+        </section>
+        
+        <section id="buffalo-tb" class="concept-card">
+            <h2>Case Study: African Buffalo, Gastrointestinal Worms, and Bovine Tuberculosis</h2>
+            
+            <div class="case-study">
+                <h3>Background: A Natural Experiment in South Africa</h3>
+                <p>Researchers Vanessa Ezenwa and Anna Jolles conducted a landmark study examining interactions between gastrointestinal helminths and <em>Mycobacterium bovis</em> (bovine tuberculosis, BTB) in African buffalo. This system provided a unique opportunity to examine how removing one parasite (helminths) affects another (BTB) at both individual and population scales.</p>
+                
+                <p><strong>Study Design:</strong> Buffalo were randomly assigned to treatment and control groups:</p>
+                <ul>
+                    <li><strong>Control group:</strong> Naturally co-infected with BTB and gastrointestinal helminths</li>
+                    <li><strong>Treatment group:</strong> Received regular anthelmintic treatment to remove helminths while remaining infected with BTB</li>
+                </ul>
+                
+                <p>The study followed these buffalo for years, monitoring BTB infection status, disease progression, survival, and transmission.</p>
+            </div>
+            
+            <h3>Individual-Level Results: Worms Protect Against TB Mortality</h3>
+            
+            <p><strong>BTB Infection Prevalence:</strong> Anthelmintic treatment did not affect whether buffalo became infected with BTB or cleared the infection. The proportion of buffalo testing BTB-positive was similar in both groups, indicating that helminths did not influence susceptibility to BTB or immune clearance of the bacteria.</p>
+            
+            <p><strong>Immune Response:</strong> However, dewormed buffalo showed increased Th1 immune responses (measured by interferon-gamma levels). Th1 immunity is critical for controlling intracellular bacteria like <em>M. bovis</em>. This immune enhancement suggested that helminths had been suppressing anti-TB immunity.</p>
+            
+            <p><strong>Disease-Induced Mortality:</strong> Here came the surprising finding. Despite remaining BTB-infected, dewormed buffalo had dramatically lower mortality rates than wormy buffalo. Over the course of the study:</p>
+            <ul>
+                <li>Control buffalo (with worms) experienced high mortality from BTB</li>
+                <li>Treated buffalo (without worms) had much higher survival, even though they remained BTB-infected</li>
+            </ul>
+            
+            <p><strong>Interpretation:</strong> The gastrointestinal helminths were indirectly increasing BTB-induced mortality, likely through two mechanisms:</p>
+            <ol>
+                <li><strong>Immune Suppression:</strong> Helminths suppressed Th1 responses needed to control bacterial replication, allowing BTB to progress to more severe disease</li>
+                <li><strong>Anemia and Malnutrition:</strong> Helminth infections cause blood loss and nutrient depletion, weakening buffalo and reducing their tolerance of BTB infection</li>
+            </ol>
+            
+            <div class="visual-anchor">
+                <p><strong>Story-Based Memory:</strong> Imagine a buffalo simultaneously fighting two battles: internal worms stealing nutrients and blood, while lung bacteria destroy respiratory tissue. The worms also sabotage the buffalo's special forces (Th1 cells) meant to combat the bacteria. Without worms, the buffalo still has the bacterial infection, but now it has enough resources and properly functioning immune responses to tolerate the infection and survive longer—it becomes a surviving carrier rather than a victim.</p>
+            </div>
+            
+            <h3>Population-Level Results: The Unexpected Consequence</h3>
+            
+            <p>From an individual buffalo's perspective, deworming was clearly beneficial—it reduced mortality. Buffalo receiving anthelmintic treatment lived longer, even with BTB. This seemed like an unambiguous success for intervention.</p>
+            
+            <p>However, when researchers examined population-level consequences, a different picture emerged.</p>
+            
+            <h4>The R₀ Paradox</h4>
+            
+            <div class="equation-box">
+                <p><strong>Remember our R₀ equation:</strong></p>
+                <div class="equation">R₀ = <span class="variable">βN</span> / (<span class="variable">γ</span> + <span class="variable">d</span> + <span class="variable">v</span>)</div>
+                <p>When buffalo are dewormed:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li><strong>v</strong> (disease-induced mortality) <strong>decreases</strong> - buffalo live longer with BTB</li>
+                    <li>The denominator (<span class="variable">γ</span> + <span class="variable">d</span> + <span class="variable">v</span>) becomes <strong>smaller</strong></li>
+                    <li>Therefore, R₀ <strong>increases</strong></li>
+                </ul>
+            </div>
+            
+            <p><strong>The researchers estimated that BTB R₀ increased approximately 8-fold following anthelmintic treatment, from around 2 to approximately 15.5.</strong></p>
+            
+            <p>Why? Buffalo with longer lifespans remain infectious for extended periods, shedding <em>M. bovis</em> bacteria and infecting more of their herd mates. The increased duration of the infectious period more than compensated for any reduction in pathogen shedding per unit time.</p>
+            
+            <div class="simulation-box">
+                <h3>Interactive Simulation: R₀ and Disease-Induced Mortality</h3>
+                <div class="simulation-explanation">
+                    <strong>How this simulation works:</strong> This simulation uses the R₀ equation for microparasites to show how changes in disease-induced mortality (virulence, v) affect the basic reproductive number. You can adjust transmission rate (β), population size (N), recovery rate (γ), background mortality (d), and disease-induced mortality (v). The chart shows how R₀ changes as you modify these parameters. Notice especially what happens when you reduce v (simulating what deworming did for buffalo)—R₀ increases because infected individuals live longer and transmit more.
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Transmission Rate (β):</label>
+                        <input type="range" id="beta" min="0.01" max="1" step="0.01" value="0.3">
+                        <span id="beta-val">0.30</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Population Size (N):</label>
+                        <input type="range" id="popSize" min="10" max="1000" step="10" value="200">
+                        <span id="popSize-val">200</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Recovery Rate (γ):</label>
+                        <input type="range" id="gamma" min="0.01" max="1" step="0.01" value="0.1">
+                        <span id="gamma-val">0.10</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Background Mortality (d):</label>
+                        <input type="range" id="bgMort" min="0.01" max="0.5" step="0.01" value="0.05">
+                        <span id="bgMort-val">0.05</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Disease Mortality (v):</label>
+                        <input type="range" id="virul" min="0.01" max="0.5" step="0.01" value="0.2">
+                        <span id="virul-val">0.20</span>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: #e8f5e8; border-radius: 5px;">
+                        <strong>Current R₀:</strong> <span id="r0-current" style="font-size: 1.5rem; color: #2c5530;">0.00</span>
+                    </div>
+                </div>
+                
+                <canvas id="r0Chart"></canvas>
+            </div>
+            
+            <h3>The Take-Home Message: Individual vs. Population Tradeoffs</h3>
+            
+            <div class="key-insight">
+                <h4>Critical Insight</h4>
+                <p>What benefits individuals may harm populations. Deworming improved survival of individual buffalo, but it increased BTB transmission throughout the population by creating more long-lived carriers. This counterintuitive result demonstrates that disease control strategies must consider effects at multiple scales. An intervention that appears successful at the individual level (reduced mortality) may have negative consequences at the population level (increased disease spread and R₀).</p>
+            </div>
+            
+            <p><strong>Broader Implications:</strong></p>
+            <ul>
+                <li><strong>For wildlife disease management:</strong> Treating one infection may inadvertently promote another, requiring holistic approaches</li>
+                <li><strong>For livestock management:</strong> Routine deworming programs may have unintended consequences for endemic infections like BTB</li>
+                <li><strong>For conservation:</strong> Simple interventions can have complex outcomes; comprehensive modeling and monitoring are essential</li>
+                <li><strong>For public health:</strong> Similar tradeoffs may exist in human co-infection systems, warranting careful evaluation of mass treatment programs</li>
+            </ul>
+            
+            <div class="acronym-box">
+                <h4>SURVIVE Framework: Understanding the Buffalo-TB Paradox</h4>
+                <p><strong>S</strong>urvival increased in dewormed buffalo (individual benefit)<br>
+                <strong>U</strong>nexpected population consequence: higher R₀<br>
+                <strong>R</strong>educed virulence (v) means longer infectious period<br>
+                <strong>V</strong>irulence reduction increases R₀ when it extends transmission<br>
+                <strong>I</strong>ndividual and population effects can oppose each other<br>
+                <strong>V</strong>alue of multi-scale thinking in disease ecology<br>
+                <strong>E</strong>valuate interventions at all levels: individual, population, community</p>
+            </div>
+        </section>
+        
+        <section id="conclusions" class="concept-card">
+            <h2>Conclusions: Key Principles of Co-infection</h2>
+            
+            <div class="acronym-box">
+                <h4>COMPLEX Framework: Remembering Co-infection Principles</h4>
+                <p><strong>C</strong>o-infection is common—most hosts harbor multiple parasites<br>
+                <strong>O</strong>utcomes depend on mechanisms: top-down vs. bottom-up<br>
+                <strong>M</strong>echanisms can be antagonistic or facilitative<br>
+                <strong>P</strong>riority effects and timing matter enormously<br>
+                <strong>L</strong>evels of organization: individual vs. population effects differ<br>
+                <strong>E</strong>nvironmental and host context shapes interactions<br>
+                <strong>X</strong> marks the spot: interactions create control opportunities and challenges</p>
+            </div>
+            
+            <h3>Essential Take-Home Messages</h3>
+            
+            <ol>
+                <li><strong>Co-infection is the rule, not the exception.</strong> Most host species, populations, and individuals harbor more than one parasite species. Single-pathogen models, while useful, miss crucial dynamics.</li>
+                
+                <li><strong>Parasites interact even when spatially separated.</strong> Parasites in different tissues can interact through systemic immune modulation. Hookworms in the gut affect TB in the lungs; helminths affect HIV throughout the body.</li>
+                
+                <li><strong>Interactions are mediated by distinct mechanisms.</strong> Top-down (immune-mediated) and bottom-up (resource-based) mechanisms operate simultaneously. Understanding which dominates in a given system guides intervention design.</li>
+                
+                <li><strong>Context determines outcomes.</strong> The same two parasites may facilitate each other under some conditions and compete under others, depending on host condition, infection timing, parasite densities, and environmental factors.</li>
+                
+                <li><strong>Individual and population effects can oppose.</strong> The buffalo-TB study dramatically illustrated that interventions beneficial for individuals may have detrimental population-level consequences, and vice versa.</li>
+                
+                <li><strong>Co-infections affect disease control.</strong> Ignoring parasite interactions can lead to failed interventions or unexpected outcomes. Successful control requires community-level thinking.</li>
+                
+                <li><strong>Evolutionary implications.</strong> Co-infection creates novel selective pressures on parasites, potentially driving evolution of virulence, transmission strategies, and immune evasion mechanisms.</li>
+            </ol>
+            
+            <h3>Future Directions and Open Questions</h3>
+            
+            <ul>
+                <li>How do complex multi-parasite communities (3+ species) behave? Most research examines pairwise interactions.</li>
+                <li>Can we predict interaction outcomes from parasite traits, or must we measure each system empirically?</li>
+                <li>How do parasite interactions affect host evolution and life-history strategies?</li>
+                <li>What are the optimal control strategies when multiple parasites interact?</li>
+                <li>How does global change (climate, land use, pollution) alter parasite interaction networks?</li>
+            </ul>
+            
+            <div class="visual-anchor">
+                <p><strong>Final Memory Story:</strong> Your body is not a sterile laboratory where one pathogen fights one immune system. It is a bustling ecosystem, a marketplace where bacteria, viruses, worms, and protozoa compete, cooperate, and coexist. Your immune system is not just defending against invaders—it is mediating interactions among a community of organisms, each affecting the others. Understanding health and disease requires seeing this community-level complexity, not just individual actors.</p>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        let coinfectionChart;
+        let r0Chart;
+        
+        // Initialize everything when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initCoinfectionChart();
+            initR0Chart();
+            
+            // Add event listeners
+            document.getElementById('prevA').addEventListener('input', updateCoinfectionSim);
+            document.getElementById('prevB').addEventListener('input', updateCoinfectionSim);
+            document.getElementById('coinfection').addEventListener('input', updateCoinfectionSim);
+            
+            document.getElementById('beta').addEventListener('input', updateR0Sim);
+            document.getElementById('popSize').addEventListener('input', updateR0Sim);
+            document.getElementById('gamma').addEventListener('input', updateR0Sim);
+            document.getElementById('bgMort').addEventListener('input', updateR0Sim);
+            document.getElementById('virul').addEventListener('input', updateR0Sim);
+            
+            // Initial updates
+            updateCoinfectionSim();
+            updateR0Sim();
+        });
+        
+        // Coinfection Simulation Functions
+        function initCoinfectionChart() {
+            const ctx = document.getElementById('coinfectionChart').getContext('2d');
+            coinfectionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Parasite A Only', 'Parasite B Only', 'Co-infected', 'Uninfected'],
+                    datasets: [{
+                        label: 'Expected (if independent)',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: 'rgba(74, 124, 89, 0.6)',
+                        borderColor: 'rgba(74, 124, 89, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Observed',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: 'rgba(255, 193, 7, 0.6)',
+                        borderColor: 'rgba(255, 193, 7, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Percentage of Host Population (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Expected vs Observed Infection Patterns',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateCoinfectionSim() {
+            const prevA = parseFloat(document.getElementById('prevA').value);
+            const prevB = parseFloat(document.getElementById('prevB').value);
+            const observed = parseFloat(document.getElementById('coinfection').value);
+            
+            document.getElementById('prevA-val').textContent = prevA + '%';
+            document.getElementById('prevB-val').textContent = prevB + '%';
+            document.getElementById('coinfection-val').textContent = observed + '%';
+            
+            // Calculate expected frequencies under independence
+            const pA = prevA / 100;
+            const pB = prevB / 100;
+            
+            const expectedCoinfection = pA * pB * 100;
+            const expectedAonly = pA * (1 - pB) * 100;
+            const expectedBonly = pB * (1 - pA) * 100;
+            const expectedUninfected = (1 - pA) * (1 - pB) * 100;
+            
+            // Calculate observed frequencies (assuming observed coinfection is given)
+            const observedCoinfection = observed;
+            const observedAonly = Math.max(0, prevA - observed);
+            const observedBonly = Math.max(0, prevB - observed);
+            const observedUninfected = Math.max(0, 100 - prevA - prevB + observed);
+            
+            // Update chart
+            coinfectionChart.data.datasets[0].data = [
+                expectedAonly.toFixed(1),
+                expectedBonly.toFixed(1),
+                expectedCoinfection.toFixed(1),
+                expectedUninfected.toFixed(1)
+            ];
+            
+            coinfectionChart.data.datasets[1].data = [
+                observedAonly.toFixed(1),
+                observedBonly.toFixed(1),
+                observedCoinfection.toFixed(1),
+                observedUninfected.toFixed(1)
+            ];
+            
+            coinfectionChart.update();
+            
+            // Interpretation
+            const diff = observedCoinfection - expectedCoinfection;
+            let interpretation = '';
+            
+            if (Math.abs(diff) < 2) {
+                interpretation = '<strong>No Strong Interaction:</strong> Observed co-infection (' + 
+                    observedCoinfection.toFixed(1) + '%) is close to expected (' + 
+                    expectedCoinfection.toFixed(1) + '%). This suggests parasites are infecting hosts independently with minimal interaction.';
+            } else if (diff > 0) {
+                interpretation = '<strong>Facilitative Interaction:</strong> Observed co-infection (' + 
+                    observedCoinfection.toFixed(1) + '%) is ' + diff.toFixed(1) + 
+                    '% higher than expected (' + expectedCoinfection.toFixed(1) + 
+                    '%). This suggests one parasite facilitates infection or persistence of the other, possibly through immune suppression.';
+            } else {
+                interpretation = '<strong>Antagonistic Interaction:</strong> Observed co-infection (' + 
+                    observedCoinfection.toFixed(1) + '%) is ' + Math.abs(diff).toFixed(1) + 
+                    '% lower than expected (' + expectedCoinfection.toFixed(1) + 
+                    '%). This suggests parasites compete or one provides cross-protection against the other.';
+            }
+            
+            document.getElementById('interpretation').innerHTML = interpretation;
+        }
+        
+        // R0 Simulation Functions
+        function initR0Chart() {
+            const ctx = document.getElementById('r0Chart').getContext('2d');
+            r0Chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'R₀ as Disease Mortality (v) Changes',
+                        data: [],
+                        borderColor: 'rgba(44, 85, 48, 1)',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Epidemic Threshold (R₀ = 1)',
+                        data: [],
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 2,
+                        borderDash: [10, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Disease-Induced Mortality Rate (v)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Basic Reproductive Number (R₀)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Effect of Disease Mortality on R₀',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateR0Sim() {
+            const beta = parseFloat(document.getElementById('beta').value);
+            const N = parseFloat(document.getElementById('popSize').value);
+            const gamma = parseFloat(document.getElementById('gamma').value);
+            const d = parseFloat(document.getElementById('bgMort').value);
+            const v = parseFloat(document.getElementById('virul').value);
+            
+            document.getElementById('beta-val').textContent = beta.toFixed(2);
+            document.getElementById('popSize-val').textContent = N;
+            document.getElementById('gamma-val').textContent = gamma.toFixed(2);
+            document.getElementById('bgMort-val').textContent = d.toFixed(2);
+            document.getElementById('virul-val').textContent = v.toFixed(2);
+            
+            // Calculate current R0
+            const currentR0 = (beta * N) / (gamma + d + v);
+            document.getElementById('r0-current').textContent = currentR0.toFixed(2);
+            
+            // Generate curve showing R0 as v changes
+            const vValues = [];
+            const r0Values = [];
+            const thresholdValues = [];
+            
+            for (let vTest = 0.01; vTest <= 0.5; vTest += 0.01) {
+                vValues.push(vTest.toFixed(2));
+                const r0 = (beta * N) / (gamma + d + vTest);
+                r0Values.push(r0.toFixed(2));
+                thresholdValues.push(1);
+            }
+            
+            r0Chart.data.labels = vValues;
+            r0Chart.data.datasets[0].data = r0Values;
+            r0Chart.data.datasets[1].data = thresholdValues;
+            r0Chart.update();
+        }
+    </script>
+</body>
+</html>
