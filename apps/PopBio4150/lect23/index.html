@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Change and Emerging Infectious Diseases</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background-color: #1a3d20;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: #4a7c59;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .objectives {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 2rem;
+            border-radius: 10px;
+            border-left: 5px solid #4a7c59;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .objectives h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .objectives ul {
+            margin-left: 2rem;
+        }
+        
+        .objectives li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .concept-card {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .concept-card h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #4a7c59;
+        }
+        
+        .concept-card h3 {
+            color: #4a7c59;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .equation-box {
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #2c5530;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .equation-box .equation {
+            font-size: 1.4rem;
+            margin: 1rem 0;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .key-insight {
+            background: linear-gradient(135deg, #fff9e6, #fffef0);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+        }
+        
+        .key-insight strong {
+            color: #2c5530;
+        }
+        
+        .case-study {
+            background: linear-gradient(135deg, #f0f4ff, #f8faff);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a7c59;
+        }
+        
+        .case-study h4 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+        
+        .takeaway {
+            background: #e8f5e8;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        .acronym {
+            background: #fff3cd;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 3px solid #ffc107;
+        }
+        
+        .simulation-box {
+            background: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+            border: 2px solid #4a7c59;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .simulation-explanation {
+            background: #f0f8f0;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            border-left: 3px solid #2c5530;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-group label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #2c5530;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+        
+        .value-display {
+            font-weight: bold;
+            color: #4a7c59;
+        }
+        
+        canvas {
+            margin-top: 1rem;
+            max-width: 100%;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #2c5530;
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .memory-anchor {
+            background: linear-gradient(135deg, #ffe6e6, #fff0f0);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 3px solid #dc3545;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Climate Change and Emerging Infectious Diseases</h1>
+        <p>Population Biology of Infectious Diseases - Course 6150</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#objectives">Objectives</a></li>
+            <li><a href="#muskox">Muskox-Lungworm</a></li>
+            <li><a href="#climate-patterns">Climate Patterns</a></li>
+            <li><a href="#malaria">Malaria Dynamics</a></li>
+            <li><a href="#r0-model">R₀ Model</a></li>
+            <li><a href="#thermal-response">Thermal Response</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <section id="objectives" class="objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand how climate change influences the population biology of infectious diseases through effects on hosts, parasites, and vectors</li>
+                <li>Apply degree-day models to predict parasite development under changing temperature regimes</li>
+                <li>Analyze the Ross-MacDonald model for vector-borne diseases and understand how temperature affects each component of R₀</li>
+                <li>Distinguish between linear and nonlinear thermal performance relationships and their implications for disease predictions</li>
+                <li>Evaluate case studies demonstrating climate-driven disease emergence in Arctic and tropical systems</li>
+                <li>Predict whether diseases will expand geographically or shift ranges under various climate change scenarios</li>
+            </ul>
+        </section>
+        
+        <section id="muskox" class="concept-card">
+            <h2>Case Study: Muskox-Lungworm System in the Canadian Arctic</h2>
+            
+            <div class="case-study">
+                <h4>Background: A Population Mystery</h4>
+                <p>Between 1988 and 1994, muskox populations on Banks Island in the Canadian Arctic (Kugluktuk, Nunavut region) experienced a catastrophic 50 percent population decline. During this same period, researchers discovered lungworm infections in these animals. This raised a critical epidemiological question: Was the lungworm endemic to the Arctic and simply being discovered for the first time, or could this parasite actually be responsible for the observed population crashes?</p>
+                
+                <p style="margin-top: 1rem;">The muskox is an Arctic ungulate that has survived in these harsh northern environments for thousands of years. The sudden population decline coincided with the detection of a nematode parasite, Umingmakstrongylus pallikuukensis, a lungworm that infects the respiratory system of muskoxen.</p>
+            </div>
+            
+            <h3>The Parasite: Umingmakstrongylus pallikuukensis</h3>
+            <p>This lungworm is a nematode parasite with a complex indirect life cycle requiring an intermediate host. Understanding its life cycle is crucial for understanding how climate affects transmission dynamics.</p>
+            
+            <div class="acronym">
+                <strong>SLIME Cycle</strong> - Remember the lungworm life cycle:<br>
+                <strong>S</strong>hed in feces (L1 larvae)<br>
+                <strong>L</strong>arvae penetrate slug intermediate host<br>
+                <strong>I</strong>nfective L3 stage develops in slug<br>
+                <strong>M</strong>uskox ingests infected slug<br>
+                <strong>E</strong>merges in lungs causing respiratory disease
+            </div>
+            
+            <h3>Life Cycle Details</h3>
+            <p><strong>Stage 1 - Shedding:</strong> Adult lungworms living in the lung tissue of infected muskoxen produce first-stage larvae (L1) that are coughed up, swallowed, and shed in the feces onto the Arctic tundra.</p>
+            
+            <p><strong>Stage 2 - Intermediate Host Infection:</strong> These L1 larvae must penetrate a gastropod intermediate host, specifically terrestrial slugs that live on the tundra. Once inside the slug, the larvae begin development.</p>
+            
+            <p><strong>Stage 3 - Development to Infectivity:</strong> Inside the slug, the larvae develop through the L2 stage to reach the third larval stage (L3), which is the infective form. This development is temperature-dependent.</p>
+            
+            <p><strong>Stage 4 - Transmission to Definitive Host:</strong> Muskoxen become infected by accidentally ingesting slugs while grazing on vegetation, or by ingesting L3 larvae that have emerged from slugs onto vegetation.</p>
+            
+            <p><strong>Stage 5 - Migration and Pathology:</strong> Once ingested, L3 larvae migrate through the muskox's body to reach the lungs, where they mature into adults. The presence of worms in lung tissue causes nodules, respiratory distress, nosebleeds, and increased susceptibility to secondary infections and predation.</p>
+            
+            <div class="key-insight">
+                <strong>Critical Temperature Dependency:</strong> The key to understanding why this ancient parasite suddenly caused population declines lies in a single biological constraint - the larvae cannot develop from L1 to L3 in the slug unless temperatures remain above a thermal minimum of 8.5°C for a sufficient cumulative period.
+            </div>
+            
+            <h3>The Degree-Day Model: Quantifying Thermal Requirements</h3>
+            <p>To understand how temperature limits parasite development, researchers use the degree-day model. This approach recognizes that development is not simply about average temperature, but about the accumulation of thermal energy above a critical threshold.</p>
+            
+            <div class="equation-box">
+                <p><strong>Daily Degree-Days Calculation:</strong></p>
+                <div class="equation">
+                    Degree days (x) = [Max temp(x) + Min temp(x)] / 2 − 8.5°C
+                </div>
+                <p style="margin-top: 1rem;">Where x represents a specific day, and 8.5°C is the developmental zero temperature (the minimum temperature at which development can occur).</p>
+                
+                <p style="margin-top: 1.5rem;"><strong>Total Development Requirement:</strong></p>
+                <div class="equation">
+                    Total degree days = Σ degree days (x) = 167 degree days
+                </div>
+                <p style="margin-top: 1rem;">This means the parasite requires the accumulation of 167 degree-days above 8.5°C to complete larval development from L1 to L3.</p>
+            </div>
+            
+            <div class="memory-anchor">
+                <strong>Visual Memory:</strong> Picture a thermometer filling up like a progress bar. Each day above 8.5°C adds to the total. When the bar reaches 167, the larvae transform from helpless L1 stage to infectious L3 stage - like a biological countdown timer powered by heat.
+            </div>
+            
+            <h3>Historical Climate Analysis: The Smoking Gun</h3>
+            <p>Researchers analyzed temperature records from Banks Island spanning several decades. What they discovered provided compelling evidence for climate-driven disease emergence:</p>
+            
+            <div class="case-study">
+                <h4>Before 1988 (Pre-warming Period):</h4>
+                <p>In only 3 years out of the study period did summer temperatures accumulate enough degree-days (greater than 167) for larvae to complete development in a single transmission season. In most years, it was simply too cold for too long. Larvae that entered slugs in early summer would still be in developmental stages when autumn temperatures dropped, killing them before they could become infective. This created a natural thermal barrier that prevented the parasite from establishing high transmission rates.</p>
+                
+                <h4>After 1988 (Warming Period):</h4>
+                <p>The pattern reversed dramatically. Only 2 years failed to reach the 167 degree-day threshold. In most years, temperatures were warm enough for long enough that larvae could reliably complete their development. Multiple cohorts of larvae could develop within a single summer. This transformation of the thermal landscape removed the natural brake on transmission, allowing parasite populations to explode.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> The lungworm was likely endemic to the Arctic for millennia, maintained at low levels by cold temperatures that prevented consistent transmission. Climate warming crossed a critical thermal threshold, transforming an endemic parasite into an epidemic threat. This is emergence through ecological release, not pathogen invasion.
+                </div>
+            </div>
+            
+            <h3>Projected Future Scenarios</h3>
+            <p>Climate models predict continued Arctic amplification, meaning the Arctic is warming faster than any other region on Earth. Researchers used warming scenarios to predict future lungworm transmission:</p>
+            
+            <p>Under moderate warming (+1 to +4°C), the number of degree-days accumulated per year increases substantially. This means:</p>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                <li>Larvae complete development more quickly, reducing their exposure to mortality factors</li>
+                <li>Multiple generations of larvae can develop in a single season, amplifying infection pressure</li>
+                <li>The transmission season lengthens, with infective larvae present for more of the year</li>
+                <li>Geographic range of suitable transmission expands northward and to higher elevations</li>
+            </ul>
+            
+            <h3>Population-Level Consequences for Muskoxen</h3>
+            <div class="case-study">
+                <h4>How Lungworm Infections Affect Muskox Populations:</h4>
+                
+                <p><strong>1. Direct Mortality:</strong> Heavy lungworm infections cause severe respiratory disease. Infected animals show labored breathing, chronic coughing, and reduced oxygen exchange capacity. This leads to direct death in heavily infected individuals, particularly young and old animals.</p>
+                
+                <p><strong>2. Predation Vulnerability:</strong> Muskoxen with respiratory disease cannot run as fast or far to escape predators like wolves and grizzly bears. They also cannot maintain the defensive circle formation as effectively. Predators specifically target individuals showing signs of weakness, creating predator-mediated selection for infected animals.</p>
+                
+                <p><strong>3. Reduced Body Condition:</strong> The energetic cost of fighting infection, combined with reduced oxygen uptake, means infected animals lose body condition. They enter winter with lower fat reserves, reducing overwinter survival probability.</p>
+                
+                <p><strong>4. Reproductive Impacts:</strong> Females in poor condition have lower conception rates, higher abortion rates, produce less milk, and have lower calf survival. Males in poor condition have reduced breeding success. These effects compound over time, reducing population recruitment.</p>
+                
+                <p><strong>5. Population Declines:</strong> When transmission rates exceed the population's ability to compensate through reproduction, population declines result. The 50 percent decline observed between 1988-1994 represents a classic example of disease-induced population regulation.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> The muskox-lungworm case study demonstrates that climate change can transform endemic parasites into population-limiting factors by removing thermal constraints on transmission. This pattern likely applies to many Arctic host-parasite systems, with potentially profound consequences for Arctic biodiversity and ecosystem function.
+                </div>
+            </div>
+        </section>
+        
+        <section id="climate-patterns" class="concept-card">
+            <h2>Global Climate Change Patterns and Their Effects on Disease</h2>
+            
+            <h3>IPCC Projections: The Thermal Reshaping of Earth</h3>
+            <p>The Intergovernmental Panel on Climate Change (IPCC) synthesizes climate data from around the world. Their projections reveal spatially heterogeneous patterns of change that have profound implications for infectious disease dynamics.</p>
+            
+            <div class="acronym">
+                <strong>PAWN</strong> - Remember where warming is greatest:<br>
+                <strong>P</strong>oles (Arctic and Antarctic)<br>
+                <strong>A</strong>nd continents (vs. oceans)<br>
+                <strong>W</strong>inter (vs. summer)<br>
+                <strong>N</strong>ighttime minimums (vs. daytime maximums)
+            </div>
+            
+            <div class="case-study">
+                <h4>Temperature Projections (1990-2100):</h4>
+                
+                <p><strong>Overall Increase:</strong> Global mean surface temperatures are projected to increase between 5°F and 14°F (approximately 2.8°C to 7.8°C) by 2100, depending on emission scenarios. This represents a rate of change unprecedented in the past 10,000 years.</p>
+                
+                <p><strong>Arctic Amplification:</strong> Polar regions are warming 2 to 3 times faster than the global average. The Arctic has already warmed approximately 4°C since pre-industrial times, with projections suggesting an additional 5°C to 10°C warming by 2100. This occurs due to positive feedback loops involving sea ice loss (reducing albedo), permafrost thaw (releasing methane), and changes in ocean circulation.</p>
+                
+                <p><strong>Continental vs. Coastal:</strong> Continental interiors warm more rapidly than coastal regions because oceans have high heat capacity and can absorb enormous amounts of thermal energy. This creates expanding zones of extreme heat in continental centers.</p>
+                
+                <p><strong>Seasonal Asymmetry:</strong> Winter temperatures are increasing faster than summer temperatures, particularly at high latitudes. This has profound implications for parasites with overwintering stages. Warmer winters reduce cold-induced mortality of vectors and environmental parasite stages.</p>
+                
+                <p><strong>Diurnal Asymmetry:</strong> Nighttime minimum temperatures are increasing faster than daytime maximum temperatures. This matters because many vectors and parasites are sensitive to extreme temperatures. Rising minimums reduce thermal stress while extending the daily period suitable for development and activity.</p>
+                
+                <p><strong>Extreme Events:</strong> Beyond mean changes, we're seeing increased frequency, intensity, and duration of heat waves. Record-breaking heat events are becoming commonplace. These extremes can cause rapid die-offs of vectors in some regions while facilitating explosive population growth in others.</p>
+            </div>
+            
+            <h3>Precipitation Changes: The Water-Disease Connection</h3>
+            <p>Climate change is intensifying the hydrological cycle, leading to both flooding and drought, often in the same regions at different times. This has complex effects on disease dynamics.</p>
+            
+            <div class="case-study">
+                <h4>Key Precipitation Patterns:</h4>
+                
+                <p><strong>Increased Extremes:</strong> While some regions become wetter and others drier, the most universal pattern is increased variability. Both droughts and floods are becoming more common and severe. This creates boom-and-bust cycles for vector populations.</p>
+                
+                <p><strong>Intensified Rainfall Events:</strong> When rain does fall, it increasingly comes in intense bursts rather than gentle steady precipitation. Heavy rainfall can flush away vector breeding sites but also creates new temporary pools ideal for mosquito reproduction.</p>
+                
+                <p><strong>Extended Dry Periods:</strong> Consecutive days without rain are increasing in many regions. This forces humans and wildlife to concentrate around remaining water sources, increasing contact rates between hosts and vectors.</p>
+                
+                <p><strong>Increased Evapotranspiration:</strong> Higher temperatures drive increased evaporation from soil and water surfaces and increased transpiration from plants. This can dry out vector breeding habitats but also can concentrate hosts and vectors around shrinking water resources.</p>
+                
+                <p><strong>Flooding Risk:</strong> Increased rainfall intensity overwhelms drainage systems and causes flooding. Floods create extensive shallow water habitats ideal for mosquito breeding. They also disrupt sanitation infrastructure, increasing risk of waterborne diseases. Flooding can displace wildlife hosts, bringing them into contact with naive populations.</p>
+            </div>
+            
+            <div class="memory-anchor">
+                <strong>Story to Remember:</strong> Think of climate change as turning Earth's thermostat to random. Imagine you're a mosquito trying to plan your life. Last year, your breeding pool dried up in a drought, killing all your larvae. This year, your pool was washed away in a flood. Next year might be perfect. This unpredictability creates ecological instability that can paradoxically increase disease risk when conditions align.
+            </div>
+            
+            <h3>Marine System Changes: Diseases Under the Sea</h3>
+            <p>Marine ecosystems are experiencing profound changes that affect infectious diseases of marine organisms, with cascading effects on human seafood resources and coastal economies.</p>
+            
+            <div class="case-study">
+                <h4>Ocean Transformation:</h4>
+                
+                <p><strong>Temperature Increase:</strong> Ocean surface temperatures have increased approximately 0.9°C since 1900, with deeper waters also warming. This shifts the thermal habitat of marine hosts and their parasites.</p>
+                
+                <p><strong>Acidification:</strong> Oceans have absorbed about 30 percent of anthropogenic CO₂, causing pH to drop from 8.2 to 8.1. This 0.1 unit change represents a 30 percent increase in acidity. Ocean pH is projected to drop another 0.3 to 0.4 units by 2100. Acidification affects host immunity and parasite infectivity in complex ways.</p>
+                
+                <p><strong>Decreased Salinity:</strong> In some regions, increased rainfall and glacial melting are reducing ocean salinity. This affects osmotic stress on both hosts and parasites, potentially expanding the range of freshwater pathogens into brackish environments.</p>
+                
+                <p><strong>Sea Level Rise:</strong> Rising seas are flooding coastal wetlands and creating new brackish water habitats. These transition zones can become disease hotspots where freshwater and marine pathogens overlap.</p>
+                
+                <p><strong>Current Disruption:</strong> Changes in ocean circulation patterns (like potential slowdown of the Atlantic Meridional Overturning Circulation) can shift the distribution of temperature, nutrients, and consequently, the geographic ranges of marine hosts and their parasites.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Climate change is not just warming; it's a multi-faceted reorganization of Earth's physical environment. Each change creates opportunities for disease emergence through effects on host physiology, parasite development, vector biology, and contact rates between infected and susceptible individuals.
+                </div>
+            </div>
+        </section>
+        
+        <section id="malaria" class="concept-card">
+            <h2>Case Study: Human Malaria and Vector-Borne Disease Dynamics</h2>
+            
+            <h3>The Malaria System: A Model for Understanding Vector-Borne Diseases</h3>
+            <p>Malaria is caused by Plasmodium parasites (primarily P. falciparum and P. vivax) transmitted by Anopheles mosquitoes. This system has been intensively studied and provides a framework for understanding how climate affects vector-borne disease transmission more broadly.</p>
+            
+            <div class="acronym">
+                <strong>MALARIA Components</strong> - Remember the key players:<br>
+                <strong>M</strong>osquito vector (Anopheles gambiae)<br>
+                <strong>A</strong>nopheline breeding in water<br>
+                <strong>L</strong>arvae develop in warm pools<br>
+                <strong>A</strong>dult females bite humans<br>
+                <strong>R</strong>ed blood cells infected by parasite<br>
+                <strong>I</strong>nfectious cycle in mosquito gut<br>
+                <strong>A</strong>ll stages temperature-sensitive
+            </div>
+            
+            <h3>Geographic Heterogeneity in Malaria Transmission</h3>
+            <p>Malaria incidence varies dramatically across landscapes, and this variation is strongly linked to temperature. In Kenya, for example, we can see this relationship clearly:</p>
+            
+            <div class="case-study">
+                <h4>Temperature Suitability and Disease Prevalence in Africa:</h4>
+                
+                <p><strong>Highland Regions:</strong> High-elevation areas (above 2,000 meters) have historically been malaria-free because cool temperatures prevent both mosquito development and parasite development within mosquitoes. These regions served as refugia where human populations could live without malaria risk.</p>
+                
+                <p><strong>Mid-Elevation Zones:</strong> Areas between 1,000 and 2,000 meters elevation represent transition zones where malaria transmission is highly sensitive to temperature. Small increases in temperature can dramatically increase transmission intensity. These are the regions most vulnerable to climate-driven malaria emergence.</p>
+                
+                <p><strong>Lowland Regions:</strong> Low-elevation tropical areas have high year-round transmission. These regions are currently near the thermal optimum for transmission. Further warming may actually reduce transmission as temperatures exceed physiological optima for mosquitoes and parasites.</p>
+                
+                <p><strong>Hot Arid Regions:</strong> Very hot, dry regions have limited transmission despite warm temperatures because mosquitoes cannot complete their aquatic life stages without water. Climate change effects here depend on how precipitation patterns change.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Temperature creates a geographic mosaic of malaria risk. Climate warming will likely cause malaria to shift upward in elevation and poleward in latitude, expanding into currently cool regions while potentially declining in currently hot regions. This is range shift, not uniform expansion.
+                </div>
+            </div>
+            
+            <h3>Mosquito Life Cycle: Temperature Dependencies at Every Stage</h3>
+            <p>Understanding why temperature affects malaria requires detailed knowledge of mosquito biology. Every life stage has temperature-dependent performance.</p>
+            
+            <div class="case-study">
+                <h4>Complete Mosquito Life Cycle:</h4>
+                
+                <p><strong>Egg Stage (0-2 days):</strong> Female mosquitoes lay eggs on water surfaces. Eggs can hatch within 24-48 hours in warm water (above 25°C) but take much longer in cool water. Below about 15°C, eggs may not hatch at all or development arrests.</p>
+                
+                <p><strong>Larval Stage (5-21 days):</strong> After hatching, larvae develop through four instars (L1-L4) while feeding on microorganisms in the water. Development rate is strongly temperature-dependent. At 30°C, larvae can complete development in 5-7 days. At 20°C, development takes 14-21 days. Below 15°C, development becomes so slow that most larvae die from predation or habitat loss before completing development. Larval density is also temperature-dependent, as warmer water supports higher productivity of microorganisms that larvae feed on.</p>
+                
+                <p><strong>Pupal Stage (1-2 days):</strong> Pupae are non-feeding but still require warm water for development. Pupal development typically takes 1-2 days at optimal temperatures but extends to 3-5 days at cooler temperatures.</p>
+                
+                <p><strong>Adult Emergence (7-14 days to reproduction):</strong> After emergence, adult mosquitoes must mature sexually before mating and blood-feeding. This pre-reproductive period is also temperature-dependent, ranging from 7 days at warm temperatures to 14 days or more at cooler temperatures.</p>
+                
+                <p><strong>Complete Generation Time:</strong> The total time from egg to reproducing adult ranges from about 10 days at 30°C to over 30 days at 20°C. This means warmer temperatures allow more generations per transmission season, exponentially amplifying population growth.</p>
+            </div>
+            
+            <div class="memory-anchor">
+                <strong>Visual Memory:</strong> Picture a mosquito factory assembly line. At high temperature, the conveyor belt moves fast - eggs zip through to adults in 10 days. At low temperature, the belt crawls - taking 30+ days. And remember, slower development means more larvae get eaten by predators, more breeding sites dry up, and fewer mosquitoes emerge.
+            </div>
+            
+            <h3>Temperature Effects on Adult Mosquito Biology</h3>
+            <p>Once mosquitoes emerge as adults, temperature continues to govern every aspect of their biology that influences disease transmission:</p>
+            
+            <p><strong>Biting Rate (a):</strong> Mosquito activity and blood-feeding frequency increase with temperature up to an optimum around 25-30°C, then decline at higher temperatures. Warmer temperatures increase metabolic rate, requiring mosquitoes to feed more frequently to meet energy demands. However, extreme heat forces mosquitoes to seek shelter, reducing biting activity.</p>
+            
+            <p><strong>Survival (p):</strong> Daily survival probability is critically important because mosquitoes must survive long enough for the parasite to complete development within them (typically 10-14 days). Adult mosquito survival shows a unimodal relationship with temperature. At cool temperatures (below 20°C), mosquitoes survive longer but are less active. At optimal temperatures (20-28°C), survival is still high. At hot temperatures (above 32°C), survival declines sharply due to desiccation stress and metabolic overload.</p>
+            
+            <p><strong>Vector Competence (β):</strong> Vector competence is the intrinsic ability of a mosquito to support parasite development and transmit infection. This is temperature-dependent because temperature affects the mosquito's immune system, gut physiology, and the rate at which parasites develop. Warmer temperatures generally increase vector competence up to a thermal optimum.</p>
+        </section>
+        
+        <section id="r0-model" class="concept-card">
+            <h2>The Ross-MacDonald Model: A Mathematical Framework for Vector-Borne Disease</h2>
+            
+            <h3>Historical Context and Model Development</h3>
+            <p>The Ross-MacDonald model, developed by Ronald Ross (1911) and George MacDonald (1950s), represents one of the most influential mathematical frameworks in epidemiology. Ross, who won the Nobel Prize in 1902 for discovering that mosquitoes transmit malaria, wanted to understand what controls transmission intensity and how interventions might work.</p>
+            
+            <div class="case-study">
+                <h4>Model Structure: Two Coupled Populations</h4>
+                
+                <p>The model tracks infection dynamics in both the human host population and the mosquito vector population simultaneously. This is necessary because transmission requires infected mosquitoes to bite susceptible humans, and susceptible mosquitoes to bite infected humans.</p>
+                
+                <p><strong>Host Population (Humans):</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>S (Susceptible):</strong> Humans who can become infected if bitten by an infectious mosquito</li>
+                    <li><strong>I (Infected):</strong> Humans with malaria parasites in their blood who can infect mosquitoes</li>
+                </ul>
+                
+                <p style="margin-top: 1rem;"><strong>Vector Population (Mosquitoes):</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>S (Susceptible):</strong> Mosquitoes that can become infected if they bite an infectious human</li>
+                    <li><strong>E (Exposed):</strong> Mosquitoes with parasites developing in their gut and tissues (not yet infectious)</li>
+                    <li><strong>I (Infectious):</strong> Mosquitoes with sporozoites in salivary glands who can transmit infection</li>
+                </ul>
+            </div>
+            
+            <h3>Key Parameters and Their Biological Meaning</h3>
+            
+            <div class="equation-box">
+                <p><strong>Transmission Parameters:</strong></p>
+                <table style="background: white; margin: 1rem auto;">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Biological Meaning</th>
+                        <th>Typical Range</th>
+                        <th>Temperature Effect</th>
+                    </tr>
+                    <tr>
+                        <td><strong>a</strong></td>
+                        <td>Biting rate (bites per mosquito per day)</td>
+                        <td>0.1 - 1.0</td>
+                        <td>Increases with T, peaks at ~28°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>β<sub>H</sub></strong></td>
+                        <td>Probability of human infection per bite</td>
+                        <td>0.1 - 0.5</td>
+                        <td>Increases with T, peaks at ~30°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>β<sub>V</sub></strong></td>
+                        <td>Probability of mosquito infection per bite</td>
+                        <td>0.1 - 0.8</td>
+                        <td>Increases with T, peaks at ~26°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>p</strong></td>
+                        <td>Daily survival probability of mosquito</td>
+                        <td>0.7 - 0.95</td>
+                        <td>Decreases with high T, peaks at ~25°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>n</strong></td>
+                        <td>Parasite development rate in mosquito (days<sup>-1</sup>)</td>
+                        <td>0.05 - 0.20</td>
+                        <td>Increases with T</td>
+                    </tr>
+                    <tr>
+                        <td><strong>γ</strong></td>
+                        <td>Human recovery rate (days<sup>-1</sup>)</td>
+                        <td>0.005</td>
+                        <td>Relatively constant</td>
+                    </tr>
+                    <tr>
+                        <td><strong>N<sub>V</sub>/N<sub>H</sub></strong></td>
+                        <td>Ratio of mosquitoes to humans</td>
+                        <td>1 - 100</td>
+                        <td>Temperature affects mosquito production</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <h3>The Basic Reproductive Number (R₀)</h3>
+            <p>R₀ represents the number of secondary infections caused by a single infected individual introduced into a completely susceptible population. For vector-borne diseases, we must follow the transmission through two cycles: human to mosquito to human.</p>
+            
+            <div class="equation-box">
+                <p><strong>Ross-MacDonald R₀ Formula:</strong></p>
+                <div class="equation">
+                    R₀ = (N<sub>V</sub> a² β<sub>H</sub> β<sub>V</sub> p<sup>n</sup>) / (N<sub>H</sub> γ(-ln p))
+                </div>
+                
+                <p style="margin-top: 1.5rem;"><strong>Component Interpretation:</strong></p>
+                <ul style="text-align: left; margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>N<sub>V</sub>/N<sub>H</sub>:</strong> Vector density relative to host density</li>
+                    <li><strong>a²:</strong> Biting rate squared (one bite to acquire infection, one to transmit)</li>
+                    <li><strong>β<sub>H</sub> β<sub>V</sub>:</strong> Product of transmission probabilities in both directions</li>
+                    <li><strong>p<sup>n</sup>:</strong> Probability that mosquito survives long enough for parasite to become infectious</li>
+                    <li><strong>γ:</strong> Rate at which humans recover (denominator because faster recovery reduces transmission)</li>
+                    <li><strong>-ln p:</strong> Mosquito mortality rate (negative log of survival)</li>
+                </ul>
+                
+                <div class="key-insight" style="margin-top: 1rem;">
+                    <strong>Critical Insight:</strong> The term p<sup>n</sup> is extraordinarily sensitive to temperature. Since n typically ranges from 10-20 days and p is raised to this power, small changes in daily survival (p) have massive effects on R₀. This is why mosquito longevity is such a powerful lever for malaria control.
+                </div>
+            </div>
+            
+            <div class="memory-anchor">
+                <strong>Story Linkage:</strong> Think of R₀ as a chain of events that must all succeed: You need lots of mosquitoes (N<sub>V</sub>), they must bite frequently (a²), successfully infect both ways (β's), and most critically, the mosquito must survive the parasite's development period (p<sup>n</sup>). Break any link and transmission fails. Temperature affects every single link.
+            </div>
+            
+            <h3>Early Predictions Based on Linear Thermal Responses</h3>
+            <p>For decades, epidemiologists assumed simple linear relationships between temperature and each component of R₀. This led to concerning predictions about climate change effects.</p>
+            
+            <div class="case-study">
+                <h4>Linear Model Assumptions (Pre-2010):</h4>
+                
+                <p><strong>Assumption 1:</strong> Biting rate increases linearly with temperature. If temperature goes up 5°C, biting rate increases proportionally.</p>
+                
+                <p><strong>Assumption 2:</strong> Parasite development rate increases linearly with temperature. Warmer means faster development, always.</p>
+                
+                <p><strong>Assumption 3:</strong> Mosquito production (eggs per day, larval development rate) increases linearly with temperature.</p>
+                
+                <p><strong>Assumption 4:</strong> Adult mosquito survival decreases linearly with temperature, but this was often ignored or minimized in models.</p>
+                
+                <p><strong>Resulting Prediction:</strong> Using linear assumptions, models predicted that R₀ would peak at approximately 31°C. This suggested that climate warming would dramatically expand malaria into currently temperate regions and intensify transmission in already endemic areas. These models predicted hundreds of millions of additional people at risk by 2100.</p>
+                
+                <div class="takeaway">
+                    <strong>Problem with Linear Models:</strong> Linear models failed to capture thermal limits and physiological constraints. No biological process increases indefinitely with temperature. All organisms have thermal optima beyond which performance declines. Ignoring this fundamental principle led to overly pessimistic predictions.
+                </div>
+            </div>
+        </section>
+        
+        <section id="thermal-response" class="concept-card">
+            <h2>Nonlinear Thermal Performance Curves: A Paradigm Shift</h2>
+            
+            <h3>The Mordecai et al. (2013) Revolution</h3>
+            <p>In a landmark 2013 study, Erin Mordecai and colleagues systematically reviewed the empirical literature on mosquito and malaria parasite thermal biology. What they found contradicted decades of linear assumptions.</p>
+            
+            <div class="acronym">
+                <strong>CURVE</strong> - Remember thermal performance characteristics:<br>
+                <strong>C</strong>ritical minimum temperature (T<sub>min</sub>)<br>
+                <strong>U</strong>nimodal shape (rise, peak, fall)<br>
+                <strong>R</strong>apid decline after optimum<br>
+                <strong>V</strong>ariable optima for different traits<br>
+                <strong>E</strong>xtreme sensitivity near thermal limits
+            </div>
+            
+            <h3>Empirical Thermal Performance Curves</h3>
+            <p>When researchers compiled data from laboratory experiments measuring each trait across temperature gradients, every single trait showed a unimodal (humped) thermal response curve, not a linear relationship.</p>
+            
+            <div class="case-study">
+                <h4>Key Findings from Empirical Data:</h4>
+                
+                <p><strong>Bite Rate Thermal Response:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>T<sub>min</sub>: ~10°C (no biting below this)</li>
+                    <li>T<sub>opt</sub>: ~28°C (maximum biting frequency)</li>
+                    <li>T<sub>max</sub>: ~40°C (biting ceases due to heat stress)</li>
+                    <li>Pattern: Gradual rise from T<sub>min</sub>, sharp peak at optimum, steep decline above optimum</li>
+                </ul>
+                
+                <p style="margin-top: 1rem;"><strong>Vector Competence (Transmission Probability):</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>T<sub>min</sub>: ~15°C</li>
+                    <li>T<sub>opt</sub>: ~28-30°C</li>
+                    <li>T<sub>max</sub>: ~35°C</li>
+                    <li>Pattern: Strong increase from T<sub>min</sub>, plateau at optimum, rapid decline at high temperatures</li>
+                </ul>
+                
+                <p style="margin-top: 1rem;"><strong>Daily Survival Probability:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>T<sub>opt</sub>: ~22-25°C (maximum longevity)</li>
+                    <li>Pattern: High and relatively flat survival across moderate temperatures, sharp decline above 32°C</li>
+                    <li>Critical: Small decreases in survival have exponential effects when raised to the power n in R₀</li>
+                </ul>
+                
+                <p style="margin-top: 1rem;"><strong>Parasite Development Rate:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>T<sub>min</sub>: ~16°C (no development below)</li>
+                    <li>T<sub>opt</sub>: ~30°C (fastest development, ~8 days)</li>
+                    <li>T<sub>max</sub>: ~35°C (development fails)</li>
+                    <li>Pattern: Accelerating increase from T<sub>min</sub>, peaks sharply, then declines</li>
+                </ul>
+                
+                <p style="margin-top: 1rem;"><strong>Mosquito Development Rate (Egg to Adult):</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>T<sub>min</sub>: ~12°C</li>
+                    <li>T<sub>opt</sub>: ~28-30°C</li>
+                    <li>T<sub>max</sub>: ~38°C</li>
+                    <li>Pattern: Exponential increase from T<sub>min</sub>, levels off near optimum, crashes above optimum</li>
+                </ul>
+                
+                <p style="margin-top: 1rem;"><strong>Egg Production (Fecundity):</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li>T<sub>opt</sub>: ~25-28°C</li>
+                    <li>Pattern: Peaks at moderate temperatures, declines at both cool and hot extremes</li>
+                </ul>
+            </div>
+            
+            <h3>Mechanistic Understanding of Thermal Limits</h3>
+            <p>Why do all these traits show unimodal curves rather than increasing indefinitely with temperature? The answer lies in fundamental biochemistry and physiology.</p>
+            
+            <div class="case-study">
+                <h4>Physiological Mechanisms Behind Thermal Performance:</h4>
+                
+                <p><strong>At Low Temperatures:</strong> Biochemical reaction rates slow down. Enzymes have reduced catalytic activity. Membrane fluidity decreases. Muscle contraction becomes sluggish. Development arrests or proceeds very slowly. Organisms enter a state of torpor or quiescence.</p>
+                
+                <p><strong>At Optimal Temperatures:</strong> Enzyme kinetics are maximized. Metabolic pathways function efficiently. ATP production meets energy demands. Proteins maintain proper folding. Membrane transport is optimal. This represents the thermal zone to which organisms have adapted through evolution.</p>
+                
+                <p><strong>At High Temperatures:</strong> Proteins begin to denature. Enzyme function breaks down. Metabolic imbalances occur. Oxidative stress increases. Cellular damage accumulates faster than repair mechanisms can fix it. At extreme temperatures, organisms experience heat shock, protein aggregation, and ultimately death.</p>
+                
+                <div class="takeaway">
+                    <strong>Take-Home Message:</strong> Thermal performance curves are not arbitrary. They reflect fundamental constraints of biochemistry operating in a physical world. Understanding these curves is essential for predicting climate change effects on disease.
+                </div>
+            </div>
+            
+            <h3>Revised R₀ Predictions Using Nonlinear Curves</h3>
+            <p>When Mordecai et al. reconstructed the R₀ temperature relationship using empirical nonlinear curves for each component, the results dramatically changed our understanding of malaria's thermal niche.</p>
+            
+            <div class="case-study">
+                <h4>New Predictions (Mordecai et al. 2013):</h4>
+                
+                <p><strong>Thermal Optimum:</strong> R₀ peaks at approximately 25°C, not 31°C. This 6-degree difference is massive in epidemiological terms.</p>
+                
+                <p><strong>Thermal Breadth:</strong> The range of temperatures suitable for transmission is narrower than previously thought. R₀ > 1 (disease can persist) between approximately 17°C and 34°C.</p>
+                
+                <p><strong>Asymmetry:</strong> The curve is asymmetric, with a steep decline above the optimum. This means temperatures above 30°C are increasingly unsuitable for transmission, while temperatures down to 20°C still support substantial transmission.</p>
+                
+                <p><strong>Validation:</strong> The new R₀ curve shows excellent agreement with field observations of malaria prevalence across Africa. The old 31°C optimum predicted high transmission in hot regions where malaria is actually rare.</p>
+                
+                <p><strong>Climate Change Implications:</strong></p>
+                <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                    <li><strong>Highland Expansion:</strong> Malaria will likely move upward in elevation as cool highlands warm into the 20-28°C range. This represents genuine range expansion into currently malaria-free zones.</li>
+                    <li><strong>Lowland Reduction:</strong> In hot lowland regions currently at 28-32°C, further warming may push temperatures above the thermal optimum, potentially reducing transmission. This represents range contraction in currently endemic areas.</li>
+                    <li><strong>Temperate Expansion:</strong> Warming in temperate regions could allow seasonal malaria transmission, but only if temperatures reach 20-28°C during summer months.</li>
+                    <li><strong>Overall Pattern:</strong> Rather than uniform expansion, we expect range shifts - expansion in cool regions, contraction in hot regions, with the geographic center of malaria risk moving toward the poles and upward in elevation.</li>
+                </ul>
+            </div>
+            
+            <div class="memory-anchor">
+                <strong>Visual Anchor:</strong> Imagine malaria's thermal niche as a bell curve sliding across Africa as temperatures rise. The left side of the bell (cool limit) moves up mountains and toward poles. The right side of the bell (hot limit) contracts in the hottest lowlands. The peak of the bell - where transmission is most intense - shifts to new geographic regions. It's not expansion; it's musical chairs with disease risk.
+            </div>
+        </section>
+        
+        <section class="concept-card">
+            <h2>Summary: Climate Change and Infectious Disease Dynamics</h2>
+            
+            <div class="acronym">
+                <strong>PREDICT</strong> - Framework for climate-disease analysis:<br>
+                <strong>P</strong>arasites with environmental stages most affected<br>
+                <strong>R</strong>ange shifts (not uniform expansion)<br>
+                <strong>E</strong>ach trait has different thermal optimum<br>
+                <strong>D</strong>egree-day models for development<br>
+                <strong>I</strong>ntegrate nonlinear responses<br>
+                <strong>C</strong>onsider vector and host together<br>
+                <strong>T</strong>hermal limits constrain transmission
+            </div>
+            
+            <h3>Key Take-Home Messages</h3>
+            
+            <div class="key-insight">
+                <strong>1. Climate change transforms host-parasite-vector ecology</strong> through direct effects on development rates, survival, reproduction, and transmission efficiency. Changes most pronounced for diseases involving arthropod vectors or environmental parasite stages.
+            </div>
+            
+            <div class="key-insight">
+                <strong>2. Temperature increases can reveal endemic parasites:</strong> The muskox-lungworm case demonstrates that warming can remove thermal constraints that historically suppressed transmission of endemic parasites, causing disease emergence without pathogen invasion.
+            </div>
+            
+            <div class="key-insight">
+                <strong>3. Degree-day models quantify thermal requirements:</strong> Development requires cumulative thermal energy above a threshold temperature. Climate change increases the geographic and temporal extent where these requirements are met.
+            </div>
+            
+            <div class="key-insight">
+                <strong>4. R₀ integrates multiple temperature-dependent processes:</strong> Basic reproductive number for vector-borne diseases depends on vector density, biting rate, transmission probabilities, and vector survival - all temperature-sensitive.
+            </div>
+            
+            <div class="key-insight">
+                <strong>5. Nonlinear thermal responses are universal:</strong> All biological rates show unimodal temperature relationships with critical minima, optima, and maxima. Linear assumptions lead to incorrect predictions.
+            </div>
+            
+            <div class="key-insight">
+                <strong>6. Different traits have different thermal optima:</strong> Mosquito survival peaks at ~25°C, biting at ~28°C, development at ~30°C. These mismatches create complex, nonlinear effects on overall transmission.
+            </div>
+            
+            <div class="key-insight">
+                <strong>7. Range shifts, not uniform expansion:</strong> Diseases will likely expand into currently cool regions (highlands, temperate zones) while potentially contracting in currently hot regions. The result is geographic redistribution of risk.
+            </div>
+            
+            <div class="key-insight">
+                <strong>8. Arctic amplification creates disease emergence hotspots:</strong> Polar regions warming 2-3x faster than global average face greatest relative change in disease risk, as endemic parasites escape thermal constraints.
+            </div>
+            
+            <div class="key-insight">
+                <strong>9. Precipitation extremes matter as much as temperature:</strong> Both droughts and floods can increase disease risk through different mechanisms - concentration of hosts and vectors, creation of breeding habitat, disruption of infrastructure.
+            </div>
+            
+            <div class="key-insight">
+                <strong>10. Prediction remains challenging:</strong> Despite improved models, predicting climate effects on disease requires integrating temperature, precipitation, land use, human behavior, socioeconomic factors, adaptation, and evolution. This remains an active research frontier.
+            </div>
+            
+            <h3>Broader Implications</h3>
+            <p>Climate change and infectious disease exemplifies how environmental change can cascade through ecological systems to affect human and wildlife health. The principles learned here - thermal performance curves, degree-day models, mechanistic modeling of R₀ - apply broadly across epidemiology, conservation biology, and ecosystem management. As Earth's climate continues changing, understanding and predicting disease responses becomes increasingly critical for public health preparedness, wildlife management, and agricultural biosecurity.</p>
+        </section>
+    </div>
+</body>
+</html>
