@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Range Bagging Demo - Ecological Niche Modeling</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -19,7 +20,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 12px;
@@ -151,6 +152,13 @@
             border-radius: 8px;
             border: 2px solid #e2e8f0;
             text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .canvas-container h3 {
+            color: #334155;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
         }
 
         canvas {
@@ -188,6 +196,54 @@
             border-radius: 50%;
         }
 
+        .math-section {
+            background: #fefce8;
+            border: 2px solid #fde047;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .math-section h3 {
+            color: #854d0e;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .formula-box {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #eab308;
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .symbol-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #eab308;
+        }
+
+        .symbol-item .symbol {
+            font-weight: bold;
+            color: #854d0e;
+            font-size: 1.1rem;
+        }
+
+        .symbol-item .description {
+            color: #475569;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
         .insight {
             background: #f0fdf4;
             border: 2px solid #86efac;
@@ -204,6 +260,19 @@
         .insight p {
             color: #166534;
             line-height: 1.8;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -225,18 +294,79 @@
 <body>
     <div class="container">
         <h1>Range Bagging Demo</h1>
-        <p class="subtitle">Simulating ecological niche modeling with presence-only data</p>
+        <p class="subtitle">Simulating ecological niche modeling with presence-only data using bootstrap aggregation</p>
+
+        <!-- Mathematical Model Section -->
+        <div class="math-section">
+            <h3>📐 Mathematical Model & Notation</h3>
+            
+            <div class="formula-box">
+                <p><strong>Range Bagging Prediction:</strong></p>
+                <p>$$\hat{P}(\mathbf{x}) = \frac{1}{B} \sum_{b=1}^{B} \mathbb{1}[\mathbf{x} \in \text{Hull}(S_b)]$$</p>
+            </div>
+
+            <div class="symbol-grid">
+                <div class="symbol-item">
+                    <div class="symbol">\(\hat{P}(\mathbf{x})\)</div>
+                    <div class="description">Predicted probability that location <strong>x</strong> is suitable habitat</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(\mathbf{x} = (x_1, x_2)\)</div>
+                    <div class="description">Location in environmental space (e.g., temperature, rainfall)</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(B = 20\)</div>
+                    <div class="description">Number of bootstrap iterations</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(S_b\)</div>
+                    <div class="description">Bootstrap sample <em>b</em> (70% of original points)</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(\text{Hull}(S_b)\)</div>
+                    <div class="description">Convex hull around bootstrap sample <em>b</em></div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(\mathbb{1}[\cdot]\)</div>
+                    <div class="description">Indicator function: 1 if condition true, 0 otherwise</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(D = \{p_1, p_2, ..., p_n\}\)</div>
+                    <div class="description">Original occurrence dataset with <em>n</em> = 50 points</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(E_{\text{true}}\)</div>
+                    <div class="description">True ecological niche (unknown in practice, shown in red)</div>
+                </div>
+            </div>
+
+            <div class="formula-box" style="margin-top: 20px;">
+                <p><strong>Bootstrap Sampling Process:</strong></p>
+                <p>$$S_b \sim \text{Sample}(D, \text{size} = 0.7n, \text{replace} = \text{FALSE})$$</p>
+                <p style="margin-top: 10px; font-size: 0.95rem; color: #475569;">
+                    Each bootstrap sample randomly selects 70% of the original occurrence points without replacement
+                </p>
+            </div>
+
+            <div class="formula-box">
+                <p><strong>Convex Hull Definition:</strong></p>
+                <p>$$\text{Hull}(S) = \left\{ \mathbf{x} \in \mathbb{R}^2 : \mathbf{x} = \sum_{i=1}^{k} \lambda_i p_i, \; \sum_{i=1}^{k} \lambda_i = 1, \; \lambda_i \geq 0 \right\}$$</p>
+                <p style="margin-top: 10px; font-size: 0.95rem; color: #475569;">
+                    The smallest convex polygon containing all points in sample <em>S</em>
+                </p>
+            </div>
+        </div>
 
         <div class="grid">
             <div class="panel">
                 <h3>How it Works:</h3>
                 <ol class="instructions">
-                    <li>1. <strong>Blue dots</strong>: Species occurrence records</li>
-                    <li>2. <strong>Red ellipse</strong>: True niche (unknown in reality)</li>
-                    <li>3. <strong>Bootstrap</strong>: Sample 70% of points randomly</li>
-                    <li>4. <strong>Convex hull</strong>: Draw boundary around sample</li>
-                    <li>5. <strong>Vote</strong>: Repeat 20 times, average predictions</li>
-                    <li>6. <strong>Heatmap</strong>: Areas with high votes = predicted niche</li>
+                    <li>1. <strong>Blue dots (D)</strong>: Species occurrence records (n=50)</li>
+                    <li>2. <strong>Red ellipse (E<sub>true</sub>)</strong>: True niche (unknown in reality)</li>
+                    <li>3. <strong>Bootstrap (S<sub>b</sub>)</strong>: Sample 70% of points randomly</li>
+                    <li>4. <strong>Convex hull (Hull(S<sub>b</sub>))</strong>: Draw boundary around sample</li>
+                    <li>5. <strong>Vote (B times)</strong>: Repeat 20 iterations, average predictions</li>
+                    <li>6. <strong>Heatmap (Ŝ(x))</strong>: Areas with high votes = predicted niche</li>
                 </ol>
             </div>
 
@@ -257,30 +387,58 @@
                     </button>
                 </div>
                 <div class="status" id="statusDisplay">
-                    Iteration: 0 / 20
+                    Iteration: b = 0 / B = 20
                 </div>
             </div>
         </div>
 
-        <div class="canvas-container">
-            <canvas id="canvas" width="600" height="600"></canvas>
-            
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-circle" style="background: rgba(59, 130, 246, 0.6);"></div>
-                    <span>Occurrence Records</span>
+        <!-- Two separate canvases side by side -->
+        <div class="two-column">
+            <div class="canvas-container">
+                <h3>Main Visualization</h3>
+                <canvas id="canvas" width="600" height="600"></canvas>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-circle" style="background: rgba(59, 130, 246, 0.6);"></div>
+                        <span>D (Occurrences)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="border: 2px dashed red; background: transparent;"></div>
+                        <span>E<sub>true</sub> (True Niche)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="border: 2px solid orange; background: transparent;"></div>
+                        <span>Hull(S<sub>b</sub>)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: rgba(59, 130, 246, 0.5);"></div>
+                        <span>Ŝ(x) (Prediction)</span>
+                    </div>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-box" style="border: 2px dashed red; background: transparent;"></div>
-                    <span>True Niche</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-box" style="border: 2px solid orange; background: transparent;"></div>
-                    <span>Bootstrap Hull</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-box" style="background: rgba(59, 130, 246, 0.5);"></div>
-                    <span>Predicted Niche</span>
+            </div>
+
+            <div class="canvas-container">
+                <h3>Model Components Diagram</h3>
+                <canvas id="modelCanvas" width="600" height="600"></canvas>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-circle" style="background: rgb(59, 130, 246);"></div>
+                        <span>p<sub>i</sub> ∈ D</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-circle" style="background: orange;"></div>
+                        <span>p<sub>i</sub> ∈ S<sub>b</sub></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: rgba(255, 0, 0, 0.3);"></div>
+                        <span>E<sub>true</sub></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: rgba(251, 191, 36, 0.3); border: 2px solid orange;"></div>
+                        <span>Hull(S<sub>b</sub>)</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -290,9 +448,11 @@
             <p>
                 Even though each bootstrap sample creates an imperfect boundary (orange), 
                 <strong>averaging many samples</strong> (blue heatmap) provides a robust estimate 
-                of the true niche (red dashed ellipse). Areas voted "inside" by many hulls 
-                are confidently predicted as suitable habitat. This demonstrates how <strong>ensemble methods</strong>
-                can overcome the limitations of individual models and reduce overfitting in species distribution modeling.
+                of the true niche (red dashed ellipse). The prediction \(\hat{P}(\mathbf{x})\) represents 
+                the fraction of bootstrap hulls that contain location <strong>x</strong>. Areas voted "inside" by many hulls 
+                (high \(\hat{P}(\mathbf{x})\) values) are confidently predicted as suitable habitat. This demonstrates 
+                how <strong>ensemble methods</strong> can overcome the limitations of individual models and reduce 
+                overfitting in species distribution modeling.
             </p>
         </div>
     </div>
@@ -300,6 +460,8 @@
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const modelCanvas = document.getElementById('modelCanvas');
+        const modelCtx = modelCanvas.getContext('2d');
         const WIDTH = 600;
         const HEIGHT = 600;
         const NUM_POINTS = 50;
@@ -435,7 +597,7 @@
             return `rgba(59, 130, 246, ${alpha})`;
         }
 
-        // Draw everything
+        // Draw main visualization
         function draw() {
             ctx.clearRect(0, 0, WIDTH, HEIGHT);
             
@@ -508,15 +670,219 @@
             
             // Draw axes labels
             ctx.fillStyle = '#64748b';
-            ctx.font = '12px sans-serif';
+            ctx.font = '13px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Environmental Variable 1 (e.g., Temperature)', WIDTH / 2, HEIGHT - 10);
+            ctx.fillText('Environmental Variable 1: x₁ (e.g., Temperature °C)', WIDTH / 2, HEIGHT - 10);
             
             ctx.save();
-            ctx.translate(15, HEIGHT / 2);
+            ctx.translate(20, HEIGHT / 2);
             ctx.rotate(-Math.PI / 2);
-            ctx.fillText('Environmental Variable 2 (e.g., Rainfall)', 0, 0);
+            ctx.fillText('Environmental Variable 2: x₂ (e.g., Rainfall mm)', 0, 0);
             ctx.restore();
+        }
+
+        // Draw model components diagram
+        function drawModelDiagram() {
+            modelCtx.clearRect(0, 0, WIDTH, HEIGHT);
+            
+            // Background
+            modelCtx.fillStyle = '#f8fafc';
+            modelCtx.fillRect(0, 0, WIDTH, HEIGHT);
+            
+            // Draw true niche region
+            modelCtx.fillStyle = 'rgba(255, 0, 0, 0.15)';
+            modelCtx.strokeStyle = 'red';
+            modelCtx.lineWidth = 3;
+            modelCtx.setLineDash([8, 8]);
+            modelCtx.beginPath();
+            modelCtx.ellipse(300, 300, 180, 120, 0, 0, 2 * Math.PI);
+            modelCtx.fill();
+            modelCtx.stroke();
+            modelCtx.setLineDash([]);
+            
+            // Label true niche
+            modelCtx.fillStyle = 'red';
+            modelCtx.font = 'bold 16px serif';
+            modelCtx.textAlign = 'center';
+            modelCtx.fillText('E', 300, 190);
+            modelCtx.font = '12px serif';
+            modelCtx.fillText('true', 315, 195);
+            
+            // Draw current bootstrap hull if active
+            if (currentIteration > 0 && currentIteration <= NUM_ITERATIONS) {
+                const current = bootstrapSamples[currentIteration - 1];
+                if (current.hull.length > 0) {
+                    modelCtx.fillStyle = 'rgba(251, 191, 36, 0.2)';
+                    modelCtx.strokeStyle = 'orange';
+                    modelCtx.lineWidth = 3;
+                    modelCtx.beginPath();
+                    modelCtx.moveTo(current.hull[0].x, current.hull[0].y);
+                    current.hull.forEach(p => modelCtx.lineTo(p.x, p.y));
+                    modelCtx.closePath();
+                    modelCtx.fill();
+                    modelCtx.stroke();
+                    
+                    // Label hull
+                    let centerX = current.hull.reduce((sum, p) => sum + p.x, 0) / current.hull.length;
+                    let centerY = current.hull.reduce((sum, p) => sum + p.y, 0) / current.hull.length;
+                    modelCtx.fillStyle = 'orange';
+                    modelCtx.font = 'bold 16px serif';
+                    modelCtx.fillText('Hull(S', centerX - 20, centerY);
+                    modelCtx.font = '12px serif';
+                    modelCtx.fillText('b', centerX + 15, centerY + 5);
+                    modelCtx.fillText(')', centerX + 25, centerY);
+                }
+            }
+            
+            // Draw all occurrence points in blue
+            occurrencePoints.forEach((point, idx) => {
+                modelCtx.fillStyle = 'rgb(59, 130, 246)';
+                modelCtx.strokeStyle = 'white';
+                modelCtx.lineWidth = 2;
+                modelCtx.beginPath();
+                modelCtx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                modelCtx.fill();
+                modelCtx.stroke();
+                
+                // Label a few points
+                if (idx < 3) {
+                    modelCtx.fillStyle = '#1e40af';
+                    modelCtx.font = 'bold 11px serif';
+                    modelCtx.fillText('p', point.x + 12, point.y - 5);
+                    modelCtx.font = '9px serif';
+                    modelCtx.fillText((idx + 1).toString(), point.x + 20, point.y - 2);
+                }
+            });
+            
+            // Draw current bootstrap sample points in orange
+            if (currentIteration > 0 && currentIteration <= NUM_ITERATIONS) {
+                const current = bootstrapSamples[currentIteration - 1];
+                current.points.forEach((point, idx) => {
+                    modelCtx.fillStyle = 'orange';
+                    modelCtx.strokeStyle = 'white';
+                    modelCtx.lineWidth = 2;
+                    modelCtx.beginPath();
+                    modelCtx.arc(point.x, point.y, 6, 0, 2 * Math.PI);
+                    modelCtx.fill();
+                    modelCtx.stroke();
+                });
+            }
+            
+            // Draw test point x
+            const testX = 350;
+            const testY = 320;
+            modelCtx.fillStyle = 'rgb(139, 92, 246)';
+            modelCtx.strokeStyle = 'rgb(109, 40, 217)';
+            modelCtx.lineWidth = 3;
+            modelCtx.beginPath();
+            modelCtx.arc(testX, testY, 8, 0, 2 * Math.PI);
+            modelCtx.fill();
+            modelCtx.stroke();
+            
+            // Label test point
+            modelCtx.fillStyle = 'rgb(109, 40, 217)';
+            modelCtx.font = 'bold 18px serif';
+            modelCtx.textAlign = 'left';
+            modelCtx.fillText('x = (x₁, x₂)', testX + 15, testY + 5);
+            
+            // Calculate and display P(x) for this point
+            let votesForTestPoint = 0;
+            bootstrapSamples.forEach(sample => {
+                if (isPointInPolygon({x: testX, y: testY}, sample.hull)) {
+                    votesForTestPoint++;
+                }
+            });
+            const pHat = votesForTestPoint / NUM_ITERATIONS;
+            
+            // Display P(x) value
+            modelCtx.fillStyle = '#1e40af';
+            modelCtx.font = '14px sans-serif';
+            modelCtx.fillText(`P̂(x) = ${pHat.toFixed(2)}`, testX + 15, testY + 25);
+            
+            // Draw axes labels
+            modelCtx.fillStyle = '#64748b';
+            modelCtx.font = '13px sans-serif';
+            modelCtx.textAlign = 'center';
+            modelCtx.fillText('x₁: Environmental Variable 1', WIDTH / 2, HEIGHT - 10);
+            
+            modelCtx.save();
+            modelCtx.translate(20, HEIGHT / 2);
+            modelCtx.rotate(-Math.PI / 2);
+            modelCtx.fillText('x₂: Environmental Variable 2', 0, 0);
+            modelCtx.restore();
+            
+            // Add title annotation
+            modelCtx.fillStyle = '#334155';
+            modelCtx.font = 'bold 14px sans-serif';
+            modelCtx.textAlign = 'left';
+            modelCtx.fillText('Dataset D = {p₁, p₂, ..., p₅₀}', 20, 30);
+            
+            if (currentIteration > 0) {
+                modelCtx.fillText(`Bootstrap Sample S_b (b=${currentIteration}, |S_b|=${Math.floor(NUM_POINTS * SAMPLE_FRACTION)})`, 20, 55);
+            }
+            
+            // Draw legend in top right
+            const legendX = WIDTH - 200;
+            const legendY = 30;
+            
+            modelCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            modelCtx.strokeStyle = '#cbd5e1';
+            modelCtx.lineWidth = 1;
+            modelCtx.fillRect(legendX - 10, legendY - 10, 190, 140);
+            modelCtx.strokeRect(legendX - 10, legendY - 10, 190, 140);
+            
+            modelCtx.font = 'bold 12px sans-serif';
+            modelCtx.fillStyle = '#334155';
+            modelCtx.textAlign = 'left';
+            modelCtx.fillText('Mathematical Notation:', legendX, legendY + 5);
+            
+            modelCtx.font = '11px sans-serif';
+            
+            // D symbol
+            modelCtx.fillStyle = 'rgb(59, 130, 246)';
+            modelCtx.beginPath();
+            modelCtx.arc(legendX + 5, legendY + 25, 4, 0, 2 * Math.PI);
+            modelCtx.fill();
+            modelCtx.fillStyle = '#475569';
+            modelCtx.fillText('D: All occurrences', legendX + 15, legendY + 28);
+            
+            // S_b symbol
+            modelCtx.fillStyle = 'orange';
+            modelCtx.beginPath();
+            modelCtx.arc(legendX + 5, legendY + 45, 4, 0, 2 * Math.PI);
+            modelCtx.fill();
+            modelCtx.fillStyle = '#475569';
+            modelCtx.fillText('S_b: Bootstrap sample', legendX + 15, legendY + 48);
+            
+            // E_true symbol
+            modelCtx.strokeStyle = 'red';
+            modelCtx.lineWidth = 2;
+            modelCtx.setLineDash([4, 4]);
+            modelCtx.strokeRect(legendX, legendY + 55, 15, 10);
+            modelCtx.setLineDash([]);
+            modelCtx.fillStyle = '#475569';
+            modelCtx.fillText('E_true: True niche', legendX + 20, legendY + 63);
+            
+            // Hull symbol
+            modelCtx.strokeStyle = 'orange';
+            modelCtx.lineWidth = 2;
+            modelCtx.strokeRect(legendX, legendY + 75, 15, 10);
+            modelCtx.fillStyle = '#475569';
+            modelCtx.fillText('Hull(S_b): Convex hull', legendX + 20, legendY + 83);
+            
+            // x symbol
+            modelCtx.fillStyle = 'rgb(139, 92, 246)';
+            modelCtx.strokeStyle = 'rgb(109, 40, 217)';
+            modelCtx.lineWidth = 2;
+            modelCtx.beginPath();
+            modelCtx.arc(legendX + 7, legendY + 100, 5, 0, 2 * Math.PI);
+            modelCtx.fill();
+            modelCtx.stroke();
+            modelCtx.fillStyle = '#475569';
+            modelCtx.fillText('x: Test location', legendX + 20, legendY + 103);
+            
+            modelCtx.fillStyle = '#475569';
+            modelCtx.fillText('P̂(x): Prediction', legendX + 20, legendY + 118);
         }
 
         // Initialize
@@ -526,13 +892,14 @@
             heatmapData = calculateHeatmap(bootstrapSamples);
             currentIteration = 0;
             draw();
+            drawModelDiagram();
             updateStatus();
         }
 
         // Update status display
         function updateStatus() {
             document.getElementById('statusDisplay').textContent = 
-                `Iteration: ${currentIteration} / ${NUM_ITERATIONS}`;
+                `Iteration: b = ${currentIteration} / B = ${NUM_ITERATIONS}`;
         }
 
         // Animation
@@ -549,6 +916,7 @@
                 if (currentIteration < NUM_ITERATIONS) {
                     currentIteration++;
                     draw();
+                    drawModelDiagram();
                     updateStatus();
                 } else {
                     stopAnimation();
@@ -568,6 +936,7 @@
             if (currentIteration >= NUM_ITERATIONS) {
                 currentIteration = 0;
                 draw();
+                drawModelDiagram();
                 updateStatus();
             }
             startAnimation();
