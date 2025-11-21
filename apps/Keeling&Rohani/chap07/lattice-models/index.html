@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lattice-Based Models & Cellular Automata | Infectious Disease Modeling</title>
+    
+    <!-- MathJax for mathematical formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        nav {
+            background: #1a3d20;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav li {
+            margin: 0 0.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: block;
+        }
+
+        nav a:hover, nav a.active {
+            background: #2c5530;
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem 0;
+        }
+
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: #2c5530;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .section h4 {
+            color: #4a7c59;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border-left: 4px solid #4a7c59;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .equation {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #fff9e6, #fffbf0);
+            border-left: 4px solid #f39c12;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .simulation-container {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+        }
+
+        canvas {
+            border: 2px solid #2c5530;
+            display: block;
+            margin: 1.5rem auto;
+            background-color: white;
+            border-radius: 5px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2c5530;
+            font-size: 0.95rem;
+        }
+
+        button {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #1a3d20, #2c5530);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            accent-color: #4a7c59;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            border: 2px solid #dee2e6;
+        }
+
+        .legend-color {
+            width: 25px;
+            height: 25px;
+            border: 2px solid #2c5530;
+            border-radius: 3px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #4a7c59;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border-left: 4px solid #28a745;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        /* Footer */
+        footer {
+            background: #1a3d20;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: #4a7c59;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            color: #6ba876;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            canvas {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Lattice-Based Models & Cellular Automata</h1>
+                <p class="subtitle">Chapter 7.3 - Modeling Infectious Diseases in Humans and Animals</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#introduction" onclick="scrollToSection('introduction')">Introduction</a></li>
+                <li><a href="#cellular-automata" onclick="scrollToSection('cellular-automata')">Cellular Automata</a></li>
+                <li><a href="#contact-process" onclick="scrollToSection('contact-process')">Contact Process</a></li>
+                <li><a href="#forest-fire" onclick="scrollToSection('forest-fire')">Forest-Fire Model</a></li>
+                <li><a href="#power-laws" onclick="scrollToSection('power-laws')">Power Laws</a></li>
+                <li><a href="#comparison" onclick="scrollToSection('comparison')">Comparison</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Introduction Section -->
+            <section class="section" id="introduction">
+                <h2>Introduction: Understanding Spatial Structure in Disease Spread</h2>
+                
+                <p>Imagine you're watching a forest fire spread from tree to tree, or tracking how a cold moves through a classroom. In both cases, location matters. The disease doesn't jump randomly across the population; it spreads from neighbor to neighbor. This is exactly what lattice-based models help us understand.</p>
+                
+                <div class="key-concept">
+                    <h4>Made Simple</h4>
+                    <p><strong>Lattice-based models</strong> arrange individuals (or groups) in a grid pattern, like a checkerboard. Instead of assuming everyone can infect everyone else equally (which is what simpler models assume), these models recognize that you're more likely to infect your neighbors than someone far away.</p>
+                    <p>Think of it like living in an apartment building. You're much more likely to catch a cold from the person living next door than from someone three floors up.</p>
+                </div>
+
+                <h3>Why Spatial Structure Matters</h3>
+                <p>In traditional well-mixed models (like basic SIR models), we assume any infected person can contact any susceptible person with equal probability. But real populations have spatial structure:</p>
+                <ul>
+                    <li>People interact more with those nearby (neighbors, classmates, coworkers)</li>
+                    <li>Diseases spread locally before spreading globally</li>
+                    <li>Local depletion of susceptibles slows down transmission</li>
+                    <li>Spatial barriers can create isolation and prevent spread</li>
+                </ul>
+            </section>
+
+            <!-- Cellular Automata Section -->
+            <section class="section" id="cellular-automata">
+                <h2>7.3.2 Cellular Automata: The Building Blocks</h2>
+                
+                <p>Cellular automata are a special type of lattice model where each grid square (or "cell") holds just one individual. Each cell can be in one of a few simple states, like susceptible, infectious, or recovered. The magic happens when we apply simple rules about how the disease spreads from cell to cell.</p>
+
+                <div class="key-concept">
+                    <h4>Key Features of Cellular Automata</h4>
+                    <ul>
+                        <li><strong>Grid structure:</strong> Individuals sit on a fixed lattice (like squares on graph paper)</li>
+                        <li><strong>Limited states:</strong> Each cell can only be in a few states (e.g., Empty, Susceptible, Infectious, Recovered)</li>
+                        <li><strong>Local interactions:</strong> Usually only the nearest 4 or 8 neighbors can interact</li>
+                        <li><strong>Stochastic rules:</strong> Transitions happen randomly based on probabilities</li>
+                    </ul>
+                </div>
+
+                <p>While real populations don't actually sit in perfect grids, these models teach us how spatial structure affects disease spread. They're abstract tools that reveal important patterns.</p>
+
+                <div class="example-box">
+                    <h4>Real-World Parallels</h4>
+                    <p><strong>Agricultural Settings:</strong> In crop fields or livestock farms, individuals do exist in relatively fixed spatial arrangements. Disease spread in these systems closely follows cellular automaton dynamics.</p>
+                    <p><strong>Human Populations:</strong> While humans move around, we still have "neighborhoods" of interaction - our homes, workplaces, schools. Cellular automata help us understand the basic principles of local transmission.</p>
+                </div>
+            </section>
+
+            <!-- Contact Process Section -->
+            <section class="section" id="contact-process">
+                <h2>7.3.2.1 The Contact Process: A Spatial SIS Model</h2>
+                
+                <h3>Made Simple</h3>
+                <p>The contact process is the simplest spatial disease model. Think of a line of people standing next to each other. When someone is infectious, they can only spread the disease to the person immediately to their left or right. After some time, they recover and become susceptible again, so the disease can hit them again later. This is an SIS (Susceptible-Infectious-Susceptible) model in space.</p>
+
+                <h3>The Basic Rules</h3>
+                <div class="equation">
+                    <p>If you're <strong>Infectious (I)</strong>:</p>
+                    <p>• You transmit to neighboring susceptibles at rate $\tau$</p>
+                    <p>• You recover (become S again) at rate $\gamma$</p>
+                </div>
+
+                <h4>Understanding the States</h4>
+                <p>Let's visualize the possible transitions in one dimension. Each person has two neighbors (left and right):</p>
+
+                <div class="equation">
+                    <p><strong>Transmission Events:</strong></p>
+                    <p>$$[S] - [I] - [S] \xrightarrow{\tau} [I] - [I] - [S]$$</p>
+                    <p>$$[S] - [S] - [I] \xrightarrow{\tau} [S] - [I] - [I]$$</p>
+                    <p>$$[I] - [S] - [I] \xrightarrow{2\tau} [I] - [I] - [I]$$</p>
+                    <br>
+                    <p><strong>Recovery Event:</strong></p>
+                    <p>$$[A] - [I] - [B] \xrightarrow{\gamma} [A] - [S] - [B]$$</p>
+                    <p style="font-size: 0.9rem; color: #666;">where A and B can be either S or I</p>
+                </div>
+
+                <h3>Interactive Simulation: Contact Process in 1D</h3>
+                
+                <div class="simulation-container">
+                    <h4>Watch Disease Spread Along a Line</h4>
+                    <p>This simulation shows the contact process in one dimension. Each row represents a time step, with newer time steps at the bottom. Notice how the disease can get "stuck" when it runs into recovered individuals, demonstrating local depletion.</p>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #4CAF50;"></div>
+                            <span>Susceptible (S)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f44336;"></div>
+                            <span>Infectious (I)</span>
+                        </div>
+                    </div>
+
+                    <canvas id="contact1DCanvas" width="800" height="400"></canvas>
+
+                    <div class="controls">
+                        <button id="start1DBtn">Start</button>
+                        <button id="pause1DBtn">Pause</button>
+                        <button id="reset1DBtn">Reset</button>
+                        
+                        <div class="control-group">
+                            <label for="trans1DRate">Transmission Rate (τ): <span id="trans1DValue">0.3</span></label>
+                            <input type="range" id="trans1DRate" min="0.05" max="1" step="0.05" value="0.3">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="rec1DRate">Recovery Rate (γ): <span id="rec1DValue">0.2</span></label>
+                            <input type="range" id="rec1DRate" min="0.05" max="0.5" step="0.05" value="0.2">
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="suscept1DCount">0</div>
+                            <div class="stat-label">Susceptible</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="infect1DCount">0</div>
+                            <div class="stat-label">Infectious</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="ratio1D">0.00</div>
+                            <div class="stat-label">τ/γ Ratio</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="time1DStep">0</div>
+                            <div class="stat-label">Time Steps</div>
+                        </div>
+                    </div>
+
+                    <div class="key-concept">
+                        <h4>Try This Experiment:</h4>
+                        <p>1. Set $\tau = 0.2$ and $\gamma = 0.2$ (ratio = 1.0). The disease should die out quickly.</p>
+                        <p>2. Set $\tau = 0.4$ and $\gamma = 0.2$ (ratio = 2.0). The disease might persist longer but still struggles.</p>
+                        <p>3. Set $\tau = 0.6$ and $\gamma = 0.2$ (ratio = 3.0). Now the disease can sustain itself!</p>
+                        <p>Notice how the threshold $\tau/\gamma \approx 1.65$ is needed for persistence, much higher than the naive $R_0 = 2(\tau/\gamma) = 1$ would suggest.</p>
+                    </div>
+                </div>
+
+                <h3>Why R₀ is Different in Spatial Models</h3>
+                
+                <p>In a well-mixed population (non-spatial), we calculate $R_0$ as: number of contacts × transmission probability × infectious period. For the contact process, this would give us:</p>
+
+                <div class="equation">
+                    $$R_0 = 2 \times \frac{\tau}{\gamma}$$
+                    <p style="margin-top: 1rem;">where 2 = number of neighbors in 1D</p>
+                </div>
+
+                <p>This would suggest that the disease can spread if $\tau > \frac{1}{2}\gamma$. However, this is <strong>wrong</strong> because it ignores spatial structure.</p>
+
+                <div class="example-box">
+                    <h4>The Spatial Problem: Local Depletion</h4>
+                    <p>Imagine you're the first infected person in a line. You infect your neighbor to the right. But now that neighbor only has ONE susceptible neighbor left (you've already recovered or are immune). The pool of available susceptibles around them has been depleted. This slows down the spread dramatically.</p>
+                    <p>Through extensive computer simulations, scientists found the true threshold is:</p>
+                    <div class="equation">
+                        $$\tau > 1.64896\gamma \text{ for disease to persist}$$
+                    </div>
+                    <p>This is more than 3 times higher than the simple $R_0$ calculation suggested! Spatial structure makes it much harder for diseases to spread.</p>
+                </div>
+
+                <h3>Interactive Comparison: 1D vs 2D Contact Process</h3>
+                
+                <div class="simulation-container">
+                    <h4>Comparing Dimensions</h4>
+                    <p>See how adding a second dimension (more neighbors) changes disease dynamics. In 2D, each cell has 4 neighbors instead of 2, providing more pathways for the disease to spread.</p>
+
+                    <canvas id="contact2DCanvas" width="600" height="600"></canvas>
+
+                    <div class="controls">
+                        <button id="start2DBtn">Start</button>
+                        <button id="pause2DBtn">Pause</button>
+                        <button id="reset2DBtn">Reset</button>
+                        
+                        <div class="control-group">
+                            <label for="trans2DRate">Transmission Rate (τ): <span id="trans2DValue">0.2</span></label>
+                            <input type="range" id="trans2DRate" min="0.05" max="1" step="0.05" value="0.2">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="rec2DRate">Recovery Rate (γ): <span id="rec2DValue">0.15</span></label>
+                            <input type="range" id="rec2DRate" min="0.05" max="0.5" step="0.05" value="0.15">
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="suscept2DCount">0</div>
+                            <div class="stat-label">Susceptible</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="infect2DCount">0</div>
+                            <div class="stat-label">Infectious</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="ratio2D">0.00</div>
+                            <div class="stat-label">τ/γ Ratio</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="time2DStep">0</div>
+                            <div class="stat-label">Time Steps</div>
+                        </div>
+                    </div>
+
+                    <div class="example-box">
+                        <h4>Observation Exercise:</h4>
+                        <p>Watch how the disease spreads in 2D compared to 1D. In 2D, you'll see:</p>
+                        <ul>
+                            <li><strong>Wave-like spread:</strong> Infection radiates outward from the initial point</li>
+                            <li><strong>Better persistence:</strong> More neighbors means more opportunities to spread</li>
+                            <li><strong>Lower threshold:</strong> The disease can persist with lower $\tau/\gamma$ ratios than in 1D</li>
+                            <li><strong>Spatial patterns:</strong> Clusters of infection form and move across the grid</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="key-concept">
+                    <h4>Key Insight: Local Depletion</h4>
+                    <p>In spatial models, the disease rapidly uses up nearby susceptibles, which dramatically reduces the early growth rate. This is a critical difference from well-mixed models where there's always a large pool of susceptibles to infect.</p>
+                </div>
+            </section>
+
+            <!-- Forest-Fire Model Section -->
+            <section class="section" id="forest-fire">
+                <h2>7.3.2.2 The Forest-Fire Model: A Spatial SIRS Model</h2>
+                
+                <h3>Made Simple</h3>
+                <p>The forest-fire model gets its name from forest ecology, but it works perfectly for diseases. Imagine a forest of trees (susceptibles). Occasionally, lightning strikes and sets a tree on fire (imports infection). Fire spreads to neighboring trees (transmission). Burned areas become empty (recovered/immune). Over time, new trees grow in the empty spaces (birth of new susceptibles or waning immunity).</p>
+
+                <h3>The Rules in Disease Terms</h3>
+                <div class="equation">
+                    $$S \xrightarrow{\tau n + \varepsilon} I$$
+                    <p style="margin: 0.5rem 0;">where $n$ = number of infectious neighbors</p>
+                    <p style="margin: 0.5rem 0;">$\varepsilon$ = random import of infection (the "lightning")</p>
+                    <br>
+                    $$I \xrightarrow{\gamma} R \quad \text{(recovery)}$$
+                    <br>
+                    $$R \xrightarrow{\nu} S \quad \text{(birth or waning immunity)}$$
+                </div>
+
+                <h4>Step-by-Step: What Each Parameter Means</h4>
+                <ul>
+                    <li><strong>$\tau$ (tau):</strong> Transmission rate per infectious contact. Higher $\tau$ means disease spreads faster between neighbors.</li>
+                    <li><strong>$n$:</strong> Number of infectious neighbors (typically 4 or 8 on a 2D grid)</li>
+                    <li><strong>$\varepsilon$ (epsilon):</strong> Rate of random infection from outside. This is usually very small, representing occasional travelers bringing disease in.</li>
+                    <li><strong>$\gamma$ (gamma):</strong> Recovery rate. Higher $\gamma$ means shorter infectious period.</li>
+                    <li><strong>$\nu$ (nu):</strong> Rate at which recovered individuals become susceptible again (birth or immunity loss).</li>
+                </ul>
+
+                <h3>The Magic: Power Laws and Self-Organized Criticality</h3>
+                
+                <p>When we run this model with realistic parameters, something remarkable happens. The model naturally organizes itself into a special state where epidemic sizes follow a <strong>power-law distribution</strong>.</p>
+
+                <div class="key-concept">
+                    <h4>What is a Power Law?</h4>
+                    <p>A power law means that the frequency of epidemics decreases as a power of their size. Mathematically:</p>
+                    <div class="equation">
+                        $$P(\text{epidemic} \geq s) = s^{-\alpha}$$
+                    </div>
+                    <p>In plain English: Small outbreaks are common, medium outbreaks are less common, and large outbreaks are rare, but this relationship follows a specific mathematical pattern. There's no "typical" outbreak size - you can get epidemics of many different scales.</p>
+                </div>
+
+                <h4>When Do Power Laws Emerge?</h4>
+                <p>Power laws appear when the rates follow a natural ordering found in most real diseases:</p>
+
+                <div class="equation">
+                    $$\tau \gg \gamma \gg \nu \gg \varepsilon$$
+                    <p style="margin-top: 0.5rem;">(Transmission $\gg$ Recovery $\gg$ Births $\gg$ Imports)</p>
+                </div>
+
+                <div class="example-box">
+                    <h4>Real-World Example: Measles</h4>
+                    <p>For measles, this ordering makes perfect sense:</p>
+                    <ul>
+                        <li><strong>Transmission ($\tau$):</strong> Very fast - if you're near an infectious person, you'll likely catch it within days</li>
+                        <li><strong>Recovery ($\gamma$):</strong> Happens over 1-2 weeks</li>
+                        <li><strong>Births ($\nu$):</strong> New susceptible children are born over months/years</li>
+                        <li><strong>Imports ($\varepsilon$):</strong> Rare - occasional traveler brings disease back to a cleared population</li>
+                    </ul>
+                    <p>This natural separation of timescales leads to the power-law behavior we observe in real epidemic data.</p>
+                </div>
+
+                <h3>Interactive Simulation: Forest-Fire Model</h3>
+                
+                <div class="simulation-container">
+                    <h4>Watch the Model in Action</h4>
+                    <p>In this simulation, you can see how the forest-fire model creates spatial patterns of disease spread. Adjust the parameters to see how they affect epidemic dynamics.</p>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #808080;"></div>
+                            <span>Susceptible (S)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #ff0000;"></div>
+                            <span>Infectious (I)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #ffffff;"></div>
+                            <span>Recovered (R)</span>
+                        </div>
+                    </div>
+
+                    <canvas id="forestCanvas" width="600" height="600"></canvas>
+
+                    <div class="controls">
+                        <button id="startBtn">Start</button>
+                        <button id="pauseBtn">Pause</button>
+                        <button id="resetBtn">Reset</button>
+                        <button id="sparkBtn">Add Random Infection</button>
+                        
+                        <div class="control-group">
+                            <label for="transRate">Transmission Rate (τ): <span id="transValue">0.3</span></label>
+                            <input type="range" id="transRate" min="0.01" max="1" step="0.01" value="0.3">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="recRate">Recovery Rate (γ): <span id="recValue">0.1</span></label>
+                            <input type="range" id="recRate" min="0.01" max="0.5" step="0.01" value="0.1">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="birthRate">Birth/Waning Rate (ν): <span id="birthValue">0.01</span></label>
+                            <input type="range" id="birthRate" min="0.001" max="0.1" step="0.001" value="0.01">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="importRate">Import Rate (ε): <span id="importValue">0.001</span></label>
+                            <input type="range" id="importRate" min="0.0001" max="0.01" step="0.0001" value="0.001">
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="susceptCount">0</div>
+                            <div class="stat-label">Susceptible</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="infectCount">0</div>
+                            <div class="stat-label">Infectious</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="recoverCount">0</div>
+                            <div class="stat-label">Recovered</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="timeStep">0</div>
+                            <div class="stat-label">Time Steps</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Power Laws Application Section -->
+            <section class="section" id="power-laws">
+                <h2>7.3.2.3 Application: Power Laws in Childhood Epidemic Data</h2>
+                
+                <h3>Real Data from the Faroe Islands</h3>
+                
+                <p>The Faroe Islands are a small group of islands in the North Atlantic (between Scotland and Iceland) with about 25,000 people. They're perfect for studying epidemics because:</p>
+                <ul>
+                    <li>They're isolated (limited imports of disease)</li>
+                    <li>They have excellent historical health records going back 100+ years</li>
+                    <li>The population is small and relatively stable</li>
+                </ul>
+
+                <div class="example-box">
+                    <h4>What the Data Showed</h4>
+                    <p>Scientists analyzed outbreak data for three childhood diseases and found remarkable power-law patterns:</p>
+                    
+                    <div class="equation">
+                        $$P(\text{epidemic} \geq s) = s^{-\alpha}$$
+                        <br>
+                        <p><strong>Measles:</strong> $\alpha \approx 0.265$</p>
+                        <p><strong>Whooping Cough (Pertussis):</strong> $\alpha \approx 0.255$</p>
+                        <p><strong>Mumps:</strong> $\alpha \approx 0.447$</p>
+                    </div>
+
+                    <p>This power-law relationship held for epidemics up to about 500-1,000 cases. For smaller outbreaks, the frequency decreased smoothly as a power function of size.</p>
+                </div>
+
+                <h3>Connecting Models to Reality</h3>
+                
+                <p>Rhodes and Anderson modified the basic forest-fire cellular automaton model to better match human behavior. Their key innovation: <strong>allowing individuals to move</strong>.</p>
+
+                <h4>The Modified Model</h4>
+                <ul>
+                    <li>Individuals still sit on a lattice, but they can move to neighboring empty cells</li>
+                    <li>Movement creates spatial mixing that's more realistic than fixed positions</li>
+                    <li>The model can be run in different dimensions (2D, 3D, 5D) to represent different levels of social connectivity</li>
+                </ul>
+
+                <div class="key-concept">
+                    <h4>What Do Different Dimensions Mean?</h4>
+                    <p>Higher dimensions don't literally mean physical space - they represent <strong>social connectivity</strong>:</p>
+                    <ul>
+                        <li><strong>2D:</strong> Very local interactions (like a rural community where you only see nearby neighbors)</li>
+                        <li><strong>3D:</strong> More connectivity (like a small town with schools, shops, community centers)</li>
+                        <li><strong>5D:</strong> High connectivity (like a city with complex social networks)</li>
+                    </ul>
+                    <p>Measles and whooping cough fit 3D models ($\alpha \approx 0.2$), while mumps fits 5D models ($\alpha \approx 0.4$), suggesting mumps spreads through more complex social networks.</p>
+                </div>
+
+                <h3>Interactive Visualization: Power Law Distribution</h3>
+                
+                <div class="simulation-container">
+                    <h4>See Power Laws Emerge from the Model</h4>
+                    <p>This simulation runs multiple epidemics and tracks their sizes, showing how a power-law distribution emerges over time. The plot shows epidemic size vs frequency on a log-log scale.</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div>
+                            <h4 style="text-align: center; margin-bottom: 10px;">Epidemic Progression</h4>
+                            <canvas id="powerLawGrid" width="400" height="400"></canvas>
+                        </div>
+                        <div>
+                            <h4 style="text-align: center; margin-bottom: 10px;">Power Law Distribution (Log-Log Plot)</h4>
+                            <canvas id="powerLawPlot" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button id="startPowerBtn">Start Collection</button>
+                        <button id="pausePowerBtn">Pause</button>
+                        <button id="resetPowerBtn">Reset Data</button>
+                        
+                        <div class="control-group">
+                            <label for="powerTrans">Transmission Rate (τ): <span id="powerTransValue">0.4</span></label>
+                            <input type="range" id="powerTrans" min="0.1" max="1" step="0.05" value="0.4">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="powerRec">Recovery Rate (γ): <span id="powerRecValue">0.15</span></label>
+                            <input type="range" id="powerRec" min="0.05" max="0.5" step="0.05" value="0.15">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="powerBirth">Birth Rate (ν): <span id="powerBirthValue">0.02</span></label>
+                            <input type="range" id="powerBirth" min="0.005" max="0.1" step="0.005" value="0.02">
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="epidemicCount">0</div>
+                            <div class="stat-label">Epidemics Recorded</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="currentSize">0</div>
+                            <div class="stat-label">Current Epidemic Size</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="avgSize">0</div>
+                            <div class="stat-label">Average Size</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="powerAlpha">--</div>
+                            <div class="stat-label">Estimated α (slope)</div>
+                        </div>
+                    </div>
+
+                    <div class="example-box">
+                        <h4>What to Look For:</h4>
+                        <ul>
+                            <li><strong>Straight line on log-log plot:</strong> This indicates a power-law relationship</li>
+                            <li><strong>Many small epidemics:</strong> Most outbreaks involve just a few individuals</li>
+                            <li><strong>Few large epidemics:</strong> Massive outbreaks are rare but do occur</li>
+                            <li><strong>The slope ($\alpha$):</strong> Should be around 0.2-0.4 for realistic parameters, matching Faroe Islands data</li>
+                        </ul>
+                        <p><strong>Tip:</strong> Let it run for 50+ epidemics to see a clear pattern emerge. Try different parameter ratios to see how $\alpha$ changes!</p>
+                    </div>
+                </div>
+
+                <h3>Why This Matters</h3>
+                
+                <div class="example-box">
+                    <h4>Practical Implications</h4>
+                    <ol>
+                        <li><strong>Predictability:</strong> Power laws tell us that while we can't predict the exact size of the next outbreak, we can predict the distribution of outbreak sizes over time.</li>
+                        <li><strong>Resource Planning:</strong> Public health officials can plan for a mix of small, medium, and large outbreaks following the power-law pattern.</li>
+                        <li><strong>Critical Thresholds:</strong> These models help identify vaccination thresholds needed to prevent large-scale epidemics.</li>
+                        <li><strong>Early Warning:</strong> Understanding the power-law can help distinguish between natural variation and true changes in disease dynamics.</li>
+                    </ol>
+                </div>
+
+                <h3>Step-by-Step: How the Analysis Works</h3>
+                
+                <ol>
+                    <li><strong>Collect Data:</strong> Gather historical outbreak sizes (number of cases in each epidemic)</li>
+                    <li><strong>Sort by Size:</strong> Order outbreaks from smallest to largest</li>
+                    <li><strong>Count Frequency:</strong> For each size $s$, count how many outbreaks were at least that large</li>
+                    <li><strong>Plot on Log-Log Scale:</strong> Plot $\log(\text{frequency})$ vs $\log(\text{size})$</li>
+                    <li><strong>Look for Straight Line:</strong> A straight line on log-log plot indicates power law, slope gives $\alpha$</li>
+                    <li><strong>Compare to Model:</strong> Run cellular automaton simulations and check if they produce similar $\alpha$ values</li>
+                </ol>
+
+                <div class="equation">
+                    <h4>Mathematical Note</h4>
+                    <p>Why does a straight line on a log-log plot indicate a power law?</p>
+                    <p>If $P(\geq s) = s^{-\alpha}$, then:</p>
+                    $$\log(P) = \log(s^{-\alpha}) = -\alpha \times \log(s)$$
+                    <p style="margin-top: 0.5rem;">This is a straight line with slope $-\alpha$</p>
+                </div>
+            </section>
+
+            <!-- Comparison Section -->
+            <section class="section" id="comparison">
+                <h2>Key Differences: Contact Process vs Forest-Fire Model</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Contact Process</th>
+                            <th>Forest-Fire Model</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Disease Type</strong></td>
+                            <td>SIS (reinfection possible)</td>
+                            <td>SIRS (temporary immunity)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>States</strong></td>
+                            <td>Susceptible, Infectious</td>
+                            <td>Susceptible, Infectious, Recovered</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Typical Dimension</strong></td>
+                            <td>1D (line)</td>
+                            <td>2D (grid)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complexity</strong></td>
+                            <td>Simpler - good for teaching basics</td>
+                            <td>More realistic - includes births/immunity</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Key Result</strong></td>
+                            <td>Shows threshold is higher than expected due to spatial depletion</td>
+                            <td>Produces power-law distributions matching real data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Example Diseases</strong></td>
+                            <td>Sexually transmitted infections, common cold</td>
+                            <td>Measles, whooping cough, mumps</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Intuition and Analogies</h3>
+                
+                <div class="example-box">
+                    <h4>The Apartment Building Analogy</h4>
+                    <p><strong>Contact Process:</strong> Imagine a disease spreading through a single hallway of apartments. Each infected person can only infect their immediate neighbors (left and right). Once those neighbors are infected, they've used up their local supply of susceptibles. This is why the disease has a hard time persisting - it keeps running into dead ends.</p>
+                    
+                    <p><strong>Forest-Fire Model:</strong> Now imagine a whole city of apartment buildings. Fires start occasionally (lightning = imported cases). Fires spread to neighboring buildings (transmission). Burned buildings are torn down and left as empty lots (recovered/immune). Over years, new buildings are constructed in those lots (births or waning immunity). The city reaches a balance where there are always some buildings, some fires spreading, and some empty lots being rebuilt.</p>
+                </div>
+
+                <div class="example-box">
+                    <h4>The Wildfire Analogy for Power Laws</h4>
+                    <p>Think about wildfires in a forest. Most fires are small - maybe just a few trees before the wind dies or rain comes. Some fires are medium-sized. Very few become massive forest fires. But this isn't random - the distribution of fire sizes follows a mathematical pattern (power law) that emerges from the basic rules of fire spread.</p>
+                    
+                    <p>Similarly, disease outbreaks in the Faroe Islands showed the same pattern: lots of small outbreaks, fewer medium ones, rare large epidemics, all following a predictable mathematical relationship.</p>
+                </div>
+
+                <h3>Limitations and When to Use These Models</h3>
+                
+                <div class="key-concept">
+                    <h4>Important Caveats</h4>
+                    <ul>
+                        <li><strong>Abstract, Not Realistic:</strong> Real people don't sit on fixed grids. These models are tools for understanding principles, not for detailed predictions.</li>
+                        <li><strong>Limited Neighbors:</strong> Having only 4 or 8 neighbors is unrealistic for human diseases. Real social networks are much more complex.</li>
+                        <li><strong>Best Use:</strong> Understanding how spatial structure and local depletion affect epidemic dynamics.</li>
+                        <li><strong>When to Choose Another Model:</strong> For detailed predictions about specific populations, use individual-based models or network models instead.</li>
+                    </ul>
+                </div>
+
+                <div class="summary-box">
+                    <h3>Summary</h3>
+                    <p><strong>Cellular automata models place individuals on a grid and apply simple local rules for disease transmission.</strong> The contact process (SIS model) demonstrates how spatial structure increases the threshold for disease persistence due to local depletion of susceptibles. The forest-fire model (SIRS model) produces power-law distributions of epidemic sizes that match real childhood disease data when transmission is much faster than recovery, which is faster than births, which is faster than imports. While these models are abstract, they reveal fundamental principles about how spatial structure shapes epidemic dynamics, particularly the importance of local mixing and the emergence of scale-free outbreak patterns.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Infectious Disease Modeling Tutorial. Based on Keeling & Rohani's "Modeling Infectious Diseases in Humans and Animals"</p>
+            <p>Created for educational purposes | <a href="https://github.com/drabdulali">View on GitHub</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll to sections
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 1D CONTACT PROCESS SIMULATION
+        const canvas1D = document.getElementById('contact1DCanvas');
+        const ctx1D = canvas1D.getContext('2d');
+        
+        const size1D = 200;
+        const cellWidth1D = canvas1D.width / size1D;
+        const cellHeight1D = 20;
+        const maxRows = Math.floor(canvas1D.height / cellHeight1D);
+        
+        let grid1D = [];
+        let history1D = [];
+        let running1D = false;
+        let time1D = 0;
+        let tau1D = 0.3;
+        let gamma1D = 0.2;
+        let anim1D = null;
+        
+        function init1D() {
+            grid1D = new Array(size1D).fill(0);
+            grid1D[Math.floor(size1D / 2)] = 1;
+            history1D = [grid1D.slice()];
+            time1D = 0;
+        }
+        
+        function update1D() {
+            let newGrid = grid1D.slice();
+            
+            for (let i = 0; i < size1D; i++) {
+                if (grid1D[i] === 1) {
+                    if (Math.random() < gamma1D) {
+                        newGrid[i] = 0;
+                    }
+                } else {
+                    let infNeighbors = 0;
+                    if (i > 0 && grid1D[i - 1] === 1) infNeighbors++;
+                    if (i < size1D - 1 && grid1D[i + 1] === 1) infNeighbors++;
+                    
+                    let probInfect = 1 - Math.exp(-tau1D * infNeighbors);
+                    if (Math.random() < probInfect) {
+                        newGrid[i] = 1;
+                    }
+                }
+            }
+            
+            grid1D = newGrid;
+            history1D.push(grid1D.slice());
+            if (history1D.length > maxRows) {
+                history1D.shift();
+            }
+            time1D++;
+        }
+        
+        function draw1D() {
+            ctx1D.fillStyle = '#ffffff';
+            ctx1D.fillRect(0, 0, canvas1D.width, canvas1D.height);
+            
+            for (let row = 0; row < history1D.length; row++) {
+                for (let i = 0; i < size1D; i++) {
+                    if (history1D[row][i] === 1) {
+                        ctx1D.fillStyle = '#f44336';
+                    } else {
+                        ctx1D.fillStyle = '#4CAF50';
+                    }
+                    ctx1D.fillRect(i * cellWidth1D, row * cellHeight1D, cellWidth1D, cellHeight1D);
+                }
+            }
+            
+            updateStats1D();
+        }
+        
+        function updateStats1D() {
+            let suscept = grid1D.filter(x => x === 0).length;
+            let infect = grid1D.filter(x => x === 1).length;
+            
+            document.getElementById('suscept1DCount').textContent = suscept;
+            document.getElementById('infect1DCount').textContent = infect;
+            document.getElementById('ratio1D').textContent = (tau1D / gamma1D).toFixed(2);
+            document.getElementById('time1DStep').textContent = time1D;
+        }
+        
+        function animate1D() {
+            if (running1D) {
+                update1D();
+                draw1D();
+                anim1D = setTimeout(animate1D, 100);
+            }
+        }
+        
+        document.getElementById('start1DBtn').addEventListener('click', () => {
+            running1D = true;
+            animate1D();
+        });
+        
+        document.getElementById('pause1DBtn').addEventListener('click', () => {
+            running1D = false;
+            if (anim1D) clearTimeout(anim1D);
+        });
+        
+        document.getElementById('reset1DBtn').addEventListener('click', () => {
+            running1D = false;
+            if (anim1D) clearTimeout(anim1D);
+            init1D();
+            draw1D();
+        });
+        
+        document.getElementById('trans1DRate').addEventListener('input', (e) => {
+            tau1D = parseFloat(e.target.value);
+            document.getElementById('trans1DValue').textContent = tau1D.toFixed(2);
+            updateStats1D();
+        });
+        
+        document.getElementById('rec1DRate').addEventListener('input', (e) => {
+            gamma1D = parseFloat(e.target.value);
+            document.getElementById('rec1DValue').textContent = gamma1D.toFixed(2);
+            updateStats1D();
+        });
+        
+        init1D();
+        draw1D();
+        
+        // 2D CONTACT PROCESS SIMULATION
+        const canvas2D = document.getElementById('contact2DCanvas');
+        const ctx2D = canvas2D.getContext('2d');
+        
+        const size2D = 100;
+        const cellSize2D = canvas2D.width / size2D;
+        
+        let grid2D = [];
+        let running2D = false;
+        let time2D = 0;
+        let tau2D = 0.2;
+        let gamma2D = 0.15;
+        let anim2D = null;
+        
+        function init2D() {
+            grid2D = [];
+            for (let i = 0; i < size2D; i++) {
+                grid2D[i] = new Array(size2D).fill(0);
+            }
+            let center = Math.floor(size2D / 2);
+            grid2D[center][center] = 1;
+            grid2D[center + 1][center] = 1;
+            grid2D[center][center + 1] = 1;
+            time2D = 0;
+        }
+        
+        function countInfectious2D(i, j) {
+            let count = 0;
+            const neighbors = [[i-1, j], [i+1, j], [i, j-1], [i, j+1]];
+            
+            for (let [ni, nj] of neighbors) {
+                if (ni >= 0 && ni < size2D && nj >= 0 && nj < size2D) {
+                    if (grid2D[ni][nj] === 1) count++;
+                }
+            }
+            return count;
+        }
+        
+        function update2D() {
+            let newGrid = JSON.parse(JSON.stringify(grid2D));
+            
+            for (let i = 0; i < size2D; i++) {
+                for (let j = 0; j < size2D; j++) {
+                    if (grid2D[i][j] === 1) {
+                        if (Math.random() < gamma2D) {
+                            newGrid[i][j] = 0;
+                        }
+                    } else {
+                        let n = countInfectious2D(i, j);
+                        let probInfect = 1 - Math.exp(-tau2D * n);
+                        if (Math.random() < probInfect) {
+                            newGrid[i][j] = 1;
+                        }
+                    }
+                }
+            }
+            
+            grid2D = newGrid;
+            time2D++;
+        }
+        
+        function draw2D() {
+            ctx2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
+            
+            for (let i = 0; i < size2D; i++) {
+                for (let j = 0; j < size2D; j++) {
+                    if (grid2D[i][j] === 1) {
+                        ctx2D.fillStyle = '#f44336';
+                    } else {
+                        ctx2D.fillStyle = '#4CAF50';
+                    }
+                    ctx2D.fillRect(j * cellSize2D, i * cellSize2D, cellSize2D, cellSize2D);
+                }
+            }
+            
+            updateStats2D();
+        }
+        
+        function updateStats2D() {
+            let suscept = 0;
+            let infect = 0;
+            
+            for (let i = 0; i < size2D; i++) {
+                for (let j = 0; j < size2D; j++) {
+                    if (grid2D[i][j] === 0) suscept++;
+                    else infect++;
+                }
+            }
+            
+            document.getElementById('suscept2DCount').textContent = suscept;
+            document.getElementById('infect2DCount').textContent = infect;
+            document.getElementById('ratio2D').textContent = (tau2D / gamma2D).toFixed(2);
+            document.getElementById('time2DStep').textContent = time2D;
+        }
+        
+        function animate2D() {
+            if (running2D) {
+                update2D();
+                draw2D();
+                anim2D = setTimeout(animate2D, 50);
+            }
+        }
+        
+        document.getElementById('start2DBtn').addEventListener('click', () => {
+            running2D = true;
+            animate2D();
+        });
+        
+        document.getElementById('pause2DBtn').addEventListener('click', () => {
+            running2D = false;
+            if (anim2D) clearTimeout(anim2D);
+        });
+        
+        document.getElementById('reset2DBtn').addEventListener('click', () => {
+            running2D = false;
+            if (anim2D) clearTimeout(anim2D);
+            init2D();
+            draw2D();
+        });
+        
+        document.getElementById('trans2DRate').addEventListener('input', (e) => {
+            tau2D = parseFloat(e.target.value);
+            document.getElementById('trans2DValue').textContent = tau2D.toFixed(2);
+            updateStats2D();
+        });
+        
+        document.getElementById('rec2DRate').addEventListener('input', (e) => {
+            gamma2D = parseFloat(e.target.value);
+            document.getElementById('rec2DValue').textContent = gamma2D.toFixed(2);
+            updateStats2D();
+        });
+        
+        init2D();
+        draw2D();
+        
+        // POWER LAW DISTRIBUTION SIMULATION
+        const canvasPowerGrid = document.getElementById('powerLawGrid');
+        const ctxPowerGrid = canvasPowerGrid.getContext('2d');
+        const canvasPowerPlot = document.getElementById('powerLawPlot');
+        const ctxPowerPlot = canvasPowerPlot.getContext('2d');
+        
+        const sizePower = 50;
+        const cellSizePower = canvasPowerGrid.width / sizePower;
+        
+        let gridPower = [];
+        let runningPower = false;
+        let tauPower = 0.4;
+        let gammaPower = 0.15;
+        let nuPower = 0.02;
+        let epidemicSizes = [];
+        let currentEpidemicSize = 0;
+        let inEpidemic = false;
+        let animPower = null;
+        
+        function initPowerGrid() {
+            gridPower = [];
+            for (let i = 0; i < sizePower; i++) {
+                gridPower[i] = [];
+                for (let j = 0; j < sizePower; j++) {
+                    gridPower[i][j] = 1;
+                }
+            }
+            let center = Math.floor(sizePower / 2);
+            gridPower[center][center] = 2;
+            currentEpidemicSize = 0;
+            inEpidemic = true;
+        }
+        
+        function countInfectiousPower(i, j) {
+            let count = 0;
+            const neighbors = [
+                [i-1, j], [i+1, j], [i, j-1], [i, j+1],
+                [i-1, j-1], [i-1, j+1], [i+1, j-1], [i+1, j+1]
+            ];
+            
+            for (let [ni, nj] of neighbors) {
+                if (ni >= 0 && ni < sizePower && nj >= 0 && nj < sizePower) {
+                    if (gridPower[ni][nj] === 2) count++;
+                }
+            }
+            return count;
+        }
+        
+        function updatePowerGrid() {
+            let newGrid = JSON.parse(JSON.stringify(gridPower));
+            let hasInfectious = false;
+            
+            for (let i = 0; i < sizePower; i++) {
+                for (let j = 0; j < sizePower; j++) {
+                    if (gridPower[i][j] === 1) {
+                        let n = countInfectiousPower(i, j);
+                        let prob = 1 - Math.exp(-tauPower * n);
+                        if (Math.random() < prob) {
+                            newGrid[i][j] = 2;
+                            currentEpidemicSize++;
+                            hasInfectious = true;
+                        }
+                    } else if (gridPower[i][j] === 2) {
+                        if (Math.random() < gammaPower) {
+                            newGrid[i][j] = 0;
+                        } else {
+                            hasInfectious = true;
+                        }
+                    } else if (gridPower[i][j] === 0) {
+                        if (Math.random() < nuPower) {
+                            newGrid[i][j] = 1;
+                        }
+                    }
+                }
+            }
+            
+            gridPower = newGrid;
+            
+            if (inEpidemic && !hasInfectious) {
+                if (currentEpidemicSize > 0) {
+                    epidemicSizes.push(currentEpidemicSize);
+                }
+                currentEpidemicSize = 0;
+                inEpidemic = false;
+                
+                setTimeout(() => {
+                    let i = Math.floor(Math.random() * sizePower);
+                    let j = Math.floor(Math.random() * sizePower);
+                    if (gridPower[i][j] === 1) {
+                        gridPower[i][j] = 2;
+                        inEpidemic = true;
+                    }
+                }, 500);
+            }
+        }
+        
+        function drawPowerGrid() {
+            ctxPowerGrid.clearRect(0, 0, canvasPowerGrid.width, canvasPowerGrid.height);
+            
+            for (let i = 0; i < sizePower; i++) {
+                for (let j = 0; j < sizePower; j++) {
+                    if (gridPower[i][j] === 1) {
+                        ctxPowerGrid.fillStyle = '#808080';
+                    } else if (gridPower[i][j] === 2) {
+                        ctxPowerGrid.fillStyle = '#ff0000';
+                    } else {
+                        ctxPowerGrid.fillStyle = '#ffffff';
+                    }
+                    ctxPowerGrid.fillRect(j * cellSizePower, i * cellSizePower, cellSizePower, cellSizePower);
+                }
+            }
+        }
+        
+        function drawPowerLawPlot() {
+            const width = canvasPowerPlot.width;
+            const height = canvasPowerPlot.height;
+            const margin = 50;
+            
+            ctxPowerPlot.fillStyle = '#ffffff';
+            ctxPowerPlot.fillRect(0, 0, width, height);
+            
+            ctxPowerPlot.strokeStyle = '#2c5530';
+            ctxPowerPlot.lineWidth = 2;
+            ctxPowerPlot.beginPath();
+            ctxPowerPlot.moveTo(margin, height - margin);
+            ctxPowerPlot.lineTo(width - 20, height - margin);
+            ctxPowerPlot.moveTo(margin, height - margin);
+            ctxPowerPlot.lineTo(margin, 20);
+            ctxPowerPlot.stroke();
+            
+            ctxPowerPlot.fillStyle = '#2c5530';
+            ctxPowerPlot.font = '12px Georgia';
+            ctxPowerPlot.fillText('Log(Size)', width / 2 - 30, height - 10);
+            ctxPowerPlot.save();
+            ctxPowerPlot.translate(15, height / 2);
+            ctxPowerPlot.rotate(-Math.PI / 2);
+            ctxPowerPlot.fillText('Log(Frequency)', -50, 0);
+            ctxPowerPlot.restore();
+            
+            if (epidemicSizes.length < 5) return;
+            
+            let sizeCount = {};
+            for (let size of epidemicSizes) {
+                if (size > 0) {
+                    sizeCount[size] = (sizeCount[size] || 0) + 1;
+                }
+            }
+            
+            let cumulativeFreq = {};
+            let sortedSizes = Object.keys(sizeCount).map(Number).sort((a, b) => a - b);
+            
+            for (let i = 0; i < sortedSizes.length; i++) {
+                let size = sortedSizes[i];
+                let count = 0;
+                for (let j = i; j < sortedSizes.length; j++) {
+                    count += sizeCount[sortedSizes[j]];
+                }
+                cumulativeFreq[size] = count / epidemicSizes.length;
+            }
+            
+            let points = [];
+            for (let size in cumulativeFreq) {
+                let logSize = Math.log10(size);
+                let logFreq = Math.log10(cumulativeFreq[size]);
+                points.push({logSize, logFreq});
+            }
+            
+            if (points.length < 2) return;
+            
+            let minLogSize = Math.min(...points.map(p => p.logSize));
+            let maxLogSize = Math.max(...points.map(p => p.logSize));
+            let minLogFreq = Math.min(...points.map(p => p.logFreq));
+            let maxLogFreq = Math.max(...points.map(p => p.logFreq));
+            
+            let xScale = (width - margin - 40) / (maxLogSize - minLogSize || 1);
+            let yScale = (height - margin - 40) / (maxLogFreq - minLogFreq || 1);
+            
+            ctxPowerPlot.fillStyle = '#4a7c59';
+            for (let point of points) {
+                let x = margin + (point.logSize - minLogSize) * xScale;
+                let y = height - margin - (point.logFreq - minLogFreq) * yScale;
+                ctxPowerPlot.beginPath();
+                ctxPowerPlot.arc(x, y, 4, 0, 2 * Math.PI);
+                ctxPowerPlot.fill();
+            }
+            
+            if (points.length >= 3) {
+                let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+                for (let p of points) {
+                    sumX += p.logSize;
+                    sumY += p.logFreq;
+                    sumXY += p.logSize * p.logFreq;
+                    sumXX += p.logSize * p.logSize;
+                }
+                let n = points.length;
+                let slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+                let intercept = (sumY - slope * sumX) / n;
+                
+                ctxPowerPlot.strokeStyle = '#f44336';
+                ctxPowerPlot.lineWidth = 2;
+                ctxPowerPlot.beginPath();
+                let x1 = margin;
+                let y1 = height - margin - (intercept + slope * minLogSize - minLogFreq) * yScale;
+                let x2 = width - 40;
+                let y2 = height - margin - (intercept + slope * maxLogSize - minLogFreq) * yScale;
+                ctxPowerPlot.moveTo(x1, y1);
+                ctxPowerPlot.lineTo(x2, y2);
+                ctxPowerPlot.stroke();
+                
+                document.getElementById('powerAlpha').textContent = Math.abs(slope).toFixed(3);
+            }
+        }
+        
+        function updatePowerStats() {
+            document.getElementById('epidemicCount').textContent = epidemicSizes.length;
+            document.getElementById('currentSize').textContent = currentEpidemicSize;
+            
+            if (epidemicSizes.length > 0) {
+                let avg = epidemicSizes.reduce((a, b) => a + b, 0) / epidemicSizes.length;
+                document.getElementById('avgSize').textContent = avg.toFixed(1);
+            }
+        }
+        
+        function animatePower() {
+            if (runningPower) {
+                updatePowerGrid();
+                drawPowerGrid();
+                drawPowerLawPlot();
+                updatePowerStats();
+                animPower = setTimeout(animatePower, 50);
+            }
+        }
+        
+        document.getElementById('startPowerBtn').addEventListener('click', () => {
+            runningPower = true;
+            animatePower();
+        });
+        
+        document.getElementById('pausePowerBtn').addEventListener('click', () => {
+            runningPower = false;
+            if (animPower) clearTimeout(animPower);
+        });
+        
+        document.getElementById('resetPowerBtn').addEventListener('click', () => {
+            runningPower = false;
+            if (animPower) clearTimeout(animPower);
+            epidemicSizes = [];
+            initPowerGrid();
+            drawPowerGrid();
+            drawPowerLawPlot();
+            updatePowerStats();
+            document.getElementById('powerAlpha').textContent = '--';
+        });
+        
+        document.getElementById('powerTrans').addEventListener('input', (e) => {
+            tauPower = parseFloat(e.target.value);
+            document.getElementById('powerTransValue').textContent = tauPower.toFixed(2);
+        });
+        
+        document.getElementById('powerRec').addEventListener('input', (e) => {
+            gammaPower = parseFloat(e.target.value);
+            document.getElementById('powerRecValue').textContent = gammaPower.toFixed(2);
+        });
+        
+        document.getElementById('powerBirth').addEventListener('input', (e) => {
+            nuPower = parseFloat(e.target.value);
+            document.getElementById('powerBirthValue').textContent = nuPower.toFixed(3);
+        });
+        
+        initPowerGrid();
+        drawPowerGrid();
+        drawPowerLawPlot();
+        updatePowerStats();
+        
+        // FOREST-FIRE MODEL SIMULATION
+        const canvas = document.getElementById('forestCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const gridSize = 100;
+        const cellSize = canvas.width / gridSize;
+        
+        let grid = [];
+        let running = false;
+        let timeSteps = 0;
+        let animationId = null;
+        
+        let tau = 0.3;
+        let gamma = 0.1;
+        let nu = 0.01;
+        let epsilon = 0.001;
+        
+        function initGrid() {
+            grid = [];
+            for (let i = 0; i < gridSize; i++) {
+                grid[i] = [];
+                for (let j = 0; j < gridSize; j++) {
+                    grid[i][j] = 1;
+                }
+            }
+            for (let i = 0; i < 5; i++) {
+                let x = Math.floor(gridSize / 2) + Math.floor(Math.random() * 10 - 5);
+                let y = Math.floor(gridSize / 2) + Math.floor(Math.random() * 10 - 5);
+                if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
+                    grid[x][y] = 2;
+                }
+            }
+            timeSteps = 0;
+        }
+        
+        function countInfectiousNeighbors(i, j) {
+            let count = 0;
+            const neighbors = [
+                [i-1, j], [i+1, j], [i, j-1], [i, j+1],
+                [i-1, j-1], [i-1, j+1], [i+1, j-1], [i+1, j+1]
+            ];
+            
+            for (let [ni, nj] of neighbors) {
+                if (ni >= 0 && ni < gridSize && nj >= 0 && nj < gridSize) {
+                    if (grid[ni][nj] === 2) count++;
+                }
+            }
+            return count;
+        }
+        
+        function updateGrid() {
+            let newGrid = JSON.parse(JSON.stringify(grid));
+            
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    if (grid[i][j] === 1) {
+                        let n = countInfectiousNeighbors(i, j);
+                        let prob = 1 - Math.exp(-(tau * n + epsilon));
+                        if (Math.random() < prob) {
+                            newGrid[i][j] = 2;
+                        }
+                    } else if (grid[i][j] === 2) {
+                        if (Math.random() < gamma) {
+                            newGrid[i][j] = 0;
+                        }
+                    } else if (grid[i][j] === 0) {
+                        if (Math.random() < nu) {
+                            newGrid[i][j] = 1;
+                        }
+                    }
+                }
+            }
+            
+            grid = newGrid;
+            timeSteps++;
+        }
+        
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    if (grid[i][j] === 1) {
+                        ctx.fillStyle = '#808080';
+                    } else if (grid[i][j] === 2) {
+                        ctx.fillStyle = '#ff0000';
+                    } else {
+                        ctx.fillStyle = '#ffffff';
+                    }
+                    ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                }
+            }
+            
+            updateStats();
+        }
+        
+        function updateStats() {
+            let susceptCount = 0;
+            let infectCount = 0;
+            let recoverCount = 0;
+            
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    if (grid[i][j] === 1) susceptCount++;
+                    else if (grid[i][j] === 2) infectCount++;
+                    else recoverCount++;
+                }
+            }
+            
+            document.getElementById('susceptCount').textContent = susceptCount;
+            document.getElementById('infectCount').textContent = infectCount;
+            document.getElementById('recoverCount').textContent = recoverCount;
+            document.getElementById('timeStep').textContent = timeSteps;
+        }
+        
+        function animate() {
+            if (running) {
+                updateGrid();
+                drawGrid();
+                animationId = setTimeout(animate, 50);
+            }
+        }
+        
+        document.getElementById('startBtn').addEventListener('click', () => {
+            running = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            animate();
+        });
+        
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            running = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            if (animationId) clearTimeout(animationId);
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            running = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            if (animationId) clearTimeout(animationId);
+            initGrid();
+            drawGrid();
+        });
+        
+        document.getElementById('sparkBtn').addEventListener('click', () => {
+            for (let k = 0; k < 5; k++) {
+                let i = Math.floor(Math.random() * gridSize);
+                let j = Math.floor(Math.random() * gridSize);
+                grid[i][j] = 2;
+            }
+            drawGrid();
+        });
+        
+        document.getElementById('transRate').addEventListener('input', (e) => {
+            tau = parseFloat(e.target.value);
+            document.getElementById('transValue').textContent = tau.toFixed(2);
+        });
+        
+        document.getElementById('recRate').addEventListener('input', (e) => {
+            gamma = parseFloat(e.target.value);
+            document.getElementById('recValue').textContent = gamma.toFixed(2);
+        });
+        
+        document.getElementById('birthRate').addEventListener('input', (e) => {
+            nu = parseFloat(e.target.value);
+            document.getElementById('birthValue').textContent = nu.toFixed(3);
+        });
+        
+        document.getElementById('importRate').addEventListener('input', (e) => {
+            epsilon = parseFloat(e.target.value);
+            document.getElementById('importValue').textContent = epsilon.toFixed(4);
+        });
+        
+        initGrid();
+        drawGrid();
+        document.getElementById('pauseBtn').disabled = true;
+    </script>
+</body>
+</html>
