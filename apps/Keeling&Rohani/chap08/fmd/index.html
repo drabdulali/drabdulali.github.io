@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FMD Transmission & Spatial Kernels Interactive Simulator</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #f8f9fa;
+            padding: 0;
+            margin: 0;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: visible;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .content {
+            padding: 2rem 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            border-left: 5px solid #4a7c59;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #2c5530;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: #2c5530;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .canvas-container {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            cursor: crosshair;
+            display: block;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .control-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: #4a7c59;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Georgia', serif;
+        }
+
+        .btn-primary {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2c5530;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 124, 89, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .info-box {
+            background: #e8f5e8;
+            border-left: 4px solid #4a7c59;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #4a7c59;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c5530;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 2px solid #333;
+        }
+
+        .formula {
+            background: #f0f8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Georgia', serif;
+            font-size: 1.3em;
+            margin: 15px 0;
+            border: 2px solid #4a7c59;
+            overflow-x: auto;
+            text-align: center;
+        }
+
+        .explanation {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        code {
+            background: #e8f5e8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #2c5530;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tab-container {
+            margin: 20px 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 2px solid #4a7c59;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
+            color: #2c5530;
+        }
+
+        .tab.active {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 0 8px 8px 8px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>FMD Transmission & Spatial Kernels</h1>
+                <p>Interactive Simulator for Understanding Disease Spread</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Introduction Section -->
+            <div class="section">
+                <h2>Understanding Foot-and-Mouth Disease (FMD)</h2>
+                <p>Foot-and-Mouth Disease is a highly contagious viral disease affecting livestock. This simulator helps you understand how spatial distance affects disease transmission between farms.</p>
+                
+                <div class="info-box">
+                    <strong>Key Concept:</strong> Not all farms have equal risk of infection. Farms closer to infected premises face much higher risk than distant farms. The <strong>spatial kernel</strong> mathematically describes this relationship.
+                </div>
+            </div>
+
+            <!-- How the Simulation Works Section -->
+            <div class="section">
+                <h2>How the Simulation Works</h2>
+                
+                <h3>Overview</h3>
+                <p>This interactive simulator demonstrates the mathematical principles behind Foot-and-Mouth Disease transmission using a spatial modeling approach. The simulation implements the key concepts from Keeling & Rohani's "Modeling Infectious Diseases in Humans and Animals," allowing you to visualize how disease spreads between farms based on distance-dependent transmission.</p>
+
+                <h3>Core Mathematical Framework</h3>
+                
+                <div class="explanation">
+                    <strong>The simulation operates in three main steps each day:</strong>
+                    
+                    <p><strong>Step 1: Calculate Infection Pressure</strong></p>
+                    <p>For each susceptible farm, we calculate the "force of infection" \(\lambda_i\) which represents the total infectious pressure it faces from all nearby infected farms. This is given by:</p>
+                    
+                    <div class="formula">
+                        \[ \lambda_i = \text{Sus}_i \times \sum_{j \in \text{infectious}} \left(\text{Trans}_j \times K(d_{ij})\right) \]
+                    </div>
+                    
+                    <p>Where the spatial kernel \(K(d)\) decreases exponentially with distance:</p>
+                    
+                    <div class="formula">
+                        \[ K(d) = K_0 \times \exp\left(-\frac{d}{r_0}\right) \]
+                    </div>
+                    
+                    <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                        <li><strong>\(\text{Sus}_i\)</strong> = Number of susceptible animals on farm \(i\) (more animals = bigger target)</li>
+                        <li><strong>\(\text{Trans}_j\)</strong> = Transmission strength from infected farm \(j\) (more infected animals = more virus)</li>
+                        <li><strong>\(K(d_{ij})\)</strong> = Kernel value at distance \(d_{ij}\) between farms \(i\) and \(j\)</li>
+                        <li><strong>\(K_0\)</strong> = Baseline transmission rate at distance zero</li>
+                        <li><strong>\(r_0\)</strong> = Characteristic distance scale (controls how quickly transmission decreases)</li>
+                    </ul>
+
+                    <p><strong>Step 2: Determine New Infections</strong></p>
+                    <p>The probability that farm \(i\) becomes infected on a given day is:</p>
+                    
+                    <div class="formula">
+                        \[ P(\text{farm } i \text{ infected}) = 1 - \exp(-\lambda_i) \]
+                    </div>
+                    
+                    <p>This exponential transformation ensures probabilities stay between 0 and 1, even when \(\lambda_i\) is large. The simulator uses this probability to randomly determine which susceptible farms become newly infected.</p>
+
+                    <p><strong>Step 3: Update Disease States</strong></p>
+                    <p>Infected farms progress through disease states over time:</p>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>Days 0-5: Exposed (E)</strong> - Farm is infected but not yet shedding virus. Animals appear healthy but virus is replicating internally.</li>
+                        <li><strong>Days 5-9: Infectious (I)</strong> - Farm is actively shedding virus and can infect others, but symptoms may not yet be visible. This is the dangerous "silent transmission" period.</li>
+                        <li><strong>Day 9+: Symptomatic (S)</strong> - Visible clinical signs appear (lesions, lameness, reduced milk production). Farm can be detected and control measures implemented.</li>
+                    </ul>
+                </div>
+
+                <h3>Visual Elements</h3>
+                <div class="two-column">
+                    <div class="explanation">
+                        <strong>Farm Colors (Disease States):</strong>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li><strong style="color: #4CAF50;">Green:</strong> Susceptible - Healthy farms at risk</li>
+                            <li><strong style="color: #FFC107;">Yellow:</strong> Exposed - Recently infected, not yet infectious</li>
+                            <li><strong style="color: #FF5722;">Red:</strong> Infectious - Actively spreading disease</li>
+                            <li><strong style="color: #9C27B0;">Purple:</strong> Symptomatic - Showing clinical signs</li>
+                            <li><strong style="color: #424242;">Gray:</strong> Culled - Removed by control measures</li>
+                        </ul>
+                    </div>
+                    <div class="explanation">
+                        <strong>Heatmap (Infection Pressure):</strong>
+                        <p>The background color shows infection pressure across the landscape:</p>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li><strong style="color: #00FF00;">Green areas:</strong> Low risk (far from infected farms)</li>
+                            <li><strong style="color: #FFFF00;">Yellow areas:</strong> Moderate risk</li>
+                            <li><strong style="color: #FF0000;">Red areas:</strong> High risk (near infected farms)</li>
+                        </ul>
+                        <p>This visualizes the spatial kernel in action - you can see how transmission risk radiates from infected farms and decreases with distance.</p>
+                    </div>
+                </div>
+
+                <h3>Control Strategies (Tab 3)</h3>
+                <div class="explanation">
+                    <p>The simulation implements three control strategies used during the 2001 UK FMD outbreak:</p>
+                    
+                    <p><strong>1. IP (Infected Premises) Culling:</strong> When a farm becomes symptomatic (day 9+), it is detected and all animals are culled within 1 day. This removes the source but may be too slow to prevent spread.</p>
+                    
+                    <p><strong>2. DC (Dangerous Contact) Culling:</strong> Farms with high infection pressure (\(\lambda_i > 10\)) are identified as dangerous contacts and preemptively culled within 2 days. This targets farms likely to have been exposed through shared equipment, personnel, or recent animal movements.</p>
+                    
+                    <p><strong>3. CP (Contiguous Premises) Culling:</strong> All farms within a specified radius (default 2 km) of a symptomatic farm are culled within 2 days. This addresses local transmission across boundaries, shared water sources, and aerosol spread.</p>
+                    
+                    <p>You can enable/disable these strategies and compare outcomes - the simulation will show how combining multiple approaches leads to faster epidemic control with fewer total farms affected.</p>
+                </div>
+
+                <h3>Simulation Scale</h3>
+                <div class="info-box">
+                    <strong>Spatial Scale:</strong> In the simulation, 10 pixels = 1 kilometer. This means farms that appear close together on screen may actually be separated by several kilometers in reality.
+                </div>
+
+                <h3>Key Insights You Can Explore</h3>
+                <div class="explanation">
+                    <ul style="line-height: 1.8;">
+                        <li><strong>Distance matters:</strong> Adjust \(r_0\) to see how transmission range affects epidemic spread. Small \(r_0\) = localized outbreaks. Large \(r_0\) = widespread transmission.</li>
+                        <li><strong>Silent transmission is dangerous:</strong> Farms spread disease for 4 days before symptoms appear. By the time you detect an outbreak, it's already spreading!</li>
+                        <li><strong>Proactive control is essential:</strong> Compare simulations with only IP culling vs. IP+DC+CP. You'll see why "hit hard, hit early" was critical in 2001.</li>
+                        <li><strong>Exponential growth:</strong> Without control, epidemics grow exponentially. Even small delays in implementing control measures lead to dramatically larger outbreaks.</li>
+                        <li><strong>Spatial clustering:</strong> Infections tend to cluster spatially, forming local hotspots that then seed new clusters elsewhere.</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Important Note:</strong> This is a simplified educational model. Real FMD outbreaks involve additional complexities including multiple livestock species with different susceptibilities, wind-borne transmission, variation in farm sizes, and logistical constraints on control measures. However, the fundamental principles of distance-dependent transmission and the mathematics of spatial kernels remain central to understanding disease spread.
+                </div>
+            </div>
+
+            <!-- Tab System -->
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('kernel')">1. Spatial Kernel</button>
+                    <button class="tab" onclick="showTab('simulation')">2. Farm Simulation</button>
+                    <button class="tab" onclick="showTab('control')">3. Control Strategies</button>
+                </div>
+
+                <!-- Tab 1: Spatial Kernel -->
+                <div id="kernel" class="tab-content active">
+                    <h2>The Spatial Transmission Kernel</h2>
+                    
+                    <div class="formula">
+                        \[ K(d) = K_0 \times \exp\left(-\frac{d}{r_0}\right) \]
+                    </div>
+
+                    <div class="explanation">
+                        <strong>What does each part mean?</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>\(K(d)\)</strong> = Transmission strength at distance \(d\)</li>
+                            <li><strong>\(K_0\)</strong> = Maximum transmission rate (at distance 0)</li>
+                            <li><strong>\(d\)</strong> = Distance between farms (in km)</li>
+                            <li><strong>\(r_0\)</strong> = Characteristic distance (how quickly transmission decreases)</li>
+                            <li><strong>exp</strong> = Exponential function \((e^x)\)</li>
+                        </ul>
+                    </div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>
+                                K₀ (Baseline Transmission): <span class="value-display" id="k0-value">0.2</span>
+                            </label>
+                            <input type="range" id="k0-slider" min="0.05" max="0.5" step="0.05" value="0.2" oninput="updateKernelGraph()">
+                            <small>Higher values = stronger baseline transmission</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                r₀ (Decay Distance in km): <span class="value-display" id="r0-value">4</span>
+                            </label>
+                            <input type="range" id="r0-slider" min="1" max="15" step="0.5" value="4" oninput="updateKernelGraph()">
+                            <small>Higher values = disease spreads further</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                Maximum Distance (km): <span class="value-display" id="max-dist-value">20</span>
+                            </label>
+                            <input type="range" id="max-dist-slider" min="10" max="50" step="5" value="20" oninput="updateKernelGraph()">
+                            <small>Adjust the graph range</small>
+                        </div>
+                    </div>
+
+                    <div class="canvas-container">
+                        <canvas id="kernel-canvas" width="800" height="400"></canvas>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>Important:</strong> Notice how the transmission probability drops exponentially with distance. At r₀ kilometers, the transmission is reduced to about 37% of the maximum. At 3×r₀, it's less than 5%!
+                    </div>
+
+                    <h3>Calculate Transmission Risk</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Distance to infected farm (km):</label>
+                            <input type="number" id="calc-distance" value="5" min="0" max="50" step="0.5" oninput="calculateRisk()">
+                        </div>
+                        <div class="control-group">
+                            <label>Transmission strength K(d):</label>
+                            <input type="text" id="calc-result" readonly style="background: #e7e7e7; font-weight: bold;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Farm Simulation -->
+                <div id="simulation" class="tab-content">
+                    <h2>Interactive Farm Transmission Simulation</h2>
+                    
+                    <div class="info-box">
+                        <strong>Instructions:</strong> Click on the canvas to add farms. Then click "Add Infected Farm" to create an infected farm (shown in red). Watch how the infection pressure (shown by colors) varies with distance. You can then run the simulation to see disease spread!
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="addInfectedFarm()">Add Infected Farm</button>
+                        <button class="btn-success" onclick="runSimulationStep()">Run 1 Day</button>
+                        <button class="btn-success" onclick="toggleAutoRun()">Auto Run</button>
+                        <button class="btn-danger" onclick="resetSimulation()">Reset All</button>
+                        <button class="btn-secondary" onclick="addRandomFarms(10)">Add 10 Random Farms</button>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-susceptible">0</div>
+                            <div class="stat-label">Susceptible</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-exposed">0</div>
+                            <div class="stat-label">Exposed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-infectious">0</div>
+                            <div class="stat-label">Infectious</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-symptomatic">0</div>
+                            <div class="stat-label">Symptomatic</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-day">0</div>
+                            <div class="stat-label">Day</div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>
+                                Transmission K₀: <span class="value-display" id="sim-k0-value">0.2</span>
+                            </label>
+                            <input type="range" id="sim-k0-slider" min="0.05" max="0.5" step="0.05" value="0.2" oninput="updateSimParams()">
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                Decay Distance r₀ (km): <span class="value-display" id="sim-r0-value">4</span>
+                            </label>
+                            <input type="range" id="sim-r0-slider" min="1" max="15" step="0.5" value="4" oninput="updateSimParams()">
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                Farm Size (animals): <span class="value-display" id="farm-size-value">50</span>
+                            </label>
+                            <input type="range" id="farm-size-slider" min="10" max="200" step="10" value="50" oninput="updateSimParams()">
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #4CAF50;"></div>
+                            <span>Susceptible</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #FFC107;"></div>
+                            <span>Exposed (Days 0-5)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #FF5722;"></div>
+                            <span>Infectious (Days 5-9)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #9C27B0;"></div>
+                            <span>Symptomatic (Day 9+)</span>
+                        </div>
+                    </div>
+
+                    <div class="canvas-container">
+                        <canvas id="farm-canvas" width="800" height="600"></canvas>
+                    </div>
+
+                    <div class="explanation">
+                        <strong>What you're seeing:</strong> The simulation shows farms as circles. The color indicates their disease state. The heatmap in the background shows infection pressure - brighter areas have higher risk. Click to add farms and watch how disease spreads based on the spatial kernel!
+                    </div>
+                </div>
+
+                <!-- Tab 3: Control Strategies -->
+                <div id="control" class="tab-content">
+                    <h2>Control Strategies: IP, DC, and CP Culling</h2>
+                    
+                    <div class="info-box">
+                        <strong>Real-world context:</strong> During the 2001 UK FMD outbreak, over 6 million animals were culled to control the epidemic. Understanding which control strategies work best is crucial for minimizing both disease spread and economic losses.
+                    </div>
+
+                    <h3>Three Types of Culling:</h3>
+                    
+                    <div class="explanation">
+                        <strong>1. IP (Infected Premises) Culling</strong>
+                        <p>All animals on confirmed infected farms are culled. This removes the source of infection but may be too slow if disease has already spread.</p>
+                        
+                        <strong>2. DC (Dangerous Contact) Culling</strong>
+                        <p>Farms that had risky contact with infected farms (shared equipment, personnel, recent animal purchases) are identified and culled preemptively.</p>
+                        
+                        <strong>3. CP (Contiguous Premises) Culling</strong>
+                        <p>Farms that share physical boundaries with infected farms are culled because of high risk of direct transmission across fences.</p>
+                    </div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="enable-ip" checked onchange="updateControlStrategy()">
+                                Enable IP Culling (1 day delay)
+                            </label>
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="enable-dc" onchange="updateControlStrategy()">
+                                Enable DC Culling (2 day delay)
+                            </label>
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="enable-cp" onchange="updateControlStrategy()">
+                                Enable CP Culling (2 day delay)
+                            </label>
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                CP Culling Radius (km): <span class="value-display" id="cp-radius-value">2</span>
+                            </label>
+                            <input type="range" id="cp-radius-slider" min="0.5" max="5" step="0.5" value="2" oninput="updateControlStrategy()">
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="setupControlDemo()">Setup Demo (20 farms)</button>
+                        <button class="btn-success" onclick="runControlSimulation()">Run Full Simulation</button>
+                        <button class="btn-danger" onclick="resetSimulation()">Reset</button>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="control-infected">0</div>
+                            <div class="stat-label">Total Infected</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="control-culled">0</div>
+                            <div class="stat-label">Total Culled</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="control-days">0</div>
+                            <div class="stat-label">Days to Control</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="control-remaining">0</div>
+                            <div class="stat-label">Remaining Farms</div>
+                        </div>
+                    </div>
+
+                    <div class="canvas-container">
+                        <canvas id="control-canvas" width="800" height="600"></canvas>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>Key Finding:</strong> The 2001 UK epidemic showed that IP culling alone is insufficient. Combining IP + DC + CP with rapid response (24-48 hours) reduced total farms lost from ~35,000 to ~5,500!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mathematical Explanation Section -->
+            <div class="section">
+                <h2>The Mathematics Behind the Simulation</h2>
+                
+                <h3>Force of Infection (λᵢ)</h3>
+                <div class="formula">
+                    \[ \lambda_i = \text{Sus}_i \times \sum_{j \in \text{infectious}} \left(\text{Trans}_j \times K(d_{ij})\right) \]
+                </div>
+
+                <div class="explanation">
+                    <strong>Breaking it down:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>λᵢ</strong> (lambda) = Infection rate for farm i</li>
+                        <li><strong>Susᵢ</strong> = Number of susceptible animals on farm i</li>
+                        <li><strong>Transⱼ</strong> = Transmission contribution from infected farm j</li>
+                        <li><strong>K(dᵢⱼ)</strong> = Kernel value at distance between farms i and j</li>
+                        <li><strong>Σ</strong> (sigma) = Sum over all infected farms</li>
+                    </ul>
+                    
+                    <p style="margin-top: 15px;"><strong>In plain English:</strong> The infection pressure on a farm equals its vulnerability (number of animals) multiplied by the sum of threats from all infected farms, where each threat is weighted by distance.</p>
+                </div>
+
+                <h3>Infection Probability</h3>
+                <div class="formula">
+                    \[ P(\text{infection}) = 1 - \exp(-\lambda_i) \]
+                </div>
+
+                <div class="explanation">
+                    <strong>Why this formula?</strong> This exponential transformation ensures:
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Probability stays between 0 and 1 (never exceeds 100%)</li>
+                        <li>When λ is small, P ≈ λ (approximately linear)</li>
+                        <li>When λ is large, P approaches 1 (saturation)</li>
+                        <li>Matches Poisson process theory for rare events</li>
+                    </ul>
+                </div>
+
+                <h3>Disease Progression Timeline</h3>
+                <div class="explanation">
+                    <strong>Days 0-5:</strong> Exposed (E) - Virus replicating, not yet infectious<br>
+                    <strong>Days 5-9:</strong> Infectious (I) - Can transmit to other farms, may look normal<br>
+                    <strong>Day 9+:</strong> Symptomatic (S) - Visible lesions, detection possible<br><br>
+                    <strong>Critical insight:</strong> Farms are infectious BEFORE symptoms appear, allowing "silent spread"!
+                </div>
+            </div>
+
+            <!-- Real World Application -->
+            <div class="section">
+                <h2>Real-World Application: 2001 UK FMD Outbreak</h2>
+                
+                <div class="two-column">
+                    <div>
+                        <h3>Timeline</h3>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li>February 20, 2001: First case reported</li>
+                            <li>First 5 weeks: Over 600 farms infected</li>
+                            <li>Peak: Exponential growth phase</li>
+                            <li>October 2001: Epidemic declared over</li>
+                            <li>Final toll: 2,000+ infected, 8,000+ culled</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Key Lessons</h3>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li>Speed matters: Days of delay = thousands more farms lost</li>
+                            <li>Proactive culling essential: Can't just react</li>
+                            <li>Spatial structure crucial: Localized clusters form</li>
+                            <li>Mathematical models guided policy in real-time</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <strong>Impact of Delay:</strong> With exponential growth rate r ≈ 0.2 per day, a 10-day delay means the epidemic grows by a factor of exp(0.2 × 10) = 7.4! This explains why "hit hard, hit early" was so critical.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global simulation state
+        let farms = [];
+        let simulationDay = 0;
+        let autoRunning = false;
+        let autoRunInterval = null;
+        
+        // Simulation parameters
+        let params = {
+            k0: 0.2,
+            r0: 4,
+            farmSize: 50,
+            enableIP: true,
+            enableDC: false,
+            enableCP: false,
+            cpRadius: 2
+        };
+
+        // Farm states
+        const STATE = {
+            SUSCEPTIBLE: 0,
+            EXPOSED: 1,
+            INFECTIOUS: 2,
+            SYMPTOMATIC: 3,
+            CULLED: 4
+        };
+
+        // Farm class
+        class Farm {
+            constructor(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.state = STATE.SUSCEPTIBLE;
+                this.daysSinceInfection = 0;
+                this.animals = size;
+                this.culledDay = -1;
+            }
+
+            getColor() {
+                switch(this.state) {
+                    case STATE.SUSCEPTIBLE: return '#4CAF50';
+                    case STATE.EXPOSED: return '#FFC107';
+                    case STATE.INFECTIOUS: return '#FF5722';
+                    case STATE.SYMPTOMATIC: return '#9C27B0';
+                    case STATE.CULLED: return '#424242';
+                    default: return '#4CAF50';
+                }
+            }
+
+            update() {
+                if (this.state === STATE.CULLED) return;
+                
+                if (this.state !== STATE.SUSCEPTIBLE) {
+                    this.daysSinceInfection++;
+                    
+                    if (this.daysSinceInfection >= 9) {
+                        this.state = STATE.SYMPTOMATIC;
+                    } else if (this.daysSinceInfection >= 5) {
+                        this.state = STATE.INFECTIOUS;
+                    } else {
+                        this.state = STATE.EXPOSED;
+                    }
+                }
+            }
+
+            isInfectious() {
+                return this.state === STATE.INFECTIOUS || this.state === STATE.SYMPTOMATIC;
+            }
+
+            cull() {
+                this.state = STATE.CULLED;
+                this.culledDay = simulationDay;
+            }
+        }
+
+        // Calculate kernel value
+        function kernelValue(distance, k0, r0) {
+            return k0 * Math.exp(-distance / r0);
+        }
+
+        // Calculate distance between two points
+        function distance(x1, y1, x2, y2) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            return Math.sqrt(dx * dx + dy * dy) / 10; // Convert pixels to km (scale: 10px = 1km)
+        }
+
+        // Calculate force of infection for a farm
+        function calculateForceOfInfection(farm) {
+            let lambda = 0;
+            
+            for (let other of farms) {
+                if (other !== farm && other.isInfectious() && other.state !== STATE.CULLED) {
+                    const dist = distance(farm.x, farm.y, other.x, other.y);
+                    const kernel = kernelValue(dist, params.k0, params.r0);
+                    const transmission = other.animals * kernel;
+                    lambda += transmission;
+                }
+            }
+            
+            return farm.animals * lambda;
+        }
+
+        // Update kernel graph
+        function updateKernelGraph() {
+            const canvas = document.getElementById('kernel-canvas');
+            const ctx = canvas.getContext('2d');
+            const k0 = parseFloat(document.getElementById('k0-slider').value);
+            const r0 = parseFloat(document.getElementById('r0-slider').value);
+            const maxDist = parseFloat(document.getElementById('max-dist-slider').value);
+            
+            document.getElementById('k0-value').textContent = k0.toFixed(2);
+            document.getElementById('r0-value').textContent = r0.toFixed(1);
+            document.getElementById('max-dist-value').textContent = maxDist;
+            
+            // Clear canvas
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw axes
+            const padding = 60;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+            
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const y = padding + (graphHeight * i / 10);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Distance (km)', canvas.width / 2, canvas.height - 10);
+            
+            ctx.save();
+            ctx.translate(15, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Transmission K(d)', 0, 0);
+            ctx.restore();
+            
+            // Draw y-axis labels
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let i = 0; i <= 10; i++) {
+                const value = k0 * (1 - i / 10);
+                const y = padding + (graphHeight * i / 10);
+                ctx.fillText(value.toFixed(2), padding - 10, y);
+            }
+            
+            // Draw x-axis labels
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            for (let i = 0; i <= 10; i++) {
+                const value = maxDist * i / 10;
+                const x = padding + (graphWidth * i / 10);
+                ctx.fillText(value.toFixed(0), x, canvas.height - padding + 10);
+            }
+            
+            // Draw kernel curve
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let i = 0; i <= graphWidth; i++) {
+                const d = (i / graphWidth) * maxDist;
+                const k = kernelValue(d, k0, r0);
+                const x = padding + i;
+                const y = canvas.height - padding - (k / k0) * graphHeight;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw r0 marker
+            const r0X = padding + (r0 / maxDist) * graphWidth;
+            const r0Y = canvas.height - padding - (Math.exp(-1)) * graphHeight;
+            
+            ctx.strokeStyle = '#ff5722';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(r0X, canvas.height - padding);
+            ctx.lineTo(r0X, r0Y);
+            ctx.lineTo(padding, r0Y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Label r0
+            ctx.fillStyle = '#ff5722';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('r₀ = ' + r0 + ' km', r0X, canvas.height - padding + 30);
+            ctx.textAlign = 'right';
+            ctx.fillText('37% of K₀', padding - 10, r0Y - 10);
+            
+            // Update calculation
+            calculateRisk();
+        }
+
+        // Calculate risk for specific distance
+        function calculateRisk() {
+            const distance = parseFloat(document.getElementById('calc-distance').value);
+            const k0 = parseFloat(document.getElementById('k0-slider').value);
+            const r0 = parseFloat(document.getElementById('r0-slider').value);
+            const risk = kernelValue(distance, k0, r0);
+            
+            document.getElementById('calc-result').value = risk.toFixed(6);
+        }
+
+        // Farm simulation functions
+        function updateSimParams() {
+            params.k0 = parseFloat(document.getElementById('sim-k0-slider').value);
+            params.r0 = parseFloat(document.getElementById('sim-r0-slider').value);
+            params.farmSize = parseFloat(document.getElementById('farm-size-slider').value);
+            
+            document.getElementById('sim-k0-value').textContent = params.k0.toFixed(2);
+            document.getElementById('sim-r0-value').textContent = params.r0.toFixed(1);
+            document.getElementById('farm-size-value').textContent = params.farmSize;
+            
+            drawFarmCanvas();
+        }
+
+        function updateControlStrategy() {
+            params.enableIP = document.getElementById('enable-ip').checked;
+            params.enableDC = document.getElementById('enable-dc').checked;
+            params.enableCP = document.getElementById('enable-cp').checked;
+            params.cpRadius = parseFloat(document.getElementById('cp-radius-slider').value);
+            
+            document.getElementById('cp-radius-value').textContent = params.cpRadius.toFixed(1);
+        }
+
+        // Add infected farm at center
+        function addInfectedFarm() {
+            const canvas = document.getElementById('farm-canvas');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            const farm = new Farm(centerX, centerY, params.farmSize);
+            farm.state = STATE.INFECTIOUS;
+            farm.daysSinceInfection = 5;
+            farms.push(farm);
+            
+            drawFarmCanvas();
+            updateStats();
+        }
+
+        // Add random farms
+        function addRandomFarms(count) {
+            const canvas = document.getElementById('farm-canvas');
+            
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * (canvas.width - 100) + 50;
+                const y = Math.random() * (canvas.height - 100) + 50;
+                farms.push(new Farm(x, y, params.farmSize));
+            }
+            
+            drawFarmCanvas();
+            updateStats();
+        }
+
+        // Run one simulation step
+        function runSimulationStep() {
+            if (farms.length === 0) return;
+            
+            simulationDay++;
+            
+            // Calculate new infections
+            const newInfections = [];
+            for (let farm of farms) {
+                if (farm.state === STATE.SUSCEPTIBLE) {
+                    const lambda = calculateForceOfInfection(farm);
+                    const prob = 1 - Math.exp(-lambda);
+                    
+                    if (Math.random() < prob) {
+                        newInfections.push(farm);
+                    }
+                }
+            }
+            
+            // Apply new infections
+            for (let farm of newInfections) {
+                farm.state = STATE.EXPOSED;
+                farm.daysSinceInfection = 0;
+            }
+            
+            // Update existing infections
+            for (let farm of farms) {
+                farm.update();
+            }
+            
+            // Apply control measures (if in control tab)
+            if (document.getElementById('control').classList.contains('active')) {
+                applyControlMeasures();
+            }
+            
+            drawFarmCanvas();
+            updateStats();
+        }
+
+        // Apply control measures
+        function applyControlMeasures() {
+            // IP culling (1 day delay)
+            if (params.enableIP) {
+                for (let farm of farms) {
+                    if (farm.state === STATE.SYMPTOMATIC && farm.culledDay === -1) {
+                        farm.cull();
+                    }
+                }
+            }
+            
+            // CP culling (2 day delay, within radius)
+            if (params.enableCP) {
+                for (let farm of farms) {
+                    if (farm.state === STATE.SYMPTOMATIC) {
+                        for (let other of farms) {
+                            if (other.state === STATE.SUSCEPTIBLE || other.state === STATE.EXPOSED) {
+                                const dist = distance(farm.x, farm.y, other.x, other.y);
+                                if (dist <= params.cpRadius) {
+                                    other.cull();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // DC culling (2 day delay, high lambda)
+            if (params.enableDC) {
+                for (let farm of farms) {
+                    if (farm.state === STATE.SUSCEPTIBLE || farm.state === STATE.EXPOSED) {
+                        const lambda = calculateForceOfInfection(farm);
+                        if (lambda > 10) { // High risk threshold
+                            farm.cull();
+                        }
+                    }
+                }
+            }
+        }
+
+        // Toggle auto-run
+        function toggleAutoRun() {
+            autoRunning = !autoRunning;
+            
+            if (autoRunning) {
+                autoRunInterval = setInterval(runSimulationStep, 500);
+                event.target.textContent = 'Stop Auto';
+                event.target.classList.remove('btn-success');
+                event.target.classList.add('btn-danger');
+            } else {
+                clearInterval(autoRunInterval);
+                event.target.textContent = 'Auto Run';
+                event.target.classList.remove('btn-danger');
+                event.target.classList.add('btn-success');
+            }
+        }
+
+        // Reset simulation
+        function resetSimulation() {
+            farms = [];
+            simulationDay = 0;
+            autoRunning = false;
+            if (autoRunInterval) {
+                clearInterval(autoRunInterval);
+            }
+            
+            drawFarmCanvas();
+            updateStats();
+            
+            // Reset auto-run button if it exists
+            const autoBtn = document.querySelector('.btn-success');
+            if (autoBtn && autoBtn.textContent === 'Stop Auto') {
+                autoBtn.textContent = 'Auto Run';
+                autoBtn.classList.remove('btn-danger');
+                autoBtn.classList.add('btn-success');
+            }
+        }
+
+        // Setup control demo
+        function setupControlDemo() {
+            resetSimulation();
+            addRandomFarms(20);
+            addInfectedFarm();
+        }
+
+        // Run full control simulation
+        function runControlSimulation() {
+            if (autoRunning) return;
+            
+            autoRunning = true;
+            let days = 0;
+            const maxDays = 100;
+            
+            const interval = setInterval(() => {
+                runSimulationStep();
+                days++;
+                
+                const hasInfectious = farms.some(f => f.isInfectious());
+                
+                if (!hasInfectious || days >= maxDays) {
+                    clearInterval(interval);
+                    autoRunning = false;
+                    updateControlStats();
+                }
+            }, 200);
+        }
+
+        // Update control statistics
+        function updateControlStats() {
+            const infected = farms.filter(f => f.state !== STATE.SUSCEPTIBLE && f.state !== STATE.CULLED).length;
+            const culled = farms.filter(f => f.state === STATE.CULLED).length;
+            const remaining = farms.filter(f => f.state === STATE.SUSCEPTIBLE).length;
+            
+            document.getElementById('control-infected').textContent = infected;
+            document.getElementById('control-culled').textContent = culled;
+            document.getElementById('control-days').textContent = simulationDay;
+            document.getElementById('control-remaining').textContent = remaining;
+        }
+
+        // Draw farm canvas
+        function drawFarmCanvas() {
+            const activeTab = document.querySelector('.tab-content.active');
+            let canvas;
+            
+            if (activeTab.id === 'simulation') {
+                canvas = document.getElementById('farm-canvas');
+            } else if (activeTab.id === 'control') {
+                canvas = document.getElementById('control-canvas');
+            } else {
+                return;
+            }
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#f0f4f8';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw heatmap of infection pressure
+            if (farms.some(f => f.isInfectious())) {
+                drawInfectionHeatmap(ctx, canvas);
+            }
+            
+            // Draw farms
+            for (let farm of farms) {
+                ctx.fillStyle = farm.getColor();
+                ctx.beginPath();
+                ctx.arc(farm.x, farm.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // Draw infection pressure heatmap
+        function drawInfectionHeatmap(ctx, canvas) {
+            const resolution = 20;
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            
+            for (let y = 0; y < canvas.height; y += resolution) {
+                for (let x = 0; x < canvas.width; x += resolution) {
+                    let pressure = 0;
+                    
+                    for (let farm of farms) {
+                        if (farm.isInfectious() && farm.state !== STATE.CULLED) {
+                            const dist = distance(x, y, farm.x, farm.y);
+                            const kernel = kernelValue(dist, params.k0, params.r0);
+                            pressure += farm.animals * kernel;
+                        }
+                    }
+                    
+                    const intensity = Math.min(pressure / 10, 1);
+                    const alpha = intensity * 0.3;
+                    
+                    const r = 255;
+                    const g = Math.floor(255 * (1 - intensity));
+                    const b = 0;
+                    
+                    for (let dy = 0; dy < resolution && y + dy < canvas.height; dy++) {
+                        for (let dx = 0; dx < resolution && x + dx < canvas.width; dx++) {
+                            const idx = ((y + dy) * canvas.width + (x + dx)) * 4;
+                            imageData.data[idx] = r;
+                            imageData.data[idx + 1] = g;
+                            imageData.data[idx + 2] = b;
+                            imageData.data[idx + 3] = alpha * 255;
+                        }
+                    }
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Update statistics
+        function updateStats() {
+            const susceptible = farms.filter(f => f.state === STATE.SUSCEPTIBLE).length;
+            const exposed = farms.filter(f => f.state === STATE.EXPOSED).length;
+            const infectious = farms.filter(f => f.state === STATE.INFECTIOUS).length;
+            const symptomatic = farms.filter(f => f.state === STATE.SYMPTOMATIC).length;
+            
+            document.getElementById('stat-susceptible').textContent = susceptible;
+            document.getElementById('stat-exposed').textContent = exposed;
+            document.getElementById('stat-infectious').textContent = infectious;
+            document.getElementById('stat-symptomatic').textContent = symptomatic;
+            document.getElementById('stat-day').textContent = simulationDay;
+        }
+
+        // Canvas click handler
+        function setupCanvasClickHandlers() {
+            const farmCanvas = document.getElementById('farm-canvas');
+            const controlCanvas = document.getElementById('control-canvas');
+            
+            farmCanvas.addEventListener('click', function(e) {
+                const rect = farmCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                farms.push(new Farm(x, y, params.farmSize));
+                drawFarmCanvas();
+                updateStats();
+            });
+            
+            controlCanvas.addEventListener('click', function(e) {
+                const rect = controlCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                farms.push(new Farm(x, y, params.farmSize));
+                drawFarmCanvas();
+                updateStats();
+            });
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // Redraw canvas for current tab
+            if (tabName === 'simulation' || tabName === 'control') {
+                drawFarmCanvas();
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            updateKernelGraph();
+            updateSimParams();
+            setupCanvasClickHandlers();
+            drawFarmCanvas();
+        };
+    </script>
+</body>
+</html>
