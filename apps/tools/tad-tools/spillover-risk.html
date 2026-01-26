@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spillover Risk Calculator - Zoonotic Disease Assessment - Abdul Ali</title>
+    <meta name="description" content="Assess zoonotic spillover risk factors for emerging infectious diseases. Calculate risk based on ecological and epidemiological parameters.">
+    <meta name="keywords" content="spillover risk, zoonotic disease, emerging infectious diseases, one health, disease emergence, wildlife-livestock interface">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .category {
+            margin-bottom: 1.5rem;
+        }
+
+        .category h3 {
+            color: var(--accent);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .factor {
+            margin-bottom: 1rem;
+        }
+
+        .factor label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .factor .hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+        }
+
+        .value-display {
+            min-width: 40px;
+            font-weight: 600;
+            color: var(--secondary);
+            text-align: right;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .risk-display {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .risk-display.low { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+        .risk-display.medium { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+        .risk-display.high { background: linear-gradient(135deg, #fed7aa, #fdba74); }
+        .risk-display.critical { background: linear-gradient(135deg, #fecaca, #fca5a5); }
+
+        .risk-score {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .risk-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .risk-desc {
+            margin-top: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .risk-meter {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .risk-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .breakdown {
+            margin-top: 1.5rem;
+        }
+
+        .breakdown h3 {
+            color: var(--secondary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .factor-bar {
+            margin-bottom: 0.75rem;
+        }
+
+        .factor-bar .name {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .factor-bar .bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .factor-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .recommendations {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--primary);
+            border-radius: 8px;
+        }
+
+        .recommendations h3 {
+            color: var(--secondary);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .recommendations ul {
+            margin-left: 1.25rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .recommendations li {
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            grid-column: 1 / -1;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Spillover Risk Calculator</h1>
+        <p>Assess the risk of zoonotic pathogen spillover based on ecological, epidemiological, and anthropogenic factors.</p>
+    </section>
+
+    <main>
+        <div class="card">
+            <h2>Risk Factors Assessment</h2>
+
+            <div class="category">
+                <h3>Ecological Factors</h3>
+
+                <div class="factor">
+                    <label>Wildlife-Livestock Interface</label>
+                    <div class="hint">Degree of contact between wildlife and domestic animals</div>
+                    <div class="slider-row">
+                        <input type="range" id="interface" min="1" max="10" value="5">
+                        <span class="value-display" id="interface-val">5</span>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <label>Reservoir Host Diversity</label>
+                    <div class="hint">Number of potential reservoir species in area</div>
+                    <div class="slider-row">
+                        <input type="range" id="diversity" min="1" max="10" value="4">
+                        <span class="value-display" id="diversity-val">4</span>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <label>Habitat Fragmentation</label>
+                    <div class="hint">Degree of natural habitat loss and fragmentation</div>
+                    <div class="slider-row">
+                        <input type="range" id="fragmentation" min="1" max="10" value="6">
+                        <span class="value-display" id="fragmentation-val">6</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <h3>Pathogen Factors</h3>
+
+                <div class="factor">
+                    <label>Host Range Breadth</label>
+                    <div class="hint">Ability of pathogen to infect multiple species</div>
+                    <div class="slider-row">
+                        <input type="range" id="hostrange" min="1" max="10" value="5">
+                        <span class="value-display" id="hostrange-val">5</span>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <label>Mutation Rate</label>
+                    <div class="hint">Rate of genetic change (RNA viruses = high)</div>
+                    <div class="slider-row">
+                        <input type="range" id="mutation" min="1" max="10" value="6">
+                        <span class="value-display" id="mutation-val">6</span>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <label>Environmental Persistence</label>
+                    <div class="hint">Survival outside host</div>
+                    <div class="slider-row">
+                        <input type="range" id="persistence" min="1" max="10" value="4">
+                        <span class="value-display" id="persistence-val">4</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <h3>Anthropogenic Factors</h3>
+
+                <div class="factor">
+                    <label>Human Encroachment</label>
+                    <div class="hint">Expansion into wildlife habitat</div>
+                    <div class="slider-row">
+                        <input type="range" id="encroachment" min="1" max="10" value="7">
+                        <span class="value-display" id="encroachment-val">7</span>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <label>Livestock Intensification</label>
+                    <div class="hint">Density and industrialization of farming</div>
+                    <div class="slider-row">
+                        <input type="range" id="intensification" min="1" max="10" value="6">
+                        <span class="value-display" id="intensification-val">6</span>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <label>Wildlife Trade Activity</label>
+                    <div class="hint">Legal and illegal wildlife trade</div>
+                    <div class="slider-row">
+                        <input type="range" id="trade" min="1" max="10" value="5">
+                        <span class="value-display" id="trade-val">5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <h3>Surveillance & Response</h3>
+
+                <div class="factor">
+                    <label>Surveillance Capacity</label>
+                    <div class="hint">Ability to detect emerging pathogens (higher = better)</div>
+                    <div class="slider-row">
+                        <input type="range" id="surveillance" min="1" max="10" value="5">
+                        <span class="value-display" id="surveillance-val">5</span>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <label>Response Infrastructure</label>
+                    <div class="hint">Capacity to respond to outbreaks (higher = better)</div>
+                    <div class="slider-row">
+                        <input type="range" id="response" min="1" max="10" value="5">
+                        <span class="value-display" id="response-val">5</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="calculateRisk()">Calculate Spillover Risk</button>
+        </div>
+
+        <div class="card">
+            <h2>Risk Assessment Results</h2>
+
+            <div class="risk-display medium" id="risk-display">
+                <div class="risk-score" id="risk-score">5.2</div>
+                <div class="risk-label" id="risk-label">MODERATE RISK</div>
+                <div class="risk-desc" id="risk-desc">Elevated risk of spillover events. Enhanced surveillance recommended.</div>
+                <div class="risk-meter">
+                    <div class="risk-fill" id="risk-fill" style="width: 52%; background: linear-gradient(90deg, #22c55e, #eab308, #f97316);"></div>
+                </div>
+            </div>
+
+            <div class="breakdown">
+                <h3>Risk Factor Breakdown</h3>
+                <div id="factor-breakdown"></div>
+            </div>
+
+            <div class="recommendations" id="recommendations">
+                <h3>Mitigation Recommendations</h3>
+                <ul id="recommendation-list">
+                    <li>Implement enhanced wildlife surveillance at interface zones</li>
+                    <li>Strengthen biosecurity measures on livestock farms</li>
+                    <li>Establish early warning systems for emerging diseases</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // Update slider displays
+        const factors = ['interface', 'diversity', 'fragmentation', 'hostrange', 'mutation', 'persistence', 'encroachment', 'intensification', 'trade', 'surveillance', 'response'];
+
+        factors.forEach(id => {
+            const slider = document.getElementById(id);
+            slider.addEventListener('input', () => {
+                document.getElementById(id + '-val').textContent = slider.value;
+            });
+        });
+
+        function calculateRisk() {
+            const values = {};
+            factors.forEach(id => {
+                values[id] = parseInt(document.getElementById(id).value);
+            });
+
+            // Risk factors (positive contribution to risk)
+            const riskFactors = {
+                'Wildlife-Livestock Interface': { value: values.interface, weight: 0.15, color: '#ef4444' },
+                'Reservoir Diversity': { value: values.diversity, weight: 0.08, color: '#f97316' },
+                'Habitat Fragmentation': { value: values.fragmentation, weight: 0.1, color: '#f59e0b' },
+                'Host Range Breadth': { value: values.hostrange, weight: 0.12, color: '#84cc16' },
+                'Mutation Rate': { value: values.mutation, weight: 0.1, color: '#22c55e' },
+                'Environmental Persistence': { value: values.persistence, weight: 0.08, color: '#14b8a6' },
+                'Human Encroachment': { value: values.encroachment, weight: 0.12, color: '#3b82f6' },
+                'Livestock Intensification': { value: values.intensification, weight: 0.1, color: '#8b5cf6' },
+                'Wildlife Trade': { value: values.trade, weight: 0.1, color: '#a855f7' }
+            };
+
+            // Protective factors (reduce risk)
+            const protectiveFactors = {
+                'Surveillance Capacity': { value: values.surveillance, weight: 0.15 },
+                'Response Infrastructure': { value: values.response, weight: 0.1 }
+            };
+
+            // Calculate weighted risk
+            let riskScore = 0;
+            for (const factor in riskFactors) {
+                riskScore += (riskFactors[factor].value / 10) * riskFactors[factor].weight;
+            }
+
+            // Apply protective factor reduction
+            let protectionFactor = 0;
+            for (const factor in protectiveFactors) {
+                protectionFactor += (protectiveFactors[factor].value / 10) * protectiveFactors[factor].weight;
+            }
+
+            // Final score (0-10)
+            const finalScore = Math.max(0, Math.min(10, (riskScore * 10) * (1 - protectionFactor * 0.5)));
+
+            // Determine risk level
+            let riskLevel, riskClass, riskDesc;
+            if (finalScore < 3) {
+                riskLevel = 'LOW RISK';
+                riskClass = 'low';
+                riskDesc = 'Low probability of spillover. Maintain routine surveillance.';
+            } else if (finalScore < 5) {
+                riskLevel = 'MODERATE RISK';
+                riskClass = 'medium';
+                riskDesc = 'Elevated risk of spillover events. Enhanced surveillance recommended.';
+            } else if (finalScore < 7) {
+                riskLevel = 'HIGH RISK';
+                riskClass = 'high';
+                riskDesc = 'Significant spillover risk. Implement active surveillance and preparedness measures.';
+            } else {
+                riskLevel = 'CRITICAL RISK';
+                riskClass = 'critical';
+                riskDesc = 'Very high spillover probability. Urgent intervention and One Health approach required.';
+            }
+
+            // Update display
+            document.getElementById('risk-score').textContent = finalScore.toFixed(1);
+            document.getElementById('risk-label').textContent = riskLevel;
+            document.getElementById('risk-desc').textContent = riskDesc;
+
+            const display = document.getElementById('risk-display');
+            display.className = 'risk-display ' + riskClass;
+
+            const fill = document.getElementById('risk-fill');
+            fill.style.width = (finalScore * 10) + '%';
+
+            const gradientColors = {
+                low: '#22c55e',
+                medium: '#eab308',
+                high: '#f97316',
+                critical: '#ef4444'
+            };
+            fill.style.background = gradientColors[riskClass];
+
+            // Update breakdown
+            const breakdown = document.getElementById('factor-breakdown');
+            breakdown.innerHTML = '';
+
+            for (const factor in riskFactors) {
+                const f = riskFactors[factor];
+                const contribution = (f.value / 10) * f.weight * 100;
+                breakdown.innerHTML += `
+                    <div class="factor-bar">
+                        <div class="name">
+                            <span>${factor}</span>
+                            <span>${f.value}/10</span>
+                        </div>
+                        <div class="bar">
+                            <div class="fill" style="width: ${f.value * 10}%; background: ${f.color};"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Update recommendations
+            const recommendations = [];
+            if (values.interface > 6) recommendations.push('Establish buffer zones between wildlife habitats and livestock areas');
+            if (values.fragmentation > 6) recommendations.push('Support habitat connectivity and wildlife corridors');
+            if (values.encroachment > 6) recommendations.push('Implement land-use planning to minimize human-wildlife contact');
+            if (values.intensification > 6) recommendations.push('Improve biosecurity standards in intensive farming operations');
+            if (values.trade > 6) recommendations.push('Strengthen wildlife trade regulations and enforcement');
+            if (values.surveillance < 5) recommendations.push('Invest in disease surveillance infrastructure and laboratory capacity');
+            if (values.response < 5) recommendations.push('Develop rapid response protocols and stockpile essential resources');
+
+            if (recommendations.length === 0) {
+                recommendations.push('Continue current prevention and monitoring activities');
+                recommendations.push('Maintain One Health collaboration between sectors');
+            }
+
+            document.getElementById('recommendation-list').innerHTML = recommendations.map(r => `<li>${r}</li>`).join('');
+        }
+
+        calculateRisk();
+    </script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outbreak Timeline Tool - Historical TAD Outbreaks - Abdul Ali</title>
+    <meta name="description" content="Interactive timeline of major transboundary animal disease outbreaks throughout history. Explore patterns and impacts.">
+    <meta name="keywords" content="outbreak timeline, TAD history, disease outbreaks, epidemiology, FMD, ASF, avian influenza">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .filters {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .disease-filter {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .disease-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--card-border);
+            background: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .disease-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .timeline-container {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--secondary);
+            transform: translateX(-50%);
+        }
+
+        .timeline-event {
+            position: relative;
+            margin-bottom: 2rem;
+            width: 45%;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .timeline-event:nth-child(odd) {
+            margin-left: 55%;
+        }
+
+        .timeline-event:nth-child(even) {
+            margin-right: 55%;
+            text-align: right;
+        }
+
+        .timeline-event::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--secondary);
+            border-radius: 50%;
+            top: 1.5rem;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--secondary);
+        }
+
+        .timeline-event:nth-child(odd)::before {
+            left: -8%;
+            transform: translateX(-50%);
+        }
+
+        .timeline-event:nth-child(even)::before {
+            right: -8%;
+            transform: translateX(50%);
+        }
+
+        .event-year {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .event-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .event-disease {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .event-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .event-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .timeline-event:nth-child(even) .event-stats {
+            justify-content: flex-end;
+        }
+
+        .event-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--text-secondary);
+        }
+
+        .event-stat strong {
+            color: var(--secondary);
+        }
+
+        .disease-fmd { background: #fee2e2; color: #991b1b; }
+        .disease-asf { background: #fef3c7; color: #92400e; }
+        .disease-hpai { background: #dbeafe; color: #1e40af; }
+        .disease-ppr { background: #f3e8ff; color: #6b21a8; }
+        .disease-rvf { background: #dcfce7; color: #166534; }
+        .disease-other { background: #e5e7eb; color: #374151; }
+
+        @media (max-width: 768px) {
+            .timeline-event {
+                width: 85%;
+                margin-left: 15% !important;
+                text-align: left !important;
+            }
+
+            .timeline-event::before {
+                left: -10% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+            }
+
+            .timeline-line {
+                left: 5%;
+            }
+
+            .event-stats {
+                justify-content: flex-start !important;
+            }
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Outbreak Timeline Tool</h1>
+        <p>Explore the history of major transboundary animal disease outbreaks and their global impact.</p>
+    </section>
+
+    <main>
+        <div class="filters">
+            <div class="filter-group">
+                <label>Filter by Disease:</label>
+            </div>
+            <div class="disease-filter">
+                <button class="disease-btn active" data-disease="all">All</button>
+                <button class="disease-btn" data-disease="fmd">FMD</button>
+                <button class="disease-btn" data-disease="asf">ASF</button>
+                <button class="disease-btn" data-disease="hpai">Avian Influenza</button>
+                <button class="disease-btn" data-disease="ppr">PPR</button>
+                <button class="disease-btn" data-disease="rvf">RVF</button>
+            </div>
+            <div class="filter-group" style="margin-left: auto;">
+                <label>Period:</label>
+                <select id="period-filter" onchange="filterEvents()">
+                    <option value="all">All Time</option>
+                    <option value="2020">2020s</option>
+                    <option value="2010">2010s</option>
+                    <option value="2000">2000s</option>
+                    <option value="1990">1990s</option>
+                    <option value="older">Before 1990</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            <div id="timeline-events"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script>
+        const outbreaks = [
+            {
+                year: 2023,
+                title: "H5N1 Global Spread to Mammals",
+                disease: "hpai",
+                location: "Global",
+                description: "Unprecedented spread of H5N1 HPAI to marine mammals, including mass die-offs in seals and sea lions in South America, raising concerns about mammalian adaptation.",
+                animals: "100,000+ birds, 1000s of mammals",
+                cost: "Billions USD"
+            },
+            {
+                year: 2022,
+                title: "African Swine Fever in Europe Expansion",
+                disease: "asf",
+                location: "Germany, Italy",
+                description: "ASF continued spreading in wild boar populations across Europe, with Italy reporting its first cases in domestic pigs in decades.",
+                animals: "100,000+ pigs",
+                cost: "Significant trade losses"
+            },
+            {
+                year: 2021,
+                title: "Lumpy Skin Disease Spreads to Asia",
+                disease: "other",
+                location: "South and Southeast Asia",
+                description: "Rapid expansion of LSD across Asia, affecting millions of cattle in countries previously free of the disease.",
+                animals: "Millions of cattle affected",
+                cost: "Billions USD"
+            },
+            {
+                year: 2020,
+                title: "H5N8 HPAI European Outbreak",
+                disease: "hpai",
+                location: "Europe",
+                description: "Largest HPAI outbreak ever recorded in Europe, with millions of poultry culled across multiple countries.",
+                animals: "20+ million birds culled",
+                cost: "500+ million EUR"
+            },
+            {
+                year: 2018,
+                title: "African Swine Fever Reaches China",
+                disease: "asf",
+                location: "China",
+                description: "First ASF outbreak in China led to massive pig losses, reshaping global pork markets. Spread to multiple Asian countries.",
+                animals: "200+ million pigs lost",
+                cost: "130+ billion USD"
+            },
+            {
+                year: 2015,
+                title: "H5N2 HPAI US Outbreak",
+                disease: "hpai",
+                location: "United States",
+                description: "Largest HPAI outbreak in US history, primarily affecting turkey and egg-laying operations in the Midwest.",
+                animals: "50 million birds",
+                cost: "3.3 billion USD"
+            },
+            {
+                year: 2014,
+                title: "PPR Spreads Beyond Africa",
+                disease: "ppr",
+                location: "Mongolia, China",
+                description: "Peste des petits ruminants spread to previously free countries in Asia, threatening small ruminant populations.",
+                animals: "Millions at risk",
+                cost: "Major economic impact"
+            },
+            {
+                year: 2010,
+                title: "FMD Outbreak in South Korea and Japan",
+                disease: "fmd",
+                location: "East Asia",
+                description: "Major FMD outbreaks led to mass culling of cattle and pigs in South Korea and Japan.",
+                animals: "3.5+ million animals culled",
+                cost: "3+ billion USD"
+            },
+            {
+                year: 2007,
+                title: "FMD in United Kingdom",
+                disease: "fmd",
+                location: "United Kingdom",
+                description: "FMD outbreak traced to biosecurity breach at Pirbright laboratory, affecting farms in Surrey.",
+                animals: "2,160 animals culled",
+                cost: "200 million GBP"
+            },
+            {
+                year: 2006,
+                title: "H5N1 Global Pandemic Threat",
+                disease: "hpai",
+                location: "Global",
+                description: "Peak of H5N1 HPAI spread to 60+ countries, with human cases raising pandemic concerns.",
+                animals: "200+ million birds",
+                cost: "30+ billion USD (2003-2006)"
+            },
+            {
+                year: 2001,
+                title: "UK Foot-and-Mouth Disease Crisis",
+                disease: "fmd",
+                location: "United Kingdom",
+                description: "Devastating FMD epidemic resulted in massive culling and burning of animals, with images that shocked the world.",
+                animals: "6+ million animals culled",
+                cost: "8+ billion GBP"
+            },
+            {
+                year: 2000,
+                title: "Rift Valley Fever in Saudi Arabia",
+                disease: "rvf",
+                location: "Saudi Arabia, Yemen",
+                description: "First RVF outbreak outside Africa caused significant livestock and human casualties.",
+                animals: "40,000+ deaths",
+                cost: "Massive trade disruption"
+            },
+            {
+                year: 1997,
+                title: "H5N1 Emerges in Hong Kong",
+                disease: "hpai",
+                location: "Hong Kong",
+                description: "First known cases of H5N1 directly infecting humans, with 6 deaths. Led to culling of entire poultry population.",
+                animals: "1.5 million birds culled",
+                cost: "Major global concern initiated"
+            },
+            {
+                year: 1967,
+                title: "FMD in United Kingdom",
+                disease: "fmd",
+                location: "United Kingdom",
+                description: "Major FMD outbreak affecting over 2,000 farms across the UK.",
+                animals: "400,000+ animals culled",
+                cost: "Significant economic impact"
+            },
+            {
+                year: 1920,
+                title: "Rinderpest Pandemic in Africa",
+                disease: "other",
+                location: "Africa",
+                description: "Rinderpest swept through Africa, killing millions of cattle and wild ungulates, contributing to severe famines.",
+                animals: "Millions of cattle",
+                cost: "Catastrophic"
+            }
+        ];
+
+        let activeDisease = 'all';
+
+        document.querySelectorAll('.disease-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.disease-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeDisease = btn.dataset.disease;
+                filterEvents();
+            });
+        });
+
+        function filterEvents() {
+            const period = document.getElementById('period-filter').value;
+
+            const filtered = outbreaks.filter(event => {
+                const diseaseMatch = activeDisease === 'all' || event.disease === activeDisease;
+
+                let periodMatch = true;
+                if (period !== 'all') {
+                    if (period === 'older') {
+                        periodMatch = event.year < 1990;
+                    } else {
+                        const decade = parseInt(period);
+                        periodMatch = event.year >= decade && event.year < decade + 10;
+                    }
+                }
+
+                return diseaseMatch && periodMatch;
+            });
+
+            renderTimeline(filtered);
+        }
+
+        function renderTimeline(events) {
+            const container = document.getElementById('timeline-events');
+            container.innerHTML = '';
+
+            if (events.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);">No outbreaks match the selected filters.</p>';
+                return;
+            }
+
+            events.forEach(event => {
+                const diseaseClass = `disease-${event.disease}`;
+                const diseaseName = {
+                    fmd: 'FMD',
+                    asf: 'ASF',
+                    hpai: 'Avian Influenza',
+                    ppr: 'PPR',
+                    rvf: 'RVF',
+                    other: 'Other TAD'
+                }[event.disease];
+
+                const html = `
+                    <div class="timeline-event">
+                        <div class="event-year">${event.year} - ${event.location}</div>
+                        <span class="event-disease ${diseaseClass}">${diseaseName}</span>
+                        <h3 class="event-title">${event.title}</h3>
+                        <p class="event-description">${event.description}</p>
+                        <div class="event-stats">
+                            <span class="event-stat"><strong>Animals:</strong> ${event.animals}</span>
+                            <span class="event-stat"><strong>Cost:</strong> ${event.cost}</span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        renderTimeline(outbreaks);
+    </script>
+</body>
+</html>

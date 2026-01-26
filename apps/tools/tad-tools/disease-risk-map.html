@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Risk Mapping Tool - Transboundary Animal Diseases - Abdul Ali</title>
+    <meta name="description" content="Interactive disease risk mapping tool for visualizing TAD spread patterns. Explore factors affecting disease transmission across regions.">
+    <meta name="keywords" content="disease risk mapping, TAD, transboundary animal diseases, epidemiology, spatial analysis, disease spread">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+        }
+
+        .value-display {
+            min-width: 40px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .map-container {
+            position: relative;
+            background: #e8f4f8;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 500px;
+        }
+
+        #map-canvas {
+            width: 100%;
+            height: 500px;
+        }
+
+        .legend-bar {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--primary);
+            border-radius: 8px;
+        }
+
+        .gradient-bar {
+            flex: 1;
+            height: 20px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444, #7f1d1d);
+        }
+
+        .legend-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .risk-factors {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .factor {
+            padding: 0.75rem;
+            background: var(--primary);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .factor .name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .factor .value {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1rem;
+            background: var(--primary);
+            border-radius: 8px;
+        }
+
+        .stat .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Disease Risk Mapping Tool</h1>
+        <p>Visualize disease spread patterns and risk factors across regions for transboundary animal diseases.</p>
+    </section>
+
+    <main>
+        <div class="controls">
+            <div class="card">
+                <h2>Disease Selection</h2>
+                <div class="input-group">
+                    <label>Select Disease</label>
+                    <select id="disease" onchange="updateMap()">
+                        <option value="fmd">Foot-and-Mouth Disease</option>
+                        <option value="asf">African Swine Fever</option>
+                        <option value="hpai">Highly Pathogenic Avian Influenza</option>
+                        <option value="ppr">Peste des Petits Ruminants</option>
+                        <option value="rvf">Rift Valley Fever</option>
+                        <option value="lsd">Lumpy Skin Disease</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Risk Factors</h2>
+
+                <div class="input-group">
+                    <label>Livestock Density</label>
+                    <div class="slider-row">
+                        <input type="range" id="livestock" min="1" max="10" value="5" onchange="updateMap()">
+                        <span class="value-display" id="livestock-val">5</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Wildlife Interface</label>
+                    <div class="slider-row">
+                        <input type="range" id="wildlife" min="1" max="10" value="3" onchange="updateMap()">
+                        <span class="value-display" id="wildlife-val">3</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Trade Activity</label>
+                    <div class="slider-row">
+                        <input type="range" id="trade" min="1" max="10" value="6" onchange="updateMap()">
+                        <span class="value-display" id="trade-val">6</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Climate Suitability</label>
+                    <div class="slider-row">
+                        <input type="range" id="climate" min="1" max="10" value="7" onchange="updateMap()">
+                        <span class="value-display" id="climate-val">7</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Biosecurity Level</label>
+                    <div class="slider-row">
+                        <input type="range" id="biosecurity" min="1" max="10" value="4" onchange="updateMap()">
+                        <span class="value-display" id="biosecurity-val">4</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Vaccination Coverage</label>
+                    <div class="slider-row">
+                        <input type="range" id="vaccination" min="0" max="100" value="30" onchange="updateMap()">
+                        <span class="value-display" id="vaccination-val">30%</span>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="simulateSpread()">Simulate Spread</button>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="card">
+                <h2>Risk Map</h2>
+                <div class="map-container">
+                    <canvas id="map-canvas"></canvas>
+                </div>
+                <div class="legend-bar">
+                    <span style="margin-right: 1rem; font-size: 0.85rem;">Risk Level:</span>
+                    <div style="flex: 1;">
+                        <div class="gradient-bar"></div>
+                        <div class="legend-labels">
+                            <span>Low</span>
+                            <span>Medium</span>
+                            <span>High</span>
+                            <span>Critical</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Risk Assessment</h2>
+                <div class="stats-row">
+                    <div class="stat">
+                        <div class="value" id="overall-risk">Medium</div>
+                        <div class="label">Overall Risk</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="risk-score">5.2</div>
+                        <div class="label">Risk Score (1-10)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="affected-area">42%</div>
+                        <div class="label">At-Risk Area</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--secondary); font-size: 1rem;">Contributing Factors</h3>
+                <div class="risk-factors" id="risk-factors"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('map-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const diseaseWeights = {
+            fmd: { livestock: 0.3, wildlife: 0.1, trade: 0.25, climate: 0.15, biosecurity: 0.1, vaccination: 0.1 },
+            asf: { livestock: 0.25, wildlife: 0.2, trade: 0.2, climate: 0.1, biosecurity: 0.15, vaccination: 0.1 },
+            hpai: { livestock: 0.2, wildlife: 0.3, trade: 0.15, climate: 0.2, biosecurity: 0.1, vaccination: 0.05 },
+            ppr: { livestock: 0.35, wildlife: 0.1, trade: 0.2, climate: 0.15, biosecurity: 0.1, vaccination: 0.1 },
+            rvf: { livestock: 0.2, wildlife: 0.15, trade: 0.1, climate: 0.35, biosecurity: 0.1, vaccination: 0.1 },
+            lsd: { livestock: 0.25, wildlife: 0.1, trade: 0.15, climate: 0.25, biosecurity: 0.15, vaccination: 0.1 }
+        };
+
+        // Update slider displays
+        ['livestock', 'wildlife', 'trade', 'climate', 'biosecurity'].forEach(id => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                document.getElementById(id + '-val').textContent = e.target.value;
+            });
+        });
+
+        document.getElementById('vaccination').addEventListener('input', (e) => {
+            document.getElementById('vaccination-val').textContent = e.target.value + '%';
+        });
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = 500;
+            updateMap();
+        }
+
+        function getRiskColor(risk) {
+            if (risk < 0.25) return { r: 34, g: 197, b: 94 };     // Green
+            if (risk < 0.5) return { r: 234, g: 179, b: 8 };      // Yellow
+            if (risk < 0.75) return { r: 249, g: 115, b: 22 };    // Orange
+            return { r: 239, g: 68, b: 68 };                       // Red
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function updateMap() {
+            const disease = document.getElementById('disease').value;
+            const weights = diseaseWeights[disease];
+
+            const livestock = parseInt(document.getElementById('livestock').value);
+            const wildlife = parseInt(document.getElementById('wildlife').value);
+            const trade = parseInt(document.getElementById('trade').value);
+            const climate = parseInt(document.getElementById('climate').value);
+            const biosecurity = parseInt(document.getElementById('biosecurity').value);
+            const vaccination = parseInt(document.getElementById('vaccination').value);
+
+            // Calculate base risk
+            const baseRisk = (
+                (livestock / 10) * weights.livestock +
+                (wildlife / 10) * weights.wildlife +
+                (trade / 10) * weights.trade +
+                (climate / 10) * weights.climate +
+                ((10 - biosecurity) / 10) * weights.biosecurity +
+                ((100 - vaccination) / 100) * weights.vaccination
+            );
+
+            // Generate risk map with noise
+            const cellSize = 10;
+            const cols = Math.ceil(canvas.width / cellSize);
+            const rows = Math.ceil(canvas.height / cellSize);
+
+            // Generate noise-based risk values
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+
+            for (let y = 0; y < canvas.height; y++) {
+                for (let x = 0; x < canvas.width; x++) {
+                    // Simple noise function
+                    const nx = x / 80;
+                    const ny = y / 80;
+                    const noise = (Math.sin(nx * 2.1 + ny * 1.7) + Math.sin(nx * 1.3 - ny * 2.8) + Math.sin(nx * 0.7 + ny * 3.1)) / 3;
+                    const normalizedNoise = (noise + 1) / 2;
+
+                    // Combine with base risk
+                    let risk = baseRisk * 0.6 + normalizedNoise * 0.4;
+                    risk = Math.max(0, Math.min(1, risk));
+
+                    const color = getRiskColor(risk);
+
+                    const idx = (y * canvas.width + x) * 4;
+                    imageData.data[idx] = color.r;
+                    imageData.data[idx + 1] = color.g;
+                    imageData.data[idx + 2] = color.b;
+                    imageData.data[idx + 3] = 180;
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Update stats
+            const riskScore = (baseRisk * 10).toFixed(1);
+            let riskLevel, riskColor;
+            if (baseRisk < 0.3) { riskLevel = 'Low'; riskColor = '#22c55e'; }
+            else if (baseRisk < 0.5) { riskLevel = 'Medium'; riskColor = '#eab308'; }
+            else if (baseRisk < 0.7) { riskLevel = 'High'; riskColor = '#f97316'; }
+            else { riskLevel = 'Critical'; riskColor = '#ef4444'; }
+
+            document.getElementById('overall-risk').textContent = riskLevel;
+            document.getElementById('overall-risk').style.color = riskColor;
+            document.getElementById('risk-score').textContent = riskScore;
+            document.getElementById('affected-area').textContent = Math.round(baseRisk * 100) + '%';
+
+            // Update factors
+            const factors = [
+                { name: 'Livestock Density', value: livestock, weight: weights.livestock },
+                { name: 'Wildlife Interface', value: wildlife, weight: weights.wildlife },
+                { name: 'Trade Activity', value: trade, weight: weights.trade },
+                { name: 'Climate Suitability', value: climate, weight: weights.climate },
+                { name: 'Biosecurity Gap', value: 10 - biosecurity, weight: weights.biosecurity },
+                { name: 'Unvaccinated', value: Math.round((100 - vaccination) / 10), weight: weights.vaccination }
+            ];
+
+            factors.sort((a, b) => (b.value * b.weight) - (a.value * a.weight));
+
+            document.getElementById('risk-factors').innerHTML = factors.map(f => `
+                <div class="factor">
+                    <div class="name">${f.name}</div>
+                    <div class="value">Impact: ${(f.value * f.weight * 10).toFixed(1)}</div>
+                </div>
+            `).join('');
+        }
+
+        let spreading = false;
+        function simulateSpread() {
+            if (spreading) return;
+            spreading = true;
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            let radius = 0;
+
+            function animate() {
+                radius += 5;
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                if (radius < Math.max(canvas.width, canvas.height)) {
+                    requestAnimationFrame(animate);
+                } else {
+                    spreading = false;
+                    setTimeout(updateMap, 1000);
+                }
+            }
+
+            updateMap();
+            animate();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+</html>

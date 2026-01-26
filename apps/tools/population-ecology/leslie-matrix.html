@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leslie Matrix Calculator - Population Projection - Abdul Ali</title>
+    <meta name="description" content="Calculate age-structured population projections using Leslie matrix models. Analyze population growth, stable age distribution, and reproductive value.">
+    <meta name="keywords" content="Leslie matrix, population projection, age structure, demography, population ecology, lambda, reproductive value">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --secondary-dark: #1a3d20;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .matrix-input {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .matrix-row {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .matrix-row input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .matrix-row input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .row-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn.secondary {
+            background: white;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+        }
+
+        .preset-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preset-btn {
+            padding: 0.4rem 0.75rem;
+            border: 1px solid var(--card-border);
+            background: white;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .preset-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            height: 350px;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+
+        th {
+            background: var(--secondary);
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:nth-child(even) {
+            background: var(--primary);
+        }
+
+        .formula-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            text-align: center;
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Leslie Matrix Calculator</h1>
+        <p>Project age-structured populations and analyze growth dynamics using Leslie matrix models.</p>
+    </section>
+
+    <main>
+        <div class="grid-layout">
+            <div class="controls">
+                <div class="card">
+                    <h2>Matrix Setup</h2>
+
+                    <div class="input-group">
+                        <label>Number of Age Classes</label>
+                        <select id="age-classes" onchange="updateMatrix()">
+                            <option value="3">3 classes</option>
+                            <option value="4" selected>4 classes</option>
+                            <option value="5">5 classes</option>
+                            <option value="6">6 classes</option>
+                        </select>
+                    </div>
+
+                    <label style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Presets</label>
+                    <div class="preset-btns">
+                        <button class="preset-btn" onclick="setPreset('deer')">Deer</button>
+                        <button class="preset-btn" onclick="setPreset('bird')">Songbird</button>
+                        <button class="preset-btn" onclick="setPreset('insect')">Insect</button>
+                        <button class="preset-btn" onclick="setPreset('fish')">Fish</button>
+                    </div>
+
+                    <div class="formula-box">L = [F | S]</div>
+
+                    <div id="matrix-container"></div>
+
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <label>Projection Years</label>
+                        <input type="number" id="years" value="20" min="5" max="100">
+                    </div>
+
+                    <button class="btn" onclick="calculate()">Calculate Projection</button>
+                    <button class="btn secondary" onclick="resetMatrix()">Reset</button>
+                </div>
+
+                <div class="card">
+                    <h2>Initial Population</h2>
+                    <div id="initial-pop-container"></div>
+                </div>
+            </div>
+
+            <div class="results">
+                <div class="card">
+                    <h2>Key Results</h2>
+                    <div class="results-grid">
+                        <div class="stat-card">
+                            <div class="value" id="lambda">1.00</div>
+                            <div class="label">Lambda (growth rate)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="doubling-time">--</div>
+                            <div class="label">Doubling Time</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="final-pop">0</div>
+                            <div class="label">Final Population</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="growth-status">--</div>
+                            <div class="label">Population Status</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Population Projection</h2>
+                    <div class="chart-container">
+                        <canvas id="popChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Age Distribution Over Time</h2>
+                    <div class="chart-container">
+                        <canvas id="ageChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Projection Table</h2>
+                    <div class="table-container">
+                        <table id="projection-table">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let popChart = null;
+        let ageChart = null;
+        let numClasses = 4;
+
+        function updateMatrix() {
+            numClasses = parseInt(document.getElementById('age-classes').value);
+            const container = document.getElementById('matrix-container');
+            const popContainer = document.getElementById('initial-pop-container');
+
+            // Fecundity row
+            let html = '<div class="row-label">Fecundity (F) - offspring per individual</div>';
+            html += '<div class="matrix-row" style="grid-template-columns: repeat(' + numClasses + ', 1fr);">';
+            for (let i = 0; i < numClasses; i++) {
+                const defaultF = i === 0 ? 0 : (i === 1 ? 0.5 : (i === numClasses - 1 ? 0.3 : 1));
+                html += `<input type="number" id="f${i}" value="${defaultF}" step="0.1" min="0">`;
+            }
+            html += '</div>';
+
+            // Survival rates
+            html += '<div class="row-label" style="margin-top: 1rem;">Survival (S) - probability of surviving to next class</div>';
+            html += '<div class="matrix-row" style="grid-template-columns: repeat(' + (numClasses - 1) + ', 1fr);">';
+            for (let i = 0; i < numClasses - 1; i++) {
+                html += `<input type="number" id="s${i}" value="0.5" step="0.05" min="0" max="1">`;
+            }
+            html += '</div>';
+
+            container.innerHTML = html;
+
+            // Initial population
+            let popHtml = '<div class="matrix-row" style="grid-template-columns: repeat(' + numClasses + ', 1fr);">';
+            for (let i = 0; i < numClasses; i++) {
+                const defaultPop = i === 0 ? 100 : Math.round(100 / (i + 1));
+                popHtml += `<input type="number" id="n${i}" value="${defaultPop}" min="0">`;
+            }
+            popHtml += '</div>';
+            popHtml += '<div style="display: grid; grid-template-columns: repeat(' + numClasses + ', 1fr); gap: 0.5rem; margin-top: 0.25rem;">';
+            for (let i = 0; i < numClasses; i++) {
+                popHtml += `<span style="font-size: 0.75rem; text-align: center; color: var(--text-secondary);">Age ${i + 1}</span>`;
+            }
+            popHtml += '</div>';
+            popContainer.innerHTML = popHtml;
+        }
+
+        function setPreset(type) {
+            const presets = {
+                deer: { classes: 4, f: [0, 0, 0.6, 0.4], s: [0.6, 0.8, 0.8], n: [100, 60, 48, 38] },
+                bird: { classes: 3, f: [0, 2.5, 1.5], s: [0.3, 0.6], n: [100, 30, 18] },
+                insect: { classes: 4, f: [0, 0, 50, 0], s: [0.1, 0.5, 0.01], n: [1000, 100, 50, 1] },
+                fish: { classes: 5, f: [0, 0, 100, 500, 1000], s: [0.001, 0.1, 0.5, 0.7], n: [10000, 10, 1, 0.5, 0.35] }
+            };
+
+            const p = presets[type];
+            document.getElementById('age-classes').value = p.classes;
+            updateMatrix();
+
+            setTimeout(() => {
+                for (let i = 0; i < p.classes; i++) {
+                    document.getElementById('f' + i).value = p.f[i];
+                    document.getElementById('n' + i).value = p.n[i];
+                    if (i < p.classes - 1) {
+                        document.getElementById('s' + i).value = p.s[i];
+                    }
+                }
+                calculate();
+            }, 100);
+        }
+
+        function resetMatrix() {
+            updateMatrix();
+        }
+
+        function multiplyMatrixVector(matrix, vector) {
+            const result = [];
+            for (let i = 0; i < matrix.length; i++) {
+                let sum = 0;
+                for (let j = 0; j < vector.length; j++) {
+                    sum += matrix[i][j] * vector[j];
+                }
+                result.push(sum);
+            }
+            return result;
+        }
+
+        function calculate() {
+            const n = numClasses;
+            const years = parseInt(document.getElementById('years').value);
+
+            // Build Leslie matrix
+            const L = Array(n).fill(null).map(() => Array(n).fill(0));
+
+            // Fecundity row
+            for (let i = 0; i < n; i++) {
+                L[0][i] = parseFloat(document.getElementById('f' + i).value) || 0;
+            }
+
+            // Survival subdiagonal
+            for (let i = 0; i < n - 1; i++) {
+                L[i + 1][i] = parseFloat(document.getElementById('s' + i).value) || 0;
+            }
+
+            // Initial population
+            let pop = [];
+            for (let i = 0; i < n; i++) {
+                pop.push(parseFloat(document.getElementById('n' + i).value) || 0);
+            }
+
+            // Project population
+            const projections = [pop.slice()];
+            const totals = [pop.reduce((a, b) => a + b, 0)];
+
+            for (let t = 1; t <= years; t++) {
+                pop = multiplyMatrixVector(L, pop);
+                projections.push(pop.slice());
+                totals.push(pop.reduce((a, b) => a + b, 0));
+            }
+
+            // Estimate lambda from growth
+            const lambda = years > 5 ? Math.pow(totals[years] / totals[Math.max(0, years - 5)], 1/5) : totals[years] / totals[years - 1];
+
+            // Update results
+            document.getElementById('lambda').textContent = lambda.toFixed(3);
+            document.getElementById('final-pop').textContent = Math.round(totals[years]).toLocaleString();
+
+            if (lambda > 1) {
+                const doublingTime = Math.log(2) / Math.log(lambda);
+                document.getElementById('doubling-time').textContent = doublingTime.toFixed(1) + ' yrs';
+                document.getElementById('growth-status').textContent = 'Growing';
+                document.getElementById('growth-status').style.color = '#22c55e';
+            } else if (lambda < 1) {
+                const halfTime = Math.log(0.5) / Math.log(lambda);
+                document.getElementById('doubling-time').textContent = halfTime.toFixed(1) + ' (half)';
+                document.getElementById('growth-status').textContent = 'Declining';
+                document.getElementById('growth-status').style.color = '#ef4444';
+            } else {
+                document.getElementById('doubling-time').textContent = '--';
+                document.getElementById('growth-status').textContent = 'Stable';
+                document.getElementById('growth-status').style.color = '#f59e0b';
+            }
+
+            // Charts
+            const labels = Array.from({length: years + 1}, (_, i) => i);
+
+            // Population chart
+            if (popChart) popChart.destroy();
+            const popCtx = document.getElementById('popChart').getContext('2d');
+            popChart = new Chart(popCtx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Total Population',
+                        data: totals,
+                        borderColor: '#2c5530',
+                        backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'Year' } },
+                        y: { title: { display: true, text: 'Population' }, beginAtZero: true }
+                    }
+                }
+            });
+
+            // Age distribution chart
+            if (ageChart) ageChart.destroy();
+            const ageCtx = document.getElementById('ageChart').getContext('2d');
+            const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+            const datasets = [];
+
+            for (let i = 0; i < n; i++) {
+                datasets.push({
+                    label: `Age ${i + 1}`,
+                    data: projections.map(p => p[i]),
+                    borderColor: colors[i % colors.length],
+                    backgroundColor: colors[i % colors.length] + '20',
+                    fill: true,
+                    tension: 0.4
+                });
+            }
+
+            ageChart = new Chart(ageCtx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Year' } },
+                        y: { title: { display: true, text: 'Population' }, beginAtZero: true, stacked: true }
+                    }
+                }
+            });
+
+            // Table
+            const thead = document.querySelector('#projection-table thead');
+            const tbody = document.querySelector('#projection-table tbody');
+
+            let headerHtml = '<tr><th>Year</th><th>Total</th>';
+            for (let i = 0; i < n; i++) {
+                headerHtml += `<th>Age ${i + 1}</th>`;
+            }
+            headerHtml += '</tr>';
+            thead.innerHTML = headerHtml;
+
+            let bodyHtml = '';
+            const step = years > 20 ? Math.ceil(years / 20) : 1;
+            for (let t = 0; t <= years; t += step) {
+                bodyHtml += `<tr><td>${t}</td><td>${Math.round(totals[t]).toLocaleString()}</td>`;
+                for (let i = 0; i < n; i++) {
+                    bodyHtml += `<td>${Math.round(projections[t][i]).toLocaleString()}</td>`;
+                }
+                bodyHtml += '</tr>';
+            }
+            tbody.innerHTML = bodyHtml;
+        }
+
+        updateMatrix();
+        calculate();
+    </script>
+</body>
+</html>

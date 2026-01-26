@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epidemic Curve Generator - Abdul Ali</title>
+    <meta name="description" content="Generate and visualize epidemic curves (epi curves) for outbreak analysis. Create histograms of case counts over time.">
+    <meta name="keywords" content="epidemic curve, epi curve, outbreak analysis, epidemiology, disease surveillance, case distribution">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --secondary-dark: #1a3d20;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+        .controls {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            height: fit-content;
+        }
+
+        .controls h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .input-group textarea {
+            min-height: 120px;
+            font-family: monospace;
+        }
+
+        .curve-type-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .type-btn {
+            padding: 0.75rem;
+            border: 2px solid var(--card-border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .type-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .results {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .chart-container {
+            height: 400px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .interpretation-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+        }
+
+        .interpretation-box h4 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .interpretation-box p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .preset-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preset-btn {
+            padding: 0.4rem 0.75rem;
+            border: 1px solid var(--card-border);
+            background: white;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .preset-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Epidemic Curve Generator</h1>
+        <p>Visualize outbreak progression over time with customizable epidemic curves.</p>
+    </section>
+
+    <main>
+        <div class="controls">
+            <h2>Curve Settings</h2>
+
+            <label style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Curve Pattern</label>
+            <div class="curve-type-btns">
+                <button class="type-btn active" data-type="point">Point Source</button>
+                <button class="type-btn" data-type="propagated">Propagated</button>
+                <button class="type-btn" data-type="continuous">Continuous</button>
+                <button class="type-btn" data-type="custom">Custom Data</button>
+            </div>
+
+            <div id="simulation-controls">
+                <div class="input-group">
+                    <label>Total Cases</label>
+                    <input type="number" id="total-cases" value="150" min="10" max="10000">
+                </div>
+
+                <div class="input-group">
+                    <label>Outbreak Duration (days)</label>
+                    <input type="number" id="duration" value="30" min="7" max="365">
+                </div>
+
+                <div class="input-group">
+                    <label>Peak Day</label>
+                    <input type="number" id="peak-day" value="10" min="1">
+                </div>
+
+                <div class="input-group">
+                    <label>Spread (standard deviation)</label>
+                    <input type="number" id="spread" value="3" min="1" max="30" step="0.5">
+                </div>
+            </div>
+
+            <div id="custom-controls" style="display: none;">
+                <div class="input-group">
+                    <label>Enter daily case counts (comma-separated)</label>
+                    <textarea id="custom-data" placeholder="e.g., 2, 5, 8, 15, 22, 30, 25, 18, 12, 8, 5, 3, 1">2, 5, 8, 15, 22, 30, 25, 18, 12, 8, 5, 3, 1</textarea>
+                </div>
+            </div>
+
+            <label style="font-weight: 500; margin: 1rem 0 0.5rem; display: block;">Quick Presets</label>
+            <div class="preset-btns">
+                <button class="preset-btn" onclick="setPreset('foodborne')">Foodborne</button>
+                <button class="preset-btn" onclick="setPreset('respiratory')">Respiratory</button>
+                <button class="preset-btn" onclick="setPreset('vector')">Vector-borne</button>
+                <button class="preset-btn" onclick="setPreset('waterborne')">Waterborne</button>
+            </div>
+
+            <button class="generate-btn" onclick="generateCurve()">Generate Epidemic Curve</button>
+        </div>
+
+        <div class="results">
+            <div class="chart-container">
+                <canvas id="epiChart"></canvas>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="value" id="stat-total">0</div>
+                    <div class="label">Total Cases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="stat-peak">0</div>
+                    <div class="label">Peak Cases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="stat-peak-day">0</div>
+                    <div class="label">Peak Day</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="stat-duration">0</div>
+                    <div class="label">Duration (days)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="stat-doubling">0</div>
+                    <div class="label">Doubling Time</div>
+                </div>
+            </div>
+
+            <div class="interpretation-box">
+                <h4>Curve Interpretation</h4>
+                <p id="interpretation-text">Select curve type and generate to see interpretation.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart = null;
+        let currentType = 'point';
+
+        // Type buttons
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentType = btn.dataset.type;
+
+                document.getElementById('simulation-controls').style.display = currentType === 'custom' ? 'none' : 'block';
+                document.getElementById('custom-controls').style.display = currentType === 'custom' ? 'block' : 'none';
+
+                generateCurve();
+            });
+        });
+
+        function setPreset(type) {
+            switch(type) {
+                case 'foodborne':
+                    document.getElementById('total-cases').value = 85;
+                    document.getElementById('duration').value = 7;
+                    document.getElementById('peak-day').value = 2;
+                    document.getElementById('spread').value = 1.5;
+                    currentType = 'point';
+                    break;
+                case 'respiratory':
+                    document.getElementById('total-cases').value = 500;
+                    document.getElementById('duration').value = 60;
+                    document.getElementById('peak-day').value = 25;
+                    document.getElementById('spread').value = 8;
+                    currentType = 'propagated';
+                    break;
+                case 'vector':
+                    document.getElementById('total-cases').value = 200;
+                    document.getElementById('duration').value = 90;
+                    document.getElementById('peak-day').value = 45;
+                    document.getElementById('spread').value = 15;
+                    currentType = 'continuous';
+                    break;
+                case 'waterborne':
+                    document.getElementById('total-cases').value = 120;
+                    document.getElementById('duration').value = 14;
+                    document.getElementById('peak-day').value = 5;
+                    document.getElementById('spread').value = 2.5;
+                    currentType = 'point';
+                    break;
+            }
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-type="${currentType}"]`).classList.add('active');
+            generateCurve();
+        }
+
+        function generatePointSource(totalCases, duration, peakDay, spread) {
+            const cases = [];
+            let sum = 0;
+
+            for (let i = 0; i < duration; i++) {
+                const x = (i - peakDay) / spread;
+                cases.push(Math.exp(-0.5 * x * x));
+                sum += cases[i];
+            }
+
+            return cases.map(c => Math.round(c / sum * totalCases));
+        }
+
+        function generatePropagated(totalCases, duration, peakDay, spread) {
+            const cases = [];
+            const generations = 4;
+            const genInterval = duration / generations;
+
+            for (let i = 0; i < duration; i++) {
+                let value = 0;
+                for (let g = 0; g < generations; g++) {
+                    const genPeak = (g + 1) * genInterval * 0.6;
+                    const genSpread = spread * (1 + g * 0.3);
+                    const x = (i - genPeak) / genSpread;
+                    value += Math.exp(-0.5 * x * x) * Math.pow(1.5, g);
+                }
+                cases.push(value);
+            }
+
+            const sum = cases.reduce((a, b) => a + b, 0);
+            return cases.map(c => Math.round(c / sum * totalCases));
+        }
+
+        function generateContinuous(totalCases, duration, peakDay, spread) {
+            const cases = [];
+            const baseline = totalCases / duration * 0.3;
+
+            for (let i = 0; i < duration; i++) {
+                const x = (i - peakDay) / spread;
+                const peak = Math.exp(-0.5 * x * x);
+                const noise = 0.8 + Math.random() * 0.4;
+                cases.push(baseline + peak * (totalCases / duration) * 2 * noise);
+            }
+
+            const sum = cases.reduce((a, b) => a + b, 0);
+            return cases.map(c => Math.round(c / sum * totalCases));
+        }
+
+        function generateCurve() {
+            let cases;
+            let duration;
+
+            if (currentType === 'custom') {
+                const data = document.getElementById('custom-data').value;
+                cases = data.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+                duration = cases.length;
+            } else {
+                const totalCases = parseInt(document.getElementById('total-cases').value);
+                duration = parseInt(document.getElementById('duration').value);
+                const peakDay = parseInt(document.getElementById('peak-day').value);
+                const spread = parseFloat(document.getElementById('spread').value);
+
+                switch(currentType) {
+                    case 'point':
+                        cases = generatePointSource(totalCases, duration, peakDay, spread);
+                        break;
+                    case 'propagated':
+                        cases = generatePropagated(totalCases, duration, peakDay, spread);
+                        break;
+                    case 'continuous':
+                        cases = generateContinuous(totalCases, duration, peakDay, spread);
+                        break;
+                }
+            }
+
+            const labels = Array.from({length: duration}, (_, i) => `Day ${i + 1}`);
+
+            if (chart) chart.destroy();
+
+            const ctx = document.getElementById('epiChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'New Cases',
+                        data: cases,
+                        backgroundColor: 'rgba(44, 85, 48, 0.7)',
+                        borderColor: '#2c5530',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Time' } },
+                        y: { title: { display: true, text: 'Number of Cases' }, beginAtZero: true }
+                    }
+                }
+            });
+
+            // Update stats
+            const total = cases.reduce((a, b) => a + b, 0);
+            const peak = Math.max(...cases);
+            const peakDayIdx = cases.indexOf(peak) + 1;
+
+            // Calculate doubling time
+            let doublingTime = 'N/A';
+            for (let i = 1; i < cases.length; i++) {
+                let cumSum = cases.slice(0, i).reduce((a, b) => a + b, 0);
+                let halfSum = cumSum / 2;
+                let prevSum = 0;
+                for (let j = 0; j < i; j++) {
+                    prevSum += cases[j];
+                    if (prevSum >= halfSum) {
+                        doublingTime = (i - j).toFixed(1) + ' days';
+                        break;
+                    }
+                }
+                if (doublingTime !== 'N/A') break;
+            }
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-peak').textContent = peak;
+            document.getElementById('stat-peak-day').textContent = peakDayIdx;
+            document.getElementById('stat-duration').textContent = duration;
+            document.getElementById('stat-doubling').textContent = doublingTime;
+
+            // Interpretation
+            const interpretations = {
+                point: 'Point source outbreak: Steep rise and fall suggests a single exposure event (e.g., contaminated food at an event). Cases cluster around the incubation period of the pathogen.',
+                propagated: 'Propagated outbreak: Multiple peaks suggest person-to-person transmission with successive generations of cases. Each peak represents a new generation of infections.',
+                continuous: 'Continuous/common source: Ongoing exposure over time with variable case counts. Could indicate contaminated water supply or ongoing environmental exposure.',
+                custom: 'Custom data analyzed. Examine the shape to determine outbreak type: sharp peak = point source, multiple peaks = propagated, plateau = continuous.'
+            };
+            document.getElementById('interpretation-text').textContent = interpretations[currentType];
+        }
+
+        generateCurve();
+    </script>
+</body>
+</html>

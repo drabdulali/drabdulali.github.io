@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herd Immunity Threshold Calculator - Abdul Ali</title>
+    <meta name="description" content="Calculate herd immunity threshold and vaccination coverage needed to prevent disease outbreaks. Visualize population protection levels.">
+    <meta name="keywords" content="herd immunity, vaccination coverage, R0, disease prevention, epidemiology, immunization threshold">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --secondary-dark: #1a3d20;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .calculator-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 800px) { .calculator-section { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .formula-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-dark);
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+        }
+
+        .value-display {
+            min-width: 80px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--secondary);
+            text-align: right;
+        }
+
+        .result-display {
+            background: var(--gradient-hero);
+            color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .result-display .big-number {
+            font-size: 4rem;
+            font-weight: 700;
+        }
+
+        .result-display .label {
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .visualization {
+            margin-top: 2rem;
+        }
+
+        .population-grid {
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            gap: 3px;
+            margin-top: 1rem;
+        }
+
+        .person {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .person.susceptible { background: #ef4444; }
+        .person.vaccinated { background: #22c55e; }
+        .person.protected { background: #86efac; }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .disease-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .disease-table th, .disease-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .disease-table th {
+            background: var(--primary);
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .disease-table tr:hover {
+            background: var(--primary);
+        }
+
+        .disease-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: underline;
+        }
+
+        .explanation {
+            background: var(--primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .explanation h4 {
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .explanation p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Herd Immunity Calculator</h1>
+        <p>Calculate the vaccination coverage needed to achieve herd immunity and prevent disease outbreaks.</p>
+    </section>
+
+    <main>
+        <div class="calculator-section">
+            <div class="card">
+                <h2>Calculate from R0</h2>
+                <div class="formula-box">HIT = 1 - (1/R0)</div>
+
+                <div class="input-group">
+                    <label>Basic Reproduction Number (R0)</label>
+                    <div class="slider-row">
+                        <input type="range" id="r0-slider" min="1.1" max="20" step="0.1" value="5">
+                        <span class="value-display" id="r0-display">5.0</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Vaccine Efficacy (%)</label>
+                    <div class="slider-row">
+                        <input type="range" id="efficacy-slider" min="50" max="100" value="95">
+                        <span class="value-display" id="efficacy-display">95%</span>
+                    </div>
+                </div>
+
+                <div class="result-display">
+                    <div class="big-number" id="hit-result">80%</div>
+                    <div class="label">Herd Immunity Threshold</div>
+                </div>
+
+                <div class="result-display" style="background: var(--accent); margin-top: 1rem;">
+                    <div class="big-number" id="coverage-result">84%</div>
+                    <div class="label">Required Vaccination Coverage</div>
+                </div>
+            </div>
+
+            <div class="card visualization">
+                <h2>Population Visualization</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Each dot represents 1% of the population (100 dots = 100%)</p>
+
+                <div class="population-grid" id="population-grid"></div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #22c55e;"></div>
+                        <span>Vaccinated</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #86efac;"></div>
+                        <span>Protected (herd immunity)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #ef4444;"></div>
+                        <span>Susceptible</span>
+                    </div>
+                </div>
+
+                <div class="explanation">
+                    <h4>What This Means</h4>
+                    <p id="explanation-text">When enough people are immune, disease transmission is interrupted, protecting even those who cannot be vaccinated.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Reference: Common Diseases</h2>
+            <table class="disease-table">
+                <thead>
+                    <tr>
+                        <th>Disease</th>
+                        <th>R0</th>
+                        <th>HIT</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Measles</td>
+                        <td>12-18</td>
+                        <td>92-95%</td>
+                        <td><button class="disease-btn" onclick="setDisease(15)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Pertussis (Whooping Cough)</td>
+                        <td>12-17</td>
+                        <td>92-94%</td>
+                        <td><button class="disease-btn" onclick="setDisease(14)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Chickenpox</td>
+                        <td>10-12</td>
+                        <td>90-92%</td>
+                        <td><button class="disease-btn" onclick="setDisease(11)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Mumps</td>
+                        <td>4-7</td>
+                        <td>75-86%</td>
+                        <td><button class="disease-btn" onclick="setDisease(5.5)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Rubella</td>
+                        <td>5-7</td>
+                        <td>80-86%</td>
+                        <td><button class="disease-btn" onclick="setDisease(6)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Polio</td>
+                        <td>5-7</td>
+                        <td>80-86%</td>
+                        <td><button class="disease-btn" onclick="setDisease(6)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Smallpox</td>
+                        <td>5-7</td>
+                        <td>80-86%</td>
+                        <td><button class="disease-btn" onclick="setDisease(6)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Foot-and-Mouth Disease</td>
+                        <td>2-5</td>
+                        <td>50-80%</td>
+                        <td><button class="disease-btn" onclick="setDisease(3.5)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Influenza</td>
+                        <td>1.5-2</td>
+                        <td>33-50%</td>
+                        <td><button class="disease-btn" onclick="setDisease(1.8)">Apply</button></td>
+                    </tr>
+                    <tr>
+                        <td>Ebola</td>
+                        <td>1.5-2.5</td>
+                        <td>33-60%</td>
+                        <td><button class="disease-btn" onclick="setDisease(2)">Apply</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script>
+        const r0Slider = document.getElementById('r0-slider');
+        const efficacySlider = document.getElementById('efficacy-slider');
+
+        function calculate() {
+            const r0 = parseFloat(r0Slider.value);
+            const efficacy = parseFloat(efficacySlider.value) / 100;
+
+            // Herd immunity threshold
+            const hit = (1 - 1/r0) * 100;
+            // Required coverage accounting for vaccine efficacy
+            const coverage = hit / efficacy;
+
+            document.getElementById('r0-display').textContent = r0.toFixed(1);
+            document.getElementById('efficacy-display').textContent = Math.round(efficacy * 100) + '%';
+            document.getElementById('hit-result').textContent = Math.round(hit) + '%';
+            document.getElementById('coverage-result').textContent = Math.min(100, Math.round(coverage)) + '%';
+
+            updateVisualization(Math.min(100, coverage), hit);
+            updateExplanation(r0, hit, coverage);
+        }
+
+        function updateVisualization(coverage, hit) {
+            const grid = document.getElementById('population-grid');
+            grid.innerHTML = '';
+
+            const vaccinated = Math.round(coverage);
+            const protectedByHerd = Math.round(hit);
+
+            for (let i = 0; i < 100; i++) {
+                const person = document.createElement('div');
+                person.className = 'person';
+
+                if (i < vaccinated) {
+                    person.classList.add('vaccinated');
+                } else if (i < protectedByHerd + 5) {
+                    person.classList.add('protected');
+                } else {
+                    person.classList.add('susceptible');
+                }
+
+                grid.appendChild(person);
+            }
+        }
+
+        function updateExplanation(r0, hit, coverage) {
+            let text = `With an R0 of ${r0.toFixed(1)}, at least ${Math.round(hit)}% of the population needs to be immune to achieve herd immunity. `;
+
+            if (coverage > 100) {
+                text += `However, with current vaccine efficacy, even 100% vaccination coverage may not achieve herd immunity. Higher efficacy vaccines or additional measures are needed.`;
+            } else if (coverage > 90) {
+                text += `This requires vaccinating ${Math.round(coverage)}% of the population - a very high bar that requires strong public health programs.`;
+            } else if (coverage > 70) {
+                text += `Vaccinating ${Math.round(coverage)}% of the population is achievable with robust immunization programs.`;
+            } else {
+                text += `Vaccinating ${Math.round(coverage)}% of the population is a relatively achievable target.`;
+            }
+
+            document.getElementById('explanation-text').textContent = text;
+        }
+
+        function setDisease(r0) {
+            r0Slider.value = r0;
+            calculate();
+        }
+
+        r0Slider.addEventListener('input', calculate);
+        efficacySlider.addEventListener('input', calculate);
+
+        calculate();
+    </script>
+</body>
+</html>
