@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Primer of Ecology (Gotelli) - Abdul Ali</title>
+    <meta name="description" content="Interactive course materials based on Gotelli's A Primer of Ecology textbook. Covering population growth, competition, predation, and community ecology.">
+    <meta name="keywords" content="ecology primer, Gotelli, population ecology, exponential growth, logistic growth, competition, predation, ecological modeling">
+    <link rel="canonical" href="https://drabdulali.github.io/apps/Gotelli_Chap1-6/">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #ffffff;
+            --primary: #f8fafc;
+            --primary-light: #f1f5f9;
+            --secondary: #0284c7;
+            --secondary-dark: #0369a1;
+            --accent: #06b6d4;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-light: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(2, 132, 199, 0.1);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+            --gradient-hero: linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #0891b2 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-hero);
+            padding: 4rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='20' cy='20' r='2' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='80' cy='40' r='1.5' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='60' cy='70' r='1' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='30' cy='80' r='2.5' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hero .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--gradient-hero);
+            border-radius: 2px;
+        }
+
+        /* Chapters Grid */
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .chapter-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary);
+        }
+
+        .chapter-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .chapter-number {
+            background: var(--gradient-hero);
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .chapter-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .chapter-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            flex-grow: 1;
+            margin-bottom: 1rem;
+        }
+
+        .chapter-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .topic-tag {
+            background: var(--primary-light);
+            color: var(--secondary-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .chapter-card .arrow {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-top: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .chapter-card:hover .arrow {
+            transform: translateX(5px);
+        }
+
+        /* Book Reference */
+        .book-reference {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 3rem;
+            border: 1px solid var(--card-border);
+            text-align: center;
+        }
+
+        .book-reference h3 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .book-reference p {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .chapters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../" class="logo">Abdul Ali</a>
+            <a href="../../" class="back-link">Back to Main Site</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>A Primer of Ecology</h1>
+            <p class="subtitle">Based on the textbook by Nicholas J. Gotelli</p>
+            <p>Interactive learning materials covering fundamental concepts in population and community ecology. Explore mathematical models and ecological principles through hands-on simulations and visualizations.</p>
+        </div>
+    </section>
+
+    <main>
+        <h2 class="section-title">Chapters</h2>
+
+        <div class="chapters-grid">
+            <a href="../Gotelli_Chap1/" class="chapter-card">
+                <div class="chapter-header">
+                    <div class="chapter-number">1</div>
+                    <h3>Exponential Population Growth</h3>
+                </div>
+                <p>Introduction to population dynamics and the fundamental model of exponential growth. Understanding intrinsic rate of increase, doubling time, and geometric vs continuous growth models.</p>
+                <div class="chapter-topics">
+                    <span class="topic-tag">dN/dt = rN</span>
+                    <span class="topic-tag">Intrinsic Rate</span>
+                    <span class="topic-tag">Doubling Time</span>
+                </div>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="../Gotelli_Chap2/" class="chapter-card">
+                <div class="chapter-header">
+                    <div class="chapter-number">2</div>
+                    <h3>Logistic Population Growth</h3>
+                </div>
+                <p>Density-dependent growth and carrying capacity. The logistic equation, S-shaped growth curves, and the concept of population equilibrium.</p>
+                <div class="chapter-topics">
+                    <span class="topic-tag">dN/dt = rN(1-N/K)</span>
+                    <span class="topic-tag">Carrying Capacity</span>
+                    <span class="topic-tag">Equilibrium</span>
+                </div>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="../Gotelli_Chap2a/" class="chapter-card">
+                <div class="chapter-header">
+                    <div class="chapter-number">2a</div>
+                    <h3>Discrete Logistic Growth</h3>
+                </div>
+                <p>Discrete-time versions of the logistic model. Exploring stability, oscillations, and chaos in population dynamics through difference equations.</p>
+                <div class="chapter-topics">
+                    <span class="topic-tag">Discrete Models</span>
+                    <span class="topic-tag">Stability</span>
+                    <span class="topic-tag">Chaos</span>
+                </div>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="../Gotelli_Chap3/" class="chapter-card">
+                <div class="chapter-header">
+                    <div class="chapter-number">3</div>
+                    <h3>Age-Structured Population Growth</h3>
+                </div>
+                <p>Life tables, survivorship curves, and matrix population models. Leslie matrices and the analysis of age-structured populations.</p>
+                <div class="chapter-topics">
+                    <span class="topic-tag">Life Tables</span>
+                    <span class="topic-tag">Leslie Matrix</span>
+                    <span class="topic-tag">Survivorship</span>
+                </div>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="../Gotelli_Chap4/" class="chapter-card">
+                <div class="chapter-header">
+                    <div class="chapter-number">4</div>
+                    <h3>Competition</h3>
+                </div>
+                <p>Interspecific competition and the Lotka-Volterra competition model. Competition coefficients, isoclines, and outcomes of competitive interactions.</p>
+                <div class="chapter-topics">
+                    <span class="topic-tag">Lotka-Volterra</span>
+                    <span class="topic-tag">Isoclines</span>
+                    <span class="topic-tag">Coexistence</span>
+                </div>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="../Gotelli_Chap5/" class="chapter-card">
+                <div class="chapter-header">
+                    <div class="chapter-number">5</div>
+                    <h3>Predation</h3>
+                </div>
+                <p>Predator-prey dynamics and the Lotka-Volterra predation model. Functional responses, numerical responses, and population cycles.</p>
+                <div class="chapter-topics">
+                    <span class="topic-tag">Predator-Prey</span>
+                    <span class="topic-tag">Functional Response</span>
+                    <span class="topic-tag">Cycles</span>
+                </div>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="../Gotelli_Chap6/" class="chapter-card">
+                <div class="chapter-header">
+                    <div class="chapter-number">6</div>
+                    <h3>Island Biogeography and Metapopulations</h3>
+                </div>
+                <p>MacArthur-Wilson equilibrium theory of island biogeography and Levins metapopulation model. Colonization, extinction, and patch dynamics.</p>
+                <div class="chapter-topics">
+                    <span class="topic-tag">Island Theory</span>
+                    <span class="topic-tag">Metapopulation</span>
+                    <span class="topic-tag">Patch Dynamics</span>
+                </div>
+                <span class="arrow">&#8594;</span>
+            </a>
+        </div>
+
+        <div class="book-reference">
+            <h3>Reference Textbook</h3>
+            <p>Gotelli, N.J. (2008). A Primer of Ecology. 4th Edition. Sinauer Associates.</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Abdul Ali | <a href="../../">Back to Main Site</a></p>
+    </footer>
+</body>
+</html>

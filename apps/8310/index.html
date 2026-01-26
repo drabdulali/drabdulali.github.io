@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Ecology (8310) - Abdul Ali</title>
+    <meta name="description" content="Population Ecology course materials covering population dynamics, community ecology, and ecological modeling. Interactive lectures and resources.">
+    <meta name="keywords" content="population ecology, community ecology, ecological modeling, population dynamics, species interactions">
+    <link rel="canonical" href="https://drabdulali.github.io/apps/8310/">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #ffffff;
+            --primary: #f8fafc;
+            --primary-light: #f1f5f9;
+            --secondary: #0284c7;
+            --secondary-dark: #0369a1;
+            --accent: #06b6d4;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-light: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(2, 132, 199, 0.1);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+            --gradient-hero: linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #0891b2 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-hero);
+            padding: 4rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='20' cy='20' r='2' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='80' cy='40' r='1.5' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='60' cy='70' r='1' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='30' cy='80' r='2.5' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--gradient-hero);
+            border-radius: 2px;
+        }
+
+        /* Lectures Grid */
+        .lectures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .lecture-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary);
+        }
+
+        .lecture-number {
+            background: var(--gradient-hero);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .lecture-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .lecture-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            flex-grow: 1;
+        }
+
+        .lecture-card .arrow {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-top: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .lecture-card:hover .arrow {
+            transform: translateX(5px);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .lectures-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../" class="logo">Abdul Ali</a>
+            <a href="../../" class="back-link">Back to Main Site</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Population Ecology (8310)</h1>
+            <p>Explore the dynamics of populations and communities through mathematical models, ecological theory, and practical applications. This course covers population growth, species interactions, community structure, and ecosystem dynamics.</p>
+        </div>
+    </section>
+
+    <main>
+        <h2 class="section-title">Course Lectures</h2>
+
+        <div class="lectures-grid">
+            <a href="lect01/" class="lecture-card">
+                <div class="lecture-number">1</div>
+                <h3>Introduction to Population and Community Ecology</h3>
+                <p>Fundamental concepts in population ecology, defining populations, and the scope of ecological study.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect0102/" class="lecture-card">
+                <div class="lecture-number">1-2</div>
+                <h3>Population Growth Fundamentals</h3>
+                <p>Basic principles of population growth, exponential growth models, and key demographic parameters.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect03/" class="lecture-card">
+                <div class="lecture-number">3</div>
+                <h3>Density-Dependent Growth</h3>
+                <p>Logistic growth, carrying capacity, and density-dependent regulation of populations.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect04/" class="lecture-card">
+                <div class="lecture-number">4</div>
+                <h3>Age-Structured Populations</h3>
+                <p>Life tables, survivorship curves, and Leslie matrix models for age-structured populations.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect05/" class="lecture-card">
+                <div class="lecture-number">5</div>
+                <h3>Life History Strategies</h3>
+                <p>Trade-offs in life history, r and K selection, and reproductive strategies.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect0607/" class="lecture-card">
+                <div class="lecture-number">6-7</div>
+                <h3>Competition</h3>
+                <p>Intraspecific and interspecific competition, Lotka-Volterra competition models, competitive exclusion.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect08/" class="lecture-card">
+                <div class="lecture-number">8</div>
+                <h3>Predation I</h3>
+                <p>Predator-prey dynamics, functional responses, and basic predation models.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect09/" class="lecture-card">
+                <div class="lecture-number">9</div>
+                <h3>Predation II</h3>
+                <p>Lotka-Volterra predator-prey models, population cycles, and stability analysis.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect10/" class="lecture-card">
+                <div class="lecture-number">10</div>
+                <h3>Herbivory and Plant-Animal Interactions</h3>
+                <p>Plant defense mechanisms, herbivore impacts, and coevolutionary dynamics.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect11/" class="lecture-card">
+                <div class="lecture-number">11</div>
+                <h3>Parasitism and Disease</h3>
+                <p>Host-parasite dynamics, disease ecology, and epidemiological models in natural populations.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect12/" class="lecture-card">
+                <div class="lecture-number">12</div>
+                <h3>Mutualism</h3>
+                <p>Types of mutualistic interactions, cost-benefit analyses, and ecological importance.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect13/" class="lecture-card">
+                <div class="lecture-number">13</div>
+                <h3>Population Regulation</h3>
+                <p>Density-dependent vs density-independent factors, population limitation, and regulation mechanisms.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect14/" class="lecture-card">
+                <div class="lecture-number">14</div>
+                <h3>Spatial Ecology</h3>
+                <p>Spatial structure in populations, habitat fragmentation, and landscape ecology concepts.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect15/" class="lecture-card">
+                <div class="lecture-number">15</div>
+                <h3>Metapopulation Dynamics</h3>
+                <p>Metapopulation theory, colonization-extinction dynamics, and source-sink dynamics.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect1617/" class="lecture-card">
+                <div class="lecture-number">16-17</div>
+                <h3>Community Structure</h3>
+                <p>Community organization, species diversity, and patterns in community composition.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect18/" class="lecture-card">
+                <div class="lecture-number">18</div>
+                <h3>Food Webs</h3>
+                <p>Trophic structure, food web dynamics, and energy flow through ecosystems.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect19/" class="lecture-card">
+                <div class="lecture-number">19</div>
+                <h3>Succession</h3>
+                <p>Community succession, primary and secondary succession, climax communities.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect20/" class="lecture-card">
+                <div class="lecture-number">20</div>
+                <h3>Island Biogeography</h3>
+                <p>MacArthur-Wilson equilibrium theory, species-area relationships, and island ecology.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lectbiodiv/" class="lecture-card">
+                <div class="lecture-number">B</div>
+                <h3>Biodiversity</h3>
+                <p>Patterns of biodiversity, measurement of diversity, and factors affecting species richness.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="Biodiv/" class="lecture-card">
+                <div class="lecture-number">B+</div>
+                <h3>Biodiversity Applications</h3>
+                <p>Applied aspects of biodiversity science, conservation implications, and biodiversity assessment.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lectmetacom/" class="lecture-card">
+                <div class="lecture-number">MC</div>
+                <h3>Metacommunity Ecology</h3>
+                <p>Metacommunity perspectives, spatial community dynamics, and regional species pools.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="metacom/" class="lecture-card">
+                <div class="lecture-number">MC+</div>
+                <h3>Metacommunity Applications</h3>
+                <p>Applied metacommunity theory, community assembly, and spatial beta diversity.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lectmte/" class="lecture-card">
+                <div class="lecture-number">MTE</div>
+                <h3>Metabolic Theory of Ecology</h3>
+                <p>Metabolic scaling, body size relationships, and energetic constraints on ecology.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="lect24-mte/" class="lecture-card">
+                <div class="lecture-number">24</div>
+                <h3>MTE Applications</h3>
+                <p>Applications of metabolic theory to population and community ecology.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="AltStSt/" class="lecture-card">
+                <div class="lecture-number">AS</div>
+                <h3>Alternative Stable States</h3>
+                <p>Multiple equilibria, regime shifts, and bistability in ecological systems.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+
+            <a href="ass/" class="lecture-card">
+                <div class="lecture-number">AS+</div>
+                <h3>Alternative Stable States: Case Studies</h3>
+                <p>Real-world examples of alternative stable states and ecosystem transitions.</p>
+                <span class="arrow">&#8594;</span>
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Abdul Ali | <a href="../../">Back to Main Site</a></p>
+    </footer>
+</body>
+</html>
