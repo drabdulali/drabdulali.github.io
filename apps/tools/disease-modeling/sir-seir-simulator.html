@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIR/SEIR Epidemic Simulator - Abdul Ali</title>
+    <meta name="description" content="Interactive SIR and SEIR epidemic model simulator. Visualize disease spread dynamics with adjustable transmission rates, recovery rates, and population parameters.">
+    <meta name="keywords" content="SIR model, SEIR model, epidemic simulator, disease modeling, R0, transmission dynamics, infectious disease">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --secondary-dark: #1a3d20;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            main { grid-template-columns: 1fr; }
+        }
+
+        .controls {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            height: fit-content;
+        }
+
+        .controls h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .control-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .control-group .hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+        }
+
+        .value-display {
+            min-width: 60px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .model-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .model-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--card-border);
+            background: white;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .model-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .run-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 1rem;
+        }
+
+        .run-btn:hover { transform: scale(1.02); }
+
+        .results {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 1.5rem;
+        }
+
+        #chart { width: 100%; height: 100%; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .exposed-controls { display: none; }
+        .exposed-controls.visible { display: block; }
+
+        .info-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-box h4 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>SIR/SEIR Epidemic Simulator</h1>
+        <p>Model infectious disease dynamics with adjustable parameters. Visualize how epidemics spread through populations.</p>
+    </section>
+
+    <main>
+        <div class="controls">
+            <h2>Model Parameters</h2>
+
+            <div class="model-toggle">
+                <button class="model-btn active" data-model="SIR">SIR Model</button>
+                <button class="model-btn" data-model="SEIR">SEIR Model</button>
+            </div>
+
+            <div class="control-group">
+                <label>Population Size (N)</label>
+                <div class="slider-container">
+                    <input type="range" id="population" min="1000" max="1000000" value="100000" step="1000">
+                    <span class="value-display" id="population-val">100,000</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Initial Infected (I0)</label>
+                <div class="slider-container">
+                    <input type="range" id="initial-infected" min="1" max="1000" value="10">
+                    <span class="value-display" id="initial-infected-val">10</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Transmission Rate (beta)</label>
+                <div class="hint">Rate of infection spread per contact</div>
+                <div class="slider-container">
+                    <input type="range" id="beta" min="0.05" max="2" value="0.4" step="0.01">
+                    <span class="value-display" id="beta-val">0.40</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Recovery Rate (gamma)</label>
+                <div class="hint">1/gamma = average infectious period (days)</div>
+                <div class="slider-container">
+                    <input type="range" id="gamma" min="0.01" max="1" value="0.1" step="0.01">
+                    <span class="value-display" id="gamma-val">0.10</span>
+                </div>
+            </div>
+
+            <div class="control-group exposed-controls" id="sigma-control">
+                <label>Incubation Rate (sigma)</label>
+                <div class="hint">1/sigma = average incubation period (days)</div>
+                <div class="slider-container">
+                    <input type="range" id="sigma" min="0.05" max="1" value="0.2" step="0.01">
+                    <span class="value-display" id="sigma-val">0.20</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Simulation Days</label>
+                <div class="slider-container">
+                    <input type="range" id="days" min="30" max="365" value="160">
+                    <span class="value-display" id="days-val">160</span>
+                </div>
+            </div>
+
+            <button class="run-btn" onclick="runSimulation()">Run Simulation</button>
+
+            <div class="info-box">
+                <h4>Understanding R0</h4>
+                <p>R0 = beta/gamma represents the basic reproduction number - the average number of secondary infections caused by one infected individual in a fully susceptible population.</p>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="chart-container">
+                <canvas id="chart"></canvas>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #3b82f6;"></div>
+                    <span>Susceptible</span>
+                </div>
+                <div class="legend-item" id="exposed-legend" style="display: none;">
+                    <div class="legend-color" style="background: #f59e0b;"></div>
+                    <span>Exposed</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ef4444;"></div>
+                    <span>Infected</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #22c55e;"></div>
+                    <span>Recovered</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value" id="r0-value">4.00</div>
+                    <div class="label">Basic R0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="peak-infected">0</div>
+                    <div class="label">Peak Infected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="peak-day">0</div>
+                    <div class="label">Peak Day</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="total-infected">0</div>
+                    <div class="label">Total Infected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="herd-immunity">75%</div>
+                    <div class="label">Herd Immunity Threshold</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="infectious-period">10</div>
+                    <div class="label">Infectious Period (days)</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart = null;
+        let currentModel = 'SIR';
+
+        // Model toggle
+        document.querySelectorAll('.model-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentModel = btn.dataset.model;
+
+                const sigmaControl = document.getElementById('sigma-control');
+                const exposedLegend = document.getElementById('exposed-legend');
+
+                if (currentModel === 'SEIR') {
+                    sigmaControl.classList.add('visible');
+                    exposedLegend.style.display = 'flex';
+                } else {
+                    sigmaControl.classList.remove('visible');
+                    exposedLegend.style.display = 'none';
+                }
+
+                runSimulation();
+            });
+        });
+
+        // Slider value displays
+        const sliders = ['population', 'initial-infected', 'beta', 'gamma', 'sigma', 'days'];
+        sliders.forEach(id => {
+            const slider = document.getElementById(id);
+            const display = document.getElementById(id + '-val');
+
+            slider.addEventListener('input', () => {
+                let val = parseFloat(slider.value);
+                if (id === 'population') {
+                    display.textContent = val.toLocaleString();
+                } else if (id === 'beta' || id === 'gamma' || id === 'sigma') {
+                    display.textContent = val.toFixed(2);
+                } else {
+                    display.textContent = val;
+                }
+            });
+        });
+
+        function runSIR(N, I0, beta, gamma, days) {
+            const S = [N - I0];
+            const I = [I0];
+            const R = [0];
+            const dt = 1;
+
+            for (let t = 1; t <= days; t++) {
+                const dS = -beta * S[t-1] * I[t-1] / N;
+                const dI = beta * S[t-1] * I[t-1] / N - gamma * I[t-1];
+                const dR = gamma * I[t-1];
+
+                S.push(Math.max(0, S[t-1] + dS * dt));
+                I.push(Math.max(0, I[t-1] + dI * dt));
+                R.push(Math.max(0, R[t-1] + dR * dt));
+            }
+
+            return { S, I, R, E: null };
+        }
+
+        function runSEIR(N, I0, beta, gamma, sigma, days) {
+            const S = [N - I0];
+            const E = [0];
+            const I = [I0];
+            const R = [0];
+            const dt = 1;
+
+            for (let t = 1; t <= days; t++) {
+                const dS = -beta * S[t-1] * I[t-1] / N;
+                const dE = beta * S[t-1] * I[t-1] / N - sigma * E[t-1];
+                const dI = sigma * E[t-1] - gamma * I[t-1];
+                const dR = gamma * I[t-1];
+
+                S.push(Math.max(0, S[t-1] + dS * dt));
+                E.push(Math.max(0, E[t-1] + dE * dt));
+                I.push(Math.max(0, I[t-1] + dI * dt));
+                R.push(Math.max(0, R[t-1] + dR * dt));
+            }
+
+            return { S, I, R, E };
+        }
+
+        function runSimulation() {
+            const N = parseInt(document.getElementById('population').value);
+            const I0 = parseInt(document.getElementById('initial-infected').value);
+            const beta = parseFloat(document.getElementById('beta').value);
+            const gamma = parseFloat(document.getElementById('gamma').value);
+            const sigma = parseFloat(document.getElementById('sigma').value);
+            const days = parseInt(document.getElementById('days').value);
+
+            let results;
+            if (currentModel === 'SIR') {
+                results = runSIR(N, I0, beta, gamma, days);
+            } else {
+                results = runSEIR(N, I0, beta, gamma, sigma, days);
+            }
+
+            const labels = Array.from({length: days + 1}, (_, i) => i);
+
+            const datasets = [
+                {
+                    label: 'Susceptible',
+                    data: results.S,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Infected',
+                    data: results.I,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Recovered',
+                    data: results.R,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }
+            ];
+
+            if (currentModel === 'SEIR' && results.E) {
+                datasets.splice(1, 0, {
+                    label: 'Exposed',
+                    data: results.E,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                });
+            }
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + Math.round(context.raw).toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Days' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Population' },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update statistics
+            const R0 = beta / gamma;
+            const peakInfected = Math.max(...results.I);
+            const peakDay = results.I.indexOf(peakInfected);
+            const totalInfected = N - results.S[results.S.length - 1];
+            const herdImmunity = ((1 - 1/R0) * 100).toFixed(0);
+            const infectiousPeriod = (1/gamma).toFixed(1);
+
+            document.getElementById('r0-value').textContent = R0.toFixed(2);
+            document.getElementById('peak-infected').textContent = Math.round(peakInfected).toLocaleString();
+            document.getElementById('peak-day').textContent = peakDay;
+            document.getElementById('total-infected').textContent = Math.round(totalInfected).toLocaleString();
+            document.getElementById('herd-immunity').textContent = R0 > 1 ? herdImmunity + '%' : 'N/A';
+            document.getElementById('infectious-period').textContent = infectiousPeriod;
+        }
+
+        // Initial simulation
+        runSimulation();
+    </script>
+</body>
+</html>

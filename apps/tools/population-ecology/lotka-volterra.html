@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lotka-Volterra Simulator - Competition and Predation - Abdul Ali</title>
+    <meta name="description" content="Interactive Lotka-Volterra model simulator for competition and predator-prey dynamics. Visualize species interactions and population cycles.">
+    <meta name="keywords" content="Lotka-Volterra, predator-prey, competition, population dynamics, ecological modeling, species interactions">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .model-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--card-border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .model-section { display: none; }
+        .model-section.active { display: block; }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group .hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+        }
+
+        .value-display {
+            min-width: 50px;
+            font-weight: 600;
+            color: var(--secondary);
+            text-align: right;
+        }
+
+        .species-section {
+            padding: 1rem;
+            background: var(--primary);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .species-section h4 {
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .chart-container {
+            height: 350px;
+            margin-bottom: 1.5rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .formula-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .outcome-box {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .outcome-box.coexist { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+        .outcome-box.sp1-wins { background: #dbeafe; border: 1px solid #93c5fd; color: #1e40af; }
+        .outcome-box.sp2-wins { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
+        .outcome-box.cycles { background: #fce7f3; border: 1px solid #f9a8d4; color: #9d174d; }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Lotka-Volterra Simulator</h1>
+        <p>Explore competition and predator-prey dynamics with interactive population models.</p>
+    </section>
+
+    <main>
+        <div class="controls">
+            <div class="card">
+                <h2>Model Selection</h2>
+                <div class="model-tabs">
+                    <button class="tab-btn active" data-model="competition">Competition</button>
+                    <button class="tab-btn" data-model="predation">Predator-Prey</button>
+                </div>
+
+                <!-- Competition Model -->
+                <div class="model-section active" id="competition-section">
+                    <div class="formula-box">
+                        dN1/dt = r1*N1*(1 - (N1 + alpha12*N2)/K1)<br>
+                        dN2/dt = r2*N2*(1 - (N2 + alpha21*N1)/K2)
+                    </div>
+
+                    <div class="species-section">
+                        <h4>Species 1 (Blue)</h4>
+                        <div class="input-group">
+                            <label>Growth rate (r1)</label>
+                            <div class="slider-row">
+                                <input type="range" id="r1" min="0.1" max="2" step="0.1" value="0.5">
+                                <span class="value-display" id="r1-val">0.5</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Carrying capacity (K1)</label>
+                            <div class="slider-row">
+                                <input type="range" id="K1" min="100" max="2000" step="50" value="1000">
+                                <span class="value-display" id="K1-val">1000</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Initial population (N1)</label>
+                            <div class="slider-row">
+                                <input type="range" id="N1" min="10" max="500" step="10" value="100">
+                                <span class="value-display" id="N1-val">100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="species-section">
+                        <h4>Species 2 (Orange)</h4>
+                        <div class="input-group">
+                            <label>Growth rate (r2)</label>
+                            <div class="slider-row">
+                                <input type="range" id="r2" min="0.1" max="2" step="0.1" value="0.5">
+                                <span class="value-display" id="r2-val">0.5</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Carrying capacity (K2)</label>
+                            <div class="slider-row">
+                                <input type="range" id="K2" min="100" max="2000" step="50" value="800">
+                                <span class="value-display" id="K2-val">800</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Initial population (N2)</label>
+                            <div class="slider-row">
+                                <input type="range" id="N2" min="10" max="500" step="10" value="50">
+                                <span class="value-display" id="N2-val">50</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="species-section">
+                        <h4>Competition Coefficients</h4>
+                        <div class="input-group">
+                            <label>alpha12 (effect of Sp2 on Sp1)</label>
+                            <div class="slider-row">
+                                <input type="range" id="alpha12" min="0" max="2" step="0.1" value="0.5">
+                                <span class="value-display" id="alpha12-val">0.5</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>alpha21 (effect of Sp1 on Sp2)</label>
+                            <div class="slider-row">
+                                <input type="range" id="alpha21" min="0" max="2" step="0.1" value="0.8">
+                                <span class="value-display" id="alpha21-val">0.8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Predation Model -->
+                <div class="model-section" id="predation-section">
+                    <div class="formula-box">
+                        dN/dt = r*N - a*N*P (Prey)<br>
+                        dP/dt = b*a*N*P - m*P (Predator)
+                    </div>
+
+                    <div class="species-section">
+                        <h4>Prey (Blue)</h4>
+                        <div class="input-group">
+                            <label>Growth rate (r)</label>
+                            <div class="slider-row">
+                                <input type="range" id="prey-r" min="0.1" max="2" step="0.1" value="1">
+                                <span class="value-display" id="prey-r-val">1.0</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Initial population</label>
+                            <div class="slider-row">
+                                <input type="range" id="prey-N0" min="10" max="500" step="10" value="100">
+                                <span class="value-display" id="prey-N0-val">100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="species-section">
+                        <h4>Predator (Red)</h4>
+                        <div class="input-group">
+                            <label>Mortality rate (m)</label>
+                            <div class="slider-row">
+                                <input type="range" id="pred-m" min="0.1" max="2" step="0.1" value="0.5">
+                                <span class="value-display" id="pred-m-val">0.5</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Initial population</label>
+                            <div class="slider-row">
+                                <input type="range" id="pred-P0" min="5" max="200" step="5" value="20">
+                                <span class="value-display" id="pred-P0-val">20</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="species-section">
+                        <h4>Interaction Parameters</h4>
+                        <div class="input-group">
+                            <label>Attack rate (a)</label>
+                            <div class="slider-row">
+                                <input type="range" id="attack-a" min="0.001" max="0.05" step="0.001" value="0.01">
+                                <span class="value-display" id="attack-a-val">0.01</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Conversion efficiency (b)</label>
+                            <div class="slider-row">
+                                <input type="range" id="convert-b" min="0.1" max="1" step="0.1" value="0.5">
+                                <span class="value-display" id="convert-b-val">0.5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Simulation Time</label>
+                    <div class="slider-row">
+                        <input type="range" id="time" min="50" max="500" step="10" value="200">
+                        <span class="value-display" id="time-val">200</span>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="runSimulation()">Run Simulation</button>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="card">
+                <h2>Population Dynamics</h2>
+                <div class="legend" id="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #3b82f6;"></div>
+                        <span id="legend1">Species 1</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #f59e0b;"></div>
+                        <span id="legend2">Species 2</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="popChart"></canvas>
+                </div>
+
+                <div class="results-grid" id="stats-grid"></div>
+                <div class="outcome-box" id="outcome"></div>
+            </div>
+
+            <div class="card">
+                <h2>Phase Plane</h2>
+                <div class="chart-container">
+                    <canvas id="phaseChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let popChart = null;
+        let phaseChart = null;
+        let currentModel = 'competition';
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentModel = btn.dataset.model;
+
+                document.querySelectorAll('.model-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(currentModel + '-section').classList.add('active');
+
+                updateLegend();
+                runSimulation();
+            });
+        });
+
+        // Slider updates
+        const sliderIds = ['r1', 'K1', 'N1', 'r2', 'K2', 'N2', 'alpha12', 'alpha21', 'prey-r', 'prey-N0', 'pred-m', 'pred-P0', 'attack-a', 'convert-b', 'time'];
+        sliderIds.forEach(id => {
+            const slider = document.getElementById(id);
+            if (slider) {
+                slider.addEventListener('input', () => {
+                    document.getElementById(id + '-val').textContent = slider.value;
+                });
+            }
+        });
+
+        function updateLegend() {
+            if (currentModel === 'competition') {
+                document.getElementById('legend1').textContent = 'Species 1';
+                document.getElementById('legend2').textContent = 'Species 2';
+                document.querySelector('#legend .legend-dot:nth-child(1)').parentElement.querySelector('.legend-dot').style.background = '#3b82f6';
+                document.querySelectorAll('#legend .legend-item')[1].querySelector('.legend-dot').style.background = '#f59e0b';
+            } else {
+                document.getElementById('legend1').textContent = 'Prey';
+                document.getElementById('legend2').textContent = 'Predator';
+                document.querySelectorAll('#legend .legend-item')[1].querySelector('.legend-dot').style.background = '#ef4444';
+            }
+        }
+
+        function runCompetition() {
+            const r1 = parseFloat(document.getElementById('r1').value);
+            const K1 = parseFloat(document.getElementById('K1').value);
+            const r2 = parseFloat(document.getElementById('r2').value);
+            const K2 = parseFloat(document.getElementById('K2').value);
+            const alpha12 = parseFloat(document.getElementById('alpha12').value);
+            const alpha21 = parseFloat(document.getElementById('alpha21').value);
+            const time = parseFloat(document.getElementById('time').value);
+
+            let N1 = parseFloat(document.getElementById('N1').value);
+            let N2 = parseFloat(document.getElementById('N2').value);
+
+            const dt = 0.1;
+            const steps = Math.floor(time / dt);
+
+            const data1 = [N1], data2 = [N2];
+            const times = [0];
+
+            for (let i = 1; i <= steps; i++) {
+                const dN1 = r1 * N1 * (1 - (N1 + alpha12 * N2) / K1);
+                const dN2 = r2 * N2 * (1 - (N2 + alpha21 * N1) / K2);
+
+                N1 = Math.max(0, N1 + dN1 * dt);
+                N2 = Math.max(0, N2 + dN2 * dt);
+
+                if (i % 10 === 0) {
+                    data1.push(N1);
+                    data2.push(N2);
+                    times.push(i * dt);
+                }
+            }
+
+            // Determine outcome
+            const final1 = data1[data1.length - 1];
+            const final2 = data2[data2.length - 1];
+            let outcome, outcomeClass;
+
+            if (final1 > 10 && final2 > 10) {
+                outcome = 'Coexistence: Both species persist';
+                outcomeClass = 'coexist';
+            } else if (final1 > 10 && final2 < 10) {
+                outcome = 'Competitive Exclusion: Species 1 wins';
+                outcomeClass = 'sp1-wins';
+            } else if (final2 > 10 && final1 < 10) {
+                outcome = 'Competitive Exclusion: Species 2 wins';
+                outcomeClass = 'sp2-wins';
+            } else {
+                outcome = 'Both species decline';
+                outcomeClass = 'sp1-wins';
+            }
+
+            return { data1, data2, times, outcome, outcomeClass, colors: ['#3b82f6', '#f59e0b'] };
+        }
+
+        function runPredation() {
+            const r = parseFloat(document.getElementById('prey-r').value);
+            const a = parseFloat(document.getElementById('attack-a').value);
+            const b = parseFloat(document.getElementById('convert-b').value);
+            const m = parseFloat(document.getElementById('pred-m').value);
+            const time = parseFloat(document.getElementById('time').value);
+
+            let N = parseFloat(document.getElementById('prey-N0').value);
+            let P = parseFloat(document.getElementById('pred-P0').value);
+
+            const dt = 0.01;
+            const steps = Math.floor(time / dt);
+
+            const dataN = [N], dataP = [P];
+            const times = [0];
+
+            for (let i = 1; i <= steps; i++) {
+                const dN = r * N - a * N * P;
+                const dP = b * a * N * P - m * P;
+
+                N = Math.max(0, N + dN * dt);
+                P = Math.max(0, P + dP * dt);
+
+                if (i % 100 === 0) {
+                    dataN.push(N);
+                    dataP.push(P);
+                    times.push(i * dt);
+                }
+            }
+
+            return {
+                data1: dataN,
+                data2: dataP,
+                times,
+                outcome: 'Predator-Prey Cycles: Populations oscillate over time',
+                outcomeClass: 'cycles',
+                colors: ['#3b82f6', '#ef4444']
+            };
+        }
+
+        function runSimulation() {
+            const result = currentModel === 'competition' ? runCompetition() : runPredation();
+
+            // Population chart
+            if (popChart) popChart.destroy();
+            const popCtx = document.getElementById('popChart').getContext('2d');
+            popChart = new Chart(popCtx, {
+                type: 'line',
+                data: {
+                    labels: result.times.map(t => t.toFixed(0)),
+                    datasets: [
+                        {
+                            label: currentModel === 'competition' ? 'Species 1' : 'Prey',
+                            data: result.data1,
+                            borderColor: result.colors[0],
+                            backgroundColor: result.colors[0] + '20',
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: currentModel === 'competition' ? 'Species 2' : 'Predator',
+                            data: result.data2,
+                            borderColor: result.colors[1],
+                            backgroundColor: result.colors[1] + '20',
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'Time' }, ticks: { maxTicksLimit: 10 } },
+                        y: { title: { display: true, text: 'Population' }, beginAtZero: true }
+                    }
+                }
+            });
+
+            // Phase chart
+            if (phaseChart) phaseChart.destroy();
+            const phaseCtx = document.getElementById('phaseChart').getContext('2d');
+            phaseChart = new Chart(phaseCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Phase trajectory',
+                        data: result.data1.map((n1, i) => ({ x: n1, y: result.data2[i] })),
+                        borderColor: '#2c5530',
+                        backgroundColor: '#2c553040',
+                        showLine: true,
+                        pointRadius: 0,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: currentModel === 'competition' ? 'Species 1' : 'Prey' } },
+                        y: { title: { display: true, text: currentModel === 'competition' ? 'Species 2' : 'Predator' } }
+                    }
+                }
+            });
+
+            // Stats
+            const maxN1 = Math.max(...result.data1);
+            const maxN2 = Math.max(...result.data2);
+            const finalN1 = result.data1[result.data1.length - 1];
+            const finalN2 = result.data2[result.data2.length - 1];
+
+            document.getElementById('stats-grid').innerHTML = `
+                <div class="stat-card">
+                    <div class="value">${Math.round(maxN1)}</div>
+                    <div class="label">Max ${currentModel === 'competition' ? 'Sp1' : 'Prey'}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${Math.round(maxN2)}</div>
+                    <div class="label">Max ${currentModel === 'competition' ? 'Sp2' : 'Predator'}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${Math.round(finalN1)}</div>
+                    <div class="label">Final ${currentModel === 'competition' ? 'Sp1' : 'Prey'}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${Math.round(finalN2)}</div>
+                    <div class="label">Final ${currentModel === 'competition' ? 'Sp2' : 'Predator'}</div>
+                </div>
+            `;
+
+            // Outcome
+            document.getElementById('outcome').className = 'outcome-box ' + result.outcomeClass;
+            document.getElementById('outcome').textContent = result.outcome;
+        }
+
+        updateLegend();
+        runSimulation();
+    </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Research Tools - Disease Modeling and Population Ecology - Abdul Ali</title>
+    <meta name="description" content="Collection of interactive tools for disease modeling, population ecology, and transboundary animal disease research. SIR models, R0 calculators, life tables, and more.">
+    <meta name="keywords" content="disease modeling tools, population ecology calculator, SIR model, R0 calculator, Leslie matrix, life table, epidemiology tools">
+    <link rel="canonical" href="https://drabdulali.github.io/apps/tools/">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --secondary-dark: #1a3d20;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 4rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .hero p { opacity: 0.9; max-width: 700px; margin: 0 auto; font-size: 1.1rem; }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-hero);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .section h2 {
+            color: var(--secondary);
+            font-size: 1.5rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: var(--secondary);
+        }
+
+        .tool-card h3 {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            flex-grow: 1;
+        }
+
+        .tool-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tool-tag {
+            padding: 0.25rem 0.6rem;
+            background: var(--primary);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .tool-card .arrow {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-top: 0.75rem;
+            transition: transform 0.3s;
+        }
+
+        .tool-card:hover .arrow {
+            transform: translateX(5px);
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../" class="logo">Abdul Ali</a>
+            <a href="../../" class="back-link">Back to Main Site</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Interactive Research Tools</h1>
+        <p>A collection of educational tools for disease modeling, population ecology, and transboundary animal disease research. All tools are interactive and designed for learning and exploration.</p>
+    </section>
+
+    <main>
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a10 10 0 1 0 10 10"/>
+                        <path d="M12 12L12 6"/>
+                        <path d="M12 12L16 14"/>
+                    </svg>
+                </div>
+                <h2>Disease Modeling Tools</h2>
+            </div>
+            <div class="tools-grid">
+                <a href="disease-modeling/sir-seir-simulator.html" class="tool-card">
+                    <h3>SIR/SEIR Epidemic Simulator</h3>
+                    <p>Interactive epidemic model simulator. Visualize disease spread dynamics with adjustable transmission and recovery parameters.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">SIR Model</span>
+                        <span class="tool-tag">SEIR Model</span>
+                        <span class="tool-tag">R0</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="disease-modeling/r0-calculator.html" class="tool-card">
+                    <h3>R0 Calculator</h3>
+                    <p>Calculate basic reproduction number using multiple methods: transmission parameters, SIR rates, growth rate, or final epidemic size.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Epidemiology</span>
+                        <span class="tool-tag">Transmission</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="disease-modeling/epidemic-curve.html" class="tool-card">
+                    <h3>Epidemic Curve Generator</h3>
+                    <p>Generate and visualize epidemic curves for outbreak analysis. Create point source, propagated, or continuous outbreak patterns.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Epi Curve</span>
+                        <span class="tool-tag">Outbreak</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="disease-modeling/herd-immunity.html" class="tool-card">
+                    <h3>Herd Immunity Calculator</h3>
+                    <p>Calculate vaccination coverage needed for herd immunity. Visualize population protection with interactive graphics.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Vaccination</span>
+                        <span class="tool-tag">Threshold</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h4l3-9 4 18 3-9h4"/>
+                    </svg>
+                </div>
+                <h2>Population Ecology Tools</h2>
+            </div>
+            <div class="tools-grid">
+                <a href="population-ecology/leslie-matrix.html" class="tool-card">
+                    <h3>Leslie Matrix Calculator</h3>
+                    <p>Project age-structured populations using Leslie matrices. Calculate growth rates, stable age distributions, and population projections.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Age Structure</span>
+                        <span class="tool-tag">Demography</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="population-ecology/life-table.html" class="tool-card">
+                    <h3>Life Table Analyzer</h3>
+                    <p>Analyze life tables to calculate survivorship, net reproductive rate (R0), generation time, and intrinsic growth rate.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Survivorship</span>
+                        <span class="tool-tag">Fecundity</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="population-ecology/lotka-volterra.html" class="tool-card">
+                    <h3>Lotka-Volterra Simulator</h3>
+                    <p>Explore competition and predator-prey dynamics. Visualize species interactions with phase plane diagrams.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Competition</span>
+                        <span class="tool-tag">Predation</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="population-ecology/metapopulation.html" class="tool-card">
+                    <h3>Metapopulation Model</h3>
+                    <p>Simulate colonization and extinction dynamics in fragmented habitats using the Levins metapopulation model.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Patch Dynamics</span>
+                        <span class="tool-tag">Conservation</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 5v2"/>
+                        <path d="M12 17v2"/>
+                        <path d="M5 12H7"/>
+                        <path d="M17 12h2"/>
+                    </svg>
+                </div>
+                <h2>TAD-Specific Tools</h2>
+            </div>
+            <div class="tools-grid">
+                <a href="tad-tools/disease-risk-map.html" class="tool-card">
+                    <h3>Disease Risk Mapping Tool</h3>
+                    <p>Visualize disease spread patterns and risk factors. Interactive risk assessment for transboundary animal diseases.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Risk Mapping</span>
+                        <span class="tool-tag">Spatial</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="tad-tools/host-pathogen-network.html" class="tool-card">
+                    <h3>Host-Pathogen Network Visualizer</h3>
+                    <p>Explore transmission pathways and multi-host relationships for major TADs. Interactive network diagrams.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Networks</span>
+                        <span class="tool-tag">Transmission</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="tad-tools/outbreak-timeline.html" class="tool-card">
+                    <h3>Outbreak Timeline Tool</h3>
+                    <p>Interactive timeline of major TAD outbreaks throughout history. Explore patterns and global impacts.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">History</span>
+                        <span class="tool-tag">Outbreaks</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+
+                <a href="tad-tools/spillover-risk.html" class="tool-card">
+                    <h3>Spillover Risk Calculator</h3>
+                    <p>Assess zoonotic spillover risk based on ecological, epidemiological, and anthropogenic factors.</p>
+                    <div class="tool-tags">
+                        <span class="tool-tag">Zoonosis</span>
+                        <span class="tool-tag">One Health</span>
+                    </div>
+                    <span class="arrow">&#8594;</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Abdul Ali | <a href="../../">Back to Main Site</a></p>
+    </footer>
+</body>
+</html>

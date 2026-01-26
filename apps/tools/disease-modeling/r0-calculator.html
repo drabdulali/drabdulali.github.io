@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R0 Calculator - Basic Reproduction Number - Abdul Ali</title>
+    <meta name="description" content="Calculate the basic reproduction number (R0) from outbreak data. Essential tool for understanding infectious disease transmission dynamics.">
+    <meta name="keywords" content="R0 calculator, basic reproduction number, epidemic, disease transmission, infectious disease epidemiology">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --secondary-dark: #1a3d20;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .calc-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .calc-card h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calc-card .description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .formula {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-dark);
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .calc-btn:hover { transform: scale(1.02); }
+
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: var(--primary);
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+
+        .result-box .r0-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .result-box .r0-label {
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .interpretation {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .interpretation.epidemic { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+        .interpretation.endemic { background: #fefce8; border: 1px solid #fef08a; color: #854d0e; }
+        .interpretation.declining { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+
+        .disease-presets {
+            margin-bottom: 1.5rem;
+        }
+
+        .preset-btn {
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            border: 1px solid var(--card-border);
+            background: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .info-section {
+            margin-top: 2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .info-section h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .disease-card {
+            padding: 1rem;
+            background: var(--primary);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .disease-card .name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .disease-card .r0-range {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>R0 Calculator</h1>
+        <p>Calculate the basic reproduction number using different methods based on available outbreak data.</p>
+    </section>
+
+    <main>
+        <div class="calculator-grid">
+            <!-- Method 1: From transmission parameters -->
+            <div class="calc-card">
+                <h2>Method 1: From Transmission Parameters</h2>
+                <p class="description">Calculate R0 using contact rate, transmission probability, and infectious period.</p>
+
+                <div class="formula">R0 = c x p x d</div>
+
+                <div class="input-group">
+                    <label>Contact Rate (c) - contacts per day</label>
+                    <input type="number" id="contact-rate" value="10" min="0" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label>Transmission Probability (p)</label>
+                    <input type="number" id="trans-prob" value="0.05" min="0" max="1" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label>Infectious Period (d) - days</label>
+                    <input type="number" id="infectious-period" value="8" min="0" step="0.5">
+                </div>
+
+                <button class="calc-btn" onclick="calcMethod1()">Calculate R0</button>
+
+                <div class="result-box">
+                    <div class="r0-value" id="r0-method1">4.00</div>
+                    <div class="r0-label">Basic Reproduction Number</div>
+                    <div class="interpretation" id="interp1"></div>
+                </div>
+            </div>
+
+            <!-- Method 2: From beta and gamma -->
+            <div class="calc-card">
+                <h2>Method 2: From SIR Parameters</h2>
+                <p class="description">Calculate R0 from transmission rate (beta) and recovery rate (gamma).</p>
+
+                <div class="formula">R0 = beta / gamma</div>
+
+                <div class="input-group">
+                    <label>Transmission Rate (beta)</label>
+                    <input type="number" id="beta" value="0.4" min="0" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label>Recovery Rate (gamma)</label>
+                    <input type="number" id="gamma" value="0.1" min="0.001" step="0.01">
+                </div>
+
+                <button class="calc-btn" onclick="calcMethod2()">Calculate R0</button>
+
+                <div class="result-box">
+                    <div class="r0-value" id="r0-method2">4.00</div>
+                    <div class="r0-label">Basic Reproduction Number</div>
+                    <div class="interpretation" id="interp2"></div>
+                </div>
+            </div>
+
+            <!-- Method 3: From epidemic growth rate -->
+            <div class="calc-card">
+                <h2>Method 3: From Growth Rate</h2>
+                <p class="description">Estimate R0 from the exponential growth rate during the early epidemic phase.</p>
+
+                <div class="formula">R0 = 1 + r x D</div>
+
+                <div class="input-group">
+                    <label>Exponential Growth Rate (r) - per day</label>
+                    <input type="number" id="growth-rate" value="0.2" min="0" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label>Mean Generation Time (D) - days</label>
+                    <input type="number" id="gen-time" value="7" min="1" step="0.5">
+                </div>
+
+                <button class="calc-btn" onclick="calcMethod3()">Calculate R0</button>
+
+                <div class="result-box">
+                    <div class="r0-value" id="r0-method3">2.40</div>
+                    <div class="r0-label">Basic Reproduction Number</div>
+                    <div class="interpretation" id="interp3"></div>
+                </div>
+            </div>
+
+            <!-- Method 4: From final size -->
+            <div class="calc-card">
+                <h2>Method 4: From Final Epidemic Size</h2>
+                <p class="description">Estimate R0 from the proportion of population infected at the end of an epidemic.</p>
+
+                <div class="formula">R0 = -ln(1-z) / z</div>
+
+                <div class="input-group">
+                    <label>Final Attack Rate (z) - proportion infected</label>
+                    <input type="number" id="final-size" value="0.6" min="0.01" max="0.99" step="0.01">
+                </div>
+
+                <button class="calc-btn" onclick="calcMethod4()">Calculate R0</button>
+
+                <div class="result-box">
+                    <div class="r0-value" id="r0-method4">1.53</div>
+                    <div class="r0-label">Basic Reproduction Number</div>
+                    <div class="interpretation" id="interp4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Reference R0 Values for Common Diseases</h3>
+            <div class="info-grid">
+                <div class="disease-card">
+                    <div class="name">Measles</div>
+                    <div class="r0-range">12 - 18</div>
+                </div>
+                <div class="disease-card">
+                    <div class="name">Chickenpox</div>
+                    <div class="r0-range">10 - 12</div>
+                </div>
+                <div class="disease-card">
+                    <div class="name">Mumps</div>
+                    <div class="r0-range">4 - 7</div>
+                </div>
+                <div class="disease-card">
+                    <div class="name">COVID-19 (Original)</div>
+                    <div class="r0-range">2 - 3</div>
+                </div>
+                <div class="disease-card">
+                    <div class="name">Influenza</div>
+                    <div class="r0-range">1.5 - 2</div>
+                </div>
+                <div class="disease-card">
+                    <div class="name">Ebola</div>
+                    <div class="r0-range">1.5 - 2.5</div>
+                </div>
+                <div class="disease-card">
+                    <div class="name">FMD</div>
+                    <div class="r0-range">2 - 5</div>
+                </div>
+                <div class="disease-card">
+                    <div class="name">African Swine Fever</div>
+                    <div class="r0-range">1.5 - 4</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script>
+        function getInterpretation(r0) {
+            if (r0 > 1) {
+                return { class: 'epidemic', text: `R0 > 1: Epidemic will grow. Each case generates ${r0.toFixed(1)} new cases on average. Herd immunity threshold: ${((1 - 1/r0) * 100).toFixed(0)}%` };
+            } else if (r0 === 1) {
+                return { class: 'endemic', text: 'R0 = 1: Disease is endemic. Each case generates exactly one new case.' };
+            } else {
+                return { class: 'declining', text: 'R0 < 1: Epidemic will decline. Disease cannot sustain itself in the population.' };
+            }
+        }
+
+        function updateResult(elementId, interpId, r0) {
+            document.getElementById(elementId).textContent = r0.toFixed(2);
+            const interp = getInterpretation(r0);
+            const interpEl = document.getElementById(interpId);
+            interpEl.className = 'interpretation ' + interp.class;
+            interpEl.textContent = interp.text;
+        }
+
+        function calcMethod1() {
+            const c = parseFloat(document.getElementById('contact-rate').value);
+            const p = parseFloat(document.getElementById('trans-prob').value);
+            const d = parseFloat(document.getElementById('infectious-period').value);
+            const r0 = c * p * d;
+            updateResult('r0-method1', 'interp1', r0);
+        }
+
+        function calcMethod2() {
+            const beta = parseFloat(document.getElementById('beta').value);
+            const gamma = parseFloat(document.getElementById('gamma').value);
+            const r0 = beta / gamma;
+            updateResult('r0-method2', 'interp2', r0);
+        }
+
+        function calcMethod3() {
+            const r = parseFloat(document.getElementById('growth-rate').value);
+            const D = parseFloat(document.getElementById('gen-time').value);
+            const r0 = 1 + r * D;
+            updateResult('r0-method3', 'interp3', r0);
+        }
+
+        function calcMethod4() {
+            const z = parseFloat(document.getElementById('final-size').value);
+            const r0 = -Math.log(1 - z) / z;
+            updateResult('r0-method4', 'interp4', r0);
+        }
+
+        // Initialize
+        calcMethod1();
+        calcMethod2();
+        calcMethod3();
+        calcMethod4();
+    </script>
+</body>
+</html>

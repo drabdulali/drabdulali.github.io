@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host-Pathogen Network Visualizer - Abdul Ali</title>
+    <meta name="description" content="Visualize transmission pathways and host-pathogen relationships for transboundary animal diseases. Interactive network diagram.">
+    <meta name="keywords" content="host-pathogen network, disease transmission, TAD, zoonotic diseases, multi-host pathogens, spillover">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+        }
+
+        .network-container {
+            background: #f8fafc;
+            border-radius: 12px;
+            min-height: 550px;
+            position: relative;
+        }
+
+        #network-canvas {
+            width: 100%;
+            height: 550px;
+        }
+
+        .legend {
+            padding: 1rem;
+            background: var(--primary);
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .legend h4 {
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-node {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .legend-line {
+            width: 30px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .info-panel {
+            padding: 1rem;
+            background: var(--primary);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .info-panel.active {
+            display: block;
+        }
+
+        .info-panel h4 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-panel p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: white;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .stat {
+            padding: 0.75rem;
+            background: var(--primary);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat .label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../../../#courses" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Host-Pathogen Network Visualizer</h1>
+        <p>Explore transmission pathways and multi-host relationships for major transboundary animal diseases.</p>
+    </section>
+
+    <main>
+        <div class="controls">
+            <div class="card">
+                <h2>Select Disease System</h2>
+                <div class="input-group">
+                    <label>Disease</label>
+                    <select id="disease" onchange="loadNetwork()">
+                        <option value="asf">African Swine Fever</option>
+                        <option value="hpai">Avian Influenza (HPAI)</option>
+                        <option value="fmd">Foot-and-Mouth Disease</option>
+                        <option value="rvf">Rift Valley Fever</option>
+                        <option value="rabies">Rabies</option>
+                        <option value="nipah">Nipah Virus</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Network Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <div class="value" id="host-count">0</div>
+                        <div class="label">Host Species</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="link-count">0</div>
+                        <div class="label">Transmission Links</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="reservoir-count">0</div>
+                        <div class="label">Reservoirs</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="spillover-count">0</div>
+                        <div class="label">Spillover Hosts</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Legend</h2>
+                <div class="legend">
+                    <h4>Node Types</h4>
+                    <div class="legend-item">
+                        <div class="legend-node" style="background: #ef4444;"></div>
+                        <span>Pathogen</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-node" style="background: #8b5cf6;"></div>
+                        <span>Reservoir Host</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-node" style="background: #3b82f6;"></div>
+                        <span>Amplifying Host</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-node" style="background: #22c55e;"></div>
+                        <span>Spillover Host</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-node" style="background: #f59e0b;"></div>
+                        <span>Vector</span>
+                    </div>
+                </div>
+                <div class="legend" style="margin-top: 0.75rem;">
+                    <h4>Transmission Types</h4>
+                    <div class="legend-item">
+                        <div class="legend-line" style="background: #ef4444;"></div>
+                        <span>Direct Contact</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line" style="background: #f59e0b;"></div>
+                        <span>Vector-borne</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line" style="background: #3b82f6; border-style: dashed;"></div>
+                        <span>Environmental</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-panel" id="info-panel">
+                <h2>Selected: <span id="selected-name">-</span></h2>
+                <p id="selected-desc">Click on a node to see details.</p>
+                <div class="tag-list" id="selected-tags"></div>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="card" style="padding: 0;">
+                <div class="network-container">
+                    <canvas id="network-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('network-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const networks = {
+            asf: {
+                nodes: [
+                    { id: 'asf', label: 'ASF Virus', type: 'pathogen', desc: 'African Swine Fever virus (Asfivirus)', tags: ['DNA virus', 'High mortality'] },
+                    { id: 'warthog', label: 'Warthogs', type: 'reservoir', desc: 'Sylvatic cycle reservoir', tags: ['Africa', 'Asymptomatic'] },
+                    { id: 'bushpig', label: 'Bush Pigs', type: 'reservoir', desc: 'Forest-dwelling reservoir', tags: ['Africa', 'Carrier'] },
+                    { id: 'tick', label: 'Soft Ticks', type: 'vector', desc: 'Ornithodoros moubata complex', tags: ['Persistent infection', 'Burrows'] },
+                    { id: 'domestic', label: 'Domestic Pigs', type: 'spillover', desc: 'Main affected livestock', tags: ['High mortality', 'Economic impact'] },
+                    { id: 'wildboar', label: 'Wild Boar', type: 'amplifying', desc: 'European cycle host', tags: ['Spreading', 'Environmental'] }
+                ],
+                links: [
+                    { source: 'asf', target: 'warthog', type: 'direct' },
+                    { source: 'asf', target: 'bushpig', type: 'direct' },
+                    { source: 'asf', target: 'tick', type: 'vector' },
+                    { source: 'tick', target: 'warthog', type: 'vector' },
+                    { source: 'tick', target: 'domestic', type: 'vector' },
+                    { source: 'warthog', target: 'domestic', type: 'direct' },
+                    { source: 'domestic', target: 'wildboar', type: 'direct' },
+                    { source: 'wildboar', target: 'domestic', type: 'environmental' }
+                ]
+            },
+            hpai: {
+                nodes: [
+                    { id: 'hpai', label: 'HPAI Virus', type: 'pathogen', desc: 'Highly Pathogenic Avian Influenza', tags: ['RNA virus', 'H5N1', 'H5N8'] },
+                    { id: 'waterfowl', label: 'Wild Waterfowl', type: 'reservoir', desc: 'Ducks, geese, swans', tags: ['Migratory', 'Asymptomatic'] },
+                    { id: 'shorebirds', label: 'Shorebirds', type: 'reservoir', desc: 'Long-distance migrants', tags: ['Global spread', 'Mixing'] },
+                    { id: 'poultry', label: 'Domestic Poultry', type: 'spillover', desc: 'Chickens, turkeys', tags: ['High mortality', 'Economic loss'] },
+                    { id: 'mammals', label: 'Mammals', type: 'spillover', desc: 'Seals, foxes, mink', tags: ['Adaptation risk', 'Zoonotic'] },
+                    { id: 'humans', label: 'Humans', type: 'spillover', desc: 'Rare zoonotic cases', tags: ['Pandemic risk', 'Severe disease'] }
+                ],
+                links: [
+                    { source: 'hpai', target: 'waterfowl', type: 'direct' },
+                    { source: 'hpai', target: 'shorebirds', type: 'direct' },
+                    { source: 'waterfowl', target: 'poultry', type: 'environmental' },
+                    { source: 'waterfowl', target: 'shorebirds', type: 'direct' },
+                    { source: 'poultry', target: 'mammals', type: 'direct' },
+                    { source: 'poultry', target: 'humans', type: 'direct' },
+                    { source: 'mammals', target: 'humans', type: 'direct' }
+                ]
+            },
+            fmd: {
+                nodes: [
+                    { id: 'fmd', label: 'FMD Virus', type: 'pathogen', desc: 'Foot-and-Mouth Disease virus', tags: ['Picornavirus', '7 serotypes'] },
+                    { id: 'cattle', label: 'Cattle', type: 'amplifying', desc: 'Main livestock affected', tags: ['High susceptibility', 'Trade impact'] },
+                    { id: 'pigs', label: 'Pigs', type: 'amplifying', desc: 'Virus amplifiers', tags: ['High shedding', 'Aerosol'] },
+                    { id: 'sheep', label: 'Sheep/Goats', type: 'reservoir', desc: 'Can carry asymptomatically', tags: ['Carrier state', 'Mild signs'] },
+                    { id: 'buffalo', label: 'African Buffalo', type: 'reservoir', desc: 'Wildlife reservoir in Africa', tags: ['SAT types', 'Endemic'] },
+                    { id: 'wildlife', label: 'Other Wildlife', type: 'spillover', desc: 'Deer, antelope', tags: ['Occasional', 'Spillback'] }
+                ],
+                links: [
+                    { source: 'fmd', target: 'cattle', type: 'direct' },
+                    { source: 'fmd', target: 'pigs', type: 'direct' },
+                    { source: 'fmd', target: 'sheep', type: 'direct' },
+                    { source: 'fmd', target: 'buffalo', type: 'direct' },
+                    { source: 'cattle', target: 'pigs', type: 'direct' },
+                    { source: 'sheep', target: 'cattle', type: 'direct' },
+                    { source: 'buffalo', target: 'cattle', type: 'direct' },
+                    { source: 'cattle', target: 'wildlife', type: 'environmental' }
+                ]
+            },
+            rvf: {
+                nodes: [
+                    { id: 'rvf', label: 'RVF Virus', type: 'pathogen', desc: 'Rift Valley Fever virus', tags: ['Bunyavirus', 'Zoonotic'] },
+                    { id: 'aedes', label: 'Aedes Mosquitoes', type: 'vector', desc: 'Primary vector, transovarial', tags: ['Flooding', 'Eggs survive'] },
+                    { id: 'culex', label: 'Culex Mosquitoes', type: 'vector', desc: 'Amplifying vector', tags: ['Epidemic spread'] },
+                    { id: 'sheep', label: 'Sheep', type: 'amplifying', desc: 'High amplification', tags: ['Abortion storms', 'High viremia'] },
+                    { id: 'cattle', label: 'Cattle', type: 'amplifying', desc: 'Amplifying host', tags: ['Abortion', 'Milk drop'] },
+                    { id: 'humans', label: 'Humans', type: 'spillover', desc: 'Zoonotic infection', tags: ['Occupational', 'Direct contact'] }
+                ],
+                links: [
+                    { source: 'rvf', target: 'aedes', type: 'vector' },
+                    { source: 'rvf', target: 'culex', type: 'vector' },
+                    { source: 'aedes', target: 'sheep', type: 'vector' },
+                    { source: 'aedes', target: 'cattle', type: 'vector' },
+                    { source: 'culex', target: 'sheep', type: 'vector' },
+                    { source: 'culex', target: 'cattle', type: 'vector' },
+                    { source: 'sheep', target: 'humans', type: 'direct' },
+                    { source: 'cattle', target: 'humans', type: 'direct' },
+                    { source: 'aedes', target: 'humans', type: 'vector' }
+                ]
+            },
+            rabies: {
+                nodes: [
+                    { id: 'rabies', label: 'Rabies Virus', type: 'pathogen', desc: 'Lyssavirus', tags: ['RNA virus', '100% fatal'] },
+                    { id: 'bats', label: 'Bats', type: 'reservoir', desc: 'Primary wildlife reservoir', tags: ['Global', 'Aerosol'] },
+                    { id: 'dogs', label: 'Domestic Dogs', type: 'reservoir', desc: 'Main urban reservoir', tags: ['99% human cases', 'Bite'] },
+                    { id: 'foxes', label: 'Foxes', type: 'reservoir', desc: 'Sylvatic cycle', tags: ['Europe', 'Oral vaccine'] },
+                    { id: 'raccoons', label: 'Raccoons', type: 'reservoir', desc: 'North American cycle', tags: ['Urban wildlife'] },
+                    { id: 'livestock', label: 'Livestock', type: 'spillover', desc: 'Cattle, horses', tags: ['Dead-end', 'Economic'] },
+                    { id: 'humans', label: 'Humans', type: 'spillover', desc: 'Fatal zoonosis', tags: ['Preventable', 'PEP'] }
+                ],
+                links: [
+                    { source: 'rabies', target: 'bats', type: 'direct' },
+                    { source: 'rabies', target: 'dogs', type: 'direct' },
+                    { source: 'rabies', target: 'foxes', type: 'direct' },
+                    { source: 'bats', target: 'dogs', type: 'direct' },
+                    { source: 'bats', target: 'livestock', type: 'direct' },
+                    { source: 'dogs', target: 'humans', type: 'direct' },
+                    { source: 'foxes', target: 'dogs', type: 'direct' },
+                    { source: 'raccoons', target: 'dogs', type: 'direct' },
+                    { source: 'bats', target: 'humans', type: 'direct' }
+                ]
+            },
+            nipah: {
+                nodes: [
+                    { id: 'nipah', label: 'Nipah Virus', type: 'pathogen', desc: 'Henipavirus', tags: ['BSL-4', 'High CFR'] },
+                    { id: 'bats', label: 'Pteropus Bats', type: 'reservoir', desc: 'Flying foxes', tags: ['Fruit bats', 'Asymptomatic'] },
+                    { id: 'pigs', label: 'Pigs', type: 'amplifying', desc: 'Amplifying host (Malaysia)', tags: ['Respiratory', 'Culling'] },
+                    { id: 'horses', label: 'Horses', type: 'spillover', desc: 'Hendra virus host', tags: ['Australia'] },
+                    { id: 'humans', label: 'Humans', type: 'spillover', desc: 'Fatal encephalitis', tags: ['40-75% CFR', 'H2H transmission'] }
+                ],
+                links: [
+                    { source: 'nipah', target: 'bats', type: 'direct' },
+                    { source: 'bats', target: 'pigs', type: 'environmental' },
+                    { source: 'bats', target: 'humans', type: 'environmental' },
+                    { source: 'pigs', target: 'humans', type: 'direct' },
+                    { source: 'humans', target: 'humans', type: 'direct' },
+                    { source: 'bats', target: 'horses', type: 'environmental' },
+                    { source: 'horses', target: 'humans', type: 'direct' }
+                ]
+            }
+        };
+
+        let currentNetwork = null;
+        let nodes = [];
+        let selectedNode = null;
+
+        const typeColors = {
+            pathogen: '#ef4444',
+            reservoir: '#8b5cf6',
+            amplifying: '#3b82f6',
+            spillover: '#22c55e',
+            vector: '#f59e0b'
+        };
+
+        const linkColors = {
+            direct: '#ef4444',
+            vector: '#f59e0b',
+            environmental: '#3b82f6'
+        };
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = 550;
+            if (currentNetwork) drawNetwork();
+        }
+
+        function loadNetwork() {
+            const disease = document.getElementById('disease').value;
+            currentNetwork = networks[disease];
+
+            // Position nodes
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(canvas.width, canvas.height) * 0.35;
+
+            nodes = currentNetwork.nodes.map((node, i) => {
+                const angle = (i / currentNetwork.nodes.length) * Math.PI * 2 - Math.PI / 2;
+                return {
+                    ...node,
+                    x: centerX + Math.cos(angle) * radius * (node.type === 'pathogen' ? 0 : 1),
+                    y: centerY + Math.sin(angle) * radius * (node.type === 'pathogen' ? 0 : 1),
+                    radius: node.type === 'pathogen' ? 35 : 28
+                };
+            });
+
+            // Update stats
+            document.getElementById('host-count').textContent = currentNetwork.nodes.length - 1;
+            document.getElementById('link-count').textContent = currentNetwork.links.length;
+            document.getElementById('reservoir-count').textContent = currentNetwork.nodes.filter(n => n.type === 'reservoir').length;
+            document.getElementById('spillover-count').textContent = currentNetwork.nodes.filter(n => n.type === 'spillover').length;
+
+            drawNetwork();
+        }
+
+        function drawNetwork() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw links
+            currentNetwork.links.forEach(link => {
+                const source = nodes.find(n => n.id === link.source);
+                const target = nodes.find(n => n.id === link.target);
+
+                ctx.beginPath();
+                ctx.moveTo(source.x, source.y);
+                ctx.lineTo(target.x, target.y);
+                ctx.strokeStyle = linkColors[link.type];
+                ctx.lineWidth = 2;
+                if (link.type === 'environmental') {
+                    ctx.setLineDash([5, 5]);
+                } else {
+                    ctx.setLineDash([]);
+                }
+                ctx.stroke();
+
+                // Arrow
+                const angle = Math.atan2(target.y - source.y, target.x - source.x);
+                const arrowX = target.x - Math.cos(angle) * target.radius;
+                const arrowY = target.y - Math.sin(angle) * target.radius;
+
+                ctx.beginPath();
+                ctx.moveTo(arrowX, arrowY);
+                ctx.lineTo(arrowX - 10 * Math.cos(angle - 0.3), arrowY - 10 * Math.sin(angle - 0.3));
+                ctx.lineTo(arrowX - 10 * Math.cos(angle + 0.3), arrowY - 10 * Math.sin(angle + 0.3));
+                ctx.closePath();
+                ctx.fillStyle = linkColors[link.type];
+                ctx.fill();
+            });
+
+            ctx.setLineDash([]);
+
+            // Draw nodes
+            nodes.forEach(node => {
+                const isSelected = selectedNode && selectedNode.id === node.id;
+
+                // Glow effect for selected
+                if (isSelected) {
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius + 8, 0, Math.PI * 2);
+                    ctx.fillStyle = typeColors[node.type] + '40';
+                    ctx.fill();
+                }
+
+                // Node circle
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                ctx.fillStyle = typeColors[node.type];
+                ctx.fill();
+                ctx.strokeStyle = isSelected ? '#ffffff' : typeColors[node.type];
+                ctx.lineWidth = isSelected ? 3 : 0;
+                ctx.stroke();
+
+                // Label
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const words = node.label.split(' ');
+                if (words.length > 1) {
+                    ctx.fillText(words[0], node.x, node.y - 6);
+                    ctx.fillText(words.slice(1).join(' '), node.x, node.y + 8);
+                } else {
+                    ctx.fillText(node.label, node.x, node.y);
+                }
+            });
+        }
+
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            selectedNode = null;
+            nodes.forEach(node => {
+                const dist = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                if (dist < node.radius) {
+                    selectedNode = node;
+                }
+            });
+
+            const panel = document.getElementById('info-panel');
+            if (selectedNode) {
+                panel.classList.add('active');
+                document.getElementById('selected-name').textContent = selectedNode.label;
+                document.getElementById('selected-desc').textContent = selectedNode.desc;
+                document.getElementById('selected-tags').innerHTML = selectedNode.tags.map(t => `<span class="tag">${t}</span>`).join('');
+            } else {
+                panel.classList.remove('active');
+            }
+
+            drawNetwork();
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        loadNetwork();
+    </script>
+</body>
+</html>
