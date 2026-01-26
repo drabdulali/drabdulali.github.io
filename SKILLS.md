@@ -1,8 +1,10 @@
-# Skills and Preferences - Dr. Abdul Ali
+# Skills and Preferences - Abdul Ali
 
 ## Professional Focus
+- **Current Status**: PhD Student in Infectious Disease Ecology
 - **Primary Expertise**: Infectious Disease Ecology and Epidemiology
-- **Research Areas**: Disease transmission dynamics, host-pathogen interactions, epidemiological modeling
+- **Research Areas**: Transboundary Animal Diseases, disease transmission dynamics, host-pathogen interactions, epidemiological modeling
+- **Research Focus**: Past, Present and Future of Transboundary Animal Diseases
 - **Career Goal**: Expert in Infectious Diseases
 
 ## Technical Skills
@@ -41,12 +43,13 @@
 - Environmental sampling
 
 ## Research Interests
-1. Disease transmission networks in wildlife populations
-2. Host-pathogen coevolution
-3. Environmental drivers of infectious disease emergence
-4. Mathematical modeling of epidemic dynamics
-5. Zoonotic disease ecology
-6. Climate change effects on disease distribution
+1. Transboundary Animal Diseases (TADs) - Past, Present and Future
+2. Disease transmission networks in wildlife populations
+3. Host-pathogen coevolution
+4. Environmental drivers of infectious disease emergence
+5. Mathematical modeling of epidemic dynamics
+6. Zoonotic disease ecology
+7. Climate change effects on disease distribution
 
 ## Website Preferences
 
@@ -93,3 +96,7 @@
 - Professional email correspondence
 - Academic networking (ResearchGate, Google Scholar, ORCID)
 - GitHub for code sharing
+
+## Social/Academic Profiles
+- **ResearchGate**: https://www.researchgate.net/profile/Abdul-Ali-35
+- **GitHub**: https://github.com/drabdulali
