@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Biology of Infectious Diseases | Abdul Ali</title>
+    <meta name="description" content="Comprehensive course on population biology principles applied to infectious disease dynamics, SIR models, R0 calculations, and epidemic theory.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #ffffff;
+            --primary: #f8fafc;
+            --primary-light: #f1f5f9;
+            --secondary: #0284c7;
+            --secondary-light: #0ea5e9;
+            --accent: #0891b2;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --glass-border: rgba(14, 165, 233, 0.15);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --gradient-primary: linear-gradient(135deg, #0284c7 0%, #0891b2 50%, #059669 100%);
+            --gradient-light: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            --transition-smooth: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gradient-light);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .back-link:hover {
+            gap: 0.75rem;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+        }
+
+        /* Lecture Grid */
+        .lecture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .lecture-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition-smooth);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.15);
+        }
+
+        .lecture-number {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .lecture-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .lecture-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .lecture-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .lecture-card:hover .lecture-link {
+            gap: 0.75rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 4rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero {
+                padding: 2rem 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .lecture-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="../../" class="back-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5"></path>
+                    <path d="m12 19-7-7 7-7"></path>
+                </svg>
+                Back to Home
+            </a>
+            <a href="../../" class="logo">Abdul Ali</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <span class="hero-badge">ECOL/BIOL 4150L/6150L</span>
+        <h1>Population Biology of Infectious Diseases</h1>
+        <p>Comprehensive exploration of how infectious diseases spread through populations, including SIR models, R0 calculations, epidemic dynamics, and the ecological principles underlying disease transmission.</p>
+    </section>
+
+    <main class="main-content">
+        <h2 class="section-title">Course Lectures</h2>
+        <div class="lecture-grid">
+            <a href="lect01/" class="lecture-card">
+                <span class="lecture-number">Lecture 01</span>
+                <h3 class="lecture-title">Introduction to Population Biology of Infectious Diseases</h3>
+                <p class="lecture-desc">Overview of the course, basic concepts in disease ecology, and introduction to epidemiological thinking.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect02/" class="lecture-card">
+                <span class="lecture-number">Lecture 02</span>
+                <h3 class="lecture-title">Basic Epidemiological Concepts</h3>
+                <p class="lecture-desc">Prevalence, incidence, mortality rates, and fundamental measures in epidemiology.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect03/" class="lecture-card">
+                <span class="lecture-number">Lecture 03</span>
+                <h3 class="lecture-title">SIR Model Basics</h3>
+                <p class="lecture-desc">Introduction to compartmental models: Susceptible-Infected-Recovered framework.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect04/" class="lecture-card">
+                <span class="lecture-number">Lecture 04</span>
+                <h3 class="lecture-title">R0 - Basic Reproduction Number</h3>
+                <p class="lecture-desc">Understanding and calculating R0, threshold conditions for epidemic spread.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect05/" class="lecture-card">
+                <span class="lecture-number">Lecture 05</span>
+                <h3 class="lecture-title">Epidemic Dynamics</h3>
+                <p class="lecture-desc">Epidemic curves, outbreak phases, and temporal dynamics of disease spread.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect06/" class="lecture-card">
+                <span class="lecture-number">Lecture 06</span>
+                <h3 class="lecture-title">Endemic Equilibrium</h3>
+                <p class="lecture-desc">Conditions for disease persistence, endemic vs epidemic states.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect07/" class="lecture-card">
+                <span class="lecture-number">Lecture 07</span>
+                <h3 class="lecture-title">SEIR and Extended Models</h3>
+                <p class="lecture-desc">Adding exposed class, latency periods, and more complex compartmental structures.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect08/" class="lecture-card">
+                <span class="lecture-number">Lecture 08</span>
+                <h3 class="lecture-title">Vaccination and Herd Immunity</h3>
+                <p class="lecture-desc">Critical vaccination coverage, herd immunity threshold calculations.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect09/" class="lecture-card">
+                <span class="lecture-number">Lecture 09</span>
+                <h3 class="lecture-title">Age-Structured Models</h3>
+                <p class="lecture-desc">Incorporating age structure into epidemiological models.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect10/" class="lecture-card">
+                <span class="lecture-number">Lecture 10</span>
+                <h3 class="lecture-title">Vector-Borne Diseases</h3>
+                <p class="lecture-desc">Modeling diseases transmitted by vectors: mosquitoes, ticks, and other arthropods.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect11/" class="lecture-card">
+                <span class="lecture-number">Lecture 11</span>
+                <h3 class="lecture-title">Sexually Transmitted Infections</h3>
+                <p class="lecture-desc">Contact networks and STI transmission dynamics.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect12/" class="lecture-card">
+                <span class="lecture-number">Lecture 12</span>
+                <h3 class="lecture-title">Spatial Epidemiology</h3>
+                <p class="lecture-desc">Geographic spread of diseases, spatial models and metapopulations.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect13/" class="lecture-card">
+                <span class="lecture-number">Lecture 13</span>
+                <h3 class="lecture-title">Stochastic Models</h3>
+                <p class="lecture-desc">Random processes in disease transmission, extinction probability.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect14/" class="lecture-card">
+                <span class="lecture-number">Lecture 14</span>
+                <h3 class="lecture-title">Network Epidemiology</h3>
+                <p class="lecture-desc">Disease spread on contact networks, superspreaders.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect15/" class="lecture-card">
+                <span class="lecture-number">Lecture 15</span>
+                <h3 class="lecture-title">Evolution of Virulence</h3>
+                <p class="lecture-desc">Trade-offs in pathogen evolution, virulence-transmission relationships.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect16/" class="lecture-card">
+                <span class="lecture-number">Lecture 16</span>
+                <h3 class="lecture-title">Host-Pathogen Coevolution</h3>
+                <p class="lecture-desc">Arms race dynamics, resistance and infectivity evolution.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect17/" class="lecture-card">
+                <span class="lecture-number">Lecture 17</span>
+                <h3 class="lecture-title">Antimicrobial Resistance</h3>
+                <p class="lecture-desc">Evolution and spread of drug resistance in pathogens.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect18/" class="lecture-card">
+                <span class="lecture-number">Lecture 18</span>
+                <h3 class="lecture-title">Emerging Infectious Diseases</h3>
+                <p class="lecture-desc">Factors driving disease emergence, spillover events.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect19/" class="lecture-card">
+                <span class="lecture-number">Lecture 19</span>
+                <h3 class="lecture-title">Zoonotic Diseases</h3>
+                <p class="lecture-desc">Wildlife-human interfaces, One Health approach.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect20/" class="lecture-card">
+                <span class="lecture-number">Lecture 20</span>
+                <h3 class="lecture-title">Disease Control Strategies</h3>
+                <p class="lecture-desc">Intervention modeling, optimal control theory.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect21/" class="lecture-card">
+                <span class="lecture-number">Lecture 21</span>
+                <h3 class="lecture-title">Quarantine and Social Distancing</h3>
+                <p class="lecture-desc">Non-pharmaceutical interventions and their effectiveness.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect22/" class="lecture-card">
+                <span class="lecture-number">Lecture 22</span>
+                <h3 class="lecture-title">Climate Change and Disease</h3>
+                <p class="lecture-desc">Environmental factors affecting disease distribution and transmission.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect23/" class="lecture-card">
+                <span class="lecture-number">Lecture 23</span>
+                <h3 class="lecture-title">Parameter Estimation</h3>
+                <p class="lecture-desc">Fitting models to data, maximum likelihood, Bayesian inference.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect24/" class="lecture-card">
+                <span class="lecture-number">Lecture 24</span>
+                <h3 class="lecture-title">Case Studies I</h3>
+                <p class="lecture-desc">Real-world applications: Influenza, Measles, and other respiratory diseases.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect25/" class="lecture-card">
+                <span class="lecture-number">Lecture 25</span>
+                <h3 class="lecture-title">Case Studies II</h3>
+                <p class="lecture-desc">HIV/AIDS, Malaria, and chronic infectious diseases.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+            <a href="lect26/" class="lecture-card">
+                <span class="lecture-number">Lecture 26</span>
+                <h3 class="lecture-title">Course Review and Future Directions</h3>
+                <p class="lecture-desc">Integration of concepts and emerging areas in disease ecology.</p>
+                <span class="lecture-link">Start Learning <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p>Abdul Ali - PhD Student in Infectious Disease Ecology</p>
+        <p><a href="../../">Back to Main Site</a></p>
+    </footer>
+</body>
+</html>
