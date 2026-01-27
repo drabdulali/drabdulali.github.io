@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schoenfeld Residuals Plotter - Abdul Ali</title>
+    <meta name="description" content="Test the proportional hazards assumption in Cox regression using Schoenfeld residuals visualization.">
+    <meta name="keywords" content="Schoenfeld residuals, proportional hazards, Cox regression, survival analysis, diagnostics">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .tool-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-box h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .info-box ul {
+            margin-left: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .info-box li {
+            margin-bottom: 0.25rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group select,
+        .input-group input {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 60px 80px 40px;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .input-row input {
+            padding: 0.5rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .header-labels {
+            display: grid;
+            grid-template-columns: 60px 80px 40px;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            padding: 0 0.25rem;
+        }
+
+        .remove-btn {
+            background: #fee2e2;
+            color: #991b1b;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover { background: #fecaca; }
+
+        .add-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .add-btn:hover { background: var(--accent); }
+
+        .btn-primary {
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 85, 48, 0.3);
+        }
+
+        .preset-btns {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .preset-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--card-border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .preset-btn:hover { background: #e2e8f0; }
+
+        .chart-container {
+            height: 350px;
+            position: relative;
+        }
+
+        .test-result {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .test-result.pass {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        }
+
+        .test-result.fail {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        }
+
+        .test-result .verdict {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .test-result.pass .verdict { color: #166534; }
+        .test-result.fail .verdict { color: #991b1b; }
+
+        .test-result .details {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .interpretation-box {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .interpretation-box h4 {
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .interpretation-box p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Schoenfeld Residuals Plotter</h1>
+        <p>Test the proportional hazards assumption in Cox regression models.</p>
+    </section>
+
+    <main>
+        <div class="tool-grid">
+            <div class="input-panel">
+                <div class="card">
+                    <h2>📊 Input Data</h2>
+
+                    <div class="info-box">
+                        <h3>Proportional Hazards Assumption</h3>
+                        <p>The Cox model assumes hazard ratios are constant over time. Schoenfeld residuals help test this assumption:</p>
+                        <ul>
+                            <li><strong>No pattern:</strong> PH assumption satisfied</li>
+                            <li><strong>Trend over time:</strong> PH violation</li>
+                            <li><strong>p < 0.05:</strong> Significant violation</li>
+                        </ul>
+                    </div>
+
+                    <div class="preset-btns">
+                        <button class="preset-btn" onclick="loadPreset('valid')">Valid PH</button>
+                        <button class="preset-btn" onclick="loadPreset('violation')">PH Violation</button>
+                        <button class="preset-btn" onclick="clearData()">Clear</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Covariate Name</label>
+                        <input type="text" id="covariateName" value="Livestock Density" placeholder="Variable name">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Residuals (Time, Residual Value)</label>
+                        <div class="header-labels">
+                            <span>Time</span>
+                            <span>Residual</span>
+                            <span></span>
+                        </div>
+                        <div id="residual-rows"></div>
+                        <button class="add-btn" onclick="addRow()">+ Add Point</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Test Statistic (optional)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <input type="number" id="correlation" step="0.001" placeholder="Correlation (ρ)">
+                            <input type="number" id="pValue" step="0.001" placeholder="p-value">
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="analyzePH()">Analyze PH Assumption</button>
+                </div>
+            </div>
+
+            <div class="output-panel">
+                <div class="card">
+                    <h2>📈 Schoenfeld Residuals Plot</h2>
+
+                    <div class="test-result" id="testResult">
+                        <div class="verdict" id="verdict">--</div>
+                        <div class="details" id="verdictDetails">Enter data and click analyze</div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="residualChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h2>📋 Diagnostic Summary</h2>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="value" id="corrValue">--</div>
+                            <div class="label">Correlation (ρ)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="pValueDisplay">--</div>
+                            <div class="label">p-value</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="trendValue">--</div>
+                            <div class="label">Trend Slope</div>
+                        </div>
+                    </div>
+
+                    <div class="interpretation-box" id="interpretationBox">
+                        <h4>Interpretation</h4>
+                        <p id="interpretationText">The Schoenfeld residuals plot shows the relationship between scaled residuals and time. A flat LOESS line suggests the proportional hazards assumption is satisfied. A significant trend (upward or downward) indicates the hazard ratio changes over time, violating the assumption.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script>
+        let residualChart = null;
+        let rowCount = 0;
+
+        function addRow(time = '', residual = '') {
+            const container = document.getElementById('residual-rows');
+            const rowId = rowCount++;
+
+            const row = document.createElement('div');
+            row.className = 'input-row';
+            row.id = `row-${rowId}`;
+            row.innerHTML = `
+                <input type="number" step="0.1" placeholder="Time" value="${time}" class="time-input">
+                <input type="number" step="0.001" placeholder="Residual" value="${residual}" class="residual-input">
+                <button class="remove-btn" onclick="removeRow(${rowId})">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeRow(id) {
+            document.getElementById(`row-${id}`)?.remove();
+        }
+
+        function clearData() {
+            document.getElementById('residual-rows').innerHTML = '';
+            rowCount = 0;
+            document.getElementById('correlation').value = '';
+            document.getElementById('pValue').value = '';
+            for (let i = 0; i < 8; i++) addRow();
+        }
+
+        function loadPreset(type) {
+            document.getElementById('residual-rows').innerHTML = '';
+            rowCount = 0;
+
+            if (type === 'valid') {
+                document.getElementById('covariateName').value = 'Vaccination Coverage';
+                document.getElementById('correlation').value = '-0.08';
+                document.getElementById('pValue').value = '0.42';
+
+                const data = [
+                    [1, 0.25], [2, -0.18], [3, 0.32], [4, -0.15],
+                    [5, 0.08], [6, -0.28], [7, 0.19], [8, -0.05],
+                    [9, 0.22], [10, -0.12], [11, 0.15], [12, -0.25],
+                    [14, 0.18], [16, -0.08], [18, 0.12], [20, -0.15],
+                    [22, 0.05], [24, -0.18]
+                ];
+                data.forEach(d => addRow(d[0], d[1]));
+            } else if (type === 'violation') {
+                document.getElementById('covariateName').value = 'Wildlife Interface';
+                document.getElementById('correlation').value = '0.65';
+                document.getElementById('pValue').value = '0.003';
+
+                const data = [
+                    [1, -0.85], [2, -0.72], [3, -0.58], [4, -0.45],
+                    [5, -0.32], [6, -0.18], [7, -0.05], [8, 0.12],
+                    [9, 0.25], [10, 0.38], [11, 0.52], [12, 0.65],
+                    [14, 0.78], [16, 0.92], [18, 1.05], [20, 1.18],
+                    [22, 1.32], [24, 1.45]
+                ];
+                data.forEach(d => addRow(d[0], d[1]));
+            }
+        }
+
+        function parseData() {
+            const rows = document.querySelectorAll('.input-row');
+            const data = [];
+
+            rows.forEach(row => {
+                const time = parseFloat(row.querySelector('.time-input').value);
+                const residual = parseFloat(row.querySelector('.residual-input').value);
+
+                if (!isNaN(time) && !isNaN(residual)) {
+                    data.push({ time, residual });
+                }
+            });
+
+            return data.sort((a, b) => a.time - b.time);
+        }
+
+        function calculateCorrelation(data) {
+            const n = data.length;
+            if (n < 3) return 0;
+
+            const times = data.map(d => d.time);
+            const residuals = data.map(d => d.residual);
+
+            const meanTime = times.reduce((a, b) => a + b, 0) / n;
+            const meanRes = residuals.reduce((a, b) => a + b, 0) / n;
+
+            let num = 0, denTime = 0, denRes = 0;
+            for (let i = 0; i < n; i++) {
+                const dTime = times[i] - meanTime;
+                const dRes = residuals[i] - meanRes;
+                num += dTime * dRes;
+                denTime += dTime * dTime;
+                denRes += dRes * dRes;
+            }
+
+            return num / Math.sqrt(denTime * denRes);
+        }
+
+        function calculateTrend(data) {
+            const n = data.length;
+            if (n < 2) return 0;
+
+            const times = data.map(d => d.time);
+            const residuals = data.map(d => d.residual);
+
+            const meanTime = times.reduce((a, b) => a + b, 0) / n;
+            const meanRes = residuals.reduce((a, b) => a + b, 0) / n;
+
+            let num = 0, den = 0;
+            for (let i = 0; i < n; i++) {
+                num += (times[i] - meanTime) * (residuals[i] - meanRes);
+                den += (times[i] - meanTime) ** 2;
+            }
+
+            return num / den;
+        }
+
+        function calculateLoess(data, bandwidth = 0.3) {
+            const loessPoints = [];
+            const times = data.map(d => d.time);
+            const minTime = Math.min(...times);
+            const maxTime = Math.max(...times);
+
+            for (let t = minTime; t <= maxTime; t += (maxTime - minTime) / 30) {
+                let sumW = 0, sumWY = 0;
+                data.forEach(d => {
+                    const dist = Math.abs(d.time - t) / (maxTime - minTime);
+                    const weight = dist < bandwidth ? Math.pow(1 - Math.pow(dist / bandwidth, 3), 3) : 0;
+                    sumW += weight;
+                    sumWY += weight * d.residual;
+                });
+                if (sumW > 0) {
+                    loessPoints.push({ x: t, y: sumWY / sumW });
+                }
+            }
+
+            return loessPoints;
+        }
+
+        function analyzePH() {
+            const data = parseData();
+            if (data.length < 5) {
+                alert('Please enter at least 5 data points.');
+                return;
+            }
+
+            const covariateName = document.getElementById('covariateName').value || 'Covariate';
+
+            // Get or calculate correlation and p-value
+            let correlation = parseFloat(document.getElementById('correlation').value);
+            let pValue = parseFloat(document.getElementById('pValue').value);
+
+            if (isNaN(correlation)) {
+                correlation = calculateCorrelation(data);
+            }
+
+            const trend = calculateTrend(data);
+
+            // Estimate p-value if not provided (rough approximation)
+            if (isNaN(pValue)) {
+                const n = data.length;
+                const t = correlation * Math.sqrt((n - 2) / (1 - correlation * correlation));
+                // Simplified p-value approximation
+                pValue = Math.exp(-0.717 * Math.abs(t) - 0.416 * t * t);
+                pValue = Math.min(pValue, 1);
+            }
+
+            // Determine if PH assumption is satisfied
+            const isValid = pValue >= 0.05 && Math.abs(correlation) < 0.3;
+
+            // Update test result
+            const testResult = document.getElementById('testResult');
+            const verdict = document.getElementById('verdict');
+            const verdictDetails = document.getElementById('verdictDetails');
+
+            if (isValid) {
+                testResult.className = 'test-result pass';
+                verdict.textContent = 'PH Assumption Satisfied';
+                verdictDetails.textContent = `No significant time-dependency detected for ${covariateName}`;
+            } else {
+                testResult.className = 'test-result fail';
+                verdict.textContent = 'PH Assumption Violated';
+                verdictDetails.textContent = `Significant time-varying effect detected for ${covariateName}`;
+            }
+
+            // Update statistics
+            document.getElementById('corrValue').textContent = correlation.toFixed(3);
+            document.getElementById('pValueDisplay').textContent = pValue.toFixed(4);
+            document.getElementById('trendValue').textContent = trend.toFixed(4);
+
+            // Update interpretation
+            const interpText = document.getElementById('interpretationText');
+            if (isValid) {
+                interpText.innerHTML = `<strong>${covariateName}:</strong> The correlation between Schoenfeld residuals and time is ${correlation.toFixed(3)} (p = ${pValue.toFixed(3)}). This non-significant result suggests that the proportional hazards assumption is reasonable for this covariate. The hazard ratio can be interpreted as constant over the study period.`;
+            } else {
+                const direction = correlation > 0 ? 'increases' : 'decreases';
+                interpText.innerHTML = `<strong>${covariateName}:</strong> The correlation between Schoenfeld residuals and time is ${correlation.toFixed(3)} (p = ${pValue.toFixed(4)}). This significant result indicates that the hazard ratio ${direction} over time, violating the proportional hazards assumption. Consider: (1) stratifying by this variable, (2) including a time × covariate interaction, or (3) using time-varying coefficients.`;
+            }
+
+            // Create chart
+            createChart(data, covariateName, correlation, isValid);
+        }
+
+        function createChart(data, covariateName, correlation, isValid) {
+            const ctx = document.getElementById('residualChart').getContext('2d');
+
+            if (residualChart) residualChart.destroy();
+
+            const loessPoints = calculateLoess(data);
+
+            residualChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Schoenfeld Residuals',
+                            data: data.map(d => ({ x: d.time, y: d.residual })),
+                            backgroundColor: 'rgba(44, 85, 48, 0.6)',
+                            borderColor: '#2c5530',
+                            pointRadius: 6
+                        },
+                        {
+                            label: 'LOESS Smooth',
+                            data: loessPoints,
+                            borderColor: isValid ? '#16a34a' : '#dc2626',
+                            backgroundColor: 'transparent',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.4,
+                            type: 'line'
+                        },
+                        {
+                            label: 'Reference (β = 0)',
+                            data: [
+                                { x: Math.min(...data.map(d => d.time)), y: 0 },
+                                { x: Math.max(...data.map(d => d.time)), y: 0 }
+                            ],
+                            borderColor: '#94a3b8',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            type: 'line'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: `Schoenfeld Residuals for ${covariateName} (ρ = ${correlation.toFixed(3)})`,
+                            font: { size: 14 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    if (ctx.dataset.label === 'Schoenfeld Residuals') {
+                                        return `Time: ${ctx.raw.x.toFixed(1)}, Residual: ${ctx.raw.y.toFixed(3)}`;
+                                    }
+                                    return ctx.dataset.label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Scaled Schoenfeld Residual',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize
+        for (let i = 0; i < 8; i++) addRow();
+    </script>
+</body>
+</html>

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cox Proportional Hazards Calculator - Abdul Ali</title>
+    <meta name="description" content="Interactive Cox proportional hazards model calculator. Input covariates and get hazard ratios with confidence intervals for TAD reemergence analysis.">
+    <meta name="keywords" content="Cox model, proportional hazards, hazard ratio, survival analysis, TAD, epidemiology, time-to-event">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 700px; margin: 0 auto; }
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+        .formula-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .covariate-input {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px 60px;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            background: var(--primary);
+            border-radius: 8px;
+        }
+        .covariate-input input {
+            padding: 0.5rem;
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .covariate-input .remove-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .add-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .btn {
+            padding: 0.875rem 1.5rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .results-table th, .results-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .results-table th {
+            background: var(--secondary);
+            color: white;
+        }
+        .results-table tr:nth-child(even) { background: var(--primary); }
+        .significant { background: #dcfce7 !important; }
+        .not-significant { background: #fef2f2 !important; }
+        .chart-container { height: 400px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            background: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .interpretation {
+            padding: 1rem;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .interpretation h4 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+        }
+        .header-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px 60px;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Cox Proportional Hazards Calculator</h1>
+        <p>Calculate hazard ratios and confidence intervals from Cox model coefficients for TAD reemergence analysis.</p>
+    </section>
+
+    <main>
+        <div class="controls">
+            <div class="card">
+                <h2>Model Specification</h2>
+                <div class="formula-box">
+                    h(t|X) = h₀(t) × exp(β₁X₁ + β₂X₂ + ... + βₖXₖ)
+                </div>
+
+                <div class="input-group">
+                    <label>Model Sample Size (n)</label>
+                    <input type="number" id="sample-size" value="206" min="10">
+                </div>
+
+                <div class="input-group">
+                    <label>Number of Events</label>
+                    <input type="number" id="n-events" value="87" min="1">
+                </div>
+
+                <h3 style="margin: 1rem 0 0.75rem; font-size: 1rem; color: var(--secondary);">Covariate Coefficients</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Enter beta coefficients and standard errors from Cox model output</p>
+
+                <div class="header-row">
+                    <span>Variable Name</span>
+                    <span>Beta (β)</span>
+                    <span>SE(β)</span>
+                    <span></span>
+                </div>
+
+                <div id="covariates-container">
+                    <div class="covariate-input">
+                        <input type="text" placeholder="Variable name" value="Livestock Density">
+                        <input type="number" step="0.001" placeholder="β" value="0.342">
+                        <input type="number" step="0.001" placeholder="SE" value="0.125">
+                        <button class="remove-btn" onclick="removeCovariate(this)">X</button>
+                    </div>
+                    <div class="covariate-input">
+                        <input type="text" placeholder="Variable name" value="Vaccination Coverage">
+                        <input type="number" step="0.001" placeholder="β" value="-0.518">
+                        <input type="number" step="0.001" placeholder="SE" value="0.142">
+                        <button class="remove-btn" onclick="removeCovariate(this)">X</button>
+                    </div>
+                    <div class="covariate-input">
+                        <input type="text" placeholder="Variable name" value="Wildlife Proximity">
+                        <input type="number" step="0.001" placeholder="β" value="0.276">
+                        <input type="number" step="0.001" placeholder="SE" value="0.098">
+                        <button class="remove-btn" onclick="removeCovariate(this)">X</button>
+                    </div>
+                    <div class="covariate-input">
+                        <input type="text" placeholder="Variable name" value="Road Density">
+                        <input type="number" step="0.001" placeholder="β" value="0.189">
+                        <input type="number" step="0.001" placeholder="SE" value="0.087">
+                        <button class="remove-btn" onclick="removeCovariate(this)">X</button>
+                    </div>
+                    <div class="covariate-input">
+                        <input type="text" placeholder="Variable name" value="Wetland Area">
+                        <input type="number" step="0.001" placeholder="β" value="0.215">
+                        <input type="number" step="0.001" placeholder="SE" value="0.103">
+                        <button class="remove-btn" onclick="removeCovariate(this)">X</button>
+                    </div>
+                    <div class="covariate-input">
+                        <input type="text" placeholder="Variable name" value="GDP per capita">
+                        <input type="number" step="0.001" placeholder="β" value="-0.156">
+                        <input type="number" step="0.001" placeholder="SE" value="0.112">
+                        <button class="remove-btn" onclick="removeCovariate(this)">X</button>
+                    </div>
+                </div>
+
+                <button class="add-btn" onclick="addCovariate()">+ Add Covariate</button>
+
+                <div class="input-group">
+                    <label>Confidence Level</label>
+                    <select id="conf-level">
+                        <option value="0.90">90%</option>
+                        <option value="0.95" selected>95%</option>
+                        <option value="0.99">99%</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="calculateHR()">Calculate Hazard Ratios</button>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="card">
+                <h2>Hazard Ratio Results</h2>
+                <table class="results-table" id="results-table">
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>β</th>
+                            <th>SE(β)</th>
+                            <th>HR</th>
+                            <th>95% CI Lower</th>
+                            <th>95% CI Upper</th>
+                            <th>z</th>
+                            <th>p-value</th>
+                            <th>Sig</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="stat-n">206</div>
+                        <div class="label">Sample Size</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="stat-events">87</div>
+                        <div class="label">Events</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="stat-sig">0</div>
+                        <div class="label">Significant (p<0.05)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="stat-risk">0</div>
+                        <div class="label">Risk Factors (HR>1)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Forest Plot</h2>
+                <div class="chart-container">
+                    <canvas id="forestChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Interpretation</h2>
+                <div class="interpretation" id="interpretation">
+                    <h4>How to Interpret Hazard Ratios</h4>
+                    <p><strong>HR &gt; 1:</strong> Increased hazard of reemergence (risk factor)<br>
+                    <strong>HR &lt; 1:</strong> Decreased hazard of reemergence (protective factor)<br>
+                    <strong>HR = 1:</strong> No effect on hazard<br><br>
+                    <strong>Example:</strong> HR = 1.41 means 41% higher hazard of reemergence for each 1-unit increase in the covariate (or 1-SD increase if standardized).</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart = null;
+
+        function addCovariate() {
+            const container = document.getElementById('covariates-container');
+            const div = document.createElement('div');
+            div.className = 'covariate-input';
+            div.innerHTML = `
+                <input type="text" placeholder="Variable name">
+                <input type="number" step="0.001" placeholder="β">
+                <input type="number" step="0.001" placeholder="SE">
+                <button class="remove-btn" onclick="removeCovariate(this)">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeCovariate(btn) {
+            const container = document.getElementById('covariates-container');
+            if (container.children.length > 1) {
+                btn.parentElement.remove();
+            }
+        }
+
+        function normalCDF(x) {
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x) / Math.sqrt(2);
+
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+
+            return 0.5 * (1.0 + sign * y);
+        }
+
+        function calculateHR() {
+            const n = parseInt(document.getElementById('sample-size').value);
+            const nEvents = parseInt(document.getElementById('n-events').value);
+            const confLevel = parseFloat(document.getElementById('conf-level').value);
+            const z = confLevel === 0.90 ? 1.645 : (confLevel === 0.99 ? 2.576 : 1.96);
+
+            const covariates = document.querySelectorAll('.covariate-input');
+            const results = [];
+
+            covariates.forEach(cov => {
+                const inputs = cov.querySelectorAll('input');
+                const name = inputs[0].value || 'Unnamed';
+                const beta = parseFloat(inputs[1].value);
+                const se = parseFloat(inputs[2].value);
+
+                if (!isNaN(beta) && !isNaN(se) && se > 0) {
+                    const hr = Math.exp(beta);
+                    const ciLower = Math.exp(beta - z * se);
+                    const ciUpper = Math.exp(beta + z * se);
+                    const zStat = beta / se;
+                    const pValue = 2 * (1 - normalCDF(Math.abs(zStat)));
+
+                    results.push({
+                        name,
+                        beta,
+                        se,
+                        hr,
+                        ciLower,
+                        ciUpper,
+                        zStat,
+                        pValue,
+                        significant: pValue < 0.05
+                    });
+                }
+            });
+
+            // Update table
+            const tbody = document.querySelector('#results-table tbody');
+            tbody.innerHTML = results.map(r => `
+                <tr class="${r.significant ? 'significant' : 'not-significant'}">
+                    <td><strong>${r.name}</strong></td>
+                    <td>${r.beta.toFixed(3)}</td>
+                    <td>${r.se.toFixed(3)}</td>
+                    <td><strong>${r.hr.toFixed(3)}</strong></td>
+                    <td>${r.ciLower.toFixed(3)}</td>
+                    <td>${r.ciUpper.toFixed(3)}</td>
+                    <td>${r.zStat.toFixed(2)}</td>
+                    <td>${r.pValue < 0.001 ? '<0.001' : r.pValue.toFixed(3)}</td>
+                    <td>${r.significant ? '***' : ''}</td>
+                </tr>
+            `).join('');
+
+            // Update stats
+            document.getElementById('stat-n').textContent = n;
+            document.getElementById('stat-events').textContent = nEvents;
+            document.getElementById('stat-sig').textContent = results.filter(r => r.significant).length;
+            document.getElementById('stat-risk').textContent = results.filter(r => r.hr > 1).length;
+
+            // Forest plot
+            if (chart) chart.destroy();
+            const ctx = document.getElementById('forestChart').getContext('2d');
+
+            const labels = results.map(r => r.name);
+            const hrs = results.map(r => r.hr);
+            const errors = results.map(r => [r.hr - r.ciLower, r.ciUpper - r.hr]);
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Hazard Ratio',
+                        data: hrs,
+                        backgroundColor: results.map(r => r.hr > 1 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(34, 197, 94, 0.7)'),
+                        borderColor: results.map(r => r.hr > 1 ? '#ef4444' : '#22c55e'),
+                        borderWidth: 2,
+                        error: errors
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const r = results[ctx.dataIndex];
+                                    return `HR: ${r.hr.toFixed(2)} (${r.ciLower.toFixed(2)}-${r.ciUpper.toFixed(2)}), p=${r.pValue.toFixed(3)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Hazard Ratio' },
+                            type: 'logarithmic',
+                            min: 0.1,
+                            max: 10,
+                            ticks: {
+                                callback: (value) => value
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'referenceLine',
+                    afterDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        const xAxis = chart.scales.x;
+                        const yAxis = chart.scales.y;
+
+                        const x = xAxis.getPixelForValue(1);
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.moveTo(x, yAxis.top);
+                        ctx.lineTo(x, yAxis.bottom);
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }, {
+                    id: 'errorBars',
+                    afterDatasetsDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        const meta = chart.getDatasetMeta(0);
+
+                        meta.data.forEach((bar, i) => {
+                            const r = results[i];
+                            const xAxis = chart.scales.x;
+
+                            const xLower = xAxis.getPixelForValue(r.ciLower);
+                            const xUpper = xAxis.getPixelForValue(r.ciUpper);
+                            const y = bar.y;
+
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.moveTo(xLower, y);
+                            ctx.lineTo(xUpper, y);
+                            ctx.strokeStyle = '#333';
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+
+                            // End caps
+                            ctx.beginPath();
+                            ctx.moveTo(xLower, y - 5);
+                            ctx.lineTo(xLower, y + 5);
+                            ctx.moveTo(xUpper, y - 5);
+                            ctx.lineTo(xUpper, y + 5);
+                            ctx.stroke();
+                            ctx.restore();
+                        });
+                    }
+                }]
+            });
+
+            // Update interpretation
+            const sigRisk = results.filter(r => r.significant && r.hr > 1);
+            const sigProtective = results.filter(r => r.significant && r.hr < 1);
+
+            let interpHTML = '<h4>Model Results Summary</h4>';
+            if (sigRisk.length > 0) {
+                interpHTML += '<p><strong>Significant Risk Factors (HR > 1):</strong><br>';
+                sigRisk.forEach(r => {
+                    const pctIncrease = ((r.hr - 1) * 100).toFixed(0);
+                    interpHTML += `- ${r.name}: ${pctIncrease}% increased hazard (HR=${r.hr.toFixed(2)}, p=${r.pValue < 0.001 ? '<0.001' : r.pValue.toFixed(3)})<br>`;
+                });
+                interpHTML += '</p>';
+            }
+            if (sigProtective.length > 0) {
+                interpHTML += '<p><strong>Significant Protective Factors (HR < 1):</strong><br>';
+                sigProtective.forEach(r => {
+                    const pctDecrease = ((1 - r.hr) * 100).toFixed(0);
+                    interpHTML += `- ${r.name}: ${pctDecrease}% decreased hazard (HR=${r.hr.toFixed(2)}, p=${r.pValue < 0.001 ? '<0.001' : r.pValue.toFixed(3)})<br>`;
+                });
+                interpHTML += '</p>';
+            }
+
+            document.getElementById('interpretation').innerHTML = interpHTML;
+        }
+
+        calculateHR();
+    </script>
+</body>
+</html>
