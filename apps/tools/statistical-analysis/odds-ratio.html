@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odds Ratio Visualizer - Abdul Ali</title>
+    <meta name="description" content="Visualize odds ratios for persistence predictors with interactive forest plots for logistic regression analysis.">
+    <meta name="keywords" content="odds ratio, logistic regression, persistence, TAD, epidemiology, forest plot">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .tool-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-box h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .formula-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px 40px;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .input-row input {
+            padding: 0.5rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .header-labels {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px 40px;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            padding: 0 0.5rem;
+        }
+
+        .remove-btn {
+            background: #fee2e2;
+            color: #991b1b;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover { background: #fecaca; }
+
+        .add-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .add-btn:hover { background: var(--accent); }
+
+        .btn-primary {
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 85, 48, 0.3);
+        }
+
+        .preset-btns {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .preset-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--card-border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .preset-btn:hover { background: #e2e8f0; }
+
+        .chart-container {
+            position: relative;
+            height: 450px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .results-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .risk-factor { color: #991b1b; font-weight: 600; }
+        .protective { color: #166534; font-weight: 600; }
+        .neutral { color: var(--text-secondary); }
+
+        .interpretation-box {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .interpretation-box h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Odds Ratio Visualizer</h1>
+        <p>Create forest plots for persistence predictors across diseases using logistic regression outputs.</p>
+    </section>
+
+    <main>
+        <div class="tool-grid">
+            <div class="input-section">
+                <div class="card">
+                    <h2>📊 Input Data</h2>
+
+                    <div class="info-box">
+                        <h3>About Odds Ratios</h3>
+                        <p>Odds ratios (OR) quantify the association between predictors and binary outcomes. OR > 1 indicates increased odds; OR < 1 indicates decreased odds (protective).</p>
+                        <div class="formula-box">
+                            OR = e^β where β is the coefficient
+                        </div>
+                    </div>
+
+                    <div class="preset-btns">
+                        <button class="preset-btn" onclick="loadPreset('persistence')">Persistence Predictors</button>
+                        <button class="preset-btn" onclick="loadPreset('diseases')">By Disease</button>
+                        <button class="preset-btn" onclick="clearData()">Clear All</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Enter Predictors (Name, OR, 95% CI)</label>
+                        <div class="header-labels">
+                            <span>Predictor</span>
+                            <span>OR</span>
+                            <span>95% CI</span>
+                            <span></span>
+                        </div>
+                        <div id="data-rows"></div>
+                        <button class="add-btn" onclick="addRow()">+ Add Predictor</button>
+                    </div>
+
+                    <button class="btn-primary" onclick="visualize()">Generate Visualization</button>
+                </div>
+            </div>
+
+            <div class="output-section">
+                <div class="card">
+                    <h2>🎯 Odds Ratio Forest Plot</h2>
+                    <div class="chart-container">
+                        <canvas id="orChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h2>📋 Analysis Summary</h2>
+                    <div class="results-grid" id="summaryGrid">
+                        <div class="stat-card">
+                            <div class="value" id="totalPredictors">0</div>
+                            <div class="label">Predictors</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="sigPredictors">0</div>
+                            <div class="label">Significant</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="riskFactors">0</div>
+                            <div class="label">Risk Factors</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="protectiveFactors">0</div>
+                            <div class="label">Protective</div>
+                        </div>
+                    </div>
+
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Predictor</th>
+                                <th>OR</th>
+                                <th>95% CI</th>
+                                <th>Effect</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+
+                    <div class="interpretation-box" id="interpretationBox" style="display: none;">
+                        <h4>Key Findings</h4>
+                        <p id="interpretationText"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script>
+        let orChart = null;
+        let rowCount = 0;
+
+        function addRow(name = '', or = '', ci = '') {
+            const container = document.getElementById('data-rows');
+            const rowId = rowCount++;
+
+            const row = document.createElement('div');
+            row.className = 'input-row';
+            row.id = `row-${rowId}`;
+            row.innerHTML = `
+                <input type="text" placeholder="Predictor name" value="${name}" class="name-input">
+                <input type="number" step="0.01" placeholder="OR" value="${or}" class="or-input">
+                <input type="text" placeholder="1.2-2.5" value="${ci}" class="ci-input">
+                <button class="remove-btn" onclick="removeRow(${rowId})">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeRow(id) {
+            document.getElementById(`row-${id}`)?.remove();
+        }
+
+        function clearData() {
+            document.getElementById('data-rows').innerHTML = '';
+            rowCount = 0;
+            for (let i = 0; i < 5; i++) addRow();
+        }
+
+        function loadPreset(type) {
+            document.getElementById('data-rows').innerHTML = '';
+            rowCount = 0;
+
+            if (type === 'persistence') {
+                const data = [
+                    ['Livestock Density (high)', 2.45, '1.82-3.30'],
+                    ['Vaccination Coverage (<50%)', 3.12, '2.34-4.16'],
+                    ['Wildlife-Livestock Interface', 1.89, '1.42-2.51'],
+                    ['Trade Connectivity (high)', 2.21, '1.67-2.92'],
+                    ['Veterinary Services (poor)', 2.67, '1.98-3.60'],
+                    ['Climate Suitability Index', 1.56, '1.18-2.06'],
+                    ['Previous Outbreak History', 3.45, '2.58-4.61'],
+                    ['Border Porosity', 1.78, '1.32-2.40'],
+                    ['Surveillance Intensity', 0.54, '0.40-0.73'],
+                    ['Rapid Response Capacity', 0.42, '0.31-0.57']
+                ];
+                data.forEach(d => addRow(d[0], d[1], d[2]));
+            } else if (type === 'diseases') {
+                const data = [
+                    ['FMD Persistence', 2.85, '2.12-3.83'],
+                    ['ASF Persistence', 3.24, '2.41-4.35'],
+                    ['HPAI Persistence', 2.12, '1.58-2.84'],
+                    ['PPR Persistence', 1.78, '1.32-2.40'],
+                    ['CSF Persistence', 2.45, '1.82-3.30'],
+                    ['LSD Persistence', 1.92, '1.43-2.58'],
+                    ['RVF Persistence', 2.56, '1.90-3.45'],
+                    ['ND Persistence', 1.45, '1.08-1.95']
+                ];
+                data.forEach(d => addRow(d[0], d[1], d[2]));
+            }
+        }
+
+        function parseData() {
+            const rows = document.querySelectorAll('.input-row');
+            const data = [];
+
+            rows.forEach(row => {
+                const name = row.querySelector('.name-input').value.trim();
+                const or = parseFloat(row.querySelector('.or-input').value);
+                const ciStr = row.querySelector('.ci-input').value.trim();
+
+                if (name && !isNaN(or) && ciStr) {
+                    const ciParts = ciStr.split('-').map(s => parseFloat(s.trim()));
+                    if (ciParts.length === 2 && !isNaN(ciParts[0]) && !isNaN(ciParts[1])) {
+                        data.push({
+                            name: name,
+                            or: or,
+                            ciLow: ciParts[0],
+                            ciHigh: ciParts[1]
+                        });
+                    }
+                }
+            });
+
+            return data;
+        }
+
+        function visualize() {
+            const data = parseData();
+            if (data.length === 0) {
+                alert('Please enter at least one complete row of data.');
+                return;
+            }
+
+            // Sort by OR
+            data.sort((a, b) => b.or - a.or);
+
+            createChart(data);
+            updateResults(data);
+        }
+
+        function createChart(data) {
+            const ctx = document.getElementById('orChart').getContext('2d');
+
+            if (orChart) orChart.destroy();
+
+            const labels = data.map(d => d.name);
+            const ors = data.map(d => d.or);
+
+            const allValues = data.flatMap(d => [d.ciLow, d.ciHigh]);
+            const minVal = Math.min(...allValues, 0.2);
+            const maxVal = Math.max(...allValues, 4);
+
+            orChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Odds Ratio',
+                        data: ors,
+                        backgroundColor: data.map(d => {
+                            if (d.ciLow > 1) return 'rgba(220, 38, 38, 0.7)';
+                            if (d.ciHigh < 1) return 'rgba(22, 163, 74, 0.7)';
+                            return 'rgba(100, 116, 139, 0.7)';
+                        }),
+                        borderColor: data.map(d => {
+                            if (d.ciLow > 1) return '#dc2626';
+                            if (d.ciHigh < 1) return '#16a34a';
+                            return '#64748b';
+                        }),
+                        borderWidth: 2,
+                        barThickness: 10
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const d = data[context.dataIndex];
+                                    const sig = (d.ciLow > 1 || d.ciHigh < 1) ? 'Significant' : 'Not significant';
+                                    return `OR: ${d.or.toFixed(2)} (${d.ciLow.toFixed(2)}-${d.ciHigh.toFixed(2)}) - ${sig}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'logarithmic',
+                            min: Math.max(0.1, minVal * 0.7),
+                            max: maxVal * 1.3,
+                            title: {
+                                display: true,
+                                text: 'Odds Ratio (log scale)',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Predictor',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'ciLines',
+                    afterDatasetsDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const meta = chart.getDatasetMeta(0);
+
+                        meta.data.forEach((bar, index) => {
+                            const d = data[index];
+                            const xScale = chart.scales.x;
+                            const yPos = bar.y;
+
+                            const xLow = xScale.getPixelForValue(d.ciLow);
+                            const xHigh = xScale.getPixelForValue(d.ciHigh);
+
+                            ctx.save();
+                            ctx.strokeStyle = chart.data.datasets[0].borderColor[index];
+                            ctx.lineWidth = 2;
+
+                            ctx.beginPath();
+                            ctx.moveTo(xLow, yPos);
+                            ctx.lineTo(xHigh, yPos);
+                            ctx.stroke();
+
+                            ctx.beginPath();
+                            ctx.moveTo(xLow, yPos - 6);
+                            ctx.lineTo(xLow, yPos + 6);
+                            ctx.stroke();
+
+                            ctx.beginPath();
+                            ctx.moveTo(xHigh, yPos - 6);
+                            ctx.lineTo(xHigh, yPos + 6);
+                            ctx.stroke();
+
+                            ctx.restore();
+                        });
+
+                        // Reference line at OR = 1
+                        const xRef = chart.scales.x.getPixelForValue(1);
+                        ctx.save();
+                        ctx.strokeStyle = '#374151';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(xRef, chart.chartArea.top);
+                        ctx.lineTo(xRef, chart.chartArea.bottom);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        function updateResults(data) {
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+
+            let sigCount = 0, riskCount = 0, protCount = 0;
+            const strongRisk = [];
+            const strongProt = [];
+
+            data.forEach(d => {
+                const isSignificant = d.ciLow > 1 || d.ciHigh < 1;
+                if (isSignificant) sigCount++;
+
+                let effect = '', effectClass = '', interpretation = '';
+
+                if (d.ciLow > 1) {
+                    riskCount++;
+                    effect = 'Risk Factor';
+                    effectClass = 'risk-factor';
+                    const pct = ((d.or - 1) * 100).toFixed(0);
+                    interpretation = `${pct}% increased odds`;
+                    if (d.or >= 2) strongRisk.push(d.name);
+                } else if (d.ciHigh < 1) {
+                    protCount++;
+                    effect = 'Protective';
+                    effectClass = 'protective';
+                    const pct = ((1 - d.or) * 100).toFixed(0);
+                    interpretation = `${pct}% reduced odds`;
+                    if (d.or <= 0.5) strongProt.push(d.name);
+                } else {
+                    effect = 'Not Significant';
+                    effectClass = 'neutral';
+                    interpretation = 'No significant association';
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${d.name}</td>
+                    <td><strong>${d.or.toFixed(2)}</strong></td>
+                    <td>${d.ciLow.toFixed(2)} - ${d.ciHigh.toFixed(2)}</td>
+                    <td class="${effectClass}">${effect}</td>
+                    <td>${interpretation}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('totalPredictors').textContent = data.length;
+            document.getElementById('sigPredictors').textContent = sigCount;
+            document.getElementById('riskFactors').textContent = riskCount;
+            document.getElementById('protectiveFactors').textContent = protCount;
+
+            // Generate interpretation
+            const interpBox = document.getElementById('interpretationBox');
+            const interpText = document.getElementById('interpretationText');
+
+            if (strongRisk.length > 0 || strongProt.length > 0) {
+                interpBox.style.display = 'block';
+                let text = '';
+                if (strongRisk.length > 0) {
+                    text += `Strong risk factors (OR ≥ 2): ${strongRisk.join(', ')}. `;
+                }
+                if (strongProt.length > 0) {
+                    text += `Strong protective factors (OR ≤ 0.5): ${strongProt.join(', ')}.`;
+                }
+                interpText.textContent = text;
+            } else {
+                interpBox.style.display = 'none';
+            }
+        }
+
+        // Initialize
+        for (let i = 0; i < 5; i++) addRow();
+    </script>
+</body>
+</html>

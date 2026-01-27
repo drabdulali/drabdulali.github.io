@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaction Effect Visualizer - Abdul Ali</title>
+    <meta name="description" content="Visualize interaction effects between predictors in regression models. Perfect for exploring livestock density × vaccination coverage interactions.">
+    <meta name="keywords" content="interaction effect, regression, visualization, TAD, epidemiology, moderation">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .tool-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-box h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .formula-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 85, 48, 0.3);
+        }
+
+        .preset-btns {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .preset-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--card-border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .preset-btn:hover { background: #e2e8f0; }
+
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+
+        .interpretation-panel {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .interpretation-panel h3 {
+            color: #92400e;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .interpretation-panel p {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .coefficient-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .coef-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .coef-card .name {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .coef-card .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .simple-slopes {
+            margin-top: 1.5rem;
+        }
+
+        .simple-slopes h3 {
+            color: var(--secondary);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .slopes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .slopes-table th,
+        .slopes-table td {
+            padding: 0.6rem;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .slopes-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .positive { color: #166534; }
+        .negative { color: #991b1b; }
+
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Interaction Effect Visualizer</h1>
+        <p>Explore and visualize interaction effects between predictors in regression models.</p>
+    </section>
+
+    <main>
+        <div class="tool-grid">
+            <div class="input-panel">
+                <div class="card">
+                    <h2>📊 Model Parameters</h2>
+
+                    <div class="info-box">
+                        <h3>Interaction Effects</h3>
+                        <p>Interaction terms allow the effect of one predictor to vary depending on the level of another predictor.</p>
+                        <div class="formula-box">
+                            Y = β₀ + β₁X₁ + β₂X₂ + β₃(X₁×X₂)
+                        </div>
+                    </div>
+
+                    <div class="preset-btns">
+                        <button class="preset-btn" onclick="loadPreset('livestock_vacc')">Livestock × Vaccination</button>
+                        <button class="preset-btn" onclick="loadPreset('wildlife_vet')">Wildlife × Vet Services</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Variable X₁ (Focal Predictor)</label>
+                        <input type="text" id="x1Name" value="Livestock Density" placeholder="Variable name">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Variable X₂ (Moderator)</label>
+                        <input type="text" id="x2Name" value="Vaccination Coverage" placeholder="Variable name">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Outcome Variable</label>
+                        <input type="text" id="yName" value="Persistence Probability" placeholder="Outcome name">
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>β₀ (Intercept)</label>
+                            <input type="number" id="b0" step="0.01" value="-1.5">
+                        </div>
+                        <div class="input-group">
+                            <label>β₁ (X₁ main effect)</label>
+                            <input type="number" id="b1" step="0.01" value="0.8">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>β₂ (X₂ main effect)</label>
+                            <input type="number" id="b2" step="0.01" value="-0.6">
+                        </div>
+                        <div class="input-group">
+                            <label>β₃ (Interaction)</label>
+                            <input type="number" id="b3" step="0.01" value="-0.4">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>X₁ Range (min-max)</label>
+                            <input type="text" id="x1Range" value="0-3" placeholder="0-3">
+                        </div>
+                        <div class="input-group">
+                            <label>Model Type</label>
+                            <select id="modelType">
+                                <option value="linear">Linear Regression</option>
+                                <option value="logistic" selected>Logistic Regression</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="visualizeInteraction()">Visualize Interaction</button>
+                </div>
+            </div>
+
+            <div class="output-panel">
+                <div class="card">
+                    <h2>📈 Interaction Plot</h2>
+                    <div class="chart-container">
+                        <canvas id="interactionChart"></canvas>
+                    </div>
+
+                    <div class="coefficient-display">
+                        <div class="coef-card">
+                            <div class="name">X₁ Main Effect (β₁)</div>
+                            <div class="value" id="coefX1">--</div>
+                        </div>
+                        <div class="coef-card">
+                            <div class="name">X₂ Main Effect (β₂)</div>
+                            <div class="value" id="coefX2">--</div>
+                        </div>
+                        <div class="coef-card">
+                            <div class="name">Interaction (β₃)</div>
+                            <div class="value" id="coefInt">--</div>
+                        </div>
+                        <div class="coef-card">
+                            <div class="name">Interaction Type</div>
+                            <div class="value" id="intType">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="simple-slopes">
+                        <h3>Simple Slopes Analysis</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                            Effect of X₁ at different levels of X₂ (moderator)
+                        </p>
+                        <table class="slopes-table">
+                            <thead>
+                                <tr>
+                                    <th>X₂ Level</th>
+                                    <th>Simple Slope</th>
+                                    <th>Effect Direction</th>
+                                </tr>
+                            </thead>
+                            <tbody id="slopesBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="interpretation-panel" id="interpretationPanel">
+                        <h3>Interpretation</h3>
+                        <p id="interpretationText">Enter parameters and click "Visualize Interaction" to see the interpretation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script>
+        let interactionChart = null;
+
+        function loadPreset(type) {
+            if (type === 'livestock_vacc') {
+                document.getElementById('x1Name').value = 'Livestock Density';
+                document.getElementById('x2Name').value = 'Vaccination Coverage';
+                document.getElementById('yName').value = 'Persistence Probability';
+                document.getElementById('b0').value = -1.5;
+                document.getElementById('b1').value = 0.8;
+                document.getElementById('b2').value = -0.6;
+                document.getElementById('b3').value = -0.4;
+                document.getElementById('x1Range').value = '0-3';
+                document.getElementById('modelType').value = 'logistic';
+            } else if (type === 'wildlife_vet') {
+                document.getElementById('x1Name').value = 'Wildlife Interface Index';
+                document.getElementById('x2Name').value = 'Veterinary Services Quality';
+                document.getElementById('yName').value = 'Reemergence Risk';
+                document.getElementById('b0').value = -2.0;
+                document.getElementById('b1').value = 1.2;
+                document.getElementById('b2').value = -0.9;
+                document.getElementById('b3').value = -0.5;
+                document.getElementById('x1Range').value = '0-2';
+                document.getElementById('modelType').value = 'logistic';
+            }
+        }
+
+        function visualizeInteraction() {
+            const x1Name = document.getElementById('x1Name').value || 'X₁';
+            const x2Name = document.getElementById('x2Name').value || 'X₂';
+            const yName = document.getElementById('yName').value || 'Y';
+            const b0 = parseFloat(document.getElementById('b0').value) || 0;
+            const b1 = parseFloat(document.getElementById('b1').value) || 0;
+            const b2 = parseFloat(document.getElementById('b2').value) || 0;
+            const b3 = parseFloat(document.getElementById('b3').value) || 0;
+            const modelType = document.getElementById('modelType').value;
+
+            const rangeStr = document.getElementById('x1Range').value || '0-3';
+            const rangeParts = rangeStr.split('-').map(s => parseFloat(s.trim()));
+            const x1Min = rangeParts[0] || 0;
+            const x1Max = rangeParts[1] || 3;
+
+            // Generate data for three levels of X2 (low, medium, high)
+            const x2Levels = [
+                { name: 'Low', value: 0, color: '#dc2626' },
+                { name: 'Medium', value: 0.5, color: '#f59e0b' },
+                { name: 'High', value: 1, color: '#16a34a' }
+            ];
+
+            const datasets = x2Levels.map(level => {
+                const data = [];
+                for (let x1 = x1Min; x1 <= x1Max; x1 += (x1Max - x1Min) / 20) {
+                    const linearPred = b0 + b1 * x1 + b2 * level.value + b3 * x1 * level.value;
+                    let y;
+                    if (modelType === 'logistic') {
+                        y = 1 / (1 + Math.exp(-linearPred));
+                    } else {
+                        y = linearPred;
+                    }
+                    data.push({ x: x1, y: y });
+                }
+                return {
+                    label: `${x2Name} = ${level.name}`,
+                    data: data,
+                    borderColor: level.color,
+                    backgroundColor: level.color + '20',
+                    fill: false,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 0
+                };
+            });
+
+            // Create chart
+            const ctx = document.getElementById('interactionChart').getContext('2d');
+
+            if (interactionChart) interactionChart.destroy();
+
+            interactionChart = new Chart(ctx, {
+                type: 'line',
+                data: { datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    const val = modelType === 'logistic'
+                                        ? (ctx.raw.y * 100).toFixed(1) + '%'
+                                        : ctx.raw.y.toFixed(3);
+                                    return `${ctx.dataset.label}: ${val}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: x1Name,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            min: modelType === 'logistic' ? 0 : undefined,
+                            max: modelType === 'logistic' ? 1 : undefined,
+                            title: {
+                                display: true,
+                                text: yName + (modelType === 'logistic' ? ' (Probability)' : ''),
+                                font: { weight: 'bold' }
+                            },
+                            ticks: {
+                                callback: val => modelType === 'logistic' ? (val * 100) + '%' : val
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update coefficient display
+            document.getElementById('coefX1').textContent = b1.toFixed(3);
+            document.getElementById('coefX2').textContent = b2.toFixed(3);
+            document.getElementById('coefInt').textContent = b3.toFixed(3);
+
+            let intType = '';
+            if (b3 < 0 && b1 > 0) {
+                intType = 'Buffering';
+            } else if (b3 > 0 && b1 > 0) {
+                intType = 'Enhancing';
+            } else if (b3 < 0 && b1 < 0) {
+                intType = 'Enhancing';
+            } else if (b3 > 0 && b1 < 0) {
+                intType = 'Buffering';
+            } else {
+                intType = 'None';
+            }
+            document.getElementById('intType').textContent = intType;
+
+            // Simple slopes analysis
+            const slopesBody = document.getElementById('slopesBody');
+            slopesBody.innerHTML = '';
+
+            x2Levels.forEach(level => {
+                const simpleSlope = b1 + b3 * level.value;
+                const row = document.createElement('tr');
+                const slopeClass = simpleSlope > 0 ? 'positive' : simpleSlope < 0 ? 'negative' : '';
+                const direction = simpleSlope > 0.1 ? 'Positive (Risk)' : simpleSlope < -0.1 ? 'Negative (Protective)' : 'Near Zero';
+                row.innerHTML = `
+                    <td>${x2Name} = ${level.name}</td>
+                    <td class="${slopeClass}">${simpleSlope.toFixed(3)}</td>
+                    <td>${direction}</td>
+                `;
+                slopesBody.appendChild(row);
+            });
+
+            // Generate interpretation
+            const interp = document.getElementById('interpretationText');
+            let text = '';
+
+            if (Math.abs(b3) < 0.05) {
+                text = `There is no meaningful interaction between ${x1Name} and ${x2Name}. The effect of ${x1Name} on ${yName} is consistent across all levels of ${x2Name}.`;
+            } else if (b3 < 0 && b1 > 0) {
+                text = `The interaction is negative (β₃ = ${b3.toFixed(3)}), indicating a buffering effect. The positive effect of ${x1Name} on ${yName} is weakened at higher levels of ${x2Name}. This suggests that ${x2Name} acts as a protective moderator.`;
+            } else if (b3 > 0 && b1 > 0) {
+                text = `The interaction is positive (β₃ = ${b3.toFixed(3)}), indicating an enhancing effect. The positive effect of ${x1Name} on ${yName} is strengthened at higher levels of ${x2Name}. The risk factors compound.`;
+            } else if (b3 < 0 && b1 < 0) {
+                text = `The interaction is negative (β₃ = ${b3.toFixed(3)}). The protective effect of ${x1Name} is enhanced at higher levels of ${x2Name}. These factors work synergistically to reduce ${yName}.`;
+            } else {
+                text = `The interaction (β₃ = ${b3.toFixed(3)}) modifies the relationship between ${x1Name} and ${yName} depending on the level of ${x2Name}.`;
+            }
+
+            interp.textContent = text;
+        }
+
+        // Initialize
+        visualizeInteraction();
+    </script>
+</body>
+</html>

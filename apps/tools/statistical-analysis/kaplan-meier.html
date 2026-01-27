@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaplan-Meier Survival Curve Generator - Abdul Ali</title>
+    <meta name="description" content="Interactive Kaplan-Meier survival curve generator for time-to-reemergence analysis. Visualize survival probabilities with confidence intervals and log-rank tests.">
+    <meta name="keywords" content="Kaplan-Meier, survival analysis, time-to-event, reemergence, TAD, epidemiology, survival curve">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --secondary-dark: #1a3d20;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+        }
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 700px; margin: 0 auto; }
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .input-group textarea, .input-group select, .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: monospace;
+        }
+        .input-group textarea { min-height: 150px; resize: vertical; }
+        .hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        .btn {
+            padding: 0.875rem 1.5rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        .btn:hover { opacity: 0.95; }
+        .btn-secondary {
+            background: white;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+        }
+        .chart-container {
+            height: 450px;
+            position: relative;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .stat-card {
+            background: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+        .results-table th, .results-table td {
+            padding: 0.6rem;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .results-table th {
+            background: var(--secondary);
+            color: white;
+        }
+        .results-table tr:nth-child(even) { background: var(--primary); }
+        .group-colors {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .group-color {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .color-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+        .formula-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../" class="back-link">Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Kaplan-Meier Survival Curve Generator</h1>
+        <p>Visualize time-to-reemergence with survival curves, confidence intervals, and statistical comparisons between groups.</p>
+    </section>
+
+    <main>
+        <div class="controls">
+            <div class="card">
+                <h2>Data Input</h2>
+                <div class="formula-box">
+                    S(t) = Product[(n_i - d_i) / n_i]
+                </div>
+
+                <div class="input-group">
+                    <label>Time-to-Event Data</label>
+                    <textarea id="data-input" placeholder="Enter data: time,event,group (one per line)
+Example:
+6,1,High_Risk
+12,1,High_Risk
+18,0,High_Risk
+8,1,Low_Risk
+24,0,Low_Risk
+...">6,1,High_Livestock
+12,1,High_Livestock
+18,1,High_Livestock
+24,0,High_Livestock
+30,1,High_Livestock
+36,0,High_Livestock
+8,0,Low_Livestock
+14,1,Low_Livestock
+20,0,Low_Livestock
+26,0,Low_Livestock
+32,1,Low_Livestock
+38,0,Low_Livestock
+10,1,Medium_Livestock
+16,1,Medium_Livestock
+22,0,Medium_Livestock
+28,1,Medium_Livestock
+34,0,Medium_Livestock
+40,0,Medium_Livestock</textarea>
+                    <p class="hint">Format: time (months), event (1=reemergence, 0=censored), group</p>
+                </div>
+
+                <div class="input-group">
+                    <label>Confidence Level</label>
+                    <select id="confidence-level">
+                        <option value="0.90">90%</option>
+                        <option value="0.95" selected>95%</option>
+                        <option value="0.99">99%</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Show Confidence Intervals</label>
+                    <select id="show-ci">
+                        <option value="true" selected>Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Show Censored Points</label>
+                    <select id="show-censored">
+                        <option value="true" selected>Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="generateKM()">Generate Survival Curves</button>
+                <button class="btn btn-secondary" onclick="loadExample()">Load Example Data</button>
+            </div>
+
+            <div class="card">
+                <h2>Interpretation Guide</h2>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                    <strong>Survival Probability S(t):</strong> Probability of remaining disease-free at time t.<br><br>
+                    <strong>Censored:</strong> Observations where reemergence was not observed (study ended, lost to follow-up).<br><br>
+                    <strong>Log-Rank Test:</strong> Compares survival distributions between groups. p &lt; 0.05 suggests significant difference.<br><br>
+                    <strong>Median Survival:</strong> Time at which 50% of units have experienced reemergence.
+                </p>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="card">
+                <h2>Survival Curves</h2>
+                <div class="chart-container">
+                    <canvas id="survivalChart"></canvas>
+                </div>
+                <div class="group-colors" id="group-legend"></div>
+            </div>
+
+            <div class="card">
+                <h2>Statistical Summary</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="n-total">0</div>
+                        <div class="label">Total Observations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="n-events">0</div>
+                        <div class="label">Events (Reemergence)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="n-censored">0</div>
+                        <div class="label">Censored</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="log-rank-p">--</div>
+                        <div class="label">Log-Rank p-value</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Group Statistics</h2>
+                <table class="results-table" id="group-stats-table">
+                    <thead>
+                        <tr>
+                            <th>Group</th>
+                            <th>N</th>
+                            <th>Events</th>
+                            <th>Censored</th>
+                            <th>Median Survival</th>
+                            <th>1-Year Survival</th>
+                            <th>2-Year Survival</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>Survival Table</h2>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table class="results-table" id="survival-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>At Risk</th>
+                                <th>Events</th>
+                                <th>Censored</th>
+                                <th>Survival</th>
+                                <th>95% CI Lower</th>
+                                <th>95% CI Upper</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Abdul Ali | <a href="../../../">Back to Main Site</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart = null;
+        const groupColors = ['#2c5530', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899'];
+
+        function parseData(text) {
+            const lines = text.trim().split('\n').filter(l => l.trim() && !l.startsWith('#'));
+            const data = [];
+
+            for (const line of lines) {
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length >= 2) {
+                    data.push({
+                        time: parseFloat(parts[0]),
+                        event: parseInt(parts[1]),
+                        group: parts[2] || 'All'
+                    });
+                }
+            }
+            return data.sort((a, b) => a.time - b.time);
+        }
+
+        function calculateKM(data, confLevel = 0.95) {
+            const groups = [...new Set(data.map(d => d.group))];
+            const results = {};
+            const z = confLevel === 0.90 ? 1.645 : (confLevel === 0.99 ? 2.576 : 1.96);
+
+            for (const group of groups) {
+                const groupData = data.filter(d => d.group === group).sort((a, b) => a.time - b.time);
+                const times = [...new Set(groupData.map(d => d.time))].sort((a, b) => a - b);
+
+                let atRisk = groupData.length;
+                let survival = 1.0;
+                let varSum = 0;
+                const curve = [{ time: 0, survival: 1, lower: 1, upper: 1, atRisk: groupData.length, events: 0, censored: 0 }];
+
+                for (const t of times) {
+                    const eventsAtT = groupData.filter(d => d.time === t && d.event === 1).length;
+                    const censoredAtT = groupData.filter(d => d.time === t && d.event === 0).length;
+
+                    if (eventsAtT > 0) {
+                        survival *= (atRisk - eventsAtT) / atRisk;
+                        if (atRisk > eventsAtT) {
+                            varSum += eventsAtT / (atRisk * (atRisk - eventsAtT));
+                        }
+                    }
+
+                    const se = survival * Math.sqrt(varSum);
+                    const lower = Math.max(0, survival - z * se);
+                    const upper = Math.min(1, survival + z * se);
+
+                    curve.push({
+                        time: t,
+                        survival,
+                        lower,
+                        upper,
+                        atRisk,
+                        events: eventsAtT,
+                        censored: censoredAtT
+                    });
+
+                    atRisk -= (eventsAtT + censoredAtT);
+                }
+
+                // Calculate median survival
+                let medianSurvival = null;
+                for (let i = 1; i < curve.length; i++) {
+                    if (curve[i].survival <= 0.5 && curve[i-1].survival > 0.5) {
+                        medianSurvival = curve[i].time;
+                        break;
+                    }
+                }
+
+                // Calculate 1-year and 2-year survival
+                const survival12 = curve.filter(c => c.time <= 12).pop()?.survival || curve[curve.length-1].survival;
+                const survival24 = curve.filter(c => c.time <= 24).pop()?.survival || curve[curve.length-1].survival;
+
+                results[group] = {
+                    curve,
+                    n: groupData.length,
+                    events: groupData.filter(d => d.event === 1).length,
+                    censored: groupData.filter(d => d.event === 0).length,
+                    medianSurvival,
+                    survival12,
+                    survival24
+                };
+            }
+
+            return { groups, results };
+        }
+
+        function calculateLogRank(data, groups) {
+            if (groups.length < 2) return null;
+
+            // Simplified log-rank test for 2 groups
+            const allTimes = [...new Set(data.map(d => d.time))].sort((a, b) => a - b);
+            let observed1 = 0, expected1 = 0, variance = 0;
+
+            const group1Data = data.filter(d => d.group === groups[0]);
+            const group2Data = data.filter(d => d.group === groups[1]);
+
+            let n1 = group1Data.length, n2 = group2Data.length;
+
+            for (const t of allTimes) {
+                const d1 = group1Data.filter(d => d.time === t && d.event === 1).length;
+                const d2 = group2Data.filter(d => d.time === t && d.event === 1).length;
+                const c1 = group1Data.filter(d => d.time === t && d.event === 0).length;
+                const c2 = group2Data.filter(d => d.time === t && d.event === 0).length;
+
+                const d = d1 + d2;
+                const n = n1 + n2;
+
+                if (n > 0 && d > 0) {
+                    const e1 = (n1 / n) * d;
+                    observed1 += d1;
+                    expected1 += e1;
+
+                    if (n > 1) {
+                        variance += (n1 * n2 * d * (n - d)) / (n * n * (n - 1));
+                    }
+                }
+
+                n1 -= (d1 + c1);
+                n2 -= (d2 + c2);
+            }
+
+            const chiSquare = variance > 0 ? Math.pow(observed1 - expected1, 2) / variance : 0;
+            // Approximate p-value from chi-square with 1 df
+            const pValue = Math.exp(-chiSquare / 2);
+
+            return { chiSquare, pValue: Math.min(1, pValue) };
+        }
+
+        function generateKM() {
+            const text = document.getElementById('data-input').value;
+            const confLevel = parseFloat(document.getElementById('confidence-level').value);
+            const showCI = document.getElementById('show-ci').value === 'true';
+            const showCensored = document.getElementById('show-censored').value === 'true';
+
+            const data = parseData(text);
+            if (data.length === 0) {
+                alert('Please enter valid data');
+                return;
+            }
+
+            const { groups, results } = calculateKM(data, confLevel);
+            const logRank = groups.length >= 2 ? calculateLogRank(data, groups) : null;
+
+            // Update stats
+            const totalN = data.length;
+            const totalEvents = data.filter(d => d.event === 1).length;
+            const totalCensored = data.filter(d => d.event === 0).length;
+
+            document.getElementById('n-total').textContent = totalN;
+            document.getElementById('n-events').textContent = totalEvents;
+            document.getElementById('n-censored').textContent = totalCensored;
+            document.getElementById('log-rank-p').textContent = logRank ? logRank.pValue.toFixed(4) : 'N/A';
+
+            // Update group stats table
+            const tbody = document.querySelector('#group-stats-table tbody');
+            tbody.innerHTML = groups.map(g => {
+                const r = results[g];
+                return `<tr>
+                    <td><strong>${g}</strong></td>
+                    <td>${r.n}</td>
+                    <td>${r.events}</td>
+                    <td>${r.censored}</td>
+                    <td>${r.medianSurvival ? r.medianSurvival + ' mo' : 'Not reached'}</td>
+                    <td>${(r.survival12 * 100).toFixed(1)}%</td>
+                    <td>${(r.survival24 * 100).toFixed(1)}%</td>
+                </tr>`;
+            }).join('');
+
+            // Update survival table (first group only for simplicity)
+            const survTable = document.querySelector('#survival-table tbody');
+            const firstGroup = results[groups[0]];
+            survTable.innerHTML = firstGroup.curve.map(c => `<tr>
+                <td>${c.time}</td>
+                <td>${c.atRisk}</td>
+                <td>${c.events}</td>
+                <td>${c.censored}</td>
+                <td>${(c.survival * 100).toFixed(1)}%</td>
+                <td>${(c.lower * 100).toFixed(1)}%</td>
+                <td>${(c.upper * 100).toFixed(1)}%</td>
+            </tr>`).join('');
+
+            // Generate chart
+            const datasets = [];
+            groups.forEach((g, i) => {
+                const curve = results[g].curve;
+                const color = groupColors[i % groupColors.length];
+
+                // Main survival line (step function)
+                const mainData = [];
+                for (let j = 0; j < curve.length; j++) {
+                    mainData.push({ x: curve[j].time, y: curve[j].survival * 100 });
+                    if (j < curve.length - 1) {
+                        mainData.push({ x: curve[j + 1].time, y: curve[j].survival * 100 });
+                    }
+                }
+
+                datasets.push({
+                    label: g,
+                    data: mainData,
+                    borderColor: color,
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0
+                });
+
+                // Confidence interval
+                if (showCI) {
+                    datasets.push({
+                        label: g + ' CI',
+                        data: curve.map(c => ({ x: c.time, y: c.upper * 100 })),
+                        borderColor: color + '40',
+                        backgroundColor: color + '20',
+                        borderWidth: 1,
+                        borderDash: [3, 3],
+                        pointRadius: 0,
+                        fill: '+1'
+                    });
+                    datasets.push({
+                        label: g + ' CI Lower',
+                        data: curve.map(c => ({ x: c.time, y: c.lower * 100 })),
+                        borderColor: color + '40',
+                        backgroundColor: 'transparent',
+                        borderWidth: 1,
+                        borderDash: [3, 3],
+                        pointRadius: 0
+                    });
+                }
+
+                // Censored points
+                if (showCensored) {
+                    const censoredPoints = curve.filter(c => c.censored > 0);
+                    datasets.push({
+                        label: g + ' Censored',
+                        data: censoredPoints.map(c => ({ x: c.time, y: c.survival * 100 })),
+                        borderColor: color,
+                        backgroundColor: color,
+                        pointRadius: 4,
+                        pointStyle: 'crossRot',
+                        showLine: false
+                    });
+                }
+            });
+
+            // Update legend
+            document.getElementById('group-legend').innerHTML = groups.map((g, i) => `
+                <div class="group-color">
+                    <div class="color-dot" style="background: ${groupColors[i % groupColors.length]};"></div>
+                    <span>${g}</span>
+                </div>
+            `).join('');
+
+            // Draw chart
+            if (chart) chart.destroy();
+            const ctx = document.getElementById('survivalChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: { datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: { display: true, text: 'Time (months)' },
+                            min: 0
+                        },
+                        y: {
+                            title: { display: true, text: 'Survival Probability (%)' },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadExample() {
+            document.getElementById('data-input').value = `# TAD Reemergence Data by Livestock Density Quartile
+# Time (months), Event (1=reemergence), Group
+6,1,High_Density
+9,1,High_Density
+12,1,High_Density
+15,0,High_Density
+18,1,High_Density
+21,1,High_Density
+24,0,High_Density
+27,1,High_Density
+30,1,High_Density
+33,0,High_Density
+8,1,Medium_Density
+14,0,Medium_Density
+20,1,Medium_Density
+26,0,Medium_Density
+32,1,Medium_Density
+38,0,Medium_Density
+44,0,Medium_Density
+50,1,Medium_Density
+12,0,Low_Density
+24,0,Low_Density
+36,1,Low_Density
+48,0,Low_Density
+60,0,Low_Density
+72,1,Low_Density
+84,0,Low_Density`;
+            generateKM();
+        }
+
+        // Initialize with default data
+        generateKM();
+    </script>
+</body>
+</html>
