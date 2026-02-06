@@ -934,85 +934,6 @@
             position: relative;
         }
 
-        /* Skills Section */
-        #skills {
-            background: linear-gradient(180deg, transparent 0%, rgba(14, 165, 233, 0.02) 50%, transparent 100%);
-        }
-
-        .skills-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .skill-category {
-            background: var(--card-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 2rem;
-            transition: var(--transition-smooth);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
-
-        .skill-category:hover {
-            border-color: var(--secondary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.15);
-        }
-
-        .skill-category-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .skill-category-icon {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(14, 165, 233, 0.1);
-            border-radius: 10px;
-            color: var(--secondary);
-        }
-
-        .skill-list {
-            list-style: none;
-        }
-
-        .skill-list li {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--glass-border);
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: var(--transition-smooth);
-        }
-
-        .skill-list li:last-child {
-            border-bottom: none;
-        }
-
-        .skill-list li:hover {
-            color: var(--text-primary);
-            padding-left: 0.5rem;
-        }
-
-        .skill-list li::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: var(--secondary);
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
         /* Contact Section */
         #contact {
             background: linear-gradient(180deg, transparent 0%, rgba(6, 182, 212, 0.03) 100%);
@@ -1256,10 +1177,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .skills-container {
-                grid-template-columns: 1fr;
-            }
-
             .footer-content {
                 flex-direction: column;
                 text-align: center;
@@ -1353,7 +1270,6 @@
                 <li><a href="#courses">Courses</a></li>
                 <li><a href="apps/tools/">Tools</a></li>
                 <li><a href="#research">Research</a></li>
-                <li><a href="#skills">Skills</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
             <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
@@ -1828,93 +1744,6 @@
         </div>
     </section>
 
-    <!-- Skills Section -->
-    <section id="skills">
-        <div class="section-container">
-            <div class="section-header">
-                <span class="section-label">Expertise</span>
-                <h2 class="section-title">Technical Skills</h2>
-                <p class="section-description">
-                    A comprehensive toolkit for disease ecology research and epidemiological analysis.
-                </p>
-            </div>
-            <div class="skills-container">
-                <div class="skill-category animate-on-scroll">
-                    <h3 class="skill-category-title">
-                        <span class="skill-category-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="16 18 22 12 16 6"></polyline>
-                                <polyline points="8 6 2 12 8 18"></polyline>
-                            </svg>
-                        </span>
-                        Programming
-                    </h3>
-                    <ul class="skill-list">
-                        <li>R Statistical Computing</li>
-                        <li>Python Data Science</li>
-                        <li>SQL Database Management</li>
-                        <li>HTML/CSS/JavaScript</li>
-                        <li>Git Version Control</li>
-                    </ul>
-                </div>
-                <div class="skill-category animate-on-scroll">
-                    <h3 class="skill-category-title">
-                        <span class="skill-category-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 20V10"></path>
-                                <path d="M12 20V4"></path>
-                                <path d="M6 20v-6"></path>
-                            </svg>
-                        </span>
-                        Statistical Methods
-                    </h3>
-                    <ul class="skill-list">
-                        <li>Bayesian Inference</li>
-                        <li>Multivariate Analysis</li>
-                        <li>Time Series Analysis</li>
-                        <li>Spatial Statistics</li>
-                        <li>Machine Learning</li>
-                    </ul>
-                </div>
-                <div class="skill-category animate-on-scroll">
-                    <h3 class="skill-category-title">
-                        <span class="skill-category-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M12 6v6l4 2"></path>
-                            </svg>
-                        </span>
-                        Disease Modeling
-                    </h3>
-                    <ul class="skill-list">
-                        <li>SIR/SEIR Compartmental Models</li>
-                        <li>Network Epidemic Models</li>
-                        <li>Agent-Based Simulations</li>
-                        <li>Stochastic Models</li>
-                        <li>R0 Estimation Methods</li>
-                    </ul>
-                </div>
-                <div class="skill-category animate-on-scroll">
-                    <h3 class="skill-category-title">
-                        <span class="skill-category-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                        </span>
-                        Field Methods
-                    </h3>
-                    <ul class="skill-list">
-                        <li>Wildlife Sampling</li>
-                        <li>Disease Surveillance</li>
-                        <li>Vector Monitoring</li>
-                        <li>Environmental Sampling</li>
-                        <li>GIS and Remote Sensing</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Contact Section -->
     <section id="contact">
