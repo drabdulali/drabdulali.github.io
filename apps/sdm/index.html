@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Species Distribution Modeling - Interactive SDM Simulator | Abdul Ali</title>
+    <meta name="description" content="Interactive Species Distribution Modeling (SDM) simulator. Explore MaxEnt, BIOCLIM, and ensemble methods with real-time visualization of habitat suitability predictions.">
+    <meta name="keywords" content="species distribution modeling, SDM, MaxEnt, BIOCLIM, ecological niche modeling, habitat suitability, biodiversity, conservation, climate variables">
+    <link rel="canonical" href="https://drabdulali.github.io/apps/sdm/">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #0284c7;
+            --secondary-light: #0ea5e9;
+            --accent: #0891b2;
+            --accent-glow: #06b6d4;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(14, 165, 233, 0.15);
+            --gradient-primary: linear-gradient(135deg, #0284c7 0%, #0891b2 50%, #059669 100%);
+            --gradient-light: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-glow: 0 0 40px rgba(14, 165, 233, 0.15);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--gradient-light);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(2, 132, 199, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1.25rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); }
+
+        /* Hero */
+        .hero {
+            background: var(--gradient-primary);
+            padding: 3.5rem 2rem 4.5rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 40%),
+                radial-gradient(circle at 60% 80%, rgba(255,255,255,0.06) 0%, transparent 45%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-badge-dot {
+            width: 8px; height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            position: relative;
+        }
+
+        .hero p {
+            opacity: 0.92;
+            max-width: 750px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 4rem;
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 4px 16px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: var(--shadow-card);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+
+        .card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 36px; height: 36px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        /* Simulator Layout */
+        .simulator-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Control Groups */
+        .control-group {
+            margin-bottom: 0.75rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .control-group select,
+        .control-group input[type="range"] {
+            width: 100%;
+        }
+
+        select {
+            padding: 10px 14px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px; height: 20px;
+            background: var(--secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .range-value {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: var(--text-primary);
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Status Display */
+        .status-bar {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.08), rgba(8, 145, 178, 0.08));
+            border: 1px solid rgba(2, 132, 199, 0.15);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Canvas Area */
+        .viz-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .canvas-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .canvas-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+
+        .canvas-card h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .canvas-card h4 .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        canvas {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            max-width: 100%;
+            height: auto;
+            background: #fafbfc;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-swatch {
+            width: 16px; height: 16px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .legend-circle {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Metrics Row */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Math Section */
+        .math-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-card);
+        }
+
+        .math-section h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.04), rgba(5, 150, 105, 0.04));
+            padding: 18px 20px;
+            border-radius: 12px;
+            margin: 14px 0;
+            border-left: 4px solid var(--secondary);
+            overflow-x: auto;
+        }
+
+        .formula-box p { color: var(--text-secondary); font-size: 0.95rem; }
+        .formula-box strong { color: var(--text-primary); }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .symbol-item {
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 10px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .symbol-item .symbol {
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 1.05rem;
+        }
+
+        .symbol-item .description {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            margin-top: 4px;
+        }
+
+        /* Algorithm cards */
+        .algo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .algo-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .algo-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .algo-card:hover, .algo-card.active {
+            border-color: var(--secondary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .algo-card.active::before { opacity: 1; }
+
+        .algo-card h4 {
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .algo-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .algo-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.1), rgba(8, 145, 178, 0.1));
+            color: var(--secondary);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Response Curves */
+        .response-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Insight Box */
+        .insight-box {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.06), rgba(5, 150, 105, 0.06));
+            border: 1px solid rgba(2, 132, 199, 0.2);
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-top: 2rem;
+        }
+
+        .insight-box h3 {
+            color: var(--secondary);
+            font-size: 1.15rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .insight-box p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        /* Color Bar */
+        .colorbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .colorbar-gradient {
+            width: 200px;
+            height: 14px;
+            border-radius: 7px;
+            background: linear-gradient(to right, #1e3a5f, #0284c7, #06b6d4, #10b981, #fbbf24, #ef4444);
+            border: 1px solid #e2e8f0;
+        }
+
+        .colorbar span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.85rem;
+            opacity: 0.95;
+        }
+
+        footer a { color: white; text-decoration: underline; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .simulator-grid { grid-template-columns: 1fr; }
+            .canvas-row { grid-template-columns: 1fr; }
+            .algo-grid { grid-template-columns: 1fr; }
+            .response-grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero { padding: 2rem 1rem 3rem; }
+            main { padding: 1.5rem 1rem; }
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+            .section-title { font-size: 1.5rem; }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <a href="../../" class="logo">Abdul Ali</a>
+            <a href="../../" class="back-link">&#8592; Back to Home</a>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Interactive Simulator
+        </div>
+        <h1>Species Distribution Modeling</h1>
+        <p>
+            Explore how SDM algorithms predict habitat suitability by relating species occurrence records to
+            environmental variables. Compare MaxEnt, BIOCLIM, and ensemble approaches in real time.
+        </p>
+    </section>
+
+    <main>
+        <!-- Algorithm Selection -->
+        <div class="section-header" style="margin-top: 0.5rem;">
+            <span class="section-label">Algorithms</span>
+            <h2 class="section-title">Choose a Modeling Approach</h2>
+            <p class="section-desc">Select an SDM algorithm to visualize how it predicts species habitat suitability from occurrence data and environmental layers.</p>
+        </div>
+
+        <div class="algo-grid animate">
+            <div class="algo-card active" data-algo="maxent" onclick="selectAlgorithm('maxent')">
+                <h4>MaxEnt</h4>
+                <p>Maximum entropy approach that finds the probability distribution closest to uniform while matching environmental constraints from occurrence data.</p>
+                <span class="algo-tag">Most Popular</span>
+            </div>
+            <div class="algo-card" data-algo="bioclim" onclick="selectAlgorithm('bioclim')">
+                <h4>BIOCLIM</h4>
+                <p>Classic envelope method that defines the niche as the range of environmental conditions where the species has been observed.</p>
+                <span class="algo-tag">Envelope Method</span>
+            </div>
+            <div class="algo-card" data-algo="ensemble" onclick="selectAlgorithm('ensemble')">
+                <h4>Ensemble (Weighted)</h4>
+                <p>Combines predictions from multiple algorithms using AUC-weighted averaging for more robust habitat suitability estimates.</p>
+                <span class="algo-tag">Best Practice</span>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-grid animate animate-delay-1">
+            <div class="metric-card">
+                <div class="metric-value" id="metricAUC">0.00</div>
+                <div class="metric-label">AUC Score</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="metricTSS">0.00</div>
+                <div class="metric-label">TSS Score</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="metricOcc">0</div>
+                <div class="metric-label">Occurrences</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="metricArea">0%</div>
+                <div class="metric-label">Suitable Area</div>
+            </div>
+        </div>
+
+        <!-- Main Simulator -->
+        <div class="simulator-grid animate animate-delay-2">
+            <!-- Controls -->
+            <div class="controls-panel">
+                <div class="card">
+                    <h3><span class="card-icon">&#9881;</span> Environment Settings</h3>
+
+                    <div class="control-group">
+                        <label>Number of Occurrences</label>
+                        <input type="range" id="numPoints" min="20" max="200" value="80" oninput="updateSliderLabel(this, 'numPointsVal')">
+                        <div class="range-value" id="numPointsVal">80</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Temperature Optimum (&deg;C)</label>
+                        <input type="range" id="tempOptimum" min="5" max="35" value="22" step="1" oninput="updateSliderLabel(this, 'tempOptVal', '&deg;C')">
+                        <div class="range-value" id="tempOptVal">22&deg;C</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Precipitation Optimum (mm)</label>
+                        <input type="range" id="precipOptimum" min="200" max="2000" value="900" step="50" oninput="updateSliderLabel(this, 'precipOptVal', ' mm')">
+                        <div class="range-value" id="precipOptVal">900 mm</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Niche Breadth (Tolerance)</label>
+                        <input type="range" id="nicheBreadth" min="1" max="10" value="5" step="0.5" oninput="updateSliderLabel(this, 'nicheVal')">
+                        <div class="range-value" id="nicheVal">5</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Prevalence (Sampling Bias)</label>
+                        <input type="range" id="prevalence" min="0.1" max="0.9" value="0.5" step="0.05" oninput="updateSliderLabel(this, 'prevVal')">
+                        <div class="range-value" id="prevVal">0.5</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Environmental Layer Display</label>
+                        <select id="envLayer" onchange="runModel()">
+                            <option value="suitability">Habitat Suitability (predicted)</option>
+                            <option value="temperature">Temperature Layer</option>
+                            <option value="precipitation">Precipitation Layer</option>
+                            <option value="elevation">Elevation Layer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="card-icon">&#9654;</span> Actions</h3>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="runModel()">Run Model</button>
+                        <button class="btn btn-success" onclick="generateNewData()">New Landscape</button>
+                        <button class="btn btn-secondary" onclick="toggleOccurrences()">Toggle Occurrences</button>
+                    </div>
+                    <div class="status-bar" id="statusBar" style="margin-top: 12px;">
+                        Ready &mdash; Select an algorithm and click Run Model
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization -->
+            <div class="viz-area">
+                <div class="canvas-row">
+                    <div class="canvas-card">
+                        <h4><span class="dot" style="background: var(--secondary);"></span> Geographic Prediction Map</h4>
+                        <canvas id="mapCanvas" width="420" height="420"></canvas>
+                        <div class="colorbar">
+                            <span>0</span>
+                            <div class="colorbar-gradient"></div>
+                            <span>1</span>
+                        </div>
+                        <div class="legend" style="margin-top: 8px;">
+                            <div class="legend-item">
+                                <div class="legend-circle" style="background: white; border: 2px solid #0f172a;"></div>
+                                <span>Presence</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-circle" style="background: #0f172a; border: 2px solid #64748b;"></div>
+                                <span>Background</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="canvas-card">
+                        <h4><span class="dot" style="background: var(--accent);"></span> Environmental Niche Space</h4>
+                        <canvas id="nicheCanvas" width="420" height="420"></canvas>
+                        <div class="legend" style="margin-top: 8px;">
+                            <div class="legend-item">
+                                <div class="legend-circle" style="background: var(--secondary);"></div>
+                                <span>Occurrences</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-swatch" style="background: rgba(2, 132, 199, 0.15); border: 2px dashed var(--secondary);"></div>
+                                <span>Predicted Niche</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-swatch" style="background: rgba(239, 68, 68, 0.15); border: 2px dashed #ef4444;"></div>
+                                <span>True Niche</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Response Curves & ROC -->
+        <div class="section-header">
+            <span class="section-label">Evaluation</span>
+            <h2 class="section-title">Model Diagnostics</h2>
+            <p class="section-desc">Response curves show how predicted suitability changes with each environmental variable. The ROC curve evaluates discrimination ability.</p>
+        </div>
+
+        <div class="response-grid animate animate-delay-3">
+            <div class="canvas-card">
+                <h4><span class="dot" style="background: var(--success);"></span> Response Curves</h4>
+                <canvas id="responseCanvas" width="420" height="320"></canvas>
+                <div class="legend" style="margin-top: 8px;">
+                    <div class="legend-item">
+                        <div class="legend-swatch" style="background: var(--secondary); width: 24px; height: 3px; border-radius: 2px;"></div>
+                        <span>Temperature</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-swatch" style="background: var(--success); width: 24px; height: 3px; border-radius: 2px;"></div>
+                        <span>Precipitation</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-swatch" style="background: var(--warning); width: 24px; height: 3px; border-radius: 2px;"></div>
+                        <span>Elevation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas-card">
+                <h4><span class="dot" style="background: var(--danger);"></span> ROC Curve</h4>
+                <canvas id="rocCanvas" width="420" height="320"></canvas>
+                <div class="legend" style="margin-top: 8px;">
+                    <div class="legend-item">
+                        <div class="legend-swatch" style="background: var(--secondary); width: 24px; height: 3px; border-radius: 2px;"></div>
+                        <span>Model ROC</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-swatch" style="background: #cbd5e1; width: 24px; height: 3px; border-radius: 2px; border-top: 2px dashed #94a3b8;"></div>
+                        <span>Random (AUC = 0.5)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mathematical Framework -->
+        <div class="section-header">
+            <span class="section-label">Theory</span>
+            <h2 class="section-title">Mathematical Framework</h2>
+        </div>
+
+        <div class="math-section">
+            <h3>MaxEnt: Maximum Entropy Distribution</h3>
+            <div class="formula-box">
+                <p><strong>Objective:</strong> Find distribution \(\hat{\pi}\) that maximizes entropy subject to feature constraints:</p>
+                <p style="margin-top:8px;">$$\hat{\pi} = \arg\max_{\pi} \left[ -\sum_{x} \pi(x) \ln \pi(x) \right] \quad \text{s.t.} \quad \mathbb{E}_{\hat{\pi}}[f_j] = \mathbb{E}_{\tilde{\pi}}[f_j], \; \forall j$$</p>
+            </div>
+
+            <div class="formula-box">
+                <p><strong>Gibbs Distribution (solution):</strong></p>
+                <p style="margin-top:8px;">$$q_\lambda(x) = \frac{e^{\lambda \cdot f(x)}}{Z_\lambda}, \quad Z_\lambda = \sum_{x} e^{\lambda \cdot f(x)}$$</p>
+            </div>
+
+            <div class="symbol-grid">
+                <div class="symbol-item">
+                    <div class="symbol">\(\pi(x)\)</div>
+                    <div class="description">Probability of species presence at location \(x\) across the landscape</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(f_j(x)\)</div>
+                    <div class="description">Feature function \(j\) (e.g., temperature, precipitation) evaluated at \(x\)</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(\lambda_j\)</div>
+                    <div class="description">Weight for feature \(j\), learned from occurrence data via regularized fitting</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(Z_\lambda\)</div>
+                    <div class="description">Normalizing constant ensuring probabilities sum to 1</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(\tilde{\pi}\)</div>
+                    <div class="description">Empirical distribution of features at occurrence locations</div>
+                </div>
+                <div class="symbol-item">
+                    <div class="symbol">\(H(\pi) = -\sum \pi \ln \pi\)</div>
+                    <div class="description">Shannon entropy: measure of distribution uniformity / uncertainty</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="math-section">
+            <h3>BIOCLIM: Percentile Envelope</h3>
+            <div class="formula-box">
+                <p><strong>Suitability Score:</strong></p>
+                <p style="margin-top:8px;">$$S_{\text{BIOCLIM}}(x) = \frac{2}{d}\sum_{j=1}^{d}\left(\min\big(P_j(x),\; 1 - P_j(x)\big)\right)$$</p>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);">
+                    where \(P_j(x)\) is the percentile rank of variable \(j\) at location \(x\) relative to occurrence records, and \(d\) is the number of environmental variables.
+                </p>
+            </div>
+        </div>
+
+        <div class="math-section">
+            <h3>Model Evaluation Metrics</h3>
+            <div class="formula-box">
+                <p><strong>AUC (Area Under ROC Curve):</strong></p>
+                <p style="margin-top:8px;">$$\text{AUC} = \int_0^1 \text{TPR}(t)\; d\text{FPR}(t) = P(\hat{s}_+ > \hat{s}_-)$$</p>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);">
+                    Probability that a randomly chosen presence site is scored higher than a randomly chosen absence site.
+                </p>
+            </div>
+            <div class="formula-box">
+                <p><strong>TSS (True Skill Statistic):</strong></p>
+                <p style="margin-top:8px;">$$\text{TSS} = \text{Sensitivity} + \text{Specificity} - 1 = \frac{TP}{TP+FN} + \frac{TN}{TN+FP} - 1$$</p>
+            </div>
+        </div>
+
+        <!-- Insight -->
+        <div class="insight-box">
+            <h3>Key Insight: Why SDMs Matter for Conservation</h3>
+            <p>
+                Species Distribution Models are essential tools for predicting how species ranges shift under climate change,
+                identifying priority areas for conservation, and understanding the ecological requirements of species.
+                By combining occurrence records with environmental layers (temperature, precipitation, elevation),
+                SDMs estimate the <strong>fundamental niche</strong> of a species. MaxEnt has become the gold standard for
+                presence-only modeling due to its strong theoretical foundation and consistent performance. However,
+                <strong>ensemble approaches</strong> that combine multiple algorithms often outperform any single method,
+                providing more robust predictions for management decisions. Adjust the parameters above to explore how
+                niche breadth, sampling effort, and environmental optima affect model predictions and accuracy.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Species Distribution Modeling Simulator &mdash; <a href="../../">Abdul Ali</a> | Infectious Disease Ecology &amp; Ecological Modeling</p>
+    </footer>
+
+    <script>
+    // ============================================
+    // SPECIES DISTRIBUTION MODELING SIMULATOR
+    // ============================================
+
+    const SIZE = 420;
+    const GRID = 100; // resolution of raster
+    const CELL = SIZE / GRID;
+
+    // Canvases
+    const mapCanvas = document.getElementById('mapCanvas');
+    const mapCtx = mapCanvas.getContext('2d');
+    const nicheCanvas = document.getElementById('nicheCanvas');
+    const nicheCtx = nicheCanvas.getContext('2d');
+    const responseCanvas = document.getElementById('responseCanvas');
+    const responseCtx = responseCanvas.getContext('2d');
+    const rocCanvas = document.getElementById('rocCanvas');
+    const rocCtx = rocCanvas.getContext('2d');
+
+    // State
+    let currentAlgo = 'maxent';
+    let showOccurrences = true;
+
+    // Environmental layers (100x100 grids)
+    let tempLayer = [];
+    let precipLayer = [];
+    let elevLayer = [];
+    let trueNiche = [];
+    let predictions = [];
+    let occurrences = [];
+    let backgroundPts = [];
+
+    // Generate smooth environmental layers using Perlin-like noise
+    function smoothNoise(seed, octaves) {
+        const grid = Array.from({length: GRID}, () => Array(GRID).fill(0));
+        for (let o = 0; o < octaves; o++) {
+            const freq = Math.pow(2, o + 1);
+            const amp = Math.pow(0.5, o);
+            const phase = seed * 100 + o * 37;
+            for (let i = 0; i < GRID; i++) {
+                for (let j = 0; j < GRID; j++) {
+                    grid[i][j] += amp * (
+                        Math.sin((i / GRID) * freq * Math.PI + phase) *
+                        Math.cos((j / GRID) * freq * Math.PI + phase * 0.7) +
+                        Math.sin(((i + j) / GRID) * freq * 0.7 * Math.PI + phase * 1.3)
+                    ) / 2;
+                }
+            }
+        }
+        // Normalize to 0-1
+        let min = Infinity, max = -Infinity;
+        for (let i = 0; i < GRID; i++)
+            for (let j = 0; j < GRID; j++) {
+                if (grid[i][j] < min) min = grid[i][j];
+                if (grid[i][j] > max) max = grid[i][j];
+            }
+        const range = max - min || 1;
+        for (let i = 0; i < GRID; i++)
+            for (let j = 0; j < GRID; j++)
+                grid[i][j] = (grid[i][j] - min) / range;
+        return grid;
+    }
+
+    function generateLandscape() {
+        const s1 = Math.random() * 100;
+        const s2 = Math.random() * 100;
+        const s3 = Math.random() * 100;
+
+        tempLayer = smoothNoise(s1, 4);
+        precipLayer = smoothNoise(s2, 3);
+        elevLayer = smoothNoise(s3, 5);
+
+        // Scale to realistic ranges
+        // Temp: -5 to 40 C, Precip: 50 to 2500mm, Elev: 0 to 4000m
+        for (let i = 0; i < GRID; i++) {
+            for (let j = 0; j < GRID; j++) {
+                tempLayer[i][j] = tempLayer[i][j] * 45 - 5;
+                precipLayer[i][j] = precipLayer[i][j] * 2450 + 50;
+                elevLayer[i][j] = elevLayer[i][j] * 4000;
+            }
+        }
+    }
+
+    function gaussianSuitability(val, opt, breadth) {
+        return Math.exp(-Math.pow(val - opt, 2) / (2 * Math.pow(breadth, 2)));
+    }
+
+    function computeTrueNiche() {
+        const tempOpt = parseFloat(document.getElementById('tempOptimum').value);
+        const precipOpt = parseFloat(document.getElementById('precipOptimum').value);
+        const breadth = parseFloat(document.getElementById('nicheBreadth').value);
+
+        const tempBreadth = breadth * 2.5;
+        const precipBreadth = breadth * 180;
+        const elevOpt = 800;
+        const elevBreadth = breadth * 350;
+
+        trueNiche = Array.from({length: GRID}, () => Array(GRID).fill(0));
+        for (let i = 0; i < GRID; i++) {
+            for (let j = 0; j < GRID; j++) {
+                const st = gaussianSuitability(tempLayer[i][j], tempOpt, tempBreadth);
+                const sp = gaussianSuitability(precipLayer[i][j], precipOpt, precipBreadth);
+                const se = gaussianSuitability(elevLayer[i][j], elevOpt, elevBreadth);
+                trueNiche[i][j] = st * sp * se;
+            }
+        }
+    }
+
+    function generateOccurrences() {
+        const numPts = parseInt(document.getElementById('numPoints').value);
+        const prevalence = parseFloat(document.getElementById('prevalence').value);
+        occurrences = [];
+        backgroundPts = [];
+
+        // Generate presence points proportional to true suitability
+        let attempts = 0;
+        while (occurrences.length < numPts && attempts < numPts * 100) {
+            const i = Math.floor(Math.random() * GRID);
+            const j = Math.floor(Math.random() * GRID);
+            const p = trueNiche[i][j] * prevalence;
+            if (Math.random() < p) {
+                occurrences.push({i, j, temp: tempLayer[i][j], precip: precipLayer[i][j], elev: elevLayer[i][j]});
+            }
+            attempts++;
+        }
+
+        // Generate 10000 background points
+        for (let k = 0; k < 10000; k++) {
+            const i = Math.floor(Math.random() * GRID);
+            const j = Math.floor(Math.random() * GRID);
+            backgroundPts.push({i, j, temp: tempLayer[i][j], precip: precipLayer[i][j], elev: elevLayer[i][j]});
+        }
+    }
+
+    // ==================
+    // SDM ALGORITHMS
+    // ==================
+
+    function runMaxEnt() {
+        // Simplified MaxEnt-like: fit Gaussian responses to features from occurrence data
+        // Estimate mean and variance for each variable from occurrences
+        if (occurrences.length < 3) return;
+
+        const vars = ['temp', 'precip', 'elev'];
+        const stats = {};
+        for (const v of vars) {
+            const vals = occurrences.map(o => o[v]);
+            const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+            const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length;
+            stats[v] = {mean, sd: Math.sqrt(variance) || 1};
+        }
+
+        // Regularized: broaden the SD slightly
+        const reg = 1.2;
+        predictions = Array.from({length: GRID}, () => Array(GRID).fill(0));
+
+        for (let i = 0; i < GRID; i++) {
+            for (let j = 0; j < GRID; j++) {
+                let logit = 0;
+                logit += -Math.pow(tempLayer[i][j] - stats.temp.mean, 2) / (2 * Math.pow(stats.temp.sd * reg, 2));
+                logit += -Math.pow(precipLayer[i][j] - stats.precip.mean, 2) / (2 * Math.pow(stats.precip.sd * reg, 2));
+                logit += -Math.pow(elevLayer[i][j] - stats.elev.mean, 2) / (2 * Math.pow(stats.elev.sd * reg, 2));
+                predictions[i][j] = Math.exp(logit);
+            }
+        }
+
+        // Normalize to 0-1
+        let max = 0;
+        for (let i = 0; i < GRID; i++)
+            for (let j = 0; j < GRID; j++)
+                if (predictions[i][j] > max) max = predictions[i][j];
+        if (max > 0)
+            for (let i = 0; i < GRID; i++)
+                for (let j = 0; j < GRID; j++)
+                    predictions[i][j] /= max;
+    }
+
+    function runBioclim() {
+        if (occurrences.length < 3) return;
+
+        const vars = ['temp', 'precip', 'elev'];
+        const layers = {temp: tempLayer, precip: precipLayer, elev: elevLayer};
+        const sorted = {};
+        for (const v of vars) {
+            sorted[v] = occurrences.map(o => o[v]).sort((a, b) => a - b);
+        }
+
+        predictions = Array.from({length: GRID}, () => Array(GRID).fill(0));
+
+        for (let i = 0; i < GRID; i++) {
+            for (let j = 0; j < GRID; j++) {
+                let score = 0;
+                for (const v of vars) {
+                    const val = layers[v][i][j];
+                    const arr = sorted[v];
+                    // Find percentile
+                    let rank = 0;
+                    for (let k = 0; k < arr.length; k++) {
+                        if (arr[k] <= val) rank = k + 1;
+                    }
+                    const percentile = rank / arr.length;
+                    score += Math.min(percentile, 1 - percentile);
+                }
+                predictions[i][j] = (2 / vars.length) * score;
+            }
+        }
+
+        // Normalize
+        let max = 0;
+        for (let i = 0; i < GRID; i++)
+            for (let j = 0; j < GRID; j++)
+                if (predictions[i][j] > max) max = predictions[i][j];
+        if (max > 0)
+            for (let i = 0; i < GRID; i++)
+                for (let j = 0; j < GRID; j++)
+                    predictions[i][j] /= max;
+    }
+
+    function runEnsemble() {
+        // Run both and weight by internal score
+        const saved = [...predictions.map(r => [...r])];
+
+        runMaxEnt();
+        const maxentPred = predictions.map(r => [...r]);
+        const maxentAUC = computeAUC(maxentPred);
+
+        runBioclim();
+        const bioclimPred = predictions.map(r => [...r]);
+        const bioclimAUC = computeAUC(bioclimPred);
+
+        const totalW = maxentAUC + bioclimAUC || 1;
+        const wMax = maxentAUC / totalW;
+        const wBio = bioclimAUC / totalW;
+
+        predictions = Array.from({length: GRID}, () => Array(GRID).fill(0));
+        for (let i = 0; i < GRID; i++)
+            for (let j = 0; j < GRID; j++)
+                predictions[i][j] = wMax * maxentPred[i][j] + wBio * bioclimPred[i][j];
+
+        // Normalize
+        let max = 0;
+        for (let i = 0; i < GRID; i++)
+            for (let j = 0; j < GRID; j++)
+                if (predictions[i][j] > max) max = predictions[i][j];
+        if (max > 0)
+            for (let i = 0; i < GRID; i++)
+                for (let j = 0; j < GRID; j++)
+                    predictions[i][j] /= max;
+    }
+
+    // ==================
+    // EVALUATION
+    // ==================
+
+    function computeAUC(preds) {
+        if (!preds || occurrences.length < 2) return 0.5;
+
+        // Presence scores
+        const presScores = occurrences.map(o => preds[o.i][o.j]);
+
+        // Pseudo-absence scores (sample from background)
+        const absScores = [];
+        for (let k = 0; k < Math.min(500, backgroundPts.length); k++) {
+            const bp = backgroundPts[k];
+            absScores.push(preds[bp.i][bp.j]);
+        }
+
+        // Wilcoxon statistic
+        let concordant = 0, total = 0;
+        for (const ps of presScores) {
+            for (const as of absScores) {
+                if (ps > as) concordant++;
+                else if (ps === as) concordant += 0.5;
+                total++;
+            }
+        }
+        return total > 0 ? concordant / total : 0.5;
+    }
+
+    function computeTSS(preds) {
+        if (!preds || occurrences.length < 2) return 0;
+
+        // Find optimal threshold (maximizes TSS)
+        const thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+        let bestTSS = -1;
+
+        for (const t of thresholds) {
+            let tp = 0, fn = 0, fp = 0, tn = 0;
+            for (const o of occurrences) {
+                if (preds[o.i][o.j] >= t) tp++; else fn++;
+            }
+            for (let k = 0; k < Math.min(500, backgroundPts.length); k++) {
+                const bp = backgroundPts[k];
+                if (preds[bp.i][bp.j] >= t) fp++; else tn++;
+            }
+            const sens = tp / (tp + fn || 1);
+            const spec = tn / (tn + fp || 1);
+            const tss = sens + spec - 1;
+            if (tss > bestTSS) bestTSS = tss;
+        }
+        return bestTSS;
+    }
+
+    function computeROCCurve(preds) {
+        if (!preds || occurrences.length < 2) return [{fpr: 0, tpr: 0}, {fpr: 1, tpr: 1}];
+
+        const presScores = occurrences.map(o => preds[o.i][o.j]);
+        const absScores = backgroundPts.slice(0, 500).map(bp => preds[bp.i][bp.j]);
+
+        const points = [];
+        for (let t = 1.0; t >= -0.01; t -= 0.02) {
+            const tp = presScores.filter(s => s >= t).length;
+            const fn = presScores.length - tp;
+            const fp = absScores.filter(s => s >= t).length;
+            const tn = absScores.length - fp;
+            points.push({
+                fpr: fp / (fp + tn || 1),
+                tpr: tp / (tp + fn || 1)
+            });
+        }
+        return points;
+    }
+
+    // ==================
+    // DRAWING
+    // ==================
+
+    function suitabilityColor(val) {
+        // Blue -> Cyan -> Green -> Yellow -> Red
+        val = Math.max(0, Math.min(1, val));
+        const stops = [
+            {pos: 0.0, r: 30, g: 58, b: 95},
+            {pos: 0.25, r: 2, g: 132, b: 199},
+            {pos: 0.5, r: 6, g: 182, b: 212},
+            {pos: 0.7, r: 16, g: 185, b: 129},
+            {pos: 0.85, r: 251, g: 191, b: 36},
+            {pos: 1.0, r: 239, g: 68, b: 68}
+        ];
+
+        let lower = stops[0], upper = stops[stops.length - 1];
+        for (let i = 0; i < stops.length - 1; i++) {
+            if (val >= stops[i].pos && val <= stops[i + 1].pos) {
+                lower = stops[i];
+                upper = stops[i + 1];
+                break;
+            }
+        }
+
+        const t = (val - lower.pos) / (upper.pos - lower.pos || 1);
+        const r = Math.round(lower.r + t * (upper.r - lower.r));
+        const g = Math.round(lower.g + t * (upper.g - lower.g));
+        const b = Math.round(lower.b + t * (upper.b - lower.b));
+        return `rgb(${r},${g},${b})`;
+    }
+
+    function tempColor(val) {
+        // -5 to 40
+        const t = (val + 5) / 45;
+        const r = Math.round(30 + t * 220);
+        const g = Math.round(80 + (1 - Math.abs(t - 0.5) * 2) * 160);
+        const b = Math.round(200 - t * 180);
+        return `rgb(${r},${g},${b})`;
+    }
+
+    function precipColor(val) {
+        // 50 to 2500
+        const t = (val - 50) / 2450;
+        const r = Math.round(245 - t * 200);
+        const g = Math.round(240 - t * 100);
+        const b = Math.round(220 + t * 35);
+        return `rgb(${r},${g},${b})`;
+    }
+
+    function elevColor(val) {
+        // 0 to 4000
+        const t = val / 4000;
+        const r = Math.round(16 + t * 180);
+        const g = Math.round(185 - t * 120);
+        const b = Math.round(129 - t * 80);
+        return `rgb(${r},${g},${b})`;
+    }
+
+    function drawMap() {
+        const layer = document.getElementById('envLayer').value;
+        const imageData = mapCtx.createImageData(SIZE, SIZE);
+        const data = imageData.data;
+
+        for (let i = 0; i < GRID; i++) {
+            for (let j = 0; j < GRID; j++) {
+                let color;
+                if (layer === 'suitability') {
+                    color = suitabilityColor(predictions[i]?.[j] ?? 0);
+                } else if (layer === 'temperature') {
+                    color = tempColor(tempLayer[i][j]);
+                } else if (layer === 'precipitation') {
+                    color = precipColor(precipLayer[i][j]);
+                } else {
+                    color = elevColor(elevLayer[i][j]);
+                }
+
+                const match = color.match(/\d+/g).map(Number);
+                const px = Math.floor(j * CELL);
+                const py = Math.floor(i * CELL);
+                const pw = Math.ceil(CELL);
+                const ph = Math.ceil(CELL);
+
+                for (let dy = 0; dy < ph && py + dy < SIZE; dy++) {
+                    for (let dx = 0; dx < pw && px + dx < SIZE; dx++) {
+                        const idx = ((py + dy) * SIZE + (px + dx)) * 4;
+                        data[idx] = match[0];
+                        data[idx + 1] = match[1];
+                        data[idx + 2] = match[2];
+                        data[idx + 3] = 255;
+                    }
+                }
+            }
+        }
+
+        mapCtx.putImageData(imageData, 0, 0);
+
+        // Draw occurrence points
+        if (showOccurrences) {
+            for (const o of occurrences) {
+                const x = o.j * CELL + CELL / 2;
+                const y = o.i * CELL + CELL / 2;
+                mapCtx.beginPath();
+                mapCtx.arc(x, y, 3.5, 0, Math.PI * 2);
+                mapCtx.fillStyle = 'white';
+                mapCtx.fill();
+                mapCtx.strokeStyle = '#0f172a';
+                mapCtx.lineWidth = 1.2;
+                mapCtx.stroke();
+            }
+        }
+    }
+
+    function drawNicheSpace() {
+        const W = 420, H = 420;
+        const pad = 50;
+        nicheCtx.clearRect(0, 0, W, H);
+
+        // Background
+        nicheCtx.fillStyle = '#fafbfc';
+        nicheCtx.fillRect(0, 0, W, H);
+
+        // Axes
+        const tempMin = -5, tempMax = 40;
+        const precipMin = 50, precipMax = 2500;
+
+        const toX = v => pad + ((v - tempMin) / (tempMax - tempMin)) * (W - 2 * pad);
+        const toY = v => H - pad - ((v - precipMin) / (precipMax - precipMin)) * (H - 2 * pad);
+
+        // Grid lines
+        nicheCtx.strokeStyle = '#e2e8f0';
+        nicheCtx.lineWidth = 1;
+        for (let t = 0; t <= 40; t += 10) {
+            const x = toX(t);
+            nicheCtx.beginPath();
+            nicheCtx.moveTo(x, pad);
+            nicheCtx.lineTo(x, H - pad);
+            nicheCtx.stroke();
+        }
+        for (let p = 500; p <= 2500; p += 500) {
+            const y = toY(p);
+            nicheCtx.beginPath();
+            nicheCtx.moveTo(pad, y);
+            nicheCtx.lineTo(W - pad, y);
+            nicheCtx.stroke();
+        }
+
+        // True niche ellipse
+        const tempOpt = parseFloat(document.getElementById('tempOptimum').value);
+        const precipOpt = parseFloat(document.getElementById('precipOptimum').value);
+        const breadth = parseFloat(document.getElementById('nicheBreadth').value);
+
+        nicheCtx.save();
+        nicheCtx.beginPath();
+        nicheCtx.ellipse(
+            toX(tempOpt), toY(precipOpt),
+            ((breadth * 2.5 * 2) / (tempMax - tempMin)) * (W - 2 * pad),
+            ((breadth * 180 * 2) / (precipMax - precipMin)) * (H - 2 * pad),
+            0, 0, Math.PI * 2
+        );
+        nicheCtx.fillStyle = 'rgba(239, 68, 68, 0.08)';
+        nicheCtx.fill();
+        nicheCtx.setLineDash([6, 4]);
+        nicheCtx.strokeStyle = '#ef4444';
+        nicheCtx.lineWidth = 2;
+        nicheCtx.stroke();
+        nicheCtx.restore();
+
+        // Predicted niche ellipse (from occurrence stats)
+        if (occurrences.length > 2) {
+            const tVals = occurrences.map(o => o.temp);
+            const pVals = occurrences.map(o => o.precip);
+            const tMean = tVals.reduce((a, b) => a + b, 0) / tVals.length;
+            const pMean = pVals.reduce((a, b) => a + b, 0) / pVals.length;
+            const tSD = Math.sqrt(tVals.reduce((a, b) => a + (b - tMean) ** 2, 0) / tVals.length);
+            const pSD = Math.sqrt(pVals.reduce((a, b) => a + (b - pMean) ** 2, 0) / pVals.length);
+
+            nicheCtx.save();
+            nicheCtx.beginPath();
+            nicheCtx.ellipse(
+                toX(tMean), toY(pMean),
+                (tSD * 2 / (tempMax - tempMin)) * (W - 2 * pad),
+                (pSD * 2 / (precipMax - precipMin)) * (H - 2 * pad),
+                0, 0, Math.PI * 2
+            );
+            nicheCtx.fillStyle = 'rgba(2, 132, 199, 0.08)';
+            nicheCtx.fill();
+            nicheCtx.setLineDash([6, 4]);
+            nicheCtx.strokeStyle = '#0284c7';
+            nicheCtx.lineWidth = 2;
+            nicheCtx.stroke();
+            nicheCtx.restore();
+        }
+
+        // Draw occurrence points
+        for (const o of occurrences) {
+            const x = toX(o.temp);
+            const y = toY(o.precip);
+            nicheCtx.beginPath();
+            nicheCtx.arc(x, y, 3.5, 0, Math.PI * 2);
+            nicheCtx.fillStyle = 'rgba(2, 132, 199, 0.7)';
+            nicheCtx.fill();
+            nicheCtx.strokeStyle = '#0284c7';
+            nicheCtx.lineWidth = 1;
+            nicheCtx.stroke();
+        }
+
+        // Axes labels
+        nicheCtx.fillStyle = '#0f172a';
+        nicheCtx.font = '600 12px system-ui';
+        nicheCtx.textAlign = 'center';
+        nicheCtx.fillText('Temperature (\u00B0C)', W / 2, H - 10);
+
+        nicheCtx.save();
+        nicheCtx.translate(14, H / 2);
+        nicheCtx.rotate(-Math.PI / 2);
+        nicheCtx.fillText('Precipitation (mm)', 0, 0);
+        nicheCtx.restore();
+
+        // Tick labels
+        nicheCtx.font = '500 10px system-ui';
+        nicheCtx.fillStyle = '#64748b';
+        nicheCtx.textAlign = 'center';
+        for (let t = 0; t <= 40; t += 10) {
+            nicheCtx.fillText(t + '\u00B0', toX(t), H - pad + 16);
+        }
+        nicheCtx.textAlign = 'right';
+        for (let p = 500; p <= 2500; p += 500) {
+            nicheCtx.fillText(p, pad - 6, toY(p) + 4);
+        }
+    }
+
+    function drawResponseCurves() {
+        const W = 420, H = 320;
+        const pad = {top: 20, right: 20, bottom: 45, left: 55};
+        responseCtx.clearRect(0, 0, W, H);
+
+        responseCtx.fillStyle = '#fafbfc';
+        responseCtx.fillRect(0, 0, W, H);
+
+        const plotW = W - pad.left - pad.right;
+        const plotH = H - pad.top - pad.bottom;
+
+        // Axes
+        responseCtx.strokeStyle = '#cbd5e1';
+        responseCtx.lineWidth = 1;
+        responseCtx.beginPath();
+        responseCtx.moveTo(pad.left, pad.top);
+        responseCtx.lineTo(pad.left, H - pad.bottom);
+        responseCtx.lineTo(W - pad.right, H - pad.bottom);
+        responseCtx.stroke();
+
+        // Y-axis label
+        responseCtx.fillStyle = '#0f172a';
+        responseCtx.font = '600 11px system-ui';
+        responseCtx.save();
+        responseCtx.translate(14, pad.top + plotH / 2);
+        responseCtx.rotate(-Math.PI / 2);
+        responseCtx.textAlign = 'center';
+        responseCtx.fillText('Suitability', 0, 0);
+        responseCtx.restore();
+
+        // X-axis label
+        responseCtx.textAlign = 'center';
+        responseCtx.fillText('Environmental Variable (normalized)', pad.left + plotW / 2, H - 6);
+
+        // Y ticks
+        responseCtx.font = '500 10px system-ui';
+        responseCtx.fillStyle = '#64748b';
+        responseCtx.textAlign = 'right';
+        for (let v = 0; v <= 1; v += 0.25) {
+            const y = H - pad.bottom - v * plotH;
+            responseCtx.fillText(v.toFixed(2), pad.left - 6, y + 3);
+            responseCtx.strokeStyle = '#f1f5f9';
+            responseCtx.beginPath();
+            responseCtx.moveTo(pad.left, y);
+            responseCtx.lineTo(W - pad.right, y);
+            responseCtx.stroke();
+        }
+
+        if (occurrences.length < 3) return;
+
+        // Compute response curves
+        const vars = [
+            {key: 'temp', layer: tempLayer, color: '#0284c7', name: 'Temperature'},
+            {key: 'precip', layer: precipLayer, color: '#059669', name: 'Precipitation'},
+            {key: 'elev', layer: elevLayer, color: '#d97706', name: 'Elevation'}
+        ];
+
+        for (const v of vars) {
+            const vals = occurrences.map(o => o[v.key]);
+            const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+            const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length) || 1;
+
+            // Find range from layer
+            let layerMin = Infinity, layerMax = -Infinity;
+            for (let i = 0; i < GRID; i++)
+                for (let j = 0; j < GRID; j++) {
+                    if (v.layer[i][j] < layerMin) layerMin = v.layer[i][j];
+                    if (v.layer[i][j] > layerMax) layerMax = v.layer[i][j];
+                }
+
+            const nSteps = 100;
+            responseCtx.beginPath();
+            responseCtx.strokeStyle = v.color;
+            responseCtx.lineWidth = 2.5;
+
+            for (let s = 0; s <= nSteps; s++) {
+                const rawVal = layerMin + (s / nSteps) * (layerMax - layerMin);
+                const suit = gaussianSuitability(rawVal, mean, sd * 1.2);
+                const x = pad.left + (s / nSteps) * plotW;
+                const y = H - pad.bottom - suit * plotH;
+                if (s === 0) responseCtx.moveTo(x, y);
+                else responseCtx.lineTo(x, y);
+            }
+            responseCtx.stroke();
+        }
+    }
+
+    function drawROCCurve() {
+        const W = 420, H = 320;
+        const pad = {top: 20, right: 20, bottom: 45, left: 55};
+        rocCtx.clearRect(0, 0, W, H);
+
+        rocCtx.fillStyle = '#fafbfc';
+        rocCtx.fillRect(0, 0, W, H);
+
+        const plotW = W - pad.left - pad.right;
+        const plotH = H - pad.top - pad.bottom;
+
+        // Axes
+        rocCtx.strokeStyle = '#cbd5e1';
+        rocCtx.lineWidth = 1;
+        rocCtx.beginPath();
+        rocCtx.moveTo(pad.left, pad.top);
+        rocCtx.lineTo(pad.left, H - pad.bottom);
+        rocCtx.lineTo(W - pad.right, H - pad.bottom);
+        rocCtx.stroke();
+
+        // Labels
+        rocCtx.fillStyle = '#0f172a';
+        rocCtx.font = '600 11px system-ui';
+        rocCtx.save();
+        rocCtx.translate(14, pad.top + plotH / 2);
+        rocCtx.rotate(-Math.PI / 2);
+        rocCtx.textAlign = 'center';
+        rocCtx.fillText('True Positive Rate', 0, 0);
+        rocCtx.restore();
+
+        rocCtx.textAlign = 'center';
+        rocCtx.fillText('False Positive Rate', pad.left + plotW / 2, H - 6);
+
+        // Ticks
+        rocCtx.font = '500 10px system-ui';
+        rocCtx.fillStyle = '#64748b';
+        rocCtx.textAlign = 'right';
+        for (let v = 0; v <= 1; v += 0.25) {
+            const y = H - pad.bottom - v * plotH;
+            rocCtx.fillText(v.toFixed(2), pad.left - 6, y + 3);
+            rocCtx.strokeStyle = '#f1f5f9';
+            rocCtx.beginPath();
+            rocCtx.moveTo(pad.left, y);
+            rocCtx.lineTo(W - pad.right, y);
+            rocCtx.stroke();
+        }
+        rocCtx.textAlign = 'center';
+        for (let v = 0; v <= 1; v += 0.25) {
+            const x = pad.left + v * plotW;
+            rocCtx.fillText(v.toFixed(2), x, H - pad.bottom + 16);
+        }
+
+        // Diagonal (random)
+        rocCtx.setLineDash([6, 4]);
+        rocCtx.strokeStyle = '#94a3b8';
+        rocCtx.lineWidth = 1.5;
+        rocCtx.beginPath();
+        rocCtx.moveTo(pad.left, H - pad.bottom);
+        rocCtx.lineTo(W - pad.right, pad.top);
+        rocCtx.stroke();
+        rocCtx.setLineDash([]);
+
+        // ROC curve
+        const rocPoints = computeROCCurve(predictions);
+        if (rocPoints.length > 1) {
+            // Fill area
+            rocCtx.beginPath();
+            rocCtx.moveTo(pad.left + rocPoints[0].fpr * plotW, H - pad.bottom - rocPoints[0].tpr * plotH);
+            for (const pt of rocPoints) {
+                rocCtx.lineTo(pad.left + pt.fpr * plotW, H - pad.bottom - pt.tpr * plotH);
+            }
+            rocCtx.lineTo(pad.left + plotW, H - pad.bottom);
+            rocCtx.lineTo(pad.left, H - pad.bottom);
+            rocCtx.closePath();
+            rocCtx.fillStyle = 'rgba(2, 132, 199, 0.1)';
+            rocCtx.fill();
+
+            // Line
+            rocCtx.beginPath();
+            rocCtx.strokeStyle = '#0284c7';
+            rocCtx.lineWidth = 2.5;
+            for (let k = 0; k < rocPoints.length; k++) {
+                const x = pad.left + rocPoints[k].fpr * plotW;
+                const y = H - pad.bottom - rocPoints[k].tpr * plotH;
+                if (k === 0) rocCtx.moveTo(x, y);
+                else rocCtx.lineTo(x, y);
+            }
+            rocCtx.stroke();
+        }
+
+        // AUC label
+        const auc = computeAUC(predictions);
+        rocCtx.fillStyle = '#0284c7';
+        rocCtx.font = '700 13px system-ui';
+        rocCtx.textAlign = 'left';
+        rocCtx.fillText(`AUC = ${auc.toFixed(3)}`, pad.left + 10, pad.top + 20);
+    }
+
+    // ==================
+    // MAIN FUNCTIONS
+    // ==================
+
+    function selectAlgorithm(algo) {
+        currentAlgo = algo;
+        document.querySelectorAll('.algo-card').forEach(c => c.classList.remove('active'));
+        document.querySelector(`[data-algo="${algo}"]`).classList.add('active');
+        runModel();
+    }
+
+    function runModel() {
+        computeTrueNiche();
+        generateOccurrences();
+
+        document.getElementById('statusBar').textContent = `Running ${currentAlgo.toUpperCase()}...`;
+
+        if (currentAlgo === 'maxent') runMaxEnt();
+        else if (currentAlgo === 'bioclim') runBioclim();
+        else runEnsemble();
+
+        drawMap();
+        drawNicheSpace();
+        drawResponseCurves();
+        drawROCCurve();
+        updateMetrics();
+
+        const algoNames = {maxent: 'MaxEnt', bioclim: 'BIOCLIM', ensemble: 'Ensemble'};
+        document.getElementById('statusBar').textContent =
+            `${algoNames[currentAlgo]} complete \u2014 ${occurrences.length} occurrences, AUC = ${computeAUC(predictions).toFixed(3)}`;
+    }
+
+    function updateMetrics() {
+        const auc = computeAUC(predictions);
+        const tss = computeTSS(predictions);
+
+        document.getElementById('metricAUC').textContent = auc.toFixed(3);
+        document.getElementById('metricTSS').textContent = tss.toFixed(3);
+        document.getElementById('metricOcc').textContent = occurrences.length;
+
+        // Compute suitable area (>0.5 threshold)
+        let suitable = 0;
+        for (let i = 0; i < GRID; i++)
+            for (let j = 0; j < GRID; j++)
+                if (predictions[i]?.[j] > 0.5) suitable++;
+        const pct = ((suitable / (GRID * GRID)) * 100).toFixed(1);
+        document.getElementById('metricArea').textContent = pct + '%';
+    }
+
+    function generateNewData() {
+        generateLandscape();
+        runModel();
+    }
+
+    function toggleOccurrences() {
+        showOccurrences = !showOccurrences;
+        drawMap();
+    }
+
+    function updateSliderLabel(el, labelId, suffix) {
+        document.getElementById(labelId).innerHTML = el.value + (suffix || '');
+    }
+
+    // Initialize
+    generateLandscape();
+    runModel();
+    </script>
+</body>
+</html>
