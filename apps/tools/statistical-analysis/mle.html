@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximum Likelihood Estimation - Interactive Simulator | Abdul Ali</title>
+    <meta name="description" content="Interactive Maximum Likelihood Estimation (MLE) simulator. Explore how MLE works with Normal, Poisson, Binomial, and Exponential distributions through real-time visualizations.">
+    <link rel="canonical" href="https://drabdulali.github.io/apps/tools/statistical-analysis/mle.html">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #0284c7;
+            --secondary-light: #0ea5e9;
+            --accent: #0891b2;
+            --accent-glow: #06b6d4;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(14, 165, 233, 0.15);
+            --gradient-primary: linear-gradient(135deg, #0284c7 0%, #0891b2 50%, #059669 100%);
+            --gradient-light: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-glow: 0 0 40px rgba(14, 165, 233, 0.15);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--gradient-light);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(2, 132, 199, 0.3);
+        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { color: white; text-decoration: none; font-weight: 700; font-size: 1.25rem; }
+        .back-link {
+            color: white; text-decoration: none; padding: 0.5rem 1.25rem;
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 8px;
+            transition: all 0.3s; font-size: 0.9rem;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.15); }
+
+        .hero {
+            background: var(--gradient-primary);
+            padding: 3rem 2rem 4rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 50px;
+            font-size: 0.85rem; margin-bottom: 1.25rem; backdrop-filter: blur(10px);
+        }
+        .hero-badge-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
+        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.03em; line-height: 1.15; }
+        .hero p { opacity: 0.92; max-width: 750px; margin: 0 auto; font-size: 1.1rem; line-height: 1.7; }
+
+        main { max-width: 1400px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+        .section-header { text-align: center; margin-bottom: 2rem; }
+        .section-label {
+            display: inline-block; padding: 4px 16px; background: var(--gradient-primary);
+            color: white; border-radius: 50px; font-size: 0.8rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem;
+        }
+        .section-title { font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .section-desc { color: var(--text-secondary); max-width: 700px; margin: 0 auto; font-size: 1rem; }
+
+        .card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 1.75rem; box-shadow: var(--shadow-card);
+            transition: all 0.3s;
+        }
+        .card:hover { box-shadow: var(--shadow-glow); transform: translateY(-2px); }
+        .card h3 {
+            font-size: 1.15rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;
+        }
+        .card-icon {
+            width: 36px; height: 36px; background: var(--gradient-primary);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        /* Simulator Layout */
+        .simulator-grid {
+            display: grid; grid-template-columns: 340px 1fr; gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .controls-panel { display: flex; flex-direction: column; gap: 1.25rem; }
+
+        .control-group { margin-bottom: 0.75rem; }
+        .control-group label {
+            display: block; font-size: 0.85rem; font-weight: 600;
+            color: var(--text-secondary); margin-bottom: 6px;
+        }
+        .control-group select, .control-group input[type="number"] { width: 100%; }
+
+        select, input[type="number"] {
+            padding: 10px 14px; border: 2px solid var(--card-border); border-radius: 10px;
+            font-size: 0.95rem; color: var(--text-primary); background: white;
+            cursor: pointer; transition: border-color 0.3s;
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center;
+        }
+        select:focus, input[type="number"]:focus {
+            outline: none; border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none; width: 100%; height: 6px;
+            background: #e2e8f0; border-radius: 3px; outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            background: var(--secondary); border-radius: 50%; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+        }
+        .range-value { text-align: right; font-size: 0.8rem; color: var(--accent); font-weight: 700; margin-top: 2px; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 20px; border: none; border-radius: 10px; font-size: 0.95rem;
+            font-weight: 600; cursor: pointer; transition: all 0.3s; width: 100%;
+        }
+        .btn-primary {
+            background: var(--gradient-primary); color: white;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4); }
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981); color: white;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+        }
+        .btn-success:hover { transform: translateY(-2px); }
+        .btn-secondary { background: #f1f5f9; color: var(--text-primary); border: 2px solid #e2e8f0; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-group { display: flex; flex-direction: column; gap: 8px; }
+
+        .status-bar {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(2,132,199,0.08), rgba(8,145,178,0.08));
+            border: 1px solid rgba(2,132,199,0.15); border-radius: 10px;
+            font-size: 0.85rem; color: var(--secondary); font-weight: 600; text-align: center;
+        }
+
+        .viz-area { display: flex; flex-direction: column; gap: 1.5rem; }
+        .canvas-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .canvas-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow-card); text-align: center;
+        }
+        .canvas-card h4 {
+            font-size: 0.95rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .canvas-card h4 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        canvas { border: 1px solid #e2e8f0; border-radius: 10px; max-width: 100%; height: auto; background: #fafbfc; }
+
+        .legend {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 16px; margin-top: 10px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-secondary); }
+        .legend-swatch { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0; }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .metric-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 14px; padding: 1.25rem; text-align: center;
+            box-shadow: var(--shadow-card); transition: all 0.3s;
+        }
+        .metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+        .metric-value {
+            font-size: 1.6rem; font-weight: 800;
+            background: var(--gradient-primary); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2;
+        }
+        .metric-label {
+            font-size: 0.78rem; color: var(--text-muted); font-weight: 600;
+            margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+
+        .math-section {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--shadow-card);
+        }
+        .math-section h3 { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; }
+        .formula-box {
+            background: linear-gradient(135deg, rgba(2,132,199,0.04), rgba(5,150,105,0.04));
+            padding: 18px 20px; border-radius: 12px; margin: 14px 0;
+            border-left: 4px solid var(--secondary); overflow-x: auto;
+        }
+        .formula-box p { color: var(--text-secondary); font-size: 0.95rem; }
+        .formula-box strong { color: var(--text-primary); }
+        .symbol-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 16px; }
+        .symbol-item { background: #f8fafc; padding: 14px; border-radius: 10px; border-left: 3px solid var(--accent); }
+        .symbol-item .symbol { font-weight: 700; color: var(--secondary); font-size: 1.05rem; }
+        .symbol-item .description { color: var(--text-secondary); font-size: 0.88rem; margin-top: 4px; }
+
+        /* Steps walkthrough */
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .step-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 14px; padding: 1.25rem; text-align: center;
+            box-shadow: var(--shadow-card); position: relative;
+        }
+        .step-num {
+            width: 32px; height: 32px; background: var(--gradient-primary);
+            border-radius: 50%; color: white; font-weight: 800; font-size: 0.9rem;
+            display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;
+        }
+        .step-card h4 { font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.35rem; }
+        .step-card p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+
+        .insight-box {
+            background: linear-gradient(135deg, rgba(2,132,199,0.06), rgba(5,150,105,0.06));
+            border: 1px solid rgba(2,132,199,0.2); border-radius: 16px; padding: 1.75rem; margin-top: 2rem;
+        }
+        .insight-box h3 { color: var(--secondary); font-size: 1.15rem; margin-bottom: 0.75rem; }
+        .insight-box p { color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem; }
+
+        /* Data table */
+        .data-display {
+            max-height: 180px; overflow-y: auto; background: #f8fafc;
+            border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace;
+            font-size: 0.8rem; color: var(--text-secondary); border: 1px solid #e2e8f0;
+            margin-top: 8px;
+        }
+
+        footer {
+            background: var(--gradient-primary); color: white;
+            text-align: center; padding: 1.5rem; font-size: 0.85rem;
+        }
+        footer a { color: white; text-decoration: underline; }
+
+        @media (max-width: 1024px) {
+            .simulator-grid { grid-template-columns: 1fr; }
+            .canvas-row { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero { padding: 2rem 1rem 3rem; }
+            main { padding: 1.5rem 1rem; }
+            .steps-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../" class="back-link">&#8592; Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-badge"><span class="hero-badge-dot"></span>Interactive Simulator</div>
+        <h1>Maximum Likelihood Estimation</h1>
+        <p>
+            Understand how MLE finds the parameter values that make observed data most probable.
+            Explore likelihood surfaces, log-likelihood functions, and Fisher information across
+            Normal, Poisson, Binomial, and Exponential distributions.
+        </p>
+    </section>
+
+    <main>
+        <!-- How MLE Works -->
+        <div class="section-header" style="margin-top: 0.5rem;">
+            <span class="section-label">Concept</span>
+            <h2 class="section-title">How Maximum Likelihood Works</h2>
+            <p class="section-desc">MLE finds the parameter values that maximize the probability of observing the data we have.</p>
+        </div>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <h4>Collect Data</h4>
+                <p>Observe a sample of \(n\) data points \(x_1, x_2, \ldots, x_n\) from an unknown distribution.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">2</div>
+                <h4>Choose a Model</h4>
+                <p>Assume a probability distribution \(f(x|\theta)\) with unknown parameter \(\theta\).</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <h4>Write the Likelihood</h4>
+                <p>Compute \(L(\theta) = \prod_{i=1}^n f(x_i|\theta)\), the joint probability of all data.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">4</div>
+                <h4>Maximize</h4>
+                <p>Find \(\hat{\theta}_{MLE} = \arg\max_\theta \ln L(\theta)\) by setting the score to zero.</p>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="metricMLE">--</div>
+                <div class="metric-label">MLE Estimate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="metricLogL">--</div>
+                <div class="metric-label">Max Log-Likelihood</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="metricSE">--</div>
+                <div class="metric-label">Standard Error</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="metricN">0</div>
+                <div class="metric-label">Sample Size</div>
+            </div>
+        </div>
+
+        <!-- Main Simulator -->
+        <div class="simulator-grid">
+            <div class="controls-panel">
+                <div class="card">
+                    <h3><span class="card-icon">&#9881;</span> Distribution & Parameters</h3>
+
+                    <div class="control-group">
+                        <label>Distribution Family</label>
+                        <select id="distType" onchange="onDistChange()">
+                            <option value="normal">Normal (Gaussian)</option>
+                            <option value="poisson">Poisson</option>
+                            <option value="binomial">Binomial</option>
+                            <option value="exponential">Exponential</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group" id="trueParamGroup1">
+                        <label id="trueParam1Label">True Mean (&mu;)</label>
+                        <input type="range" id="trueParam1" min="-5" max="15" value="5" step="0.1" oninput="updateLabel('trueParam1','tp1Val')">
+                        <div class="range-value" id="tp1Val">5</div>
+                    </div>
+
+                    <div class="control-group" id="trueParamGroup2">
+                        <label id="trueParam2Label">True Std Dev (&sigma;)</label>
+                        <input type="range" id="trueParam2" min="0.5" max="8" value="2" step="0.1" oninput="updateLabel('trueParam2','tp2Val')">
+                        <div class="range-value" id="tp2Val">2</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Sample Size (n)</label>
+                        <input type="range" id="sampleSize" min="5" max="500" value="50" step="5" oninput="updateLabel('sampleSize','ssVal')">
+                        <div class="range-value" id="ssVal">50</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="card-icon">&#9654;</span> Actions</h3>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="runMLE()">Generate &amp; Estimate</button>
+                        <button class="btn btn-success" onclick="animateConvergence()">Animate Convergence</button>
+                        <button class="btn btn-secondary" onclick="runMultipleMLE()">Repeat 500x (Sampling Dist.)</button>
+                    </div>
+                    <div class="status-bar" id="statusBar" style="margin-top:12px;">
+                        Ready &mdash; Choose a distribution and click Generate &amp; Estimate
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="card-icon">&#128202;</span> Generated Data</h3>
+                    <div class="data-display" id="dataDisplay">No data generated yet.</div>
+                </div>
+            </div>
+
+            <div class="viz-area">
+                <div class="canvas-row">
+                    <div class="canvas-card">
+                        <h4><span class="dot" style="background:var(--secondary)"></span> Data Histogram &amp; Fitted PDF</h4>
+                        <canvas id="histCanvas" width="440" height="360"></canvas>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-swatch" style="background:rgba(2,132,199,0.35)"></div><span>Data Histogram</span></div>
+                            <div class="legend-item"><div class="legend-swatch" style="background:var(--secondary);width:24px;height:3px;border-radius:2px"></div><span>MLE Fit</span></div>
+                            <div class="legend-item"><div class="legend-swatch" style="background:var(--danger);width:24px;height:3px;border-radius:2px;border-top:2px dashed var(--danger)"></div><span>True Distribution</span></div>
+                        </div>
+                    </div>
+                    <div class="canvas-card">
+                        <h4><span class="dot" style="background:var(--accent)"></span> Log-Likelihood Function</h4>
+                        <canvas id="loglikCanvas" width="440" height="360"></canvas>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-swatch" style="background:var(--accent);width:24px;height:3px;border-radius:2px"></div><span>Log-Likelihood</span></div>
+                            <div class="legend-item"><div class="legend-swatch" style="background:var(--danger);width:8px;height:8px;border-radius:50%"></div><span>MLE</span></div>
+                            <div class="legend-item"><div class="legend-swatch" style="background:var(--warning);width:24px;height:3px;border-radius:2px;border-top:2px dashed var(--warning)"></div><span>True Value</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="canvas-row">
+                    <div class="canvas-card">
+                        <h4><span class="dot" style="background:var(--success)"></span> Score Function (Derivative)</h4>
+                        <canvas id="scoreCanvas" width="440" height="360"></canvas>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-swatch" style="background:var(--success);width:24px;height:3px;border-radius:2px"></div><span>Score \(U(\theta) = \frac{d}{d\theta}\ell(\theta)\)</span></div>
+                            <div class="legend-item"><div class="legend-swatch" style="background:#94a3b8;width:24px;height:1px"></div><span>Zero line</span></div>
+                        </div>
+                    </div>
+                    <div class="canvas-card">
+                        <h4><span class="dot" style="background:var(--warning)"></span> Sampling Distribution of MLE</h4>
+                        <canvas id="sampDistCanvas" width="440" height="360"></canvas>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-swatch" style="background:rgba(8,145,178,0.35)"></div><span>500 MLE Replicates</span></div>
+                            <div class="legend-item"><div class="legend-swatch" style="background:var(--danger);width:8px;height:8px;border-radius:50%"></div><span>True Value</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mathematical Framework -->
+        <div class="section-header">
+            <span class="section-label">Theory</span>
+            <h2 class="section-title">Mathematical Framework</h2>
+        </div>
+
+        <div class="math-section">
+            <h3>General Maximum Likelihood Theory</h3>
+            <div class="formula-box">
+                <p><strong>Likelihood Function:</strong></p>
+                <p style="margin-top:8px">$$L(\theta \mid \mathbf{x}) = \prod_{i=1}^{n} f(x_i \mid \theta)$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Log-Likelihood (easier to optimize):</strong></p>
+                <p style="margin-top:8px">$$\ell(\theta) = \ln L(\theta) = \sum_{i=1}^{n} \ln f(x_i \mid \theta)$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Score Function &amp; MLE condition:</strong></p>
+                <p style="margin-top:8px">$$U(\theta) = \frac{\partial \ell}{\partial \theta} = 0 \quad \Longrightarrow \quad \hat{\theta}_{MLE}$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Fisher Information &amp; Asymptotic Variance:</strong></p>
+                <p style="margin-top:8px">$$I(\theta) = -\mathbb{E}\!\left[\frac{\partial^2 \ell}{\partial \theta^2}\right], \qquad \text{Var}(\hat{\theta}) \approx \frac{1}{I(\theta)}$$</p>
+                <p style="margin-top:8px;font-size:0.9rem;color:var(--text-secondary)">As \(n \to \infty\): \(\hat{\theta}_{MLE} \xrightarrow{d} \mathcal{N}\!\left(\theta_0,\; \frac{1}{nI(\theta_0)}\right)\)</p>
+            </div>
+            <div class="symbol-grid">
+                <div class="symbol-item"><div class="symbol">\(L(\theta|\mathbf{x})\)</div><div class="description">Likelihood: probability of data as a function of the parameter</div></div>
+                <div class="symbol-item"><div class="symbol">\(\ell(\theta)\)</div><div class="description">Log-likelihood: log of the likelihood (same maximizer)</div></div>
+                <div class="symbol-item"><div class="symbol">\(U(\theta)\)</div><div class="description">Score function: gradient of the log-likelihood</div></div>
+                <div class="symbol-item"><div class="symbol">\(I(\theta)\)</div><div class="description">Fisher information: expected curvature of the log-likelihood</div></div>
+                <div class="symbol-item"><div class="symbol">\(\hat{\theta}_{MLE}\)</div><div class="description">MLE estimate: value of \(\theta\) that maximizes the likelihood</div></div>
+                <div class="symbol-item"><div class="symbol">\(\text{SE} = 1/\sqrt{I(\hat\theta)}\)</div><div class="description">Standard error: estimated uncertainty of the MLE</div></div>
+            </div>
+        </div>
+
+        <div class="math-section">
+            <h3>Distribution-Specific MLE Solutions</h3>
+            <div class="formula-box">
+                <p><strong>Normal: </strong> \(X \sim \mathcal{N}(\mu, \sigma^2)\)</p>
+                <p style="margin-top:8px">$$\hat{\mu}_{MLE} = \bar{x} = \frac{1}{n}\sum x_i, \qquad \hat{\sigma}^2_{MLE} = \frac{1}{n}\sum(x_i - \bar{x})^2$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Poisson: </strong> \(X \sim \text{Pois}(\lambda)\)</p>
+                <p style="margin-top:8px">$$\hat{\lambda}_{MLE} = \bar{x} = \frac{1}{n}\sum x_i$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Binomial: </strong> \(X \sim \text{Bin}(m, p)\) &nbsp;(known \(m\))</p>
+                <p style="margin-top:8px">$$\hat{p}_{MLE} = \frac{\bar{x}}{m} = \frac{\sum x_i}{n \cdot m}$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Exponential: </strong> \(X \sim \text{Exp}(\lambda)\)</p>
+                <p style="margin-top:8px">$$\hat{\lambda}_{MLE} = \frac{1}{\bar{x}} = \frac{n}{\sum x_i}$$</p>
+            </div>
+        </div>
+
+        <div class="math-section">
+            <h3>Properties of MLE</h3>
+            <div class="symbol-grid">
+                <div class="symbol-item"><div class="symbol">Consistency</div><div class="description">\(\hat\theta_{MLE} \xrightarrow{p} \theta_0\) as \(n \to \infty\). The estimate converges to the true value.</div></div>
+                <div class="symbol-item"><div class="symbol">Asymptotic Normality</div><div class="description">\(\sqrt{n}(\hat\theta - \theta_0) \xrightarrow{d} \mathcal{N}(0, I(\theta_0)^{-1})\). Becomes normally distributed for large \(n\).</div></div>
+                <div class="symbol-item"><div class="symbol">Efficiency</div><div class="description">Achieves the Cramer-Rao lower bound asymptotically: lowest possible variance among unbiased estimators.</div></div>
+                <div class="symbol-item"><div class="symbol">Invariance</div><div class="description">If \(\hat\theta\) is the MLE of \(\theta\), then \(g(\hat\theta)\) is the MLE of \(g(\theta)\) for any function \(g\).</div></div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <h3>Key Insight: Why MLE is Fundamental in Statistics</h3>
+            <p>
+                Maximum Likelihood Estimation is the backbone of modern statistical inference. It provides a
+                <strong>principled, general-purpose recipe</strong> for parameter estimation that works with any
+                parametric model. Its deep connection to information theory (via Fisher information and the
+                Cramer-Rao bound) guarantees that MLEs are the <strong>most efficient</strong> estimators
+                possible for large samples. In ecology, MLE underpins species distribution models, mark-recapture
+                population estimates, survival analysis, and virtually every regression model. The sampling
+                distribution visualization above demonstrates the Central Limit Theorem in action &mdash;
+                as you increase the sample size, the MLE estimates become more tightly concentrated around the
+                true parameter value.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Maximum Likelihood Estimation Simulator &mdash; <a href="../../../">Abdul Ali</a> | Infectious Disease Ecology &amp; Statistical Modeling</p>
+    </footer>
+
+    <script>
+    // ============================================
+    // MAXIMUM LIKELIHOOD ESTIMATION SIMULATOR
+    // ============================================
+
+    const histCanvas = document.getElementById('histCanvas');
+    const histCtx = histCanvas.getContext('2d');
+    const loglikCanvas = document.getElementById('loglikCanvas');
+    const loglikCtx = loglikCanvas.getContext('2d');
+    const scoreCanvas = document.getElementById('scoreCanvas');
+    const scoreCtx = scoreCanvas.getContext('2d');
+    const sampDistCanvas = document.getElementById('sampDistCanvas');
+    const sampDistCtx = sampDistCanvas.getContext('2d');
+
+    let data = [];
+    let mleEstimate = null;
+    let mleEstimates = []; // for sampling distribution
+    let animating = false;
+
+    // ========= RANDOM GENERATORS =========
+    function randNormal(mu, sigma) {
+        let u = 0, v = 0;
+        while (u === 0) u = Math.random();
+        while (v === 0) v = Math.random();
+        return mu + sigma * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+    function randPoisson(lam) {
+        let L = Math.exp(-lam), k = 0, p = 1;
+        do { k++; p *= Math.random(); } while (p > L);
+        return k - 1;
+    }
+    function randBinomial(n, p) {
+        let s = 0;
+        for (let i = 0; i < n; i++) if (Math.random() < p) s++;
+        return s;
+    }
+    function randExponential(lam) {
+        return -Math.log(1 - Math.random()) / lam;
+    }
+
+    // ========= PDF FUNCTIONS =========
+    function normalPDF(x, mu, sigma) {
+        return Math.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * Math.sqrt(2 * Math.PI));
+    }
+    function poissonPMF(k, lam) {
+        if (k < 0 || k !== Math.floor(k)) return 0;
+        let lnP = k * Math.log(lam) - lam;
+        for (let i = 2; i <= k; i++) lnP -= Math.log(i);
+        return Math.exp(lnP);
+    }
+    function binomialPMF(k, n, p) {
+        if (k < 0 || k > n || k !== Math.floor(k)) return 0;
+        let lnC = 0;
+        for (let i = 0; i < k; i++) lnC += Math.log(n - i) - Math.log(i + 1);
+        return Math.exp(lnC + k * Math.log(p) + (n - k) * Math.log(1 - p));
+    }
+    function exponentialPDF(x, lam) {
+        if (x < 0) return 0;
+        return lam * Math.exp(-lam * x);
+    }
+
+    // ========= LOG-LIKELIHOOD FUNCTIONS =========
+    function logLikNormal(mu, data, sigma) {
+        let ll = 0;
+        for (const x of data) ll += -0.5 * Math.log(2 * Math.PI * sigma * sigma) - 0.5 * ((x - mu) / sigma) ** 2;
+        return ll;
+    }
+    function logLikPoisson(lam, data) {
+        if (lam <= 0) return -Infinity;
+        let ll = 0;
+        for (const x of data) {
+            ll += x * Math.log(lam) - lam;
+            for (let i = 2; i <= x; i++) ll -= Math.log(i);
+        }
+        return ll;
+    }
+    function logLikBinomial(p, data, m) {
+        if (p <= 0 || p >= 1) return -Infinity;
+        let ll = 0;
+        for (const x of data) {
+            let lnC = 0;
+            for (let i = 0; i < x; i++) lnC += Math.log(m - i) - Math.log(i + 1);
+            ll += lnC + x * Math.log(p) + (m - x) * Math.log(1 - p);
+        }
+        return ll;
+    }
+    function logLikExponential(lam, data) {
+        if (lam <= 0) return -Infinity;
+        let ll = 0;
+        for (const x of data) ll += Math.log(lam) - lam * x;
+        return ll;
+    }
+
+    // ========= GENERATE DATA =========
+    function generateData() {
+        const dist = document.getElementById('distType').value;
+        const n = parseInt(document.getElementById('sampleSize').value);
+        const p1 = parseFloat(document.getElementById('trueParam1').value);
+        const p2 = parseFloat(document.getElementById('trueParam2').value);
+        data = [];
+
+        if (dist === 'normal') {
+            for (let i = 0; i < n; i++) data.push(randNormal(p1, p2));
+        } else if (dist === 'poisson') {
+            for (let i = 0; i < n; i++) data.push(randPoisson(p1));
+        } else if (dist === 'binomial') {
+            const m = Math.round(p2);
+            for (let i = 0; i < n; i++) data.push(randBinomial(m, p1));
+        } else if (dist === 'exponential') {
+            for (let i = 0; i < n; i++) data.push(randExponential(p1));
+        }
+        return data;
+    }
+
+    // ========= COMPUTE MLE =========
+    function computeMLE(d) {
+        const dist = document.getElementById('distType').value;
+        const p2 = parseFloat(document.getElementById('trueParam2').value);
+        const n = d.length;
+        const mean = d.reduce((a, b) => a + b, 0) / n;
+
+        if (dist === 'normal') {
+            const sd = Math.sqrt(d.reduce((a, b) => a + (b - mean) ** 2, 0) / n);
+            return { param: mean, se: sd / Math.sqrt(n), name: 'mu', sd: sd };
+        } else if (dist === 'poisson') {
+            return { param: mean, se: Math.sqrt(mean / n), name: 'lambda' };
+        } else if (dist === 'binomial') {
+            const m = Math.round(p2);
+            const pHat = mean / m;
+            return { param: pHat, se: Math.sqrt(pHat * (1 - pHat) / (n * m)), name: 'p' };
+        } else if (dist === 'exponential') {
+            const lamHat = 1 / mean;
+            return { param: lamHat, se: lamHat / Math.sqrt(n), name: 'lambda' };
+        }
+    }
+
+    function computeLogLik(theta) {
+        const dist = document.getElementById('distType').value;
+        const p2 = parseFloat(document.getElementById('trueParam2').value);
+        if (dist === 'normal') return logLikNormal(theta, data, computeMLE(data).sd || 1);
+        if (dist === 'poisson') return logLikPoisson(theta, data);
+        if (dist === 'binomial') return logLikBinomial(theta, data, Math.round(p2));
+        if (dist === 'exponential') return logLikExponential(theta, data);
+    }
+
+    // ========= GET PARAMETER RANGE =========
+    function getParamRange() {
+        const dist = document.getElementById('distType').value;
+        const p1 = parseFloat(document.getElementById('trueParam1').value);
+        if (dist === 'normal') return [p1 - 5, p1 + 5];
+        if (dist === 'poisson') return [Math.max(0.1, p1 - 4), p1 + 4];
+        if (dist === 'binomial') return [0.01, 0.99];
+        if (dist === 'exponential') return [Math.max(0.05, p1 - 2), p1 + 3];
+    }
+
+    // ========= DRAWING HELPERS =========
+    function clearCanvas(ctx, w, h) { ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#fafbfc'; ctx.fillRect(0, 0, w, h); }
+
+    function drawAxes(ctx, W, H, pad, xLabel, yLabel, xTicks, yTicks) {
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, H - pad.bottom);
+        ctx.lineTo(W - pad.right, H - pad.bottom);
+        ctx.stroke();
+
+        ctx.fillStyle = '#0f172a'; ctx.font = '600 11px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText(xLabel, pad.left + (W - pad.left - pad.right) / 2, H - 6);
+
+        ctx.save(); ctx.translate(13, pad.top + (H - pad.top - pad.bottom) / 2);
+        ctx.rotate(-Math.PI / 2); ctx.fillText(yLabel, 0, 0); ctx.restore();
+
+        ctx.font = '500 10px system-ui'; ctx.fillStyle = '#64748b';
+        if (xTicks) {
+            ctx.textAlign = 'center';
+            for (const t of xTicks) {
+                const x = pad.left + t.pos * (W - pad.left - pad.right);
+                ctx.fillText(t.label, x, H - pad.bottom + 16);
+                ctx.strokeStyle = '#f1f5f9'; ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, H - pad.bottom); ctx.stroke();
+            }
+        }
+        if (yTicks) {
+            ctx.textAlign = 'right';
+            for (const t of yTicks) {
+                const y = H - pad.bottom - t.pos * (H - pad.top - pad.bottom);
+                ctx.fillText(t.label, pad.left - 6, y + 3);
+                ctx.strokeStyle = '#f1f5f9'; ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+            }
+        }
+    }
+
+    // ========= DRAW HISTOGRAM =========
+    function drawHistogram() {
+        const W = 440, H = 360;
+        const pad = { top: 25, right: 25, bottom: 50, left: 60 };
+        clearCanvas(histCtx, W, H);
+        if (data.length === 0) return;
+
+        const dist = document.getElementById('distType').value;
+        const isDiscrete = (dist === 'poisson' || dist === 'binomial');
+        const plotW = W - pad.left - pad.right;
+        const plotH = H - pad.top - pad.bottom;
+
+        let bins, binWidth, xMin, xMax;
+        if (isDiscrete) {
+            xMin = Math.min(...data) - 0.5;
+            xMax = Math.max(...data) + 1.5;
+            const range = Math.max(...data) - Math.min(...data) + 1;
+            bins = Array(range).fill(0);
+            const minVal = Math.min(...data);
+            for (const d of data) bins[d - minVal]++;
+            binWidth = 1;
+        } else {
+            const nBins = Math.min(30, Math.ceil(Math.sqrt(data.length)));
+            xMin = Math.min(...data);
+            xMax = Math.max(...data);
+            const margin = (xMax - xMin) * 0.1;
+            xMin -= margin; xMax += margin;
+            binWidth = (xMax - xMin) / nBins;
+            bins = Array(nBins).fill(0);
+            for (const d of data) {
+                const idx = Math.min(Math.floor((d - xMin) / binWidth), nBins - 1);
+                if (idx >= 0) bins[idx]++;
+            }
+        }
+
+        // Normalize to density
+        const total = data.length;
+        const densities = bins.map(b => b / (total * binWidth));
+        const maxDensity = Math.max(...densities) * 1.15;
+
+        // Axes
+        const xTicks = [];
+        const step = (xMax - xMin) / 5;
+        for (let v = xMin; v <= xMax; v += step) {
+            xTicks.push({ pos: (v - xMin) / (xMax - xMin), label: v.toFixed(1) });
+        }
+        const yTicks = [];
+        for (let v = 0; v <= maxDensity; v += maxDensity / 4) {
+            yTicks.push({ pos: v / maxDensity, label: v.toFixed(3) });
+        }
+        drawAxes(histCtx, W, H, pad, 'x', 'Density', xTicks, yTicks);
+
+        // Draw bars
+        histCtx.fillStyle = 'rgba(2, 132, 199, 0.35)';
+        histCtx.strokeStyle = 'rgba(2, 132, 199, 0.6)';
+        histCtx.lineWidth = 1;
+        for (let i = 0; i < bins.length; i++) {
+            const bx = isDiscrete ? (Math.min(...data) + i - 0.4 - xMin) / (xMax - xMin) : (i * binWidth) / (xMax - xMin);
+            const bw = isDiscrete ? (0.8 / (xMax - xMin)) : (binWidth / (xMax - xMin));
+            const bh = densities[i] / maxDensity;
+            const px = pad.left + bx * plotW;
+            const pw = bw * plotW;
+            const py = H - pad.bottom - bh * plotH;
+            const ph = bh * plotH;
+            histCtx.fillRect(px, py, pw, ph);
+            histCtx.strokeRect(px, py, pw, ph);
+        }
+
+        // Draw MLE fitted distribution
+        if (mleEstimate) {
+            const p1 = parseFloat(document.getElementById('trueParam1').value);
+            const p2 = parseFloat(document.getElementById('trueParam2').value);
+            const nSteps = 200;
+
+            // MLE fit
+            histCtx.beginPath();
+            histCtx.strokeStyle = '#0284c7'; histCtx.lineWidth = 2.5;
+            for (let s = 0; s <= nSteps; s++) {
+                const x = xMin + (s / nSteps) * (xMax - xMin);
+                let y = 0;
+                if (dist === 'normal') y = normalPDF(x, mleEstimate.param, mleEstimate.sd);
+                else if (dist === 'poisson') y = poissonPMF(Math.round(x), mleEstimate.param);
+                else if (dist === 'binomial') y = binomialPMF(Math.round(x), Math.round(p2), mleEstimate.param);
+                else if (dist === 'exponential') y = exponentialPDF(x, mleEstimate.param);
+                const px = pad.left + (s / nSteps) * plotW;
+                const py = H - pad.bottom - (y / maxDensity) * plotH;
+                if (s === 0) histCtx.moveTo(px, py); else histCtx.lineTo(px, py);
+            }
+            histCtx.stroke();
+
+            // True distribution
+            histCtx.beginPath();
+            histCtx.strokeStyle = '#dc2626'; histCtx.lineWidth = 2;
+            histCtx.setLineDash([6, 4]);
+            for (let s = 0; s <= nSteps; s++) {
+                const x = xMin + (s / nSteps) * (xMax - xMin);
+                let y = 0;
+                if (dist === 'normal') y = normalPDF(x, p1, p2);
+                else if (dist === 'poisson') y = poissonPMF(Math.round(x), p1);
+                else if (dist === 'binomial') y = binomialPMF(Math.round(x), Math.round(p2), p1);
+                else if (dist === 'exponential') y = exponentialPDF(x, p1);
+                const px = pad.left + (s / nSteps) * plotW;
+                const py = H - pad.bottom - (y / maxDensity) * plotH;
+                if (s === 0) histCtx.moveTo(px, py); else histCtx.lineTo(px, py);
+            }
+            histCtx.stroke();
+            histCtx.setLineDash([]);
+        }
+    }
+
+    // ========= DRAW LOG-LIKELIHOOD =========
+    function drawLogLikelihood() {
+        const W = 440, H = 360;
+        const pad = { top: 25, right: 25, bottom: 50, left: 65 };
+        clearCanvas(loglikCtx, W, H);
+        if (data.length === 0) return;
+
+        const [tMin, tMax] = getParamRange();
+        const plotW = W - pad.left - pad.right;
+        const plotH = H - pad.top - pad.bottom;
+        const nSteps = 300;
+
+        // Compute log-likelihood curve
+        const llVals = [];
+        for (let s = 0; s <= nSteps; s++) {
+            const theta = tMin + (s / nSteps) * (tMax - tMin);
+            llVals.push({ theta, ll: computeLogLik(theta) });
+        }
+
+        const finiteLL = llVals.filter(v => isFinite(v.ll)).map(v => v.ll);
+        if (finiteLL.length === 0) return;
+        const llMax = Math.max(...finiteLL);
+        const llMin = Math.max(llMax - 100, Math.min(...finiteLL));
+
+        const xTicks = [];
+        for (let i = 0; i <= 5; i++) {
+            const v = tMin + (i / 5) * (tMax - tMin);
+            xTicks.push({ pos: i / 5, label: v.toFixed(2) });
+        }
+        const yTicks = [];
+        for (let i = 0; i <= 4; i++) {
+            const v = llMin + (i / 4) * (llMax - llMin);
+            yTicks.push({ pos: i / 4, label: v.toFixed(1) });
+        }
+        const dist = document.getElementById('distType').value;
+        const paramLabel = dist === 'binomial' ? 'p' : (dist === 'normal' ? '\u03BC' : '\u03BB');
+        drawAxes(loglikCtx, W, H, pad, paramLabel, 'Log-Likelihood', xTicks, yTicks);
+
+        // Draw curve
+        loglikCtx.beginPath();
+        loglikCtx.strokeStyle = '#0891b2'; loglikCtx.lineWidth = 2.5;
+        let started = false;
+        for (const v of llVals) {
+            if (!isFinite(v.ll) || v.ll < llMin) { started = false; continue; }
+            const px = pad.left + ((v.theta - tMin) / (tMax - tMin)) * plotW;
+            const py = H - pad.bottom - ((v.ll - llMin) / (llMax - llMin)) * plotH;
+            if (!started) { loglikCtx.moveTo(px, py); started = true; } else loglikCtx.lineTo(px, py);
+        }
+        loglikCtx.stroke();
+
+        // MLE point
+        if (mleEstimate) {
+            const mx = pad.left + ((mleEstimate.param - tMin) / (tMax - tMin)) * plotW;
+            const mll = computeLogLik(mleEstimate.param);
+            const my = H - pad.bottom - ((mll - llMin) / (llMax - llMin)) * plotH;
+            loglikCtx.beginPath();
+            loglikCtx.arc(mx, my, 6, 0, Math.PI * 2);
+            loglikCtx.fillStyle = '#dc2626';
+            loglikCtx.fill();
+            loglikCtx.strokeStyle = 'white'; loglikCtx.lineWidth = 2; loglikCtx.stroke();
+
+            // Label
+            loglikCtx.fillStyle = '#dc2626'; loglikCtx.font = '700 11px system-ui';
+            loglikCtx.textAlign = 'center';
+            loglikCtx.fillText('MLE = ' + mleEstimate.param.toFixed(3), mx, my - 14);
+        }
+
+        // True value line
+        const p1 = parseFloat(document.getElementById('trueParam1').value);
+        const tx = pad.left + ((p1 - tMin) / (tMax - tMin)) * plotW;
+        loglikCtx.setLineDash([6, 4]);
+        loglikCtx.strokeStyle = '#d97706'; loglikCtx.lineWidth = 1.5;
+        loglikCtx.beginPath(); loglikCtx.moveTo(tx, pad.top); loglikCtx.lineTo(tx, H - pad.bottom); loglikCtx.stroke();
+        loglikCtx.setLineDash([]);
+
+        loglikCtx.fillStyle = '#d97706'; loglikCtx.font = '600 10px system-ui';
+        loglikCtx.textAlign = 'center';
+        loglikCtx.fillText('True', tx, pad.top - 4);
+    }
+
+    // ========= DRAW SCORE FUNCTION =========
+    function drawScore() {
+        const W = 440, H = 360;
+        const pad = { top: 25, right: 25, bottom: 50, left: 65 };
+        clearCanvas(scoreCtx, W, H);
+        if (data.length === 0) return;
+
+        const [tMin, tMax] = getParamRange();
+        const plotW = W - pad.left - pad.right;
+        const plotH = H - pad.top - pad.bottom;
+        const nSteps = 300;
+        const eps = (tMax - tMin) / 10000;
+
+        // Compute score (numerical derivative of log-likelihood)
+        const scoreVals = [];
+        for (let s = 0; s <= nSteps; s++) {
+            const theta = tMin + (s / nSteps) * (tMax - tMin);
+            const ll1 = computeLogLik(theta + eps);
+            const ll2 = computeLogLik(theta - eps);
+            if (isFinite(ll1) && isFinite(ll2)) {
+                scoreVals.push({ theta, score: (ll1 - ll2) / (2 * eps) });
+            }
+        }
+
+        if (scoreVals.length === 0) return;
+        const sMax = Math.max(...scoreVals.map(v => Math.abs(v.score)));
+        const yRange = sMax * 1.2;
+
+        const xTicks = [];
+        for (let i = 0; i <= 5; i++) {
+            const v = tMin + (i / 5) * (tMax - tMin);
+            xTicks.push({ pos: i / 5, label: v.toFixed(2) });
+        }
+        const yTicks = [];
+        for (let i = -2; i <= 2; i++) {
+            const v = i * yRange / 2;
+            yTicks.push({ pos: (v + yRange) / (2 * yRange), label: v.toFixed(1) });
+        }
+        const dist = document.getElementById('distType').value;
+        const paramLabel = dist === 'binomial' ? 'p' : (dist === 'normal' ? '\u03BC' : '\u03BB');
+        drawAxes(scoreCtx, W, H, pad, paramLabel, 'Score U(\u03B8)', xTicks, yTicks);
+
+        // Zero line
+        const zeroY = H - pad.bottom - 0.5 * plotH;
+        scoreCtx.strokeStyle = '#94a3b8'; scoreCtx.lineWidth = 1;
+        scoreCtx.beginPath(); scoreCtx.moveTo(pad.left, zeroY); scoreCtx.lineTo(W - pad.right, zeroY); scoreCtx.stroke();
+
+        // Draw score curve
+        scoreCtx.beginPath();
+        scoreCtx.strokeStyle = '#059669'; scoreCtx.lineWidth = 2.5;
+        for (let k = 0; k < scoreVals.length; k++) {
+            const v = scoreVals[k];
+            const px = pad.left + ((v.theta - tMin) / (tMax - tMin)) * plotW;
+            const py = H - pad.bottom - ((v.score + yRange) / (2 * yRange)) * plotH;
+            if (k === 0) scoreCtx.moveTo(px, py); else scoreCtx.lineTo(px, py);
+        }
+        scoreCtx.stroke();
+
+        // MLE crossing zero
+        if (mleEstimate) {
+            const mx = pad.left + ((mleEstimate.param - tMin) / (tMax - tMin)) * plotW;
+            scoreCtx.beginPath();
+            scoreCtx.arc(mx, zeroY, 6, 0, Math.PI * 2);
+            scoreCtx.fillStyle = '#dc2626'; scoreCtx.fill();
+            scoreCtx.strokeStyle = 'white'; scoreCtx.lineWidth = 2; scoreCtx.stroke();
+        }
+    }
+
+    // ========= DRAW SAMPLING DISTRIBUTION =========
+    function drawSampDist() {
+        const W = 440, H = 360;
+        const pad = { top: 25, right: 25, bottom: 50, left: 60 };
+        clearCanvas(sampDistCtx, W, H);
+        if (mleEstimates.length === 0) return;
+
+        const plotW = W - pad.left - pad.right;
+        const plotH = H - pad.top - pad.bottom;
+
+        const vals = mleEstimates;
+        const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length);
+        const xMin = mean - 4 * sd;
+        const xMax = mean + 4 * sd;
+        const nBins = 40;
+        const binWidth = (xMax - xMin) / nBins;
+        const bins = Array(nBins).fill(0);
+        for (const v of vals) {
+            const idx = Math.floor((v - xMin) / binWidth);
+            if (idx >= 0 && idx < nBins) bins[idx]++;
+        }
+        const densities = bins.map(b => b / (vals.length * binWidth));
+        const maxD = Math.max(...densities) * 1.15;
+
+        const xTicks = [];
+        for (let i = 0; i <= 5; i++) {
+            const v = xMin + (i / 5) * (xMax - xMin);
+            xTicks.push({ pos: i / 5, label: v.toFixed(2) });
+        }
+        const yTicks = [];
+        for (let i = 0; i <= 4; i++) {
+            const v = (i / 4) * maxD;
+            yTicks.push({ pos: i / 4, label: v.toFixed(3) });
+        }
+        drawAxes(sampDistCtx, W, H, pad, 'MLE Estimate', 'Density', xTicks, yTicks);
+
+        // Bars
+        sampDistCtx.fillStyle = 'rgba(8, 145, 178, 0.35)';
+        sampDistCtx.strokeStyle = 'rgba(8, 145, 178, 0.6)';
+        sampDistCtx.lineWidth = 1;
+        for (let i = 0; i < nBins; i++) {
+            const bx = pad.left + (i / nBins) * plotW;
+            const bw = plotW / nBins;
+            const bh = (densities[i] / maxD) * plotH;
+            sampDistCtx.fillRect(bx, H - pad.bottom - bh, bw, bh);
+            sampDistCtx.strokeRect(bx, H - pad.bottom - bh, bw, bh);
+        }
+
+        // Normal overlay
+        sampDistCtx.beginPath();
+        sampDistCtx.strokeStyle = '#0284c7'; sampDistCtx.lineWidth = 2;
+        for (let s = 0; s <= 200; s++) {
+            const x = xMin + (s / 200) * (xMax - xMin);
+            const y = normalPDF(x, mean, sd);
+            const px = pad.left + (s / 200) * plotW;
+            const py = H - pad.bottom - (y / maxD) * plotH;
+            if (s === 0) sampDistCtx.moveTo(px, py); else sampDistCtx.lineTo(px, py);
+        }
+        sampDistCtx.stroke();
+
+        // True value line
+        const p1 = parseFloat(document.getElementById('trueParam1').value);
+        const tx = pad.left + ((p1 - xMin) / (xMax - xMin)) * plotW;
+        if (tx >= pad.left && tx <= W - pad.right) {
+            sampDistCtx.beginPath();
+            sampDistCtx.arc(tx, H - pad.bottom, 6, 0, Math.PI * 2);
+            sampDistCtx.fillStyle = '#dc2626'; sampDistCtx.fill();
+            sampDistCtx.strokeStyle = 'white'; sampDistCtx.lineWidth = 2; sampDistCtx.stroke();
+
+            sampDistCtx.setLineDash([6, 4]);
+            sampDistCtx.strokeStyle = '#dc2626'; sampDistCtx.lineWidth = 1.5;
+            sampDistCtx.beginPath(); sampDistCtx.moveTo(tx, pad.top); sampDistCtx.lineTo(tx, H - pad.bottom); sampDistCtx.stroke();
+            sampDistCtx.setLineDash([]);
+
+            sampDistCtx.fillStyle = '#dc2626'; sampDistCtx.font = '600 10px system-ui';
+            sampDistCtx.textAlign = 'center';
+            sampDistCtx.fillText('True', tx, pad.top - 4);
+        }
+
+        // Stats
+        sampDistCtx.fillStyle = '#0f172a'; sampDistCtx.font = '600 11px system-ui';
+        sampDistCtx.textAlign = 'left';
+        sampDistCtx.fillText('Mean = ' + mean.toFixed(3) + ', SD = ' + sd.toFixed(3), pad.left + 8, pad.top + 14);
+    }
+
+    // ========= MAIN FUNCTIONS =========
+    function runMLE() {
+        generateData();
+        mleEstimate = computeMLE(data);
+        const ll = computeLogLik(mleEstimate.param);
+
+        document.getElementById('metricMLE').textContent = mleEstimate.param.toFixed(4);
+        document.getElementById('metricLogL').textContent = ll.toFixed(2);
+        document.getElementById('metricSE').textContent = mleEstimate.se.toFixed(4);
+        document.getElementById('metricN').textContent = data.length;
+
+        // Show data
+        const rounded = data.map(d => typeof d === 'number' ? d.toFixed(2) : d);
+        document.getElementById('dataDisplay').textContent = rounded.join(', ');
+
+        drawHistogram();
+        drawLogLikelihood();
+        drawScore();
+
+        const names = { normal: 'Normal', poisson: 'Poisson', binomial: 'Binomial', exponential: 'Exponential' };
+        document.getElementById('statusBar').textContent =
+            names[document.getElementById('distType').value] + ' MLE: ' + mleEstimate.name + ' = ' +
+            mleEstimate.param.toFixed(4) + ' (SE = ' + mleEstimate.se.toFixed(4) + ')';
+    }
+
+    function runMultipleMLE() {
+        mleEstimates = [];
+        const dist = document.getElementById('distType').value;
+        const n = parseInt(document.getElementById('sampleSize').value);
+        const p1 = parseFloat(document.getElementById('trueParam1').value);
+        const p2 = parseFloat(document.getElementById('trueParam2').value);
+
+        for (let r = 0; r < 500; r++) {
+            let sample = [];
+            if (dist === 'normal') for (let i = 0; i < n; i++) sample.push(randNormal(p1, p2));
+            else if (dist === 'poisson') for (let i = 0; i < n; i++) sample.push(randPoisson(p1));
+            else if (dist === 'binomial') for (let i = 0; i < n; i++) sample.push(randBinomial(Math.round(p2), p1));
+            else if (dist === 'exponential') for (let i = 0; i < n; i++) sample.push(randExponential(p1));
+
+            const est = computeMLE(sample);
+            if (isFinite(est.param)) mleEstimates.push(est.param);
+        }
+
+        drawSampDist();
+        document.getElementById('statusBar').textContent = '500 replicates complete \u2014 Sampling distribution of MLE shown';
+    }
+
+    function animateConvergence() {
+        if (animating) return;
+        animating = true;
+        const dist = document.getElementById('distType').value;
+        const p1 = parseFloat(document.getElementById('trueParam1').value);
+        const p2 = parseFloat(document.getElementById('trueParam2').value);
+
+        data = [];
+        const maxN = parseInt(document.getElementById('sampleSize').value);
+        let step = 0;
+
+        function addPoint() {
+            if (step >= maxN) { animating = false; return; }
+            if (dist === 'normal') data.push(randNormal(p1, p2));
+            else if (dist === 'poisson') data.push(randPoisson(p1));
+            else if (dist === 'binomial') data.push(randBinomial(Math.round(p2), p1));
+            else if (dist === 'exponential') data.push(randExponential(p1));
+
+            mleEstimate = computeMLE(data);
+            const ll = computeLogLik(mleEstimate.param);
+
+            document.getElementById('metricMLE').textContent = mleEstimate.param.toFixed(4);
+            document.getElementById('metricLogL').textContent = ll.toFixed(2);
+            document.getElementById('metricSE').textContent = mleEstimate.se.toFixed(4);
+            document.getElementById('metricN').textContent = data.length;
+
+            const rounded = data.map(d => d.toFixed(2));
+            document.getElementById('dataDisplay').textContent = rounded.join(', ');
+            document.getElementById('statusBar').textContent = 'Animating... n = ' + data.length + ' / ' + maxN;
+
+            drawHistogram();
+            drawLogLikelihood();
+            drawScore();
+
+            step++;
+            const delay = step < 20 ? 120 : (step < 50 ? 60 : 20);
+            setTimeout(addPoint, delay);
+        }
+        addPoint();
+    }
+
+    // ========= UI UPDATES =========
+    function onDistChange() {
+        const dist = document.getElementById('distType').value;
+        const p1 = document.getElementById('trueParam1');
+        const p2 = document.getElementById('trueParam2');
+        const l1 = document.getElementById('trueParam1Label');
+        const l2 = document.getElementById('trueParam2Label');
+        const g2 = document.getElementById('trueParamGroup2');
+
+        if (dist === 'normal') {
+            l1.textContent = 'True Mean (\u03BC)';
+            p1.min = -5; p1.max = 15; p1.step = 0.1; p1.value = 5;
+            l2.textContent = 'True Std Dev (\u03C3)';
+            p2.min = 0.5; p2.max = 8; p2.step = 0.1; p2.value = 2;
+            g2.style.display = '';
+        } else if (dist === 'poisson') {
+            l1.textContent = 'True Rate (\u03BB)';
+            p1.min = 0.5; p1.max = 20; p1.step = 0.5; p1.value = 5;
+            g2.style.display = 'none';
+        } else if (dist === 'binomial') {
+            l1.textContent = 'True Probability (p)';
+            p1.min = 0.05; p1.max = 0.95; p1.step = 0.05; p1.value = 0.4;
+            l2.textContent = 'Number of Trials (m)';
+            p2.min = 5; p2.max = 50; p2.step = 1; p2.value = 20;
+            g2.style.display = '';
+        } else if (dist === 'exponential') {
+            l1.textContent = 'True Rate (\u03BB)';
+            p1.min = 0.1; p1.max = 5; p1.step = 0.1; p1.value = 1;
+            g2.style.display = 'none';
+        }
+        updateLabel('trueParam1', 'tp1Val');
+        updateLabel('trueParam2', 'tp2Val');
+        mleEstimates = [];
+        clearCanvas(sampDistCtx, 440, 360);
+    }
+
+    function updateLabel(inputId, labelId, suffix) {
+        document.getElementById(labelId).textContent = document.getElementById(inputId).value + (suffix || '');
+    }
+
+    // Initialize
+    runMLE();
+    </script>
+</body>
+</html>
