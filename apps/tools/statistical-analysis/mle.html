@@ -1127,35 +1127,60 @@
         data = [];
         const maxN = parseInt(document.getElementById('sampleSize').value);
         let step = 0;
+        let lastDraw = 0;
 
-        function addPoint() {
-            if (step >= maxN) { animating = false; return; }
-            if (dist === 'normal') data.push(randNormal(p1, p2));
-            else if (dist === 'poisson') data.push(randPoisson(p1));
-            else if (dist === 'binomial') data.push(randBinomial(Math.round(p2), p1));
-            else if (dist === 'exponential') data.push(randExponential(p1));
-
-            mleEstimate = computeMLE(data);
-            const ll = computeLogLik(mleEstimate.param);
-
-            document.getElementById('metricMLE').textContent = mleEstimate.param.toFixed(4);
-            document.getElementById('metricLogL').textContent = ll.toFixed(2);
-            document.getElementById('metricSE').textContent = mleEstimate.se.toFixed(4);
-            document.getElementById('metricN').textContent = data.length;
-
-            const rounded = data.map(d => d.toFixed(2));
-            document.getElementById('dataDisplay').textContent = rounded.join(', ');
-            document.getElementById('statusBar').textContent = 'Animating... n = ' + data.length + ' / ' + maxN;
-
-            drawHistogram();
-            drawLogLikelihood();
-            drawScore();
-
-            step++;
-            const delay = step < 20 ? 120 : (step < 50 ? 60 : 20);
-            setTimeout(addPoint, delay);
+        // Pre-generate all data points to avoid per-frame allocation
+        const allPoints = [];
+        for (let i = 0; i < maxN; i++) {
+            if (dist === 'normal') allPoints.push(randNormal(p1, p2));
+            else if (dist === 'poisson') allPoints.push(randPoisson(p1));
+            else if (dist === 'binomial') allPoints.push(randBinomial(Math.round(p2), p1));
+            else if (dist === 'exponential') allPoints.push(randExponential(p1));
         }
-        addPoint();
+
+        function animFrame(timestamp) {
+            if (step >= maxN) {
+                animating = false;
+                document.getElementById('statusBar').textContent =
+                    'Animation complete \u2014 n = ' + data.length;
+                return;
+            }
+
+            // Batch: add multiple points per frame for large n
+            const pointsPerFrame = maxN > 200 ? Math.ceil(maxN / 80) : (maxN > 100 ? 2 : 1);
+            for (let i = 0; i < pointsPerFrame && step < maxN; i++) {
+                data.push(allPoints[step]);
+                step++;
+            }
+
+            // Throttle drawing to ~20fps max to avoid overwhelming the browser
+            if (timestamp - lastDraw >= 50 || step >= maxN) {
+                lastDraw = timestamp;
+
+                mleEstimate = computeMLE(data);
+                const ll = computeLogLik(mleEstimate.param);
+
+                document.getElementById('metricMLE').textContent = mleEstimate.param.toFixed(4);
+                document.getElementById('metricLogL').textContent = ll.toFixed(2);
+                document.getElementById('metricSE').textContent = mleEstimate.se.toFixed(4);
+                document.getElementById('metricN').textContent = data.length;
+
+                document.getElementById('statusBar').textContent = 'Animating... n = ' + data.length + ' / ' + maxN;
+
+                // Only update data display at the end to avoid DOM thrashing
+                if (step >= maxN) {
+                    const rounded = data.map(d => d.toFixed(2));
+                    document.getElementById('dataDisplay').textContent = rounded.join(', ');
+                }
+
+                drawHistogram();
+                drawLogLikelihood();
+                drawScore();
+            }
+
+            requestAnimationFrame(animFrame);
+        }
+        requestAnimationFrame(animFrame);
     }
 
     // ========= UI UPDATES =========
