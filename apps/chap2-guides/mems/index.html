@@ -541,17 +541,78 @@ footer {
     <div class="step-content"><div class="step-body">
       <p>Your TAD data has a hierarchical structure. Outbreaks within the same commune are more similar to each other than outbreaks in different countries. This is <strong>clustering</strong>.</p>
 
-      <div class="tree">Disease: ASF
-  ├── Country: Romania
-  │     ├── Commune 1:  Outbreak A,  Outbreak B,  Outbreak C
-  │     ├── Commune 2:  Outbreak D,  Outbreak E
-  │     └── Commune 3:  Outbreak F
-  └── Country: Poland
-        └── Commune 4:  Outbreak G,  Outbreak H
-
-Disease: FMD
-  └── Country: Turkey
-        └── Commune 5:  Outbreak I,  Outbreak J</div>
+      <!-- Visual hierarchy diagram -->
+      <style>
+        .hier-wrap { display:flex; gap:1.5rem; flex-wrap:wrap; margin:1rem 0; }
+        .hier-disease { flex:1; min-width:220px; border:2px solid #64b5f6; border-radius:10px; overflow:hidden; }
+        .hier-disease-header { background:#64b5f6; color:#0f0f1f; font-weight:700; font-size:0.82rem; letter-spacing:.06em; padding:.45rem .9rem; text-transform:uppercase; }
+        .hier-body { padding:.7rem .9rem; display:flex; flex-direction:column; gap:.5rem; }
+        .hier-country { border:1px solid #2a2a4a; border-radius:7px; overflow:hidden; }
+        .hier-country-header { background:#1e1e3a; color:#89b4fa; font-weight:600; font-size:0.8rem; padding:.35rem .8rem; display:flex; align-items:center; gap:.5rem; }
+        .hier-country-header::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:#89b4fa; flex-shrink:0; }
+        .hier-communes { padding:.4rem .8rem .5rem 1.4rem; display:flex; flex-direction:column; gap:.3rem; }
+        .hier-commune { background:#13131f; border-radius:5px; padding:.3rem .7rem; }
+        .hier-commune-label { color:#a6e3a1; font-size:0.74rem; font-weight:600; font-family:'JetBrains Mono',monospace; }
+        .hier-outbreaks { color:#6c7086; font-size:0.72rem; margin-top:.1rem; }
+        .hier-legend { display:flex; gap:1rem; flex-wrap:wrap; margin:.6rem 0 0; font-size:0.76rem; color:var(--muted); }
+        .hier-legend span { display:flex; align-items:center; gap:.4rem; }
+        .hier-legend .dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+      </style>
+      <div class="hier-wrap">
+        <!-- Disease: ASF -->
+        <div class="hier-disease">
+          <div class="hier-disease-header">Disease: ASF</div>
+          <div class="hier-body">
+            <div class="hier-country">
+              <div class="hier-country-header">Country: Romania</div>
+              <div class="hier-communes">
+                <div class="hier-commune">
+                  <div class="hier-commune-label">Commune 1</div>
+                  <div class="hier-outbreaks">Outbreaks A, B, C</div>
+                </div>
+                <div class="hier-commune">
+                  <div class="hier-commune-label">Commune 2</div>
+                  <div class="hier-outbreaks">Outbreaks D, E</div>
+                </div>
+                <div class="hier-commune">
+                  <div class="hier-commune-label">Commune 3</div>
+                  <div class="hier-outbreaks">Outbreak F</div>
+                </div>
+              </div>
+            </div>
+            <div class="hier-country">
+              <div class="hier-country-header">Country: Poland</div>
+              <div class="hier-communes">
+                <div class="hier-commune">
+                  <div class="hier-commune-label">Commune 4</div>
+                  <div class="hier-outbreaks">Outbreaks G, H</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Disease: FMD -->
+        <div class="hier-disease" style="border-color:#f38ba8; flex:0 1 220px;">
+          <div class="hier-disease-header" style="background:#f38ba8;">Disease: FMD</div>
+          <div class="hier-body">
+            <div class="hier-country" style="border-color:#2a2a4a;">
+              <div class="hier-country-header" style="color:#f38ba8;">Country: Turkey</div>
+              <div class="hier-communes">
+                <div class="hier-commune">
+                  <div class="hier-commune-label" style="color:#f38ba8;">Commune 5</div>
+                  <div class="hier-outbreaks">Outbreaks I, J</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hier-legend">
+        <span><span class="dot" style="background:#64b5f6;"></span>Disease level (Level 1)</span>
+        <span><span class="dot" style="background:#89b4fa;"></span>Country level (Level 2)</span>
+        <span><span class="dot" style="background:#a6e3a1;"></span>Commune level (Level 3 — Admin-2)</span>
+        <span><span class="dot" style="background:#6c7086;"></span>Individual outbreaks (observations)</span>
+      </div>
 
       <div class="callout callout-warn">
         <strong>What happens if you ignore clustering?</strong>
@@ -677,7 +738,18 @@ model_persist <span class="op">&lt;-</span> <span class="fn">glmer</span>(
         <div class="fb-row fb-head"><div>Symbol</div><div>Name</div><div>What it does in the model</div></div>
         <div class="fb-row"><div class="fb-sym">\(h(t|z,b)\)</div><div class="fb-name">Hazard function</div><div class="fb-desc">The instantaneous rate of reemergence at time \(t\), given the predictor values and group. Think of it as: "at this exact moment, how fast is disease returning?" It is not a probability — it can exceed 1.</div></div>
         <div class="fb-row"><div class="fb-sym">\(h_0(t)\)</div><div class="fb-name">Baseline hazard</div><div class="fb-desc">The reemergence rate when all predictors are zero and frailty = 1. Cox models leave this completely unspecified (non-parametric) — this is the "proportional" assumption's power. You never need to assume a distribution for time.</div></div>
-        <div class="fb-row"><div class="fb-sym">\(b_j\)</div><div class="fb-name">Frailty (random effect)</div><div class="fb-desc">Drawn from Gamma(1/&theta;, 1/&theta;). It multiplies the baseline hazard for group \(j\). A commune in a high-risk disease cluster gets \(b_j &gt; 1\) (faster reemergence), a low-risk cluster gets \(b_j &lt; 1\). This is the Cox equivalent of the logistic model's \(u_j\).</div></div>
+        <div class="fb-row"><div class="fb-sym">\(b_j\)</div><div class="fb-name">Frailty (random effect)</div><div class="fb-desc">
+          <strong>What frailty means:</strong> Some communes "age faster" epidemiologically — they reemerge sooner not because of any measured predictor, but because of unmeasured factors (veterinary capacity, local wild-boar density, geography). Frailty captures this hidden susceptibility. Communes with high frailty (\(b_j &gt; 1\)) reemerge faster; low frailty (\(b_j &lt; 1\)) slower.
+          <br><br>
+          <strong>Why Gamma specifically?</strong> The Gamma distribution is the standard choice for frailty because:
+          <ul style="margin:.4rem 0 .4rem 1.2rem; font-size:0.88rem; line-height:1.7;">
+            <li>It is <strong>always positive</strong> — frailty must be a multiplier (&gt; 0), not an additive shift. A negative hazard multiplier is mathematically impossible.</li>
+            <li>It is centred at <strong>mean = 1</strong> (when parameterised as Gamma(1/θ, 1/θ)) — meaning the average commune has no frailty adjustment. Only deviations from 1 matter.</li>
+            <li>Its <strong>variance = θ</strong> — R estimates θ from the data. Large θ = big between-group differences; θ ≈ 0 = clustering barely matters.</li>
+            <li>It produces a <strong>closed-form marginal likelihood</strong> — meaning the math stays tractable and R can fit it efficiently.</li>
+          </ul>
+          <strong>Compare to logistic model:</strong> In <code>glmer</code> the random effect \(u_j \sim \mathcal{N}(0,\sigma^2)\) is additive on the log-odds scale. In <code>coxph</code> the frailty \(b_j \sim \text{Gamma}(1/\theta,1/\theta)\) is multiplicative on the hazard scale. Same idea — different distribution because of different model structure. The code is: <code>frailty(country, distribution = "gamma")</code>.
+        </div></div>
         <div class="fb-row"><div class="fb-sym">\(\exp(\beta_k z_k)\)</div><div class="fb-name">Predictor effect</div><div class="fb-desc">Each predictor multiplies the hazard exponentially. \(e^{\beta_k}\) = Hazard Ratio (HR). If livestock density has \(\beta = 0.4\), then HR = \(e^{0.4}\) = 1.49, meaning a 1-SD increase in livestock density is associated with 49% faster reemergence.</div></div>
         <div class="fb-row"><div class="fb-sym">\(\text{Surv}(t,\delta)\)</div><div class="fb-name">Survival object</div><div class="fb-desc">\(t\) = follow-up months, \(\delta\) = 1 if reemerged, 0 if censored (still disease-free at study end). Censored units are NOT excluded — their partial information (they survived at least \(t\) months) is fully used in the likelihood.</div></div>
       </div>
@@ -783,6 +855,83 @@ s<span class="op">$</span>conf.int</div>
       <div class="callout callout-key" style="margin-top:6px;">
         <strong>How to read this plot</strong>
         Each horizontal bar is the 95% confidence interval. The square/diamond is the point estimate (OR). Livestock density (OR = 1.69) and wildlife proximity (OR = 1.45) are risk factors — their CIs do not cross 1. Vaccination coverage (OR = 0.61) is protective. Tree cover's CI crosses 1, so it is non-significant despite the point estimate being below 1.
+      </div>
+
+      <h3>What "CI does not cross 1" actually means</h3>
+      <p>The 95% CI is a range of plausible OR values. OR = 1 means <em>no effect</em>. If 1 falls inside the range, we cannot rule out "no effect" — the result is <strong>not significant</strong>. If 1 falls outside the range, the effect is <strong>statistically significant</strong>. Here is what both look like:</p>
+
+      <!-- CI visual number line -->
+      <style>
+        .ci-diagram { margin:1rem 0 1.4rem; display:flex; flex-direction:column; gap:1rem; }
+        .ci-row { display:flex; align-items:center; gap:.8rem; }
+        .ci-label { width:140px; font-size:0.78rem; font-weight:600; flex-shrink:0; }
+        .ci-track { flex:1; position:relative; height:32px; }
+        .ci-axis { position:absolute; top:50%; left:0; right:0; height:2px; background:#2a2a4e; transform:translateY(-50%); border-radius:2px; }
+        .ci-ref { position:absolute; top:4px; bottom:4px; width:2px; background:#f38ba8; border-radius:2px; z-index:2; }
+        .ci-ref-label { position:absolute; top:-16px; font-size:0.68rem; color:#f38ba8; font-weight:700; white-space:nowrap; transform:translateX(-50%); }
+        .ci-bar { position:absolute; top:50%; height:6px; border-radius:3px; transform:translateY(-50%); z-index:1; }
+        .ci-point { position:absolute; top:50%; width:12px; height:12px; border-radius:50%; transform:translate(-50%,-50%); z-index:3; border:2px solid #1e1e2e; }
+        .ci-tag { font-size:0.74rem; font-weight:700; padding:.2rem .55rem; border-radius:5px; flex-shrink:0; }
+        .ci-calc { font-size:0.77rem; color:var(--muted); margin-top:.2rem; }
+      </style>
+      <div class="ci-diagram">
+
+        <!-- Row 1: CI does NOT cross 1 = significant -->
+        <div>
+          <div class="ci-row">
+            <div class="ci-label" style="color:#a6e3a1;">Significant (risk)</div>
+            <div class="ci-track" style="min-width:200px;">
+              <div class="ci-axis"></div>
+              <!-- ref line at OR=1, positioned ~22% from left -->
+              <div class="ci-ref" style="left:22%;"><span class="ci-ref-label">1.0</span></div>
+              <!-- CI bar from 1.18 to 2.41 → ~30% to ~80% -->
+              <div class="ci-bar" style="left:30%; right:20%; background:#a6e3a1; opacity:.7;"></div>
+              <!-- point at OR=1.69 → ~55% -->
+              <div class="ci-point" style="left:55%; background:#a6e3a1;"></div>
+            </div>
+            <span class="ci-tag" style="background:#1a3320; color:#a6e3a1;">CI entirely &gt; 1</span>
+          </div>
+          <div class="ci-calc">livestock_density: OR = 1.69, 95% CI (1.18 &ndash; 2.41) &nbsp;&mdash;&nbsp; both bounds above 1, so 1 is to the LEFT of the whole bar. <strong>p = 0.004</strong></div>
+        </div>
+
+        <!-- Row 2: CI crosses 1 = NOT significant -->
+        <div>
+          <div class="ci-row">
+            <div class="ci-label" style="color:#f38ba8;">Non-significant</div>
+            <div class="ci-track" style="min-width:200px;">
+              <div class="ci-axis"></div>
+              <div class="ci-ref" style="left:38%;"><span class="ci-ref-label">1.0</span></div>
+              <!-- CI bar from 0.72 to 1.55 → ~10% to ~65% — crosses 1 -->
+              <div class="ci-bar" style="left:10%; right:35%; background:#f38ba8; opacity:.7;"></div>
+              <!-- point at OR=1.06 → ~42% -->
+              <div class="ci-point" style="left:42%; background:#f38ba8;"></div>
+            </div>
+            <span class="ci-tag" style="background:#2a1015; color:#f38ba8;">CI straddles 1</span>
+          </div>
+          <div class="ci-calc">tree_cover: OR = 1.06, 95% CI (0.72 &ndash; 1.55) &nbsp;&mdash;&nbsp; lower bound is below 1, upper bound is above 1. The bar crosses the red line. <strong>p = 0.76</strong></div>
+        </div>
+
+        <!-- Row 3: CI does NOT cross 1 = significant protective -->
+        <div>
+          <div class="ci-row">
+            <div class="ci-label" style="color:#89b4fa;">Significant (protective)</div>
+            <div class="ci-track" style="min-width:200px;">
+              <div class="ci-axis"></div>
+              <div class="ci-ref" style="left:70%;"><span class="ci-ref-label">1.0</span></div>
+              <!-- CI bar from 0.39 to 0.95 → ~5% to ~62% — entirely below 1 -->
+              <div class="ci-bar" style="left:5%; right:38%; background:#89b4fa; opacity:.7;"></div>
+              <!-- point at OR=0.61 → ~38% -->
+              <div class="ci-point" style="left:38%; background:#89b4fa;"></div>
+            </div>
+            <span class="ci-tag" style="background:#0f1a30; color:#89b4fa;">CI entirely &lt; 1</span>
+          </div>
+          <div class="ci-calc">vaccination_coverage: OR = 0.61, 95% CI (0.39 &ndash; 0.95) &nbsp;&mdash;&nbsp; both bounds below 1, so 1 is to the RIGHT of the whole bar. <strong>p = 0.028</strong></div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-key" style="margin-bottom:1.2rem;">
+        <strong>The rule</strong> — If the 95% CI range contains 1.0, the result is not significant (p &gt; 0.05). The math: CI lower = \(e^{\hat\beta - 1.96\cdot\text{SE}}\). If \(\hat\beta - 1.96\cdot\text{SE} &gt; 0\), then CI lower &gt; 1 (after exponentiation) and 1 is excluded from the interval.
       </div>
 
       <h3>Visual guide — what different OR values mean</h3>
