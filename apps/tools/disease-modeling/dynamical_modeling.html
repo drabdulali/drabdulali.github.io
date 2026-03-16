@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamical Modeling - Abdul Ali</title>
+    <meta name="description" content="Interactive dynamical systems modeling tool for disease ecology. Explore ODE-based models, phase portraits, stability analysis, and bifurcation diagrams.">
+    <meta name="keywords" content="dynamical modeling, ODE, phase portrait, stability analysis, bifurcation, disease dynamics, ecological modeling, differential equations">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #f8fafc;
+            --secondary: #2c5530;
+            --secondary-dark: #1a3d20;
+            --accent: #4a7c59;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(44, 85, 48, 0.15);
+            --gradient-hero: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--gradient-hero);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { color: white; text-decoration: none; font-weight: 600; font-size: 1.25rem; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); }
+
+        .hero {
+            background: var(--gradient-hero);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            main { grid-template-columns: 1fr; }
+        }
+
+        .controls {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+            height: fit-content;
+        }
+
+        .controls h2 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .control-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--secondary);
+        }
+
+        .control-group select,
+        .control-group input[type="number"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .param-value {
+            float: right;
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .btn:hover { opacity: 0.9; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            margin-top: 0.5rem;
+        }
+
+        .btn-secondary:hover { background: rgba(44, 85, 48, 0.05); opacity: 1; }
+
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .chart-card h3 {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        canvas {
+            width: 100%;
+            height: 350px;
+            display: block;
+        }
+
+        .info-panel {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .info-panel h3 {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .info-item {
+            background: rgba(44, 85, 48, 0.05);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .info-item .info-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+        }
+
+        .info-item .info-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-top: 0.25rem;
+        }
+
+        .model-description {
+            background: rgba(44, 85, 48, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .model-description code {
+            background: rgba(44, 85, 48, 0.1);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.82rem;
+        }
+
+        .equations {
+            background: rgba(44, 85, 48, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.75rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: var(--secondary-dark);
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--card-border);
+            margin: 1rem 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../../../" class="logo">Abdul Ali</a>
+            <a href="../" class="back-link">&#8592; Back to Tools</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Dynamical Modeling</h1>
+        <p>Explore dynamical systems in disease ecology with interactive ODE simulations, phase portraits, and stability analysis.</p>
+    </section>
+
+    <main>
+        <div class="controls">
+            <h2>Model Configuration</h2>
+
+            <div class="control-group">
+                <label>Model Type</label>
+                <select id="modelType" onchange="updateModelUI()">
+                    <option value="sir">SIR with Demographics</option>
+                    <option value="sirs">SIRS with Waning Immunity</option>
+                    <option value="predprey">Predator-Prey (Eco-Epi)</option>
+                    <option value="sis">SIS Endemic Model</option>
+                </select>
+            </div>
+
+            <div class="model-description" id="modelDesc">
+                SIR model with birth/death demographics. Includes natural mortality and disease-induced death, allowing endemic equilibria to emerge.
+            </div>
+
+            <hr class="section-divider">
+
+            <div id="paramControls">
+                <div class="control-group">
+                    <label>Transmission Rate (&beta;) <span class="param-value" id="betaVal">0.4</span></label>
+                    <input type="range" id="beta" min="0.05" max="2" step="0.05" value="0.4" oninput="updateParam('beta')">
+                </div>
+
+                <div class="control-group">
+                    <label>Recovery Rate (&gamma;) <span class="param-value" id="gammaVal">0.1</span></label>
+                    <input type="range" id="gamma" min="0.01" max="1" step="0.01" value="0.1" oninput="updateParam('gamma')">
+                </div>
+
+                <div class="control-group">
+                    <label>Birth/Death Rate (&mu;) <span class="param-value" id="muVal">0.02</span></label>
+                    <input type="range" id="mu" min="0.001" max="0.1" step="0.001" value="0.02" oninput="updateParam('mu')">
+                </div>
+
+                <div class="control-group" id="waneGroup" style="display:none;">
+                    <label>Waning Immunity Rate (&xi;) <span class="param-value" id="xiVal">0.05</span></label>
+                    <input type="range" id="xi" min="0.001" max="0.5" step="0.001" value="0.05" oninput="updateParam('xi')">
+                </div>
+
+                <div class="control-group" id="predGroup1" style="display:none;">
+                    <label>Prey Growth Rate (r) <span class="param-value" id="rVal">1.0</span></label>
+                    <input type="range" id="r" min="0.1" max="3" step="0.1" value="1.0" oninput="updateParam('r')">
+                </div>
+
+                <div class="control-group" id="predGroup2" style="display:none;">
+                    <label>Carrying Capacity (K) <span class="param-value" id="KVal">1000</span></label>
+                    <input type="range" id="K" min="100" max="5000" step="100" value="1000" oninput="updateParam('K')">
+                </div>
+
+                <div class="control-group" id="predGroup3" style="display:none;">
+                    <label>Predation Rate (a) <span class="param-value" id="aVal">0.005</span></label>
+                    <input type="range" id="a" min="0.001" max="0.05" step="0.001" value="0.005" oninput="updateParam('a')">
+                </div>
+
+                <div class="control-group" id="predGroup4" style="display:none;">
+                    <label>Predator Death Rate (d) <span class="param-value" id="dVal">0.3</span></label>
+                    <input type="range" id="d" min="0.05" max="1" step="0.05" value="0.3" oninput="updateParam('d')">
+                </div>
+
+                <div class="control-group" id="predGroup5" style="display:none;">
+                    <label>Conversion Efficiency (e) <span class="param-value" id="eVal">0.1</span></label>
+                    <input type="range" id="e" min="0.01" max="0.5" step="0.01" value="0.1" oninput="updateParam('e')">
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="control-group">
+                <label>Simulation Time</label>
+                <input type="number" id="simTime" value="300" min="50" max="2000" step="50">
+            </div>
+
+            <div class="control-group">
+                <label>Time Step (dt)</label>
+                <input type="number" id="dt" value="0.05" min="0.001" max="0.5" step="0.005">
+            </div>
+
+            <button class="btn" onclick="runSimulation()">Run Simulation</button>
+            <button class="btn btn-secondary" onclick="resetDefaults()">Reset Defaults</button>
+        </div>
+
+        <div class="results">
+            <div class="info-panel">
+                <h3>System Analysis</h3>
+                <div class="info-grid" id="analysisGrid">
+                    <div class="info-item">
+                        <div class="info-label">R0</div>
+                        <div class="info-value" id="r0Value">4.00</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Equilibrium Type</div>
+                        <div class="info-value" id="eqType">Endemic</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">S*</div>
+                        <div class="info-value" id="sStar">0.250</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">I*</div>
+                        <div class="info-value" id="iStar">0.015</div>
+                    </div>
+                </div>
+                <div class="equations" id="eqDisplay">
+                    dS/dt = &mu; - &beta;SI - &mu;S<br>
+                    dI/dt = &beta;SI - &gamma;I - &mu;I<br>
+                    dR/dt = &gamma;I - &mu;R
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>Time Series</h3>
+                <div class="legend" id="timeSeriesLegend">
+                    <div class="legend-item"><div class="legend-color" style="background:#2563eb"></div> Susceptible</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#dc2626"></div> Infected</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#16a34a"></div> Recovered</div>
+                </div>
+                <canvas id="timeSeriesCanvas"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>Phase Portrait</h3>
+                <div class="legend" id="phaseLegend">
+                    <div class="legend-item"><div class="legend-color" style="background:#8b5cf6"></div> Trajectory</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#dc2626"></div> Equilibrium</div>
+                </div>
+                <canvas id="phaseCanvas"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Dynamical Modeling Tool &mdash; Abdul Ali | Infectious Disease Ecology & Ecological Modeling</p>
+    </footer>
+
+    <script>
+    // State
+    let simData = null;
+
+    function updateParam(name) {
+        const el = document.getElementById(name);
+        const valEl = document.getElementById(name + 'Val');
+        if (el && valEl) valEl.textContent = el.value;
+    }
+
+    function updateModelUI() {
+        const model = document.getElementById('modelType').value;
+        const descriptions = {
+            sir: 'SIR model with birth/death demographics. Includes natural mortality and disease-induced death, allowing endemic equilibria to emerge.',
+            sirs: 'SIRS model with waning immunity. Recovered individuals lose immunity at rate \u03be and return to the susceptible class, creating cyclical dynamics.',
+            predprey: 'Eco-epidemiological model coupling predator-prey dynamics with disease transmission in the prey population. Explores how ecological interactions shape disease persistence.',
+            sis: 'SIS endemic model where individuals return directly to the susceptible class after recovery. No lasting immunity \u2014 commonly used for STIs and bacterial infections.'
+        };
+        document.getElementById('modelDesc').textContent = descriptions[model];
+
+        // Show/hide parameter groups
+        const showWane = model === 'sirs';
+        const showPred = model === 'predprey';
+        const showStandard = model !== 'predprey';
+
+        document.getElementById('waneGroup').style.display = showWane ? '' : 'none';
+        ['predGroup1','predGroup2','predGroup3','predGroup4','predGroup5'].forEach(id => {
+            document.getElementById(id).style.display = showPred ? '' : 'none';
+        });
+
+        // Show/hide standard epi params
+        ['beta','gamma','mu'].forEach(p => {
+            const group = document.getElementById(p).closest('.control-group');
+            if (p === 'mu' && showPred) group.style.display = 'none';
+            else group.style.display = showStandard || p !== 'mu' ? '' : 'none';
+        });
+
+        // Update legends
+        if (showPred) {
+            document.getElementById('timeSeriesLegend').innerHTML = `
+                <div class="legend-item"><div class="legend-color" style="background:#2563eb"></div> Prey (S)</div>
+                <div class="legend-item"><div class="legend-color" style="background:#dc2626"></div> Prey (I)</div>
+                <div class="legend-item"><div class="legend-color" style="background:#f59e0b"></div> Predator</div>
+            `;
+            document.getElementById('phaseLegend').innerHTML = `
+                <div class="legend-item"><div class="legend-color" style="background:#8b5cf6"></div> Prey-Predator</div>
+                <div class="legend-item"><div class="legend-color" style="background:#dc2626"></div> Equilibrium</div>
+            `;
+        } else {
+            document.getElementById('timeSeriesLegend').innerHTML = `
+                <div class="legend-item"><div class="legend-color" style="background:#2563eb"></div> Susceptible</div>
+                <div class="legend-item"><div class="legend-color" style="background:#dc2626"></div> Infected</div>
+                <div class="legend-item"><div class="legend-color" style="background:#16a34a"></div> Recovered</div>
+            `;
+            document.getElementById('phaseLegend').innerHTML = `
+                <div class="legend-item"><div class="legend-color" style="background:#8b5cf6"></div> Trajectory</div>
+                <div class="legend-item"><div class="legend-color" style="background:#dc2626"></div> Equilibrium</div>
+            `;
+        }
+
+        updateEquations();
+    }
+
+    function updateEquations() {
+        const model = document.getElementById('modelType').value;
+        const eqs = {
+            sir: 'dS/dt = \u03bc - \u03b2SI - \u03bcS\ndI/dt = \u03b2SI - \u03b3I - \u03bcI\ndR/dt = \u03b3I - \u03bcR',
+            sirs: 'dS/dt = \u03bc - \u03b2SI - \u03bcS + \u03beR\ndI/dt = \u03b2SI - \u03b3I - \u03bcI\ndR/dt = \u03b3I - \u03bcR - \u03beR',
+            predprey: 'dS/dt = rS(1-(S+I)/K) - \u03b2SI - aSP\ndI/dt = \u03b2SI - \u03b3I - aIP\ndP/dt = ea(S+I)P - dP',
+            sis: 'dS/dt = \u03bc - \u03b2SI - \u03bcS + \u03b3I\ndI/dt = \u03b2SI - \u03b3I - \u03bcI'
+        };
+        document.getElementById('eqDisplay').innerText = eqs[model];
+    }
+
+    // ODE Solvers
+    function sirDemog(state, params) {
+        const [S, I, R] = state;
+        const { beta, gamma, mu } = params;
+        const dS = mu - beta * S * I - mu * S;
+        const dI = beta * S * I - gamma * I - mu * I;
+        const dR = gamma * I - mu * R;
+        return [dS, dI, dR];
+    }
+
+    function sirsDemog(state, params) {
+        const [S, I, R] = state;
+        const { beta, gamma, mu, xi } = params;
+        const dS = mu - beta * S * I - mu * S + xi * R;
+        const dI = beta * S * I - gamma * I - mu * I;
+        const dR = gamma * I - mu * R - xi * R;
+        return [dS, dI, dR];
+    }
+
+    function sisDemog(state, params) {
+        const [S, I] = state;
+        const { beta, gamma, mu } = params;
+        const dS = mu - beta * S * I - mu * S + gamma * I;
+        const dI = beta * S * I - gamma * I - mu * I;
+        return [dS, dI];
+    }
+
+    function predPreyEpi(state, params) {
+        const [S, I, P] = state;
+        const { beta, gamma, r, K, a, d, e } = params;
+        const N = S + I;
+        const dS = r * S * (1 - N / K) - beta * S * I - a * S * P;
+        const dI = beta * S * I - gamma * I - a * I * P;
+        const dP = e * a * N * P - d * P;
+        return [dS, dI, dP];
+    }
+
+    function rk4Step(deriv, state, params, dt) {
+        const k1 = deriv(state, params);
+        const s2 = state.map((s, i) => s + 0.5 * dt * k1[i]);
+        const k2 = deriv(s2, params);
+        const s3 = state.map((s, i) => s + 0.5 * dt * k2[i]);
+        const k3 = deriv(s3, params);
+        const s4 = state.map((s, i) => s + dt * k3[i]);
+        const k4 = deriv(s4, params);
+        return state.map((s, i) => Math.max(0, s + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i])));
+    }
+
+    function runSimulation() {
+        const model = document.getElementById('modelType').value;
+        const beta = parseFloat(document.getElementById('beta').value);
+        const gamma = parseFloat(document.getElementById('gamma').value);
+        const mu = parseFloat(document.getElementById('mu').value);
+        const xi = parseFloat(document.getElementById('xi').value);
+        const r = parseFloat(document.getElementById('r').value);
+        const K = parseFloat(document.getElementById('K').value);
+        const a = parseFloat(document.getElementById('a').value);
+        const d = parseFloat(document.getElementById('d').value);
+        const e = parseFloat(document.getElementById('e').value);
+        const T = parseFloat(document.getElementById('simTime').value);
+        const dt = parseFloat(document.getElementById('dt').value);
+        const steps = Math.floor(T / dt);
+
+        let state, deriv, params;
+
+        switch (model) {
+            case 'sir':
+                state = [0.99, 0.01, 0.0];
+                deriv = sirDemog;
+                params = { beta, gamma, mu };
+                break;
+            case 'sirs':
+                state = [0.99, 0.01, 0.0];
+                deriv = sirsDemog;
+                params = { beta, gamma, mu, xi };
+                break;
+            case 'sis':
+                state = [0.99, 0.01];
+                deriv = sisDemog;
+                params = { beta, gamma, mu };
+                break;
+            case 'predprey':
+                state = [K * 0.5, K * 0.01, 10];
+                deriv = predPreyEpi;
+                params = { beta, gamma, r, K, a, d, e };
+                break;
+        }
+
+        const trajectory = [{ t: 0, state: [...state] }];
+        for (let i = 1; i <= steps; i++) {
+            state = rk4Step(deriv, state, params, dt);
+            if (i % Math.max(1, Math.floor(steps / 2000)) === 0 || i === steps) {
+                trajectory.push({ t: i * dt, state: [...state] });
+            }
+        }
+
+        simData = { model, trajectory, params };
+        computeAnalysis();
+        drawTimeSeries();
+        drawPhasePortrait();
+    }
+
+    function computeAnalysis() {
+        const { model, params, trajectory } = simData;
+        const last = trajectory[trajectory.length - 1].state;
+
+        let r0, eqType, sStar, iStar;
+
+        if (model === 'sir' || model === 'sirs' || model === 'sis') {
+            r0 = params.beta / (params.gamma + params.mu);
+            sStar = r0 > 1 ? (1 / r0).toFixed(4) : '1.000';
+            iStar = r0 > 1 ? (params.mu * (r0 - 1) / params.beta).toFixed(4) : '0.000';
+            eqType = r0 > 1 ? 'Endemic' : 'Disease-Free';
+        } else {
+            r0 = params.beta * params.K * 0.5 / params.gamma;
+            sStar = last[0].toFixed(1);
+            iStar = last[1].toFixed(1);
+            eqType = last[2] > 0.1 ? 'Coexistence' : 'Prey Only';
+        }
+
+        document.getElementById('r0Value').textContent = r0.toFixed(2);
+        document.getElementById('eqType').textContent = eqType;
+        document.getElementById('sStar').textContent = sStar;
+        document.getElementById('iStar').textContent = iStar;
+    }
+
+    // Drawing utilities
+    function setupCanvas(canvas) {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = rect.width - 48;
+        const h = 350;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        return { ctx, w, h };
+    }
+
+    function drawTimeSeries() {
+        const canvas = document.getElementById('timeSeriesCanvas');
+        const { ctx, w, h } = setupCanvas(canvas);
+        const { trajectory, model } = simData;
+
+        const pad = { top: 20, right: 20, bottom: 40, left: 55 };
+        const pw = w - pad.left - pad.right;
+        const ph = h - pad.top - pad.bottom;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Find ranges
+        const tMax = trajectory[trajectory.length - 1].t;
+        let yMax = 0;
+        trajectory.forEach(p => {
+            p.state.forEach(v => { if (v > yMax) yMax = v; });
+        });
+        yMax *= 1.1;
+
+        // Axes
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+
+        // Y gridlines
+        const yTicks = 5;
+        for (let i = 0; i <= yTicks; i++) {
+            const y = pad.top + ph - (i / yTicks) * ph;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(pad.left + pw, y);
+            ctx.stroke();
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '11px system-ui';
+            ctx.textAlign = 'right';
+            ctx.fillText((yMax * i / yTicks).toFixed(model === 'predprey' ? 0 : 3), pad.left - 8, y + 4);
+        }
+
+        // X axis labels
+        const xTicks = 5;
+        for (let i = 0; i <= xTicks; i++) {
+            const x = pad.left + (i / xTicks) * pw;
+            ctx.fillStyle = '#94a3b8';
+            ctx.textAlign = 'center';
+            ctx.fillText((tMax * i / xTicks).toFixed(0), x, h - 8);
+        }
+
+        // Axis labels
+        ctx.fillStyle = '#64748b';
+        ctx.font = '12px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('Time', pad.left + pw / 2, h - 0);
+
+        // Lines
+        const colors = model === 'predprey'
+            ? ['#2563eb', '#dc2626', '#f59e0b']
+            : ['#2563eb', '#dc2626', '#16a34a'];
+
+        const numVars = trajectory[0].state.length;
+        for (let v = 0; v < numVars; v++) {
+            ctx.beginPath();
+            ctx.strokeStyle = colors[v];
+            ctx.lineWidth = 2;
+            trajectory.forEach((p, i) => {
+                const x = pad.left + (p.t / tMax) * pw;
+                const y = pad.top + ph - (p.state[v] / yMax) * ph;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+    }
+
+    function drawPhasePortrait() {
+        const canvas = document.getElementById('phaseCanvas');
+        const { ctx, w, h } = setupCanvas(canvas);
+        const { trajectory, model } = simData;
+
+        const pad = { top: 20, right: 20, bottom: 40, left: 55 };
+        const pw = w - pad.left - pad.right;
+        const ph = h - pad.top - pad.bottom;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // For SIR/SIRS/SIS: S vs I; for predprey: S+I vs P
+        let xData, yData, xLabel, yLabel;
+        if (model === 'predprey') {
+            xData = trajectory.map(p => p.state[0] + p.state[1]);
+            yData = trajectory.map(p => p.state[2]);
+            xLabel = 'Prey (S+I)';
+            yLabel = 'Predator (P)';
+        } else {
+            xData = trajectory.map(p => p.state[0]);
+            yData = trajectory.map(p => p.state[1]);
+            xLabel = 'Susceptible (S)';
+            yLabel = 'Infected (I)';
+        }
+
+        const xMin = 0;
+        const xMax = Math.max(...xData) * 1.1;
+        const yMin = 0;
+        const yMax = Math.max(...yData) * 1.1;
+
+        // Grid
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        const ticks = 5;
+        for (let i = 0; i <= ticks; i++) {
+            const y = pad.top + ph - (i / ticks) * ph;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(pad.left + pw, y);
+            ctx.stroke();
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '11px system-ui';
+            ctx.textAlign = 'right';
+            ctx.fillText((yMax * i / ticks).toFixed(model === 'predprey' ? 0 : 3), pad.left - 8, y + 4);
+
+            const x = pad.left + (i / ticks) * pw;
+            ctx.textAlign = 'center';
+            ctx.fillText((xMax * i / ticks).toFixed(model === 'predprey' ? 0 : 3), x, h - 8);
+        }
+
+        // Axis labels
+        ctx.fillStyle = '#64748b';
+        ctx.font = '12px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText(xLabel, pad.left + pw / 2, h - 0);
+
+        ctx.save();
+        ctx.translate(12, pad.top + ph / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(yLabel, 0, 0);
+        ctx.restore();
+
+        // Trajectory
+        ctx.beginPath();
+        ctx.strokeStyle = '#8b5cf6';
+        ctx.lineWidth = 1.5;
+        xData.forEach((xv, i) => {
+            const px = pad.left + ((xv - xMin) / (xMax - xMin)) * pw;
+            const py = pad.top + ph - ((yData[i] - yMin) / (yMax - yMin)) * ph;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+
+        // Start point
+        const sx = pad.left + ((xData[0] - xMin) / (xMax - xMin)) * pw;
+        const sy = pad.top + ph - ((yData[0] - yMin) / (yMax - yMin)) * ph;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = '#2563eb';
+        ctx.fill();
+
+        // End point (equilibrium)
+        const ex = pad.left + ((xData[xData.length - 1] - xMin) / (xMax - xMin)) * pw;
+        const ey = pad.top + ph - ((yData[yData.length - 1] - yMin) / (yMax - yMin)) * ph;
+        ctx.beginPath();
+        ctx.arc(ex, ey, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = '#dc2626';
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    function resetDefaults() {
+        document.getElementById('modelType').value = 'sir';
+        document.getElementById('beta').value = 0.4;
+        document.getElementById('gamma').value = 0.1;
+        document.getElementById('mu').value = 0.02;
+        document.getElementById('xi').value = 0.05;
+        document.getElementById('r').value = 1.0;
+        document.getElementById('K').value = 1000;
+        document.getElementById('a').value = 0.005;
+        document.getElementById('d').value = 0.3;
+        document.getElementById('e').value = 0.1;
+        document.getElementById('simTime').value = 300;
+        document.getElementById('dt').value = 0.05;
+
+        ['beta','gamma','mu','xi','r','K','a','d','e'].forEach(p => updateParam(p));
+        updateModelUI();
+        runSimulation();
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        if (simData) {
+            drawTimeSeries();
+            drawPhasePortrait();
+        }
+    });
+
+    // Initial run
+    updateModelUI();
+    runSimulation();
+    </script>
+</body>
+</html>

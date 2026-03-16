@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamical Modeling — SIR &amp; SEIR Study Guide</title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','canvas'] }
+};
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    /* From the flowchart color scheme */
+    --blue-light: #d6e6f5;
+    --blue-mid: #7bafd4;
+    --blue-dark: #2b7ab8;
+    --green-light: #d9edd9;
+    --green-mid: #8cc98c;
+    --green-dark: #3a9a3a;
+    --orange-light: #fde8cc;
+    --orange-mid: #f5b85a;
+    --orange-dark: #d4880a;
+    --purple-light: #e2d9f0;
+    --purple-mid: #a98ad4;
+    --purple-dark: #6b3fa0;
+    --bg: #f8f9fc;
+    --text: #1a1a2e;
+    --text-muted: #555570;
+    --card-bg: #ffffff;
+    --border: #e0e4ee;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+  .hero h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .hero h1 span { color: #64b5f6; }
+  .hero .subtitle {
+    font-size: 1.2rem;
+    font-weight: 300;
+    opacity: 0.85;
+    max-width: 700px;
+    margin: 0 auto 30px;
+    position: relative;
+  }
+
+  /* SIR/SEIR toggle */
+  .model-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .model-btn {
+    padding: 10px 28px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 30px;
+    background: transparent;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .model-btn.active {
+    background: rgba(100,181,246,0.25);
+    border-color: #64b5f6;
+    box-shadow: 0 0 20px rgba(100,181,246,0.2);
+  }
+  .model-btn:hover { border-color: #64b5f6; }
+
+  /* ===== COMPARTMENT DIAGRAM ===== */
+  .compartment-section {
+    padding: 50px 40px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .compartment-section h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 30px;
+    color: var(--text);
+  }
+  .compartment-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    position: relative;
+  }
+  .compartment-box {
+    width: 120px;
+    height: 120px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 2rem;
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .compartment-box:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  }
+  .compartment-box .label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-top: 4px;
+    opacity: 0.8;
+  }
+  .comp-s { background: linear-gradient(135deg, #bbdefb, #90caf9); color: #0d47a1; }
+  .comp-e { background: linear-gradient(135deg, #fff9c4, #fff176); color: #f57f17; }
+  .comp-i { background: linear-gradient(135deg, #ffcdd2, #ef9a9a); color: #b71c1c; }
+  .comp-r { background: linear-gradient(135deg, #c8e6c9, #a5d6a7); color: #1b5e20; }
+
+  .arrow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    position: relative;
+    z-index: 1;
+  }
+  .arrow-line {
+    width: 60px;
+    height: 3px;
+    background: var(--text-muted);
+    position: relative;
+  }
+  .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: -5px;
+    border: 6px solid transparent;
+    border-left: 8px solid var(--text-muted);
+  }
+  .arrow-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  /* Data particles */
+  .particle-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  /* ===== PIPELINE / MNEMONIC ===== */
+  .pipeline-section {
+    padding: 60px 40px;
+  }
+  .pipeline-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 50px;
+  }
+  .pipeline-header h2 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+  .pipeline-header .mnemonic {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 8px;
+    margin: 20px 0;
+  }
+  .mnemonic-letter {
+    display: inline-block;
+    transition: transform 0.3s, color 0.3s;
+    cursor: pointer;
+  }
+  .mnemonic-letter:hover { transform: scale(1.3) translateY(-4px); }
+
+  /* Phase labels */
+  .phase-group {
+    margin-bottom: 40px;
+  }
+  .phase-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+  }
+  .phase-label.prep { background: var(--blue-light); color: var(--blue-dark); }
+  .phase-label.fitting { background: var(--green-light); color: var(--green-dark); }
+  .phase-label.inference { background: var(--blue-light); color: var(--blue-dark); }
+  .phase-label.validation { background: var(--orange-light); color: var(--orange-dark); }
+  .phase-label.comparison { background: var(--purple-light); color: var(--purple-dark); }
+
+  /* Step cards */
+  .step-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.2s;
+    cursor: pointer;
+  }
+  .step-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+  }
+  .step-card.active {
+    box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px;
+    gap: 16px;
+  }
+  .step-letter {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    flex-shrink: 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .step-letter::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+    animation: shimmer 3s infinite;
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%); }
+    100% { transform: translateX(100%) translateY(100%); }
+  }
+
+  .step-info { flex: 1; }
+  .step-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .step-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .step-expand-icon {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    transition: transform 0.3s;
+    flex-shrink: 0;
+  }
+  .step-card.active .step-expand-icon { transform: rotate(180deg); }
+
+  .step-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .step-card.active .step-content {
+    max-height: 2000px;
+  }
+
+  .step-body {
+    padding: 0 24px 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  /* In/Out/Why boxes */
+  .io-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .io-box {
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .io-box h4 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .io-box h4::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .io-in h4::before { background: var(--blue-dark); }
+  .io-out h4::before { background: var(--green-dark); }
+  .io-why h4::before { background: var(--orange-dark); }
+  .io-box p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+  .io-in { background: #f0f7ff; }
+  .io-in h4 { color: var(--blue-dark); }
+  .io-out { background: #f0faf0; }
+  .io-out h4 { color: var(--green-dark); }
+  .io-why { background: #fff8f0; }
+  .io-why h4 { color: var(--orange-dark); }
+
+  /* Animated visualization area inside each step */
+  .step-viz {
+    background: #f8f9fc;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+  .step-viz canvas {
+    width: 100%;
+    height: 100%;
+  }
+  .viz-label {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: 0.6;
+  }
+
+  /* ===== EQUATIONS ===== */
+  .equation-section {
+    background: white;
+    padding: 50px 40px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .equation-section h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 30px;
+  }
+  .eq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .eq-card {
+    background: var(--bg);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid var(--border);
+  }
+  .eq-card h3 {
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eq-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    padding: 4px 0;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eq-line .deriv { color: var(--blue-dark); font-weight: 600; }
+  .eq-line .param { color: #c62828; }
+  .eq-line .var { color: var(--green-dark); font-weight: 500; }
+
+  .r0-box {
+    margin-top: 20px;
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    border: 1px solid #ffcc80;
+  }
+  .r0-box .r0-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--orange-dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .r0-box .r0-formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ===== PARAMETER TABLE ===== */
+  .param-table-wrap {
+    max-width: 900px;
+    margin: 30px auto 0;
+  }
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  .param-table th {
+    background: #f0f2f8;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+  }
+  .param-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .param-table tr:hover td { background: #f8f9fc; }
+  .param-symbol {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--blue-dark);
+  }
+  .param-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .param-type.free { background: #e8f5e9; color: #2e7d32; }
+  .param-type.fixed { background: #fce4ec; color: #c62828; }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  .footer a { color: var(--blue-dark); text-decoration: none; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 2rem; }
+    .io-grid { grid-template-columns: 1fr; }
+    .eq-grid { grid-template-columns: 1fr; }
+    .compartment-diagram { flex-wrap: wrap; }
+    .pipeline-section { padding: 40px 20px; }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeInUp 0.5s ease forwards; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+
+  @keyframes dotMove {
+    0% { left: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: calc(100% - 8px); opacity: 0; }
+  }
+  .moving-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: dotMove 2s linear infinite;
+  }
+  .arrow-container .moving-dot { background: var(--blue-dark); }
+
+  /* Train line connector */
+  .train-line {
+    position: absolute;
+    left: 50px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  /* Code block */
+  .code-block {
+    background: #1e1e2e;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #cdd6f4;
+    overflow-x: auto;
+    margin-top: 12px;
+    line-height: 1.7;
+  }
+  .code-block .kw { color: #cba6f7; }
+  .code-block .fn { color: #89b4fa; }
+  .code-block .str { color: #a6e3a1; }
+  .code-block .cm { color: #6c7086; }
+  .code-block .num { color: #fab387; }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<div class="hero" id="hero">
+  <h1>Dynamical <span>Modeling</span></h1>
+  <p class="subtitle">A complete interactive guide to fitting SIR &amp; SEIR compartmental models to outbreak data — from raw surveillance reports to policy-ready counterfactuals.</p>
+  <div class="model-toggle">
+    <button class="model-btn active" onclick="setModel('sir')">SIR Model</button>
+    <button class="model-btn" onclick="setModel('seir')">SEIR Model</button>
+  </div>
+  <canvas id="heroCanvas" width="1200" height="200" style="width:100%;max-width:1200px;height:100px;position:relative;"></canvas>
+</div>
+
+<!-- ===== COMPARTMENT DIAGRAM ===== -->
+<div class="compartment-section" id="compartments">
+  <h2 id="compartment-title">The SIR Compartmental Model</h2>
+  <div class="compartment-diagram" id="compartmentDiagram">
+    <!-- Dynamically rendered by JS -->
+  </div>
+  <div style="text-align:center; margin-top:10px;">
+    <p style="color:var(--text-muted); font-size:0.88rem;" id="compartment-desc">
+      Susceptible → Infectious → Recovered. Click any compartment to highlight its role.
+    </p>
+  </div>
+</div>
+
+<!-- ===== EQUATIONS ===== -->
+<div class="equation-section" id="equations">
+  <h2>System of Ordinary Differential Equations</h2>
+  <div class="eq-grid" id="eqGrid">
+    <!-- Rendered by JS -->
+  </div>
+  <div class="param-table-wrap">
+    <h3 style="margin: 30px 0 14px; font-size:1rem;">Parameter Reference</h3>
+    <table class="param-table" id="paramTable">
+      <thead>
+        <tr><th>Symbol</th><th>Name</th><th>Type</th><th>Typical Range</th></tr>
+      </thead>
+      <tbody id="paramTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== DATA FINDS ME PIPELINE ===== -->
+<div class="pipeline-section" id="pipeline">
+  <div class="pipeline-header">
+    <h2>The Complete Analysis Pipeline</h2>
+    <p style="color:var(--text-muted); max-width:650px; margin:0 auto 20px;">
+      Every letter maps to one stage. Click each stop on the train line to see what happens, what goes in, and what comes out — with a live animation of the data at each stage.
+    </p>
+    <div class="mnemonic" id="mnemonicDisplay"></div>
+  </div>
+
+  <div id="pipelineSteps"></div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+  <p><strong>Dynamical Modeling Study Guide</strong> — SEIR &amp; SIR Model Fitting Pipeline</p>
+  <p style="margin-top:6px;">Built for Chapter 4 · Abdul's PhD Thesis · <a href="#">Drake Lab, University of Georgia</a></p>
+</div>
+
+<script>
+// ======================== DATA ========================
+
+let currentModel = 'sir';
+
+const STEPS = [
+  {
+    letter: 'D', title: 'Data', subtitle: 'Get from WAHIS',
+    phase: 'prep', phaseLabel: 'Data Preparation',
+    color: '#2b7ab8',
+    input: 'A query to the WAHIS database — species, disease, country, date range.',
+    output: 'A spreadsheet of weekly new cases, deaths, and (sometimes) destroyed or vaccinated animals.',
+    why: 'Without data there is nothing to fit. WAHIS is the internationally standardised source, so your results are reproducible by anyone.',
+    vizType: 'data'
+  },
+  {
+    letter: 'A', title: 'Assess', subtitle: 'Quality filters',
+    phase: 'prep', phaseLabel: 'Data Preparation',
+    color: '#2b7ab8',
+    input: 'The raw WAHIS download.',
+    output: 'A cleaned data frame with only the outbreaks that pass all quality criteria.',
+    why: 'Garbage in, garbage out. If you try to fit a complex model to three data points, the optimizer will give you nonsense. Filtering protects you from that.',
+    vizType: 'filter'
+  },
+  {
+    letter: 'T', title: 'Tune', subtitle: 'Fix \\(\\sigma\\), \\(\\gamma\\) from literature',
+    phase: 'prep', phaseLabel: 'Data Preparation',
+    color: '#2b7ab8',
+    input: 'A literature review of the pathogen\'s natural history (mean incubation period, mean infectious period).',
+    output: 'Fixed numerical values for \\(\\sigma\\), \\(\\gamma\\), and any other literature-derived parameters.',
+    why: 'Fixing known parameters reduces the number of unknowns the optimizer has to search over, making fitting more stable and remaining estimates more reliable.',
+    vizType: 'tune'
+  },
+  {
+    letter: 'A', title: 'Assemble', subtitle: 'Build the ODE model',
+    phase: 'fitting', phaseLabel: 'Model Fitting',
+    color: '#3a9a3a',
+    input: 'Biological knowledge about transmission routes and compartment structure; the fixed parameters from the previous step.',
+    output: 'An R function that, given a parameter vector and initial conditions, returns predicted epidemic curves over time.',
+    why: 'The ODE model is your hypothesis about how the disease spreads. Everything downstream — fitting, \\(\\mathcal{R}_0\\), counterfactuals — depends on getting this structure right.',
+    vizType: 'ode'
+  },
+  {
+    letter: 'F', title: 'Fit', subtitle: 'NLL + MLE with optim',
+    phase: 'fitting', phaseLabel: 'Model Fitting',
+    color: '#3a9a3a',
+    input: 'The ODE model, the cleaned data, an initial guess for the free parameters, and the negative log-likelihood \\(\\text{NLL}(\\theta) = -\\sum \\log f(y_t \\mid \\theta)\\).',
+    output: 'The MLE parameter estimates \\(\\hat{\\theta}_{\\text{MLE}} = \\arg\\min \\text{NLL}(\\theta)\\) and the minimised NLL value.',
+    why: 'This is the core inference step. Without it you have a model but no idea which parameter values are consistent with reality.',
+    vizType: 'fit'
+  },
+  {
+    letter: 'I', title: 'Intervals', subtitle: 'Hessian to CIs',
+    phase: 'inference', phaseLabel: 'Inference',
+    color: '#2b7ab8',
+    input: 'The MLE parameter vector \\(\\hat{\\theta}\\) and the NLL function. Compute the Hessian \\(H = \\nabla^2 \\text{NLL}(\\hat{\\theta})\\).',
+    output: 'Standard errors \\(\\text{SE} = \\sqrt{\\text{diag}(H^{-1})}\\) and 95% confidence intervals \\(\\hat{\\theta} \\pm 1.96 \\cdot \\text{SE}\\).',
+    why: 'Decision-makers need to know whether \\(\\mathcal{R}_0 = 2.5\\) means "almost certainly between 2.4 and 2.6" or "could be anywhere from 0.8 to 6."',
+    vizType: 'ci'
+  },
+  {
+    letter: 'N', title: 'Number', subtitle: 'Compute \\(\\mathcal{R}_0\\)',
+    phase: 'inference', phaseLabel: 'Inference',
+    color: '#2b7ab8',
+    input: 'The MLE parameter estimates and the fixed literature values. For SEIR: \\(\\mathcal{R}_0 = \\beta/(\\gamma + \\mu_d + \\kappa + \\lambda)\\).',
+    output: 'A point estimate and CI for \\(\\mathcal{R}_0\\). For SIR: \\(\\mathcal{R}_0 = \\beta / \\gamma\\).',
+    why: '\\(\\mathcal{R}_0\\) is the single most important summary statistic in infectious disease epidemiology. If \\(\\mathcal{R}_0 > 1\\) the outbreak grows; if \\(\\mathcal{R}_0 < 1\\) it dies out.',
+    vizType: 'r0'
+  },
+  {
+    letter: 'D', title: 'Double-check', subtitle: 'MCMC validation',
+    phase: 'validation', phaseLabel: 'Validation',
+    color: '#d4880a',
+    input: 'The same ODE model, data, and NLL function — plus MCMC-specific settings (chain length, burn-in, proposal distribution).',
+    output: 'Posterior distributions for every parameter; a visual comparison with the MLE point estimates.',
+    why: 'It is a safety net. Two completely different algorithms agreeing on the same answer is strong evidence that the answer is correct.',
+    vizType: 'mcmc'
+  },
+  {
+    letter: 'S', title: 'Sensitivity', subtitle: 'LHS + PRCC',
+    phase: 'validation', phaseLabel: 'Validation',
+    color: '#d4880a',
+    input: 'Parameter ranges (from the CIs or literature), the ODE model, and a chosen output metric.',
+    output: 'A ranked list of parameters by importance, with tornado plots.',
+    why: 'It tells you where to focus control efforts and where better data collection would most reduce uncertainty.',
+    vizType: 'sensitivity'
+  },
+  {
+    letter: 'M', title: 'Model Compare', subtitle: 'AIC',
+    phase: 'comparison', phaseLabel: 'Comparison & Exploration',
+    color: '#6b3fa0',
+    input: 'The minimised NLL and the number of free parameters \\(k\\) for each model.',
+    output: '\\(\\text{AIC} = 2k - 2\\ln(\\hat{L})\\). The model with the lowest AIC balances fit and parsimony. Also compute \\(\\Delta\\text{AIC}\\) and Akaike weights.',
+    why: 'A more complex model will always fit better, but it may be overfitting. AIC penalises extra parameters so you pick the simplest model that explains the data well.',
+    vizType: 'aic'
+  },
+  {
+    letter: 'E', title: 'Explore', subtitle: 'Counterfactual scenarios',
+    phase: 'comparison', phaseLabel: 'Comparison & Exploration',
+    color: '#6b3fa0',
+    input: 'The best-fit model and parameters, plus a set of "what-if" parameter modifications.',
+    output: 'Predicted epidemic curves under alternative scenarios, with comparisons to the baseline.',
+    why: 'The whole point of building a model is to learn something actionable. Counterfactuals turn understanding into policy guidance.',
+    vizType: 'counterfactual'
+  }
+];
+
+// ======================== MODEL TOGGLE ========================
+function setModel(m) {
+  currentModel = m;
+  document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderCompartments();
+  renderEquations();
+  renderParams();
+}
+
+// ======================== COMPARTMENTS ========================
+function renderCompartments() {
+  const d = document.getElementById('compartmentDiagram');
+  const isSEIR = currentModel === 'seir';
+  document.getElementById('compartment-title').textContent =
+    isSEIR ? 'The SEIR Compartmental Model' : 'The SIR Compartmental Model';
+  document.getElementById('compartment-desc').textContent =
+    isSEIR ? 'Susceptible → Exposed → Infectious → Recovered. The Exposed compartment captures the latent period.'
+            : 'Susceptible → Infectious → Recovered. Click any compartment to highlight its role.';
+
+  let html = '';
+  const comps = isSEIR
+    ? [{c:'S',l:'Susceptible'},{a:'β·S·I/N',n:'σ'},{c:'E',l:'Exposed'},{a:'σ·E',n:'γ'},{c:'I',l:'Infectious'},{a:'γ·I',n:''},{c:'R',l:'Recovered'}]
+    : [{c:'S',l:'Susceptible'},{a:'β·S·I/N',n:'γ'},{c:'I',l:'Infectious'},{a:'γ·I',n:''},{c:'R',l:'Recovered'}];
+
+  comps.forEach((item,idx) => {
+    if (item.c) {
+      const cls = item.c === 'S' ? 'comp-s' : item.c === 'E' ? 'comp-e' : item.c === 'I' ? 'comp-i' : 'comp-r';
+      html += `<div class="compartment-box ${cls}" title="${item.l}">
+        ${item.c}
+        <div class="label">${item.l}</div>
+      </div>`;
+    } else {
+      html += `<div class="arrow-container">
+        <div class="arrow-label">${item.a}</div>
+        <div class="arrow-line"><div class="moving-dot"></div></div>
+      </div>`;
+    }
+  });
+  d.innerHTML = html;
+}
+
+// ======================== EQUATIONS ========================
+function renderEquations() {
+  const g = document.getElementById('eqGrid');
+  const isSEIR = currentModel === 'seir';
+
+  if (isSEIR) {
+    g.innerHTML = `
+      <div class="eq-card">
+        <h3>SEIR-Cull-Vaccinate Equations</h3>
+        <div style="font-size:1.05rem; line-height:2.2; padding:8px 0;">
+          \\[\\frac{dS}{dt} = -\\beta \\frac{SI}{N}\\]
+          \\[\\frac{dE}{dt} = \\beta \\frac{SI}{N} - \\sigma E\\]
+          \\[\\frac{dI}{dt} = \\sigma E - (\\gamma + \\mu_d + \\kappa + \\lambda)\\, I\\]
+          \\[\\frac{dR}{dt} = \\gamma\\, I\\]
+          \\[\\frac{dD}{dt} = \\mu_d\\, I\\]
+          \\[\\frac{dK}{dt} = \\kappa\\, I \\quad \\text{(culled)}\\]
+        </div>
+        <div class="r0-box">
+          <div class="r0-label">Basic Reproduction Number</div>
+          <div class="r0-formula">\\(\\mathcal{R}_0 = \\dfrac{\\beta}{\\gamma + \\mu_d + \\kappa + \\lambda}\\)</div>
+        </div>
+      </div>
+      <div class="eq-card">
+        <h3>What Each Term Means</h3>
+        <div style="font-size:0.88rem; color:var(--text-muted); line-height:1.8;">
+          <p><strong style="color:var(--blue-dark)">\\(\\beta S I / N\\)</strong> — Force of infection: rate susceptibles get exposed. Depends on contact rate and probability of transmission per contact.</p>
+          <p style="margin-top:8px;"><strong style="color:#f57f17">\\(\\sigma E\\)</strong> — Progression: latent animals become infectious. \\(\\sigma = 1/\\text{incubation period}\\).</p>
+          <p style="margin-top:8px;"><strong style="color:#c62828">\\(\\gamma I\\)</strong> — Natural recovery. \\(\\gamma = 1/\\text{infectious period}\\).</p>
+          <p style="margin-top:8px;"><strong style="color:#6a1b9a">\\(\\mu_d I\\)</strong> — Disease-induced death rate.</p>
+          <p style="margin-top:8px;"><strong style="color:#4e342e">\\(\\kappa I\\)</strong> — Culling rate (intervention).</p>
+          <p style="margin-top:8px;"><strong style="color:var(--green-dark)">\\(\\lambda I\\)</strong> — Vaccination rate (intervention).</p>
+        </div>
+      </div>`;
+    if (window.MathJax && MathJax.typeset) MathJax.typeset();
+  } else {
+    g.innerHTML = `
+      <div class="eq-card">
+        <h3>SIR Equations</h3>
+        <div style="font-size:1.05rem; line-height:2.2; padding:8px 0;">
+          \\[\\frac{dS}{dt} = -\\beta \\frac{SI}{N}\\]
+          \\[\\frac{dI}{dt} = \\beta \\frac{SI}{N} - \\gamma\\, I\\]
+          \\[\\frac{dR}{dt} = \\gamma\\, I\\]
+        </div>
+        <div class="r0-box" style="margin-top:20px;">
+          <div class="r0-label">Basic Reproduction Number</div>
+          <div class="r0-formula">\\(\\mathcal{R}_0 = \\dfrac{\\beta}{\\gamma}\\)</div>
+        </div>
+      </div>
+      <div class="eq-card">
+        <h3>What Each Term Means</h3>
+        <div style="font-size:0.88rem; color:var(--text-muted); line-height:1.8;">
+          <p><strong style="color:var(--blue-dark)">\\(\\beta S I / N\\)</strong> — Force of infection: rate at which susceptible individuals become infected. \\(\\beta\\) encodes both the contact rate and the probability of transmission per contact.</p>
+          <p style="margin-top:10px;"><strong style="color:#c62828">\\(\\gamma I\\)</strong> — Recovery/removal rate. \\(\\gamma = 1/\\text{infectious period}\\). Infected individuals move to R at this rate.</p>
+          <p style="margin-top:10px;"><strong style="color:var(--green-dark)">\\(\\mathcal{R}_0 = \\beta/\\gamma\\)</strong> — If \\(\\mathcal{R}_0 > 1\\) the epidemic grows; if \\(\\mathcal{R}_0 < 1\\) it dies out. This is the threshold condition.</p>
+        </div>
+      </div>`;
+    if (window.MathJax && MathJax.typeset) MathJax.typeset();
+  }
+}
+
+// ======================== PARAMS TABLE ========================
+function renderParams() {
+  const body = document.getElementById('paramTableBody');
+  const isSEIR = currentModel === 'seir';
+  const params = isSEIR ? [
+    ['β','Transmission rate','free','0.01 – 5 /day'],
+    ['σ','Incubation rate (1/latent period)','fixed','Literature-derived'],
+    ['γ','Recovery rate (1/infectious period)','fixed','Literature-derived'],
+    ['μ_d','Disease mortality rate','free','0.001 – 1 /day'],
+    ['κ','Culling rate','free','0 – 2 /day (if data exists)'],
+    ['λ','Vaccination rate','free','0 – 1 /day (if data exists)'],
+    ['φ','NB dispersion (1/overdispersion)','free','0.1 – 100'],
+    ['t_vax','Vaccination onset day','free','0 – 365 days'],
+  ] : [
+    ['β','Transmission rate','free','0.1 – 5 /day'],
+    ['γ','Recovery rate (1/infectious period)','fixed','Literature-derived'],
+    ['φ','NB dispersion (1/overdispersion)','free','0.1 – 100'],
+  ];
+  body.innerHTML = params.map(p =>
+    `<tr>
+      <td><span class="param-symbol">${p[0]}</span></td>
+      <td>${p[1]}</td>
+      <td><span class="param-type ${p[2]}">${p[2]}</span></td>
+      <td style="font-size:0.82rem;color:var(--text-muted);">${p[3]}</td>
+    </tr>`
+  ).join('');
+}
+
+// ======================== MNEMONIC ========================
+function renderMnemonic() {
+  const el = document.getElementById('mnemonicDisplay');
+  const letters = 'DATAFINDSME';
+  const colors = [
+    '#2b7ab8','#2b7ab8','#2b7ab8','#3a9a3a','#3a9a3a',
+    '#2b7ab8','#2b7ab8','#d4880a','#d4880a','#6b3fa0','#6b3fa0'
+  ];
+  el.innerHTML = letters.split('').map((l,i) =>
+    `<span class="mnemonic-letter" style="color:${colors[i]}" onclick="openStep(${i})" title="${STEPS[i].title}">${l}</span>`
+  ).join('');
+}
+
+// ======================== PIPELINE STEPS ========================
+function renderPipeline() {
+  const container = document.getElementById('pipelineSteps');
+  let html = '';
+  let lastPhase = '';
+
+  STEPS.forEach((s, i) => {
+    if (s.phase !== lastPhase) {
+      lastPhase = s.phase;
+      const pc = s.phase === 'prep' ? 'prep' : s.phase === 'fitting' ? 'fitting' :
+                 s.phase === 'inference' ? 'inference' : s.phase === 'validation' ? 'validation' : 'comparison';
+      html += `<div class="phase-label ${pc}">${s.phaseLabel}</div>`;
+    }
+
+    html += `
+    <div class="step-card" id="step-${i}" onclick="toggleStep(${i})">
+      <div class="step-header">
+        <div class="step-letter" style="background:${s.color};">${s.letter}</div>
+        <div class="step-info">
+          <div class="step-title">${s.title}</div>
+          <div class="step-subtitle">${s.subtitle}</div>
+        </div>
+        <div class="step-expand-icon">▼</div>
+      </div>
+      <div class="step-content">
+        <div class="step-body">
+          <div class="io-grid">
+            <div class="io-box io-in"><h4>What Goes In</h4><p>${s.input}</p></div>
+            <div class="io-box io-out"><h4>What Comes Out</h4><p>${s.output}</p></div>
+            <div class="io-box io-why"><h4>Why This Step</h4><p>${s.why}</p></div>
+          </div>
+          <div class="step-viz" id="viz-${i}">
+            <canvas id="canvas-${i}"></canvas>
+            <div class="viz-label">Live animation</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+  if (window.MathJax && MathJax.typeset) MathJax.typeset();
+}
+
+let activeStep = -1;
+const animFrames = {};
+
+function toggleStep(i) {
+  const card = document.getElementById(`step-${i}`);
+  if (activeStep === i) {
+    card.classList.remove('active');
+    cancelAnimationFrame(animFrames[i]);
+    activeStep = -1;
+    return;
+  }
+  // close previous
+  if (activeStep >= 0) {
+    document.getElementById(`step-${activeStep}`).classList.remove('active');
+    cancelAnimationFrame(animFrames[activeStep]);
+  }
+  activeStep = i;
+  card.classList.add('active');
+  // wait for CSS transition to open, then re-typeset math and start viz
+  setTimeout(() => {
+    if (window.MathJax && MathJax.typeset) MathJax.typeset();
+    startViz(i);
+  }, 350);
+}
+
+function openStep(i) {
+  const el = document.getElementById(`step-${i}`);
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => toggleStep(i), 400);
+}
+
+// ======================== VISUALIZATIONS ========================
+function startViz(idx) {
+  const canvas = document.getElementById(`canvas-${idx}`);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  ctx.scale(2, 2);
+  const W = rect.width, H = rect.height;
+
+  const vizFns = {
+    data: () => vizData(ctx, W, H, idx),
+    filter: () => vizFilter(ctx, W, H, idx),
+    tune: () => vizTune(ctx, W, H, idx),
+    ode: () => vizODE(ctx, W, H, idx),
+    fit: () => vizFit(ctx, W, H, idx),
+    ci: () => vizCI(ctx, W, H, idx),
+    r0: () => vizR0(ctx, W, H, idx),
+    mcmc: () => vizMCMC(ctx, W, H, idx),
+    sensitivity: () => vizSensitivity(ctx, W, H, idx),
+    aic: () => vizAIC(ctx, W, H, idx),
+    counterfactual: () => vizCounterfactual(ctx, W, H, idx),
+  };
+
+  const fn = vizFns[STEPS[idx].vizType];
+  if (fn) fn();
+}
+
+// --- D: Data download ---
+function vizData(ctx, W, H, idx) {
+  let t = 0;
+  const bars = [];
+  for (let i = 0; i < 20; i++) bars.push(Math.random() * 80 + 10);
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.02;
+    // Draw bars appearing over time
+    const shown = Math.min(20, Math.floor(t * 4));
+    const bw = (W - 80) / 20;
+    ctx.fillStyle = '#e3f2fd';
+    ctx.fillRect(30, 20, W - 60, H - 50);
+
+    for (let i = 0; i < shown; i++) {
+      const x = 40 + i * bw;
+      const h = bars[i] * (H - 60) / 100;
+      ctx.fillStyle = i % 3 === 0 ? '#2b7ab8' : i % 3 === 1 ? '#64b5f6' : '#90caf9';
+      ctx.fillRect(x, H - 30 - h, bw - 3, h);
+    }
+    // Axis
+    ctx.strokeStyle = '#999';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(38, 20);
+    ctx.lineTo(38, H - 28);
+    ctx.lineTo(W - 30, H - 28);
+    ctx.stroke();
+
+    ctx.fillStyle = '#555';
+    ctx.font = '11px Inter';
+    ctx.fillText('Weekly Cases', W / 2 - 35, H - 8);
+    ctx.save();
+    ctx.translate(14, H / 2 + 20);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Count', 0, 0);
+    ctx.restore();
+
+    if (shown < 20 || t < 8) animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- A: Filter ---
+function vizFilter(ctx, W, H, idx) {
+  let t = 0;
+  const pts = [];
+  for (let i = 0; i < 40; i++) pts.push({
+    x: 50 + Math.random() * (W - 100),
+    y: 30 + Math.random() * (H - 70),
+    r: 4 + Math.random() * 6,
+    good: Math.random() > 0.35,
+    vy: 0, removed: false
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.02;
+
+    // Threshold line
+    const threshold = H * 0.55;
+    if (t > 1) {
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = '#e53935';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(30, threshold);
+      ctx.lineTo(W - 30, threshold);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#e53935';
+      ctx.font = '11px Inter';
+      ctx.fillText('Quality threshold', W - 140, threshold - 6);
+    }
+
+    // Filter animation
+    if (t > 2) {
+      pts.forEach(p => {
+        if (!p.good && !p.removed && p.y < threshold) {
+          p.vy += 0.15;
+          p.y += p.vy;
+          if (p.y > H + 20) p.removed = true;
+        }
+      });
+    }
+
+    pts.forEach(p => {
+      if (p.removed) return;
+      const alpha = (!p.good && t > 2) ? Math.max(0, 1 - (p.y - threshold) / 60) : 1;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.good ? '#43a047' : '#e53935';
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+
+    ctx.fillStyle = '#555';
+    ctx.font = '10px Inter';
+    ctx.fillText('Passes filter', 50, H - 8);
+    ctx.fillStyle = '#e53935';
+    ctx.fillText('Removed', 160, H - 8);
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- T: Tune ---
+function vizTune(ctx, W, H, idx) {
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.015;
+
+    const params = [
+      {name: 'σ (incubation rate)', val: 0.2, unit: '/day', y: 55},
+      {name: 'γ (recovery rate)', val: 0.143, unit: '/day', y: 110},
+    ];
+
+    params.forEach((p, i) => {
+      const progress = Math.min(1, (t - i * 0.8));
+      if (progress <= 0) return;
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      // Literature source box
+      ctx.fillStyle = '#e8eaf6';
+      ctx.beginPath();
+      ctx.roundRect(40, p.y - 18, 160 * ease, 36, 8);
+      ctx.fill();
+
+      if (ease > 0.3) {
+        ctx.fillStyle = '#3949ab';
+        ctx.font = '600 11px Inter';
+        ctx.fillText('Literature', 50, p.y + 2);
+      }
+
+      // Arrow
+      if (ease > 0.6) {
+        const arrowX = 210 + (W / 2 - 230) * Math.min(1, (ease - 0.6) / 0.4);
+        ctx.strokeStyle = '#90a4ae';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(205, p.y);
+        ctx.lineTo(arrowX, p.y);
+        ctx.stroke();
+        // Arrowhead
+        ctx.beginPath();
+        ctx.moveTo(arrowX, p.y - 5);
+        ctx.lineTo(arrowX + 8, p.y);
+        ctx.lineTo(arrowX, p.y + 5);
+        ctx.fillStyle = '#90a4ae';
+        ctx.fill();
+      }
+
+      // Fixed value box
+      if (ease > 0.8) {
+        const valEase = (ease - 0.8) / 0.2;
+        ctx.fillStyle = `rgba(232,245,233,${valEase})`;
+        ctx.beginPath();
+        ctx.roundRect(W / 2 - 10, p.y - 18, 220 * valEase, 36, 8);
+        ctx.fill();
+        ctx.strokeStyle = '#43a047';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        if (valEase > 0.5) {
+          ctx.fillStyle = '#2e7d32';
+          ctx.font = '600 12px JetBrains Mono';
+          ctx.fillText(`${p.name} = ${p.val} ${p.unit}`, W / 2, p.y + 4);
+          ctx.fillStyle = '#e53935';
+          ctx.font = '700 10px Inter';
+          ctx.fillText('FIXED', W - 80, p.y + 4);
+        }
+      }
+    });
+
+    ctx.fillStyle = '#777';
+    ctx.font = '10px Inter';
+    ctx.fillText('Known parameters are locked before optimization begins', W / 2 - 150, H - 12);
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- A: Assemble ODE ---
+function vizODE(ctx, W, H, idx) {
+  let t = 0;
+  const N = 1000;
+  const beta = 0.4, sigma = 0.2, gamma = 0.14;
+  const isSEIR = currentModel === 'seir';
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.5;
+    const maxT = 120;
+    const dt = 0.1;
+    let S = N - 1, E = 0, I = 1, R = 0;
+    const sArr = [], eArr = [], iArr = [], rArr = [];
+
+    for (let step = 0; step <= maxT; step += dt) {
+      if (isSEIR) {
+        const dS = -beta * S * I / N;
+        const dE = beta * S * I / N - sigma * E;
+        const dI = sigma * E - gamma * I;
+        const dR = gamma * I;
+        S += dS * dt; E += dE * dt; I += dI * dt; R += dR * dt;
+      } else {
+        const dS = -beta * S * I / N;
+        const dI = beta * S * I / N - gamma * I;
+        const dR = gamma * I;
+        S += dS * dt; I += dI * dt; R += dR * dt;
+      }
+      if (step % 1 < dt) {
+        sArr.push(S); eArr.push(E); iArr.push(I); rArr.push(R);
+      }
+    }
+
+    const shown = Math.min(sArr.length, Math.floor(t));
+    const xScale = (W - 80) / maxT;
+    const yScale = (H - 60) / N;
+    const ox = 50, oy = H - 30;
+
+    // Axes
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(ox, 15);
+    ctx.lineTo(ox, oy);
+    ctx.lineTo(W - 20, oy);
+    ctx.stroke();
+
+    function drawLine(arr, color) {
+      if (shown < 2) return;
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i < shown; i++) {
+        const x = ox + i * xScale;
+        const y = oy - arr[i] * yScale;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    drawLine(sArr, '#2196f3');
+    if (isSEIR) drawLine(eArr, '#ff9800');
+    drawLine(iArr, '#e53935');
+    drawLine(rArr, '#43a047');
+
+    // Legend
+    const labels = isSEIR
+      ? [['S','#2196f3'],['E','#ff9800'],['I','#e53935'],['R','#43a047']]
+      : [['S','#2196f3'],['I','#e53935'],['R','#43a047']];
+    labels.forEach(([l,c], i) => {
+      ctx.fillStyle = c;
+      ctx.font = '700 12px Inter';
+      ctx.fillText(l, W - 20 - (labels.length - i) * 30, 25);
+    });
+
+    ctx.fillStyle = '#777';
+    ctx.font = '10px Inter';
+    ctx.fillText('Time (days)', W / 2 - 25, H - 6);
+
+    if (shown < sArr.length) animFrames[idx] = requestAnimationFrame(draw);
+    else animFrames[idx] = requestAnimationFrame(draw); // keep alive for loop
+  }
+  draw();
+}
+
+// --- F: Fit ---
+function vizFit(ctx, W, H, idx) {
+  let t = 0;
+  // Generate fake observed data + fitted curve
+  const nPts = 25;
+  const obs = [], fitted = [];
+  for (let i = 0; i < nPts; i++) {
+    const x = i / nPts;
+    const peak = Math.exp(-0.5 * Math.pow((x - 0.35) / 0.15, 2)) * 80;
+    obs.push(peak + (Math.random() - 0.5) * 25);
+    fitted.push(peak);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.02;
+    const ox = 50, oy = H - 30;
+    const xS = (W - 80) / nPts, yS = (H - 60) / 100;
+
+    // Axes
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(ox, 15); ctx.lineTo(ox, oy); ctx.lineTo(W - 20, oy);
+    ctx.stroke();
+
+    // Observed dots (appear first)
+    const shownPts = Math.min(nPts, Math.floor(t * 8));
+    for (let i = 0; i < shownPts; i++) {
+      ctx.beginPath();
+      ctx.arc(ox + i * xS + xS / 2, oy - Math.max(0, obs[i]) * yS, 5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(43,122,184,0.7)';
+      ctx.fill();
+      ctx.strokeStyle = '#2b7ab8';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Fitted curve (appears after data)
+    if (t > 1.5) {
+      const curveProgress = Math.min(1, (t - 1.5) / 2);
+      const shownCurve = Math.floor(curveProgress * nPts);
+      ctx.beginPath();
+      ctx.strokeStyle = '#e53935';
+      ctx.lineWidth = 3;
+      for (let i = 0; i < shownCurve; i++) {
+        const x = ox + i * xS + xS / 2;
+        const y = oy - fitted[i] * yS;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // NLL value
+    if (t > 3) {
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.beginPath();
+      ctx.roundRect(W - 180, 15, 160, 40, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#ddd';
+      ctx.stroke();
+      ctx.fillStyle = '#333';
+      ctx.font = '600 12px JetBrains Mono';
+      ctx.fillText('NLL = 127.4', W - 168, 32);
+      ctx.fillStyle = '#43a047';
+      ctx.font = '10px Inter';
+      ctx.fillText('Converged', W - 168, 47);
+    }
+
+    ctx.fillStyle = '#2b7ab8';
+    ctx.font = '10px Inter';
+    ctx.fillText('Observed', 60, 20);
+    if (t > 1.5) { ctx.fillStyle = '#e53935'; ctx.fillText('Fitted', 150, 20); }
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- I: Confidence Intervals ---
+function vizCI(ctx, W, H, idx) {
+  let t = 0;
+  const params = [
+    {name: 'β', mle: 0.42, lo: 0.31, hi: 0.58},
+    {name: 'μ_d', mle: 0.08, lo: 0.02, hi: 0.15},
+    {name: 'κ', mle: 0.23, lo: 0.10, hi: 0.40},
+    {name: 'R0', mle: 2.61, lo: 1.8, hi: 3.9},
+  ];
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.025;
+
+    const rowH = (H - 40) / params.length;
+    params.forEach((p, i) => {
+      const progress = Math.min(1, (t - i * 0.4));
+      if (progress <= 0) return;
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      const cy = 30 + i * rowH + rowH / 2;
+
+      // Param name
+      ctx.fillStyle = '#333';
+      ctx.font = '600 13px JetBrains Mono';
+      ctx.fillText(p.name, 20, cy + 4);
+
+      // CI bar
+      const barLeft = 80;
+      const barRight = W - 40;
+      const scale = barRight - barLeft;
+      const maxVal = p.name === 'R0' ? 5 : 0.7;
+
+      const xLo = barLeft + (p.lo / maxVal) * scale;
+      const xHi = barLeft + (p.hi / maxVal) * scale;
+      const xMle = barLeft + (p.mle / maxVal) * scale;
+      const ciWidth = (xHi - xLo) * ease;
+      const center = (xLo + xHi) / 2;
+
+      // CI ribbon
+      ctx.fillStyle = 'rgba(43,122,184,0.15)';
+      ctx.beginPath();
+      ctx.roundRect(center - ciWidth / 2, cy - 12, ciWidth, 24, 6);
+      ctx.fill();
+
+      // CI line
+      ctx.strokeStyle = '#2b7ab8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(center - ciWidth / 2, cy);
+      ctx.lineTo(center + ciWidth / 2, cy);
+      ctx.stroke();
+
+      // Whiskers
+      [center - ciWidth / 2, center + ciWidth / 2].forEach(x => {
+        ctx.beginPath();
+        ctx.moveTo(x, cy - 8);
+        ctx.lineTo(x, cy + 8);
+        ctx.stroke();
+      });
+
+      // MLE point
+      if (ease > 0.5) {
+        ctx.beginPath();
+        ctx.arc(xMle, cy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#e53935';
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Value labels
+      if (ease > 0.8) {
+        ctx.fillStyle = '#888';
+        ctx.font = '9px JetBrains Mono';
+        ctx.fillText(p.lo.toFixed(2), center - ciWidth / 2 - 5, cy + 22);
+        ctx.fillText(p.hi.toFixed(2), center + ciWidth / 2 - 5, cy + 22);
+        ctx.fillStyle = '#e53935';
+        ctx.font = '700 10px JetBrains Mono';
+        ctx.fillText(p.mle.toFixed(2), xMle - 10, cy - 16);
+      }
+    });
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- N: R0 ---
+function vizR0(ctx, W, H, idx) {
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.02;
+
+    const cx = W / 2, cy = H / 2 - 10;
+    const maxR = 100;
+    const r = Math.min(maxR, t * 40);
+
+    // Pulsing R0 circle
+    const pulse = 1 + 0.03 * Math.sin(t * 3);
+
+    // Background target rings
+    [80, 60, 40].forEach(ring => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, ring, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Threshold at R0=1
+    ctx.beginPath();
+    ctx.arc(cx, cy, 35, 0, Math.PI * 2);
+    ctx.strokeStyle = '#e53935';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#e53935';
+    ctx.font = '9px Inter';
+    ctx.fillText('R0 = 1 (threshold)', cx + 38, cy - 30);
+
+    // R0 circle
+    const r0Val = 2.61;
+    const r0Radius = r0Val * 30 * pulse;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(r, r0Radius));
+    grad.addColorStop(0, 'rgba(255,152,0,0.4)');
+    grad.addColorStop(0.7, 'rgba(255,87,34,0.2)');
+    grad.addColorStop(1, 'rgba(255,87,34,0.05)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, Math.min(r, r0Radius), 0, Math.PI * 2);
+    ctx.fill();
+
+    // Center value
+    if (r > 50) {
+      ctx.fillStyle = '#e65100';
+      ctx.font = '900 36px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText('R0 = 2.61', cx, cy + 8);
+      ctx.font = '400 12px Inter';
+      ctx.fillStyle = '#888';
+      ctx.fillText('95% CI: [1.80 , 3.90]', cx, cy + 30);
+      ctx.font = '600 11px Inter';
+      ctx.fillStyle = '#e53935';
+      ctx.fillText('R0 > 1 → EPIDEMIC GROWS', cx, cy + 52);
+      ctx.textAlign = 'left';
+    }
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- D: MCMC ---
+function vizMCMC(ctx, W, H, idx) {
+  let t = 0;
+  const chain = [];
+  let val = 2.5;
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 1;
+
+    // Generate MCMC steps
+    for (let i = 0; i < 2; i++) {
+      val += (Math.random() - 0.5) * 0.3;
+      val = Math.max(0.5, Math.min(5, val));
+      chain.push(val);
+    }
+    if (chain.length > 300) chain.shift();
+
+    const ox = 50, oy = H - 30;
+    const xS = (W - 70) / 300, yS = (H - 60) / 5;
+
+    // Axes
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(ox, 15); ctx.lineTo(ox, oy); ctx.lineTo(W - 15, oy);
+    ctx.stroke();
+
+    // Chain trace
+    ctx.beginPath();
+    ctx.strokeStyle = '#d4880a';
+    ctx.lineWidth = 1.5;
+    chain.forEach((v, i) => {
+      const x = ox + i * xS;
+      const y = oy - v * yS;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // MLE line
+    const mleY = oy - 2.61 * yS;
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = '#e53935';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ox, mleY);
+    ctx.lineTo(W - 15, mleY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#e53935';
+    ctx.font = '10px Inter';
+    ctx.fillText('MLE = 2.61', W - 80, mleY - 6);
+    ctx.fillStyle = '#d4880a';
+    ctx.fillText('MCMC chain', 60, 20);
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- S: Sensitivity tornado ---
+function vizSensitivity(ctx, W, H, idx) {
+  let t = 0;
+  const params = [
+    {name: 'β', lo: -35, hi: 42},
+    {name: 'σ', lo: -18, hi: 22},
+    {name: 'γ', lo: -80, hi: 55},
+    {name: 'μ_d', lo: -12, hi: 15},
+    {name: 'κ', lo: -8, hi: 6},
+  ];
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.025;
+
+    const cx = W / 2 + 20;
+    const rowH = (H - 50) / params.length;
+    const scale = (W - 160) / 200;
+
+    // Center line
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx, 15);
+    ctx.lineTo(cx, H - 20);
+    ctx.stroke();
+
+    params.forEach((p, i) => {
+      const progress = Math.min(1, (t - i * 0.3));
+      if (progress <= 0) return;
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const cy = 30 + i * rowH + rowH / 2;
+
+      // Name
+      ctx.fillStyle = '#333';
+      ctx.font = '600 12px JetBrains Mono';
+      ctx.fillText(p.name, 15, cy + 4);
+
+      // Negative bar
+      const loW = Math.abs(p.lo) * scale * ease;
+      ctx.fillStyle = '#ef5350';
+      ctx.beginPath();
+      ctx.roundRect(cx - loW, cy - 12, loW, 24, 4);
+      ctx.fill();
+
+      // Positive bar
+      const hiW = p.hi * scale * ease;
+      ctx.fillStyle = '#66bb6a';
+      ctx.beginPath();
+      ctx.roundRect(cx, cy - 12, hiW, 24, 4);
+      ctx.fill();
+
+      // Labels
+      if (ease > 0.8) {
+        ctx.fillStyle = '#888';
+        ctx.font = '9px JetBrains Mono';
+        ctx.fillText(`${p.lo}%`, cx - loW - 30, cy + 4);
+        ctx.fillText(`+${p.hi}%`, cx + hiW + 4, cy + 4);
+      }
+    });
+
+    ctx.fillStyle = '#888';
+    ctx.font = '10px Inter';
+    ctx.fillText('← R0 decreases', cx - 110, H - 6);
+    ctx.fillText('R0 increases →', cx + 20, H - 6);
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- M: AIC ---
+function vizAIC(ctx, W, H, idx) {
+  let t = 0;
+  const models = [
+    {name: 'Full SEIR\n(5 params)', aic: 245, color: '#43a047'},
+    {name: 'Reduced\n(3 params)', aic: 312, color: '#ff9800'},
+    {name: 'SIR only\n(2 params)', aic: 389, color: '#e53935'},
+  ];
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.02;
+
+    const barW = 80;
+    const gap = (W - models.length * barW) / (models.length + 1);
+    const maxAIC = 420;
+    const yScale = (H - 80) / maxAIC;
+
+    models.forEach((m, i) => {
+      const progress = Math.min(1, (t - i * 0.5));
+      if (progress <= 0) return;
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const x = gap + i * (barW + gap);
+      const barH = m.aic * yScale * ease;
+      const y = H - 35 - barH;
+
+      ctx.fillStyle = m.color + '30';
+      ctx.beginPath();
+      ctx.roundRect(x, y, barW, barH, 8);
+      ctx.fill();
+      ctx.strokeStyle = m.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      if (ease > 0.7) {
+        ctx.fillStyle = m.color;
+        ctx.font = '700 16px JetBrains Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText(m.aic, x + barW / 2, y - 8);
+        ctx.font = '11px Inter';
+        ctx.fillStyle = '#555';
+        const lines = m.name.split('\n');
+        lines.forEach((l, li) => ctx.fillText(l, x + barW / 2, H - 22 + li * 14));
+        ctx.textAlign = 'left';
+      }
+
+      // Winner badge
+      if (i === 0 && ease > 0.9) {
+        ctx.fillStyle = '#43a047';
+        ctx.font = '700 10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('BEST (lowest AIC)', x + barW / 2, y - 24);
+        ctx.textAlign = 'left';
+      }
+    });
+
+    ctx.fillStyle = '#888';
+    ctx.font = '10px Inter';
+    ctx.fillText('AIC = 2k - 2 ln(L)  |  Lower is better', 20, 18);
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- E: Counterfactual ---
+function vizCounterfactual(ctx, W, H, idx) {
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.5;
+    const maxT = 100, dt = 0.1, N = 1000;
+    const scenarios = [
+      {beta:0.4, gamma:0.14, kappa:0, label:'No intervention', color:'#e53935', dash:[]},
+      {beta:0.4, gamma:0.14, kappa:0.05, label:'Mild culling', color:'#ff9800', dash:[6,4]},
+      {beta:0.4, gamma:0.14, kappa:0.15, label:'Aggressive culling', color:'#43a047', dash:[3,3]},
+    ];
+
+    const ox = 50, oy = H - 30;
+    const xS = (W - 80) / maxT;
+    const yS = (H - 60) / (N * 0.5);
+
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(ox, 15); ctx.lineTo(ox, oy); ctx.lineTo(W - 15, oy);
+    ctx.stroke();
+
+    scenarios.forEach((sc, si) => {
+      let S = N - 1, I = 1, R = 0;
+      const curve = [];
+      for (let step = 0; step <= maxT; step += dt) {
+        const dS = -sc.beta * S * I / N;
+        const dI = sc.beta * S * I / N - (sc.gamma + sc.kappa) * I;
+        const dR = (sc.gamma + sc.kappa) * I;
+        S += dS * dt; I += dI * dt; R += dR * dt;
+        if (step % 1 < dt) curve.push(I);
+      }
+
+      const shown = Math.min(curve.length, Math.floor(t));
+      ctx.beginPath();
+      ctx.strokeStyle = sc.color;
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash(sc.dash);
+      for (let i = 0; i < shown; i++) {
+        const x = ox + i * xS;
+        const y = oy - curve[i] * yS;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Legend
+      ctx.fillStyle = sc.color;
+      ctx.font = '10px Inter';
+      ctx.fillText(sc.label, W - 160, 22 + si * 16);
+    });
+
+    ctx.fillStyle = '#777';
+    ctx.font = '10px Inter';
+    ctx.fillText('Time (days)', W / 2 - 25, H - 6);
+
+    animFrames[idx] = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ======================== HERO CANVAS ========================
+function initHeroCanvas() {
+  const canvas = document.getElementById('heroCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 1200;
+  canvas.height = 200;
+
+  const particles = [];
+  for (let i = 0; i < 50; i++) {
+    particles.push({
+      x: Math.random() * 1200,
+      y: Math.random() * 200,
+      vx: (Math.random() - 0.5) * 1.5,
+      vy: (Math.random() - 0.5) * 0.8,
+      r: 2 + Math.random() * 3,
+      color: ['#64b5f6','#81c784','#ffb74d','#ce93d8'][Math.floor(Math.random() * 4)],
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, 1200, 200);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = 1200;
+      if (p.x > 1200) p.x = 0;
+      if (p.y < 0) p.y = 200;
+      if (p.y > 200) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + '60';
+      ctx.fill();
+    });
+
+    // Connect nearby
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(255,255,255,${0.08 * (1 - d / 120)})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ======================== INIT ========================
+renderCompartments();
+renderEquations();
+renderParams();
+renderMnemonic();
+renderPipeline();
+initHeroCanvas();
+
+// roundRect polyfill
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'number') r = {tl:r, tr:r, br:r, bl:r};
+    this.moveTo(x + r.tl, y);
+    this.lineTo(x + w - r.tr, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+    this.lineTo(x + w, y + h - r.br);
+    this.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+    this.lineTo(x + r.bl, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+    this.lineTo(x, y + r.tl);
+    this.quadraticCurveTo(x, y, x + r.tl, y);
+    this.closePath();
+    return this;
+  };
+}
+</script>
+</body>
+</html>

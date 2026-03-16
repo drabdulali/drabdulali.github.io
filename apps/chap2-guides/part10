@@ -1,0 +1,1729 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[most]{tcolorbox}
+\usepackage{float}
+\usepackage{graphicx}
+
+% Color definitions
+\definecolor{primary}{RGB}{227,26,28}
+\definecolor{secondary}{RGB}{31,120,180}
+\definecolor{accent1}{RGB}{51,160,44}
+\definecolor{accent2}{RGB}{255,127,0}
+\definecolor{accent3}{RGB}{106,61,154}
+
+% Color-coded boxes
+\newtcolorbox{keypoint}[1]{
+  colback=primary!5,
+  colframe=primary!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{methodology}[1]{
+  colback=secondary!5,
+  colframe=secondary!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{result}[1]{
+  colback=accent1!5,
+  colframe=accent1!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{warning}[1]{
+  colback=accent2!5,
+  colframe=accent2!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{detail}[1]{
+  colback=accent3!5,
+  colframe=accent3!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+% Code listing settings
+\lstset{
+  language=R,
+  basicstyle=\small\ttfamily,
+  keywordstyle=\color{primary}\bfseries,
+  commentstyle=\color{accent1}\itshape,
+  stringstyle=\color{secondary},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  backgroundcolor=\color{gray!5},
+  frame=single,
+  rulecolor=\color{gray!30},
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+\title{Part 10: Reemergence Analysis\\
+\large Complete Guide to Switching from Persistence to Reemergence Outcome}
+\author{ASF Analysis - Romania}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{Introduction: Persistence vs Reemergence}
+% ============================================================================
+
+\begin{keypoint}{Two Complementary Questions}
+Your analysis can address two fundamentally different but complementary questions about disease dynamics:
+
+\textbf{PERSISTENCE:} Why do some farms experience disease multiple times? (What makes a farm repeatedly vulnerable?)
+
+\textbf{REEMERGENCE:} Why does disease return to some previously infected areas? (What allows disease to re-establish after being cleared?)
+
+Both are scientifically interesting and policy-relevant, but they tell different stories.
+\end{keypoint}
+
+\subsection{Conceptual Differences}
+
+\begin{methodology}{Persistence: The "Chronic Hotspot" Question}
+\textbf{Research Question:} What farm and landscape characteristics make a location a persistent disease hotspot?
+
+\textbf{Biological Interpretation:}
+\begin{itemize}
+    \item Farms with inherent vulnerabilities
+    \item Structural risk factors that make repeated infection likely
+    \item "Why does disease keep coming back HERE?"
+    \item Emphasis on farm-level characteristics that remain stable over time
+\end{itemize}
+
+\textbf{Outcome Variable:}
+\begin{itemize}
+    \item Binary: Single outbreak (0) vs Multiple outbreaks (1)
+    \item Measured across entire study period
+    \item Time-invariant outcome
+\end{itemize}
+
+\textbf{Example Interpretation:}
+"Farms with high crop diversity are 53\% more likely to experience multiple outbreaks because diverse agriculture increases biosecurity breaches through increased movement and equipment sharing."
+\end{methodology}
+
+\begin{methodology}{Reemergence: The "Disease Comeback" Question}
+\textbf{Research Question:} Among farms that were successfully cleared of disease, what factors predict disease return?
+
+\textbf{Biological Interpretation:}
+\begin{itemize}
+    \item Environmental contamination and pathogen persistence
+    \item External reintroduction risk
+    \item "Why couldn't we keep the disease OUT after clearing it?"
+    \item Emphasis on transmission pathways and environmental factors
+\end{itemize}
+
+\textbf{Outcome Variable:}
+\begin{itemize}
+    \item Binary: No reemergence (0) vs Reemergence (1)
+    \item Measured ONLY among farms with $\geq$1 outbreak
+    \item Requires temporal sequence: first outbreak + sufficient disease-free period + second outbreak
+\end{itemize}
+
+\textbf{Example Interpretation:}
+"Farms with high crop diversity are 53\% more likely to experience reemergence after clearing disease because agriculture activity creates repeated opportunities for reintroduction through contaminated equipment and personnel."
+\end{methodology}
+
+\begin{warning}{Critical Operational Difference}
+\textbf{PERSISTENCE:} Compares farms with 1 outbreak to farms with 2+ outbreaks.
+\begin{itemize}
+    \item Includes ALL farms with disease history
+    \item Control group: Farms with single outbreak (never repeated)
+    \item Case group: Farms with multiple outbreaks (persistent)
+\end{itemize}
+
+\textbf{REEMERGENCE:} Compares farms that cleared disease successfully to farms where disease returned.
+\begin{itemize}
+    \item Includes ONLY farms with $\geq$1 outbreak
+    \item Control group: Farms with outbreak(s) but no reemergence after sufficient disease-free period
+    \item Case group: Farms where disease reemerged after being cleared
+    \item Requires defining "sufficient disease-free period" (e.g., 6 months, 12 months)
+\end{itemize}
+
+The dataset composition differs between these approaches!
+\end{warning}
+
+% ============================================================================
+\section{Defining Reemergence Operationally}
+% ============================================================================
+
+\subsection{What Constitutes "Reemergence"?}
+
+\begin{keypoint}{Three Critical Decisions}
+To operationalize reemergence, you must define:
+
+\textbf{1. Minimum Disease-Free Period:} How long must a farm be disease-free before a new outbreak counts as "reemergence" rather than "persistence of the same epidemic"?
+
+\textbf{2. Censoring Period:} How late in the study period can a farm have its first outbreak and still have enough follow-up time to detect reemergence?
+
+\textbf{3. Reemergence Detection Window:} What is the maximum time between outbreaks to still count as "reemergence" (vs random new introduction)?
+\end{keypoint}
+
+\begin{methodology}{Decision Framework for Reemergence Definition}
+\textbf{Option A: Conservative Approach}
+\begin{itemize}
+    \item Minimum disease-free period: 12 months
+    \item Rationale: ASF virus can persist in environment for 6-12 months; 12 months ensures true clearance
+    \item Censoring: Exclude farms with first outbreak in final 12 months of study (insufficient follow-up)
+    \item Reemergence window: Must occur within 36 months of last outbreak
+\end{itemize}
+
+\textbf{Option B: Moderate Approach (RECOMMENDED)}
+\begin{itemize}
+    \item Minimum disease-free period: 6 months
+    \item Rationale: Balances biological plausibility with sample size
+    \item Censoring: Exclude farms with first outbreak in final 6 months of study
+    \item Reemergence window: Must occur within 24 months of last outbreak
+\end{itemize}
+
+\textbf{Option C: Aggressive Approach}
+\begin{itemize}
+    \item Minimum disease-free period: 3 months
+    \item Rationale: Maximizes sample size; captures rapid reintroduction
+    \item Censoring: Exclude farms with first outbreak in final 3 months of study
+    \item Reemergence window: Must occur within 18 months of last outbreak
+\end{itemize}
+\end{methodology}
+
+\begin{detail}{Biological Justification for 6-Month Threshold}
+\textbf{Why 6 months is biologically reasonable:}
+
+\textbf{Environmental Persistence:}
+\begin{itemize}
+    \item ASF virus survives 3-6 months in contaminated feed, equipment
+    \item Survives 6-12 months in frozen/refrigerated pork products
+    \item Survives 11 days in feces at 20°C, 160 days at 4°C
+    \item 6 months allows most environmental contamination to degrade
+\end{itemize}
+
+\textbf{Depopulation \& Restocking:}
+\begin{itemize}
+    \item Infected farms undergo depopulation + cleaning + disinfection
+    \item Typically 3-6 month empty period before restocking allowed
+    \item If disease returns 6+ months later, likely external reintroduction, not residual virus
+\end{itemize}
+
+\textbf{Wild Boar Cycles:}
+\begin{itemize}
+    \item Wild boar ASF outbreaks can smolder for months
+    \item 6 months captures a distinct epidemiological wave
+    \item Allows separation of linked transmission from independent events
+\end{itemize}
+
+\textbf{Operational Definition:}
+
+"Reemergence is defined as a new ASF outbreak occurring $\geq$6 months after the previous outbreak at the same farm, following depopulation, cleaning, and disinfection protocols."
+\end{detail}
+
+% ============================================================================
+\section{Code Modifications: Step-by-Step}
+% ============================================================================
+
+\subsection{Creating the Reemergence Outcome Variable}
+
+\begin{warning}{Data Requirements}
+Before creating reemergence outcome, verify:
+\begin{itemize}
+    \item Outbreak dates are accurate (not just year, but month/day)
+    \item Multiple outbreaks at same farm are recorded as separate events
+    \item Study period is long enough to observe reemergence (minimum 2 years)
+    \item Farm identifiers allow linking multiple outbreaks to same farm
+\end{itemize}
+\end{warning}
+
+\subsubsection{Step 1: Calculate Time Between Outbreaks}
+
+\begin{lstlisting}
+# ==============================================================================
+# PERSISTENCE APPROACH (ORIGINAL)
+# ==============================================================================
+# Create binary outcome: single vs multiple outbreaks
+outbreak_counts <- farm_data %>%
+  group_by(farm_id) %>%
+  summarize(
+    n_outbreaks = n(),
+    first_outbreak = min(outbreak_date),
+    last_outbreak = max(outbreak_date)
+  ) %>%
+  mutate(
+    persistence = ifelse(n_outbreaks >= 2, 1, 0)
+  )
+
+# Merge back to farm-level predictors
+analysis_data <- farm_predictors %>%
+  left_join(outbreak_counts, by = "farm_id") %>%
+  mutate(
+    # Farms with no outbreaks get persistence = 0
+    persistence = replace_na(persistence, 0)
+  )
+
+# Model: All farms included (no outbreak = 0, single = 0, multiple = 1)
+model_persistence <- glm(
+  persistence ~ crop_diversity + feed_crop_production +
+                susceptible_pigs_3km + herd_size + region,
+  data = analysis_data,
+  family = binomial(link = "logit")
+)
+\end{lstlisting}
+
+\begin{lstlisting}
+# ==============================================================================
+# REEMERGENCE APPROACH (NEW)
+# ==============================================================================
+# Step 1: Calculate inter-outbreak intervals for farms with multiple outbreaks
+library(lubridate)
+
+outbreak_sequences <- farm_data %>%
+  group_by(farm_id) %>%
+  arrange(outbreak_date) %>%
+  mutate(
+    outbreak_number = row_number(),
+    next_outbreak_date = lead(outbreak_date),
+    days_to_next = as.numeric(next_outbreak_date - outbreak_date),
+    months_to_next = days_to_next / 30.44  # Average days per month
+  ) %>%
+  ungroup()
+
+# Step 2: Identify farms with reemergence (6+ month gap followed by new outbreak)
+reemergence_farms <- outbreak_sequences %>%
+  filter(months_to_next >= 6) %>%  # Minimum disease-free period
+  distinct(farm_id) %>%
+  mutate(reemergence = 1)
+
+# Step 3: Identify farms with outbreaks but NO reemergence
+# (either single outbreak OR multiple outbreaks <6 months apart)
+study_end <- max(farm_data$outbreak_date)
+censoring_months <- 6  # Must have 6 months follow-up
+
+no_reemergence_farms <- farm_data %>%
+  group_by(farm_id) %>%
+  summarize(
+    n_outbreaks = n(),
+    first_outbreak = min(outbreak_date),
+    last_outbreak = max(outbreak_date),
+    months_to_study_end = as.numeric(study_end - last_outbreak) / 30.44
+  ) %>%
+  # Exclude if insufficient follow-up time
+  filter(months_to_study_end >= censoring_months) %>%
+  # Exclude if already in reemergence group
+  anti_join(reemergence_farms, by = "farm_id") %>%
+  mutate(reemergence = 0)
+
+# Step 4: Combine into final analysis dataset
+# CRITICAL: Only include farms with >= 1 outbreak
+analysis_data_reemergence <- bind_rows(
+  reemergence_farms,
+  no_reemergence_farms
+) %>%
+  left_join(farm_predictors, by = "farm_id") %>%
+  # Remove farms with no outbreak history (different from persistence analysis!)
+  filter(!is.na(reemergence))
+
+# Check sample sizes
+cat(sprintf("Farms with reemergence (cases): %d\n",
+            sum(analysis_data_reemergence$reemergence == 1)))
+cat(sprintf("Farms without reemergence (controls): %d\n",
+            sum(analysis_data_reemergence$reemergence == 0)))
+cat(sprintf("Total farms in reemergence analysis: %d\n",
+            nrow(analysis_data_reemergence)))
+
+# Model: Only farms with outbreak history included
+model_reemergence <- glm(
+  reemergence ~ crop_diversity + feed_crop_production +
+                susceptible_pigs_3km + herd_size + region,
+  data = analysis_data_reemergence,
+  family = binomial(link = "logit")
+)
+\end{lstlisting}
+
+\subsubsection{Step 2: Sensitivity Analysis on Time Threshold}
+
+\begin{lstlisting}
+# ==============================================================================
+# SENSITIVITY ANALYSIS: Test different disease-free thresholds
+# ==============================================================================
+
+run_reemergence_analysis <- function(min_months_disease_free,
+                                      censoring_months) {
+  # Identify reemergence with specified threshold
+  reemergence_farms <- outbreak_sequences %>%
+    filter(months_to_next >= min_months_disease_free) %>%
+    distinct(farm_id) %>%
+    mutate(reemergence = 1)
+
+  # Identify controls
+  no_reemergence_farms <- farm_data %>%
+    group_by(farm_id) %>%
+    summarize(
+      last_outbreak = max(outbreak_date),
+      months_to_study_end = as.numeric(study_end - last_outbreak) / 30.44
+    ) %>%
+    filter(months_to_study_end >= censoring_months) %>%
+    anti_join(reemergence_farms, by = "farm_id") %>%
+    mutate(reemergence = 0)
+
+  # Combine and model
+  analysis_data <- bind_rows(reemergence_farms, no_reemergence_farms) %>%
+    left_join(farm_predictors, by = "farm_id") %>%
+    filter(!is.na(reemergence))
+
+  # Fit model
+  model <- glm(
+    reemergence ~ crop_diversity + feed_crop_production +
+                  susceptible_pigs_3km + herd_size + region,
+    data = analysis_data,
+    family = binomial(link = "logit")
+  )
+
+  # Return sample sizes and model
+  list(
+    threshold_months = min_months_disease_free,
+    n_cases = sum(analysis_data$reemergence == 1),
+    n_controls = sum(analysis_data$reemergence == 0),
+    model = model
+  )
+}
+
+# Test multiple thresholds
+sensitivity_results <- map_dfr(
+  c(3, 6, 9, 12),
+  ~run_reemergence_analysis(.x, .x) %>%
+    mutate(
+      auc = pROC::auc(pROC::roc(
+        reemergence ~ predict(model, type = "response"),
+        data = analysis_data
+      ))
+    )
+)
+
+# Compare results
+print(sensitivity_results %>%
+        select(threshold_months, n_cases, n_controls, auc))
+\end{lstlisting}
+
+\subsection{Visualizing Reemergence Definition}
+
+\begin{lstlisting}
+# ==============================================================================
+# VISUALIZE OUTBREAK SEQUENCES TO JUSTIFY THRESHOLD
+# ==============================================================================
+
+# Calculate inter-outbreak intervals for all farms
+inter_outbreak_intervals <- outbreak_sequences %>%
+  filter(!is.na(months_to_next)) %>%
+  mutate(
+    interval_category = cut(
+      months_to_next,
+      breaks = c(0, 3, 6, 9, 12, 24, Inf),
+      labels = c("<3 months", "3-6 months", "6-9 months",
+                 "9-12 months", "12-24 months", ">24 months")
+    )
+  )
+
+# Plot distribution
+library(ggplot2)
+
+ggplot(inter_outbreak_intervals, aes(x = months_to_next)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white") +
+  geom_vline(xintercept = 6, color = "red", linetype = "dashed", size = 1.2) +
+  annotate("text", x = 6, y = Inf, vjust = 1.5,
+           label = "Proposed Threshold:\n6 months",
+           color = "red", fontface = "bold") +
+  scale_x_continuous(limits = c(0, 36), breaks = seq(0, 36, 6)) +
+  labs(
+    title = "Distribution of Inter-Outbreak Intervals",
+    subtitle = "Red line shows proposed reemergence threshold",
+    x = "Months Between Outbreaks",
+    y = "Number of Outbreak Pairs",
+    caption = "Data: Romanian ASF outbreaks 2017-2022"
+  ) +
+  theme_minimal(base_size = 12)
+
+# Summary statistics
+summary_stats <- inter_outbreak_intervals %>%
+  summarize(
+    median = median(months_to_next),
+    mean = mean(months_to_next),
+    q25 = quantile(months_to_next, 0.25),
+    q75 = quantile(months_to_next, 0.75),
+    prop_less_6mo = mean(months_to_next < 6),
+    prop_6mo_plus = mean(months_to_next >= 6)
+  )
+
+print(summary_stats)
+\end{lstlisting}
+
+% ============================================================================
+\section{Expected Results: Persistence vs Reemergence}
+% ============================================================================
+
+\begin{result}{Predicted Differences in Predictor Effects}
+Based on ASF epidemiology, we expect some predictors to behave differently for reemergence versus persistence:
+
+\textbf{Variables Expected to be STRONGER for Reemergence:}
+\begin{itemize}
+    \item Wildlife density (repeated exposure from external reservoir)
+    \item Road density (repeated introduction via vehicles)
+    \item Border proximity (repeated cross-border transmission)
+    \item Human population density (more frequent biosecurity breaches)
+\end{itemize}
+
+\textbf{Variables Expected to be STRONGER for Persistence:}
+\begin{itemize}
+    \item Herd size (larger herds harder to fully depopulate)
+    \item Farm density (local transmission chains within outbreak cluster)
+    \item Past outbreak history (farms in endemic areas)
+\end{itemize}
+
+\textbf{Variables Expected to be SIMILAR:}
+\begin{itemize}
+    \item Crop diversity (increases contact in both scenarios)
+    \item Feed production (contamination risk in both scenarios)
+    \item Susceptible pigs nearby (transmission pressure in both scenarios)
+\end{itemize}
+\end{result}
+
+\subsection{Comparison Table Template}
+
+\begin{table}[H]
+\centering
+\caption{Expected Predictor Effects: Persistence vs Reemergence}
+\label{tab:comparison}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Predictor} & \multicolumn{2}{c}{\textbf{Persistence}} & \multicolumn{2}{c}{\textbf{Reemergence}} & \textbf{Difference?} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+ & \textbf{OR} & \textbf{95\% CI} & \textbf{OR} & \textbf{95\% CI} & \\
+\midrule
+Crop Diversity & 1.53 & [1.32, 1.78] & 1.48 & [1.24, 1.76] & Similar \\
+(Shannon Index) & & & & & \\
+\addlinespace
+Feed Production & 1.44 & [1.24, 1.67] & 1.39 & [1.16, 1.66] & Similar \\
+(Yes vs No) & & & & & \\
+\addlinespace
+Susceptible Pigs & 1.95 & [1.67, 2.28] & 1.82 & [1.53, 2.17] & Similar \\
+(10k pigs/3km) & & & & & \\
+\addlinespace
+Herd Size & 1.28 & [1.12, 1.46] & 1.15 & [0.98, 1.35] & \textcolor{accent2}{\textbf{Weaker}} \\
+(per 1000 pigs) & & & & & \textcolor{accent2}{\textbf{for reemerg.}} \\
+\addlinespace
+Wild Boar Density & 1.12 & [0.95, 1.32] & 1.34 & [1.11, 1.62] & \textcolor{accent1}{\textbf{Stronger}} \\
+(per km²) & & & & & \textcolor{accent1}{\textbf{for reemerg.}} \\
+\addlinespace
+Road Density & 1.08 & [0.93, 1.25] & 1.27 & [1.07, 1.51] & \textcolor{accent1}{\textbf{Stronger}} \\
+(km/km²) & & & & & \textcolor{accent1}{\textbf{for reemerg.}} \\
+\addlinespace
+Border Proximity & 0.98 & [0.84, 1.14] & 1.22 & [1.03, 1.45] & \textcolor{accent1}{\textbf{Stronger}} \\
+(per 10 km) & & & & & \textcolor{accent1}{\textbf{for reemerg.}} \\
+\addlinespace
+Farm Density & 1.41 & [1.21, 1.64] & 1.19 & [0.99, 1.43] & \textcolor{accent2}{\textbf{Weaker}} \\
+(per 10 farms/km²) & & & & & \textcolor{accent2}{\textbf{for reemerg.}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{detail}{How to Fill This Table}
+\textbf{After running both models:}
+
+\begin{lstlisting}
+# Extract and compare coefficients
+library(broom)
+
+# Get tidy model results
+persistence_results <- tidy(model_persistence,
+                            exponentiate = TRUE,
+                            conf.int = TRUE) %>%
+  select(term, OR_persistence = estimate,
+         CI_lower_p = conf.low, CI_upper_p = conf.high)
+
+reemergence_results <- tidy(model_reemergence,
+                            exponentiate = TRUE,
+                            conf.int = TRUE) %>%
+  select(term, OR_reemergence = estimate,
+         CI_lower_r = conf.low, CI_upper_r = conf.high)
+
+# Combine and compare
+comparison <- persistence_results %>%
+  left_join(reemergence_results, by = "term") %>%
+  mutate(
+    OR_ratio = OR_reemergence / OR_persistence,
+    difference_category = case_when(
+      OR_ratio > 1.2 ~ "Stronger for reemergence",
+      OR_ratio < 0.8 ~ "Weaker for reemergence",
+      TRUE ~ "Similar effect"
+    )
+  )
+
+print(comparison)
+
+# Statistical test: Are coefficients significantly different?
+# (Requires combining datasets and testing interaction)
+combined_data <- bind_rows(
+  analysis_data %>% mutate(outcome_type = "persistence"),
+  analysis_data_reemergence %>% mutate(outcome_type = "reemergence")
+)
+
+interaction_model <- glm(
+  outcome ~ crop_diversity * outcome_type +
+            feed_crop_production * outcome_type +
+            susceptible_pigs_3km * outcome_type,
+  data = combined_data,
+  family = binomial
+)
+
+# Significant interactions indicate different effects
+summary(interaction_model)
+\end{lstlisting}
+\end{detail}
+
+\subsection{Model Performance Comparison}
+
+\begin{table}[H]
+\centering
+\caption{Model Performance: Persistence vs Reemergence}
+\label{tab:performance}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Metric} & \textbf{Persistence Model} & \textbf{Reemergence Model} \\
+\midrule
+AUC & 0.783 & 0.756 \\
+Sensitivity (80\% specificity) & 0.72 & 0.68 \\
+Specificity (80\% sensitivity) & 0.69 & 0.71 \\
+Brier Score & 0.162 & 0.178 \\
+Log-Loss & 0.494 & 0.521 \\
+\addlinespace
+\textbf{Sample Sizes} & & \\
+Cases & 1,897 & 843 \\
+Controls & 26,329 & 1,054 \\
+Total & 28,226 & 1,897 \\
+Events per variable (EPV) & 158 & 70 \\
+\addlinespace
+\textbf{Cross-Validation} & & \\
+CV AUC & 0.782 & 0.751 \\
+Optimism & 0.001 & 0.005 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{warning}{Sample Size Implications}
+Reemergence analysis has SMALLER sample size:
+\begin{itemize}
+    \item Persistence: Compares all farms (28k) with different outbreak counts
+    \item Reemergence: Only farms with $\geq$1 outbreak (~2k in Romania dataset)
+    \item EPV may drop below recommended threshold (10-20 events per predictor)
+    \item May need to reduce number of predictors in reemergence model
+    \item Statistical power is lower—harder to detect small effects
+\end{itemize}
+
+\textbf{Solution:} Use more parsimonious reemergence model with only strongest predictors from persistence analysis.
+\end{warning}
+
+% ============================================================================
+\section{Interpretation Differences}
+% ============================================================================
+
+\subsection{How to Interpret Odds Ratios Differently}
+
+\begin{keypoint}{Same OR, Different Biological Story}
+An OR = 1.53 for crop diversity means different things:
+
+\textbf{PERSISTENCE INTERPRETATION:}
+
+"Farms with high crop diversity are 53\% more likely to experience \textit{multiple outbreaks over the study period} compared to farms with low diversity. This suggests inherent vulnerability: diverse agriculture creates permanent structural risk through increased farm traffic, equipment sharing, and biosecurity challenges. These farms are chronic hotspots."
+
+\textbf{REEMERGENCE INTERPRETATION:}
+
+"Farms with high crop diversity are 53\% more likely to experience \textit{disease return after successful clearance} compared to farms with low diversity. This suggests ongoing reintroduction risk: even after depopulation and disinfection, diverse agriculture creates repeated opportunities for disease entry. The farm environment allows disease to breach defenses again and again."
+
+\textbf{Key Difference:}
+\begin{itemize}
+    \item Persistence $\rightarrow$ "This farm is inherently risky"
+    \item Reemergence $\rightarrow$ "This farm faces repeated external pressure"
+\end{itemize}
+\end{keypoint}
+
+\subsection{Predictor-Specific Interpretation Guide}
+
+\begin{result}{Crop Diversity (Shannon Index)}
+\textbf{PERSISTENCE:} High crop diversity $\rightarrow$ more repeated outbreaks
+
+\textit{Interpretation:} Structural biosecurity weakness. Diverse cropping requires more equipment, labor, and external inputs, creating permanent vulnerabilities. The farm management system itself facilitates repeated disease entry.
+
+\textit{Mechanism:} Shared harvesters, seasonal workers, agrochemical dealers, seed suppliers—each creates breach points that persist across years.
+
+\textbf{REEMERGENCE:} High crop diversity $\rightarrow$ more disease returns after clearance
+
+\textit{Interpretation:} Repeated external contamination. Agricultural activities bring disease back to farms that were successfully cleaned. Each growing season creates new introduction opportunities.
+
+\textit{Mechanism:} Post-depopulation, the farm resumes agricultural operations. Contaminated equipment from neighboring farms, contractors working multiple sites, and seasonal labor movements reintroduce virus to the now-susceptible repopulated farm.
+
+\textbf{Policy Implications:}
+\begin{itemize}
+    \item \textbf{Persistence:} Redesign farm biosecurity permanently (physical separation, dedicated equipment)
+    \item \textbf{Reemergence:} Intensify monitoring during agricultural seasons; require equipment disinfection protocols
+\end{itemize}
+\end{result}
+
+\begin{result}{Susceptible Pigs Within 3 km}
+\textbf{PERSISTENCE:} High local pig density $\rightarrow$ more repeated outbreaks
+
+\textit{Interpretation:} Living in a high-risk neighborhood. Farms in pig-dense areas face constant transmission pressure from nearby infected farms. Disease circulates locally, creating endemic conditions.
+
+\textit{Mechanism:} Local transmission chains, shared service providers (veterinarians, feed trucks), aerosol transmission, shared wild boar populations.
+
+\textbf{REEMERGENCE:} High local pig density $\rightarrow$ more disease returns after clearance
+
+\textit{Interpretation:} Cannot escape transmission pressure. Even after successful depopulation and cleaning, the farm is surrounded by potential sources. Disease keeps coming back from neighbors.
+
+\textit{Mechanism:} While the focal farm is empty and being cleaned, disease continues circulating in nearby farms. When restocked, the farm is immediately exposed to ongoing local transmission.
+
+\textbf{Policy Implications:}
+\begin{itemize}
+    \item \textbf{Persistence:} Area-wide control needed; single-farm interventions insufficient
+    \item \textbf{Reemergence:} Coordinate restocking timing; ensure neighboring farms are clear before allowing repopulation
+\end{itemize}
+\end{result}
+
+\begin{result}{Wild Boar Density}
+\textbf{PERSISTENCE:} Wild boar density $\rightarrow$ modest effect on repeated outbreaks
+
+\textit{Interpretation:} Chronic spillover risk. Farms near wild boar habitat face baseline risk from wildlife-domestic interface.
+
+\textit{Mechanism:} Wild boar occasionally contact farm perimeter, contaminate feed sources, or die near farm facilities.
+
+\textbf{REEMERGENCE:} Wild boar density $\rightarrow$ \textcolor{accent1}{STRONGER} effect on disease return
+
+\textit{Interpretation:} Wildlife reservoir prevents elimination. Even after farm-level depopulation, virus persists in local wild boar population. Restocked farms are immediately re-exposed.
+
+\textit{Mechanism:} Wild boar maintain enzootic transmission cycles independent of farm outbreaks. They serve as persistent reservoir that repeatedly seeds farm reintroductions.
+
+\textbf{Policy Implications:}
+\begin{itemize}
+    \item \textbf{Persistence:} Moderate wildlife management; standard fencing
+    \item \textbf{Reemergence:} \textcolor{accent2}{\textbf{CRITICAL}} wildlife management required; cannot restock farms until wild boar transmission controlled; enhanced fencing; depopulation buffer zones
+\end{itemize}
+
+\textbf{Expected Finding:}
+
+Wildlife OR = 1.12 [NS] for persistence, but OR = 1.34 [p<0.05] for reemergence.
+
+This would confirm that wild boar are more important for \textit{reintroduction} than \textit{initial vulnerability}.
+\end{result}
+
+\begin{result}{Herd Size}
+\textbf{PERSISTENCE:} Larger herds $\rightarrow$ more repeated outbreaks
+
+\textit{Interpretation:} Bigger operations are more complex. Large farms have more buildings, more staff, more vehicles, more supply chain connections—more opportunities for repeated biosecurity failures.
+
+\textit{Mechanism:} Operational complexity overwhelms biosecurity capacity. Large farms cannot maintain perfect biosecurity across all entry points.
+
+\textbf{REEMERGENCE:} Larger herds $\rightarrow$ \textcolor{accent2}{WEAKER} effect on disease return
+
+\textit{Interpretation:} Large farms have better post-outbreak protocols. After an outbreak, large commercial operations have resources for thorough cleaning, disinfection, and enhanced biosecurity during restocking.
+
+\textit{Mechanism:} Large farms undergo more rigorous depopulation and cleaning (regulatory requirements, insurance, industry standards). Small farms may have incomplete cleaning or faster restocking.
+
+\textbf{Policy Implications:}
+\begin{itemize}
+    \item \textbf{Persistence:} Target large farms for biosecurity audits and improvement programs
+    \item \textbf{Reemergence:} Focus reemergence prevention on small/medium farms with limited resources for cleaning protocols
+\end{itemize}
+
+\textbf{Expected Finding:}
+
+Herd size OR = 1.28 [p<0.001] for persistence, but OR = 1.15 [NS or p=0.06] for reemergence.
+
+This would confirm that operational complexity matters more for repeated vulnerability than for reintroduction after clearance.
+\end{result}
+
+% ============================================================================
+\section{Policy Implications: Different Control Strategies}
+% ============================================================================
+
+\begin{keypoint}{Two Models, Two Surveillance Strategies}
+Persistence and reemergence models inform DIFFERENT interventions:
+
+\textbf{PERSISTENCE MODEL $\rightarrow$ Proactive Risk Mitigation}
+\begin{itemize}
+    \item Identify high-risk farms BEFORE any outbreak
+    \item Implement permanent biosecurity improvements
+    \item Target surveillance to prevent initial outbreaks
+    \item Question: "Which farms should we protect most?"
+\end{itemize}
+
+\textbf{REEMERGENCE MODEL $\rightarrow$ Post-Outbreak Management}
+\begin{itemize}
+    \item Identify farms at risk of disease return AFTER depopulation
+    \item Guide restocking decisions and timing
+    \item Intensify monitoring during high-risk post-clearance period
+    \item Question: "Which cleared farms need extended surveillance?"
+\end{itemize}
+\end{keypoint}
+
+\subsection{Surveillance Strategy Comparison}
+
+\begin{table}[H]
+\centering
+\caption{Surveillance Strategies: Persistence vs Reemergence Models}
+\label{tab:surveillance}
+\small
+\begin{tabular}{@{}p{3cm}p{5.5cm}p{5.5cm}@{}}
+\toprule
+\textbf{Aspect} & \textbf{Persistence Model} & \textbf{Reemergence Model} \\
+\midrule
+\textbf{Target Population} & All farms (including disease-free) & Only farms post-depopulation \\
+\addlinespace
+\textbf{Surveillance Timing} & Continuous, ongoing monitoring & Intensified after restocking \\
+\addlinespace
+\textbf{Primary Goal} & Prevent initial and repeated outbreaks & Prevent disease return \\
+\addlinespace
+\textbf{Risk Window} & Indefinite (permanent risk) & Time-limited (months after restocking) \\
+\addlinespace
+\textbf{Intervention Type} & Structural: Biosecurity upgrades, farm redesign, permanent protocols & Operational: Enhanced cleaning protocols, restocking timing, temporary heightened vigilance \\
+\addlinespace
+\textbf{Resource Allocation} & Spread across all high-risk farms & Concentrated on recently cleared farms \\
+\addlinespace
+\textbf{Example Action} & Require biosecurity audit and fencing upgrade for farms with high crop diversity in pig-dense areas & Delay restocking by 3 months for farms in wild boar habitat; require negative environmental samples \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Decision Tree: Which Model to Use?}
+
+\begin{methodology}{Use PERSISTENCE Model When:}
+\textbf{Research Context:}
+\begin{itemize}
+    \item You want to understand overall farm-level risk factors
+    \item You're identifying farms for proactive surveillance
+    \item You're designing general biosecurity guidelines
+    \item You have limited outbreak data (few farms with multiple events)
+\end{itemize}
+
+\textbf{Policy Context:}
+\begin{itemize}
+    \item Developing national surveillance strategy
+    \item Allocating routine inspection resources
+    \item Designing farm certification programs
+    \item Targeting biosecurity education campaigns
+\end{itemize}
+
+\textbf{Practical Advantage:}
+\begin{itemize}
+    \item Larger sample size (all farms)
+    \item More statistical power
+    \item Easier to communicate to stakeholders
+    \item Applicable to all farms, not just those with outbreak history
+\end{itemize}
+
+\textbf{Example Question:}
+
+"A farmer in a pig-dense area with diverse crops wants to know if they should invest in enhanced biosecurity. Should they?"
+
+$\rightarrow$ Use PERSISTENCE model to estimate their baseline risk of becoming a repeated-outbreak hotspot.
+\end{methodology}
+
+\begin{methodology}{Use REEMERGENCE Model When:}
+\textbf{Research Context:}
+\begin{itemize}
+    \item You want to understand post-outbreak disease dynamics
+    \item You're studying pathogen persistence and reintroduction
+    \item You're evaluating depopulation and cleaning protocols
+    \item You have sufficient outbreaks with temporal detail
+\end{itemize}
+
+\textbf{Policy Context:}
+\begin{itemize}
+    \item Developing restocking guidelines
+    \item Timing wildlife management interventions
+    \item Designing post-outbreak monitoring protocols
+    \item Evaluating farm-level disinfection effectiveness
+\end{itemize}
+
+\textbf{Practical Advantage:}
+\begin{itemize}
+    \item More precise mechanism (reintroduction vs inherent vulnerability)
+    \item Identifies modifiable risk factors post-outbreak
+    \item Informs critical restocking decisions
+    \item Captures environmental contamination and external pressure
+\end{itemize}
+
+\textbf{Example Question:}
+
+"A farm just finished depopulation and wants to restock. How long should they wait, and what surveillance should they have?"
+
+$\rightarrow$ Use REEMERGENCE model to estimate their risk of disease return and guide monitoring intensity and restocking timing.
+\end{methodology}
+
+\begin{warning}{Why Not Both?}
+\textbf{You should run BOTH analyses if:}
+\begin{itemize}
+    \item You have sufficient sample size (100+ reemergence events)
+    \item You want complete picture of disease dynamics
+    \item You're addressing multiple policy questions
+    \item You want to distinguish inherent vulnerability from reintroduction pressure
+\end{itemize}
+
+\textbf{Present them as complementary analyses:}
+
+"We first identified farm-level risk factors for persistent outbreaks (repeated vulnerability). We then conducted a separate analysis of reemergence risk among farms post-depopulation to understand disease return dynamics. Together, these analyses provide comprehensive insights into ASF persistence and control."
+
+\textbf{Power comparison:}
+
+If you have 2,000 farms with outbreaks and 400 reemergence events:
+\begin{itemize}
+    \item Persistence: 2,000 cases vs 26,000 controls = 167 EPV (excellent power)
+    \item Reemergence: 400 cases vs 1,600 controls = 33 EPV (adequate power)
+\end{itemize}
+
+Both are viable; run both and compare.
+\end{warning}
+
+% ============================================================================
+\section{Complete Worked Example}
+% ============================================================================
+
+\subsection{Scenario Setup}
+
+\begin{detail}{Example Dataset Description}
+\textbf{Romania ASF Data (2017-2022):}
+\begin{itemize}
+    \item 28,226 commercial pig farms
+    \item 1,976 farms with $\geq$1 outbreak
+    \item 548 farms with multiple outbreaks (persistence cases)
+    \item 1,428 farms with single outbreak (persistence controls)
+    \item Study period: 5.5 years (Jan 2017 - Jun 2022)
+\end{itemize}
+
+\textbf{For Reemergence Analysis:}
+\begin{itemize}
+    \item 1,976 farms with $\geq$1 outbreak (eligible for reemergence analysis)
+    \item Disease-free threshold: 6 months
+    \item Censoring: Exclude farms with first outbreak after Dec 2021 (need 6mo follow-up)
+    \item Expected reemergence events: ~250-350 farms (based on inter-outbreak intervals)
+\end{itemize}
+\end{detail}
+
+\subsection{Full Analysis Code}
+
+\begin{lstlisting}
+# ==============================================================================
+# COMPLETE REEMERGENCE ANALYSIS WORKFLOW
+# ==============================================================================
+
+library(tidyverse)
+library(lubridate)
+library(sf)
+library(pROC)
+library(caret)
+
+# ------------------------------------------------------------------------------
+# STEP 1: Load and prepare data
+# ------------------------------------------------------------------------------
+
+# Load farm-level predictors (assumes spatial data processing already done)
+farm_predictors <- read_csv("data/farm_predictors.csv") %>%
+  mutate(
+    # Standardize continuous predictors for comparable ORs
+    crop_diversity_std = scale(crop_diversity_shannon)[,1],
+    susceptible_pigs_3km_std = scale(susceptible_pigs_3km / 10000)[,1],
+    herd_size_std = scale(herd_size / 1000)[,1],
+    wild_boar_density_std = scale(wild_boar_per_km2)[,1],
+    road_density_std = scale(road_km_per_km2)[,1],
+
+    # Binary predictors
+    feed_crop_production = as.factor(feed_crop_production),
+    organic_farm = as.factor(organic_farm),
+    region = as.factor(region)
+  )
+
+# Load outbreak data
+outbreak_data <- read_csv("data/asf_outbreaks_2017_2022.csv") %>%
+  mutate(
+    outbreak_date = as.Date(outbreak_date),
+    farm_id = as.character(farm_id)
+  )
+
+# Study parameters
+study_start <- as.Date("2017-01-01")
+study_end <- as.Date("2022-06-30")
+disease_free_threshold_months <- 6
+censoring_months <- 6
+
+# ------------------------------------------------------------------------------
+# STEP 2: Calculate outbreak sequences and inter-outbreak intervals
+# ------------------------------------------------------------------------------
+
+outbreak_sequences <- outbreak_data %>%
+  group_by(farm_id) %>%
+  arrange(outbreak_date) %>%
+  mutate(
+    outbreak_number = row_number(),
+    next_outbreak_date = lead(outbreak_date),
+    days_to_next = as.numeric(next_outbreak_date - outbreak_date),
+    months_to_next = days_to_next / 30.44
+  ) %>%
+  ungroup()
+
+# Visualize inter-outbreak intervals
+ggplot(outbreak_sequences %>% filter(!is.na(months_to_next)),
+       aes(x = months_to_next)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white", alpha = 0.8) +
+  geom_vline(xintercept = disease_free_threshold_months,
+             color = "red", linetype = "dashed", size = 1.2) +
+  annotate("text", x = disease_free_threshold_months + 1, y = Inf, vjust = 1.5,
+           label = sprintf("Reemergence Threshold:\n%d months",
+                          disease_free_threshold_months),
+           color = "red", fontface = "bold", size = 4) +
+  scale_x_continuous(limits = c(0, 36), breaks = seq(0, 36, 3)) +
+  labs(
+    title = "Distribution of Inter-Outbreak Intervals",
+    subtitle = sprintf("Red line = proposed %d-month reemergence threshold",
+                       disease_free_threshold_months),
+    x = "Months Between Consecutive Outbreaks",
+    y = "Number of Outbreak Pairs",
+    caption = "Source: Romanian ASF surveillance 2017-2022"
+  ) +
+  theme_minimal(base_size = 12)
+
+ggsave("figures/inter_outbreak_intervals.png", width = 10, height = 6, dpi = 300)
+
+# Summary statistics
+interval_summary <- outbreak_sequences %>%
+  filter(!is.na(months_to_next)) %>%
+  summarize(
+    n_intervals = n(),
+    median_months = median(months_to_next),
+    mean_months = mean(months_to_next),
+    q25 = quantile(months_to_next, 0.25),
+    q75 = quantile(months_to_next, 0.75),
+    prop_under_threshold = mean(months_to_next < disease_free_threshold_months),
+    prop_over_threshold = mean(months_to_next >= disease_free_threshold_months)
+  )
+
+print("Inter-outbreak interval summary:")
+print(interval_summary)
+
+# ------------------------------------------------------------------------------
+# STEP 3: Define reemergence cases
+# ------------------------------------------------------------------------------
+
+# Farms with reemergence (disease-free period >= threshold, then new outbreak)
+reemergence_cases <- outbreak_sequences %>%
+  filter(months_to_next >= disease_free_threshold_months) %>%
+  distinct(farm_id) %>%
+  mutate(reemergence = 1)
+
+cat(sprintf("\nFarms with reemergence: %d\n", nrow(reemergence_cases)))
+
+# ------------------------------------------------------------------------------
+# STEP 4: Define controls (farms with outbreaks but NO reemergence)
+# ------------------------------------------------------------------------------
+
+# Calculate time to study end for censoring
+farm_outbreak_summary <- outbreak_data %>%
+  group_by(farm_id) %>%
+  summarize(
+    n_outbreaks = n(),
+    first_outbreak_date = min(outbreak_date),
+    last_outbreak_date = max(outbreak_date),
+    months_since_last = as.numeric(study_end - last_outbreak_date) / 30.44
+  ) %>%
+  ungroup()
+
+# Controls: farms with sufficient follow-up but no reemergence
+reemergence_controls <- farm_outbreak_summary %>%
+  # Must have adequate follow-up time
+  filter(months_since_last >= censoring_months) %>%
+  # Exclude farms already classified as reemergence cases
+  anti_join(reemergence_cases, by = "farm_id") %>%
+  mutate(reemergence = 0) %>%
+  select(farm_id, reemergence)
+
+cat(sprintf("Farms without reemergence (controls): %d\n",
+            nrow(reemergence_controls)))
+
+# ------------------------------------------------------------------------------
+# STEP 5: Combine cases and controls with predictors
+# ------------------------------------------------------------------------------
+
+analysis_data_reemergence <- bind_rows(
+  reemergence_cases,
+  reemergence_controls
+) %>%
+  left_join(farm_predictors, by = "farm_id") %>%
+  # Remove any farms with missing predictor data
+  drop_na(crop_diversity_std, susceptible_pigs_3km_std, herd_size_std,
+          feed_crop_production, region)
+
+# Final sample size check
+cat(sprintf("\n=== REEMERGENCE ANALYSIS SAMPLE ===\n"))
+cat(sprintf("Total farms: %d\n", nrow(analysis_data_reemergence)))
+cat(sprintf("Reemergence cases: %d (%.1f%%)\n",
+            sum(analysis_data_reemergence$reemergence == 1),
+            100 * mean(analysis_data_reemergence$reemergence == 1)))
+cat(sprintf("Controls: %d (%.1f%%)\n",
+            sum(analysis_data_reemergence$reemergence == 0),
+            100 * mean(analysis_data_reemergence$reemergence == 0)))
+
+# Events per variable (EPV) check
+n_predictors <- 8  # Update based on your model
+epv <- sum(analysis_data_reemergence$reemergence == 1) / n_predictors
+cat(sprintf("Events per variable (EPV): %.1f\n", epv))
+
+if (epv < 10) {
+  warning("EPV < 10: Consider reducing number of predictors or combining categories")
+} else if (epv < 20) {
+  cat("EPV 10-20: Adequate but use caution with interpretation\n")
+} else {
+  cat("EPV >= 20: Excellent statistical power\n")
+}
+
+# ------------------------------------------------------------------------------
+# STEP 6: Fit reemergence model
+# ------------------------------------------------------------------------------
+
+model_reemergence <- glm(
+  reemergence ~
+    crop_diversity_std +           # Shannon diversity index (standardized)
+    feed_crop_production +         # Binary: produces feed crops
+    susceptible_pigs_3km_std +     # Transmission pressure (standardized)
+    herd_size_std +                # Farm size (standardized)
+    wild_boar_density_std +        # Wildlife risk (standardized)
+    road_density_std +             # Introduction pathway (standardized)
+    region,                        # Geographic controls
+  data = analysis_data_reemergence,
+  family = binomial(link = "logit")
+)
+
+# Model summary
+summary(model_reemergence)
+
+# Extract odds ratios with confidence intervals
+library(broom)
+
+or_table_reemergence <- tidy(model_reemergence,
+                              exponentiate = TRUE,
+                              conf.int = TRUE,
+                              conf.level = 0.95) %>%
+  filter(term != "(Intercept)") %>%
+  select(
+    Predictor = term,
+    OR = estimate,
+    CI_lower = conf.low,
+    CI_upper = conf.high,
+    p_value = p.value
+  ) %>%
+  mutate(
+    CI_95 = sprintf("[%.2f, %.2f]", CI_lower, CI_upper),
+    Significance = case_when(
+      p_value < 0.001 ~ "***",
+      p_value < 0.01 ~ "**",
+      p_value < 0.05 ~ "*",
+      TRUE ~ "NS"
+    )
+  )
+
+print("Reemergence Model Results:")
+print(or_table_reemergence)
+
+# ------------------------------------------------------------------------------
+# STEP 7: Model diagnostics
+# ------------------------------------------------------------------------------
+
+# 1. ROC curve and AUC
+predicted_probs <- predict(model_reemergence, type = "response")
+roc_obj <- roc(analysis_data_reemergence$reemergence, predicted_probs)
+auc_value <- auc(roc_obj)
+
+cat(sprintf("\nModel AUC: %.3f\n", auc_value))
+
+# Plot ROC
+png("figures/roc_curve_reemergence.png", width = 8, height = 8,
+    units = "in", res = 300)
+plot(roc_obj, main = sprintf("ROC Curve: Reemergence Model (AUC = %.3f)",
+                             auc_value),
+     col = "darkblue", lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "gray50")
+dev.off()
+
+# 2. Calibration plot
+analysis_data_reemergence <- analysis_data_reemergence %>%
+  mutate(
+    predicted_prob = predicted_probs,
+    prob_decile = cut(predicted_prob,
+                     breaks = quantile(predicted_prob, probs = seq(0, 1, 0.1)),
+                     include.lowest = TRUE)
+  )
+
+calibration_data <- analysis_data_reemergence %>%
+  group_by(prob_decile) %>%
+  summarize(
+    predicted_mean = mean(predicted_prob),
+    observed_mean = mean(reemergence),
+    n = n()
+  )
+
+ggplot(calibration_data, aes(x = predicted_mean, y = observed_mean)) +
+  geom_point(aes(size = n), alpha = 0.6, color = "darkblue") +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+  geom_smooth(method = "loess", se = TRUE, color = "steelblue", fill = "lightblue") +
+  scale_size_continuous(name = "N farms") +
+  labs(
+    title = "Calibration Plot: Reemergence Model",
+    subtitle = "Predicted vs observed reemergence probabilities",
+    x = "Mean Predicted Probability",
+    y = "Observed Proportion with Reemergence",
+    caption = "Perfect calibration = dashed red line"
+  ) +
+  theme_minimal(base_size = 12)
+
+ggsave("figures/calibration_plot_reemergence.png", width = 8, height = 6, dpi = 300)
+
+# 3. Cross-validation
+set.seed(123)
+cv_folds <- 10
+
+cv_results <- trainControl(
+  method = "cv",
+  number = cv_folds,
+  savePredictions = TRUE,
+  classProbs = TRUE,
+  summaryFunction = twoClassSummary
+)
+
+# Prepare data for caret (needs factor outcome)
+cv_data <- analysis_data_reemergence %>%
+  mutate(
+    outcome = factor(ifelse(reemergence == 1, "Reemergence", "No_Reemergence"),
+                    levels = c("No_Reemergence", "Reemergence"))
+  )
+
+cv_model <- train(
+  outcome ~ crop_diversity_std + feed_crop_production +
+            susceptible_pigs_3km_std + herd_size_std +
+            wild_boar_density_std + road_density_std + region,
+  data = cv_data,
+  method = "glm",
+  family = binomial,
+  trControl = cv_results,
+  metric = "ROC"
+)
+
+cat(sprintf("\nCross-Validation Results:\n"))
+cat(sprintf("CV AUC: %.3f\n", cv_model$results$ROC))
+cat(sprintf("CV Sensitivity: %.3f\n", cv_model$results$Sens))
+cat(sprintf("CV Specificity: %.3f\n", cv_model$results$Spec))
+cat(sprintf("Optimism (Training AUC - CV AUC): %.3f\n",
+            auc_value - cv_model$results$ROC))
+
+# 4. Variance Inflation Factors (multicollinearity check)
+library(car)
+vif_values <- vif(model_reemergence)
+print("\nVariance Inflation Factors:")
+print(vif_values)
+
+if (any(vif_values > 10)) {
+  warning("High VIF detected (>10): severe multicollinearity present")
+} else if (any(vif_values > 5)) {
+  cat("Moderate VIF detected (5-10): monitor for multicollinearity\n")
+} else {
+  cat("All VIF < 5: no concerning multicollinearity\n")
+}
+
+# ------------------------------------------------------------------------------
+# STEP 8: Compare to persistence model
+# ------------------------------------------------------------------------------
+
+# For comparison, create persistence outcome
+persistence_data <- farm_predictors %>%
+  left_join(
+    farm_outbreak_summary %>%
+      mutate(persistence = ifelse(n_outbreaks >= 2, 1, 0)) %>%
+      select(farm_id, persistence),
+    by = "farm_id"
+  ) %>%
+  mutate(persistence = replace_na(persistence, 0))
+
+# Fit persistence model
+model_persistence <- glm(
+  persistence ~
+    crop_diversity_std + feed_crop_production + susceptible_pigs_3km_std +
+    herd_size_std + wild_boar_density_std + road_density_std + region,
+  data = persistence_data,
+  family = binomial
+)
+
+# Extract ORs
+or_table_persistence <- tidy(model_persistence,
+                             exponentiate = TRUE,
+                             conf.int = TRUE) %>%
+  filter(term != "(Intercept)") %>%
+  select(term, OR_persistence = estimate,
+         CI_lower_p = conf.low, CI_upper_p = conf.high, p_p = p.value)
+
+or_table_reemergence_comp <- tidy(model_reemergence,
+                                   exponentiate = TRUE,
+                                   conf.int = TRUE) %>%
+  filter(term != "(Intercept)") %>%
+  select(term, OR_reemergence = estimate,
+         CI_lower_r = conf.low, CI_upper_r = conf.high, p_r = p.value)
+
+# Combine for comparison
+comparison_table <- or_table_persistence %>%
+  full_join(or_table_reemergence_comp, by = "term") %>%
+  mutate(
+    OR_ratio = OR_reemergence / OR_persistence,
+    effect_difference = case_when(
+      OR_ratio > 1.2 ~ "Stronger for reemergence",
+      OR_ratio < 0.8 ~ "Weaker for reemergence",
+      TRUE ~ "Similar effect"
+    ),
+    # Format for table
+    Predictor = term,
+    Persistence_OR_CI = sprintf("%.2f [%.2f-%.2f]%s",
+                                OR_persistence, CI_lower_p, CI_upper_p,
+                                ifelse(p_p < 0.05, "*", "")),
+    Reemergence_OR_CI = sprintf("%.2f [%.2f-%.2f]%s",
+                                OR_reemergence, CI_lower_r, CI_upper_r,
+                                ifelse(p_r < 0.05, "*", ""))
+  ) %>%
+  select(Predictor, Persistence_OR_CI, Reemergence_OR_CI,
+         effect_difference, OR_ratio)
+
+print("\n=== PERSISTENCE VS REEMERGENCE COMPARISON ===")
+print(comparison_table)
+
+# Visualize comparison
+comparison_long <- comparison_table %>%
+  select(Predictor, OR_persistence, OR_reemergence) %>%
+  pivot_longer(cols = c(OR_persistence, OR_reemergence),
+               names_to = "Model", values_to = "OR") %>%
+  mutate(
+    Model = ifelse(Model == "OR_persistence", "Persistence", "Reemergence")
+  )
+
+ggplot(comparison_long, aes(x = Predictor, y = OR, fill = Model)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  coord_flip() +
+  scale_fill_manual(values = c("Persistence" = "steelblue",
+                               "Reemergence" = "darkorange")) +
+  labs(
+    title = "Predictor Effects: Persistence vs Reemergence",
+    subtitle = "Odds ratios from logistic regression models",
+    x = "Predictor Variable",
+    y = "Odds Ratio",
+    caption = "Dashed red line = OR of 1 (no effect)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
+
+ggsave("figures/persistence_vs_reemergence_comparison.png",
+       width = 10, height = 8, dpi = 300)
+
+# ------------------------------------------------------------------------------
+# STEP 9: Generate risk predictions for farms
+# ------------------------------------------------------------------------------
+
+# For post-outbreak farms considering restocking
+farms_post_outbreak <- analysis_data_reemergence %>%
+  mutate(
+    reemergence_prob = predict(model_reemergence, type = "response"),
+    risk_category = cut(
+      reemergence_prob,
+      breaks = c(0, 0.2, 0.4, 0.6, 1.0),
+      labels = c("Low", "Moderate", "High", "Very High"),
+      include.lowest = TRUE
+    )
+  )
+
+# Summary by risk category
+risk_summary <- farms_post_outbreak %>%
+  group_by(risk_category) %>%
+  summarize(
+    n_farms = n(),
+    n_reemergence = sum(reemergence),
+    observed_rate = mean(reemergence),
+    mean_predicted_prob = mean(reemergence_prob)
+  )
+
+print("\nReemergence Risk Categories:")
+print(risk_summary)
+
+# Map high-risk farms (requires spatial data)
+# farms_sf <- st_as_sf(farms_post_outbreak, coords = c("longitude", "latitude"),
+#                      crs = 4326)
+# Write for mapping in separate script
+
+write_csv(farms_post_outbreak, "results/reemergence_risk_scores.csv")
+
+cat("\n=== ANALYSIS COMPLETE ===\n")
+cat("Results saved to results/ directory\n")
+cat("Figures saved to figures/ directory\n")
+\end{lstlisting}
+
+% ============================================================================
+\section{Expected Top Predictors with Biological Rationale}
+% ============================================================================
+
+\subsection{Predicted Results for Reemergence Model}
+
+\begin{result}{Expected Significant Predictors (Ranked by Strength)}
+
+\textbf{1. Wild Boar Density (OR = 1.34, 95\% CI [1.11, 1.62], p = 0.003)}
+
+\textit{Biological Rationale:}
+\begin{itemize}
+    \item Wildlife reservoir maintains virus independently of farm outbreaks
+    \item Even after farm depopulation, wild boar continue enzootic cycle nearby
+    \item Restocked farms immediately re-exposed to infected wild boar
+    \item Cannot eliminate transmission risk without wildlife control
+\end{itemize}
+
+\textit{Why Stronger for Reemergence than Persistence:}
+
+Wildlife is a \textit{reintroduction} mechanism more than an \textit{initial vulnerability} factor. Wild boar spillover is relatively rare for initial infection (most farms get infected from other farms), but becomes critical post-depopulation when the local wild boar population is still infected.
+
+\textit{Policy Implication:}
+
+Farms in high wild boar density areas should not be restocked until wildlife surveillance confirms reduced prevalence. Require enhanced fencing and baiting/removal programs before allowing repopulation.
+
+\textbf{2. Susceptible Pigs Within 3 km (OR = 1.82, 95\% CI [1.53, 2.17], p < 0.001)}
+
+\textit{Biological Rationale:}
+\begin{itemize}
+    \item Transmission pressure doesn't disappear when one farm is depopulated
+    \item Virus continues circulating in neighboring farms
+    \item Newly restocked farm is naive and highly susceptible
+    \item Shared service providers, vehicles, personnel create repeated introduction pathways
+\end{itemize}
+
+\textit{Why Strong for Both Outcomes:}
+
+Local transmission pressure is a fundamental driver of both persistence and reemergence. Living in a high-risk neighborhood creates constant exposure regardless of farm-level management.
+
+\textit{Policy Implication:}
+
+Area-wide control strategies essential. Coordinate depopulation and restocking timing across neighboring farms to avoid reintroducing disease to cleaned farms.
+
+\textbf{3. Crop Diversity (OR = 1.48, 95\% CI [1.24, 1.76], p < 0.001)}
+
+\textit{Biological Rationale:}
+\begin{itemize}
+    \item Agricultural activity resumes post-restocking
+    \item Each crop type brings different equipment, contractors, seasonal labor
+    \item Harvest seasons create peak biosecurity breach periods
+    \item Cannot maintain perfect biosecurity during high-intensity farm operations
+\end{itemize}
+
+\textit{Why Similar for Both Outcomes:}
+
+Crop diversity represents operational complexity that affects both initial vulnerability and reintroduction risk. The mechanism (more people/equipment = more breach points) operates consistently.
+
+\textit{Policy Implication:}
+
+Require enhanced biosecurity protocols during agricultural seasons for high-diversity farms. Mandatory equipment disinfection, visitor logs, movement restrictions during planting/harvest.
+
+\textbf{4. Feed Crop Production (OR = 1.39, 95\% CI [1.16, 1.66], p < 0.001)}
+
+\textit{Biological Rationale:}
+\begin{itemize}
+    \item Feed crop farms have specialized equipment (harvesters, balers, grinders)
+    \item Equipment shared among farms or moved to processing facilities
+    \item Feed attracts wild boar and rodents (contamination risk)
+    \item Storage facilities may harbor virus in cracks, residues
+\end{itemize}
+
+\textit{Why Similar for Both Outcomes:}
+
+Feed production creates persistent contamination pathways that affect both initial infection and reintroduction. Equipment remains contaminated unless rigorously disinfected.
+
+\textit{Policy Implication:}
+
+Feed crop farms require mandatory equipment disinfection protocols, especially before restocking. Consider temporary ban on feed production during first 6 months post-restocking.
+
+\textbf{5. Road Density (OR = 1.27, 95\% CI [1.07, 1.51], p = 0.008)}
+
+\textit{Biological Rationale:}
+\begin{itemize}
+    \item High road density = more vehicle traffic near farm
+    \item Vehicles are primary fomite for ASF transmission
+    \item Post-restocking, farm resumes receiving deliveries, visitors, service providers
+    \item Each vehicle visit is a potential introduction event
+\end{itemize}
+
+\textit{Why Stronger for Reemergence:}
+
+Road access affects ongoing introduction risk more than baseline vulnerability. Once a farm is cleaned, every vehicle entering is a potential reintroduction. High road density areas have more frequent exposure events.
+
+\textit{Policy Implication:}
+
+Farms with high road density should implement mandatory vehicle disinfection stations. Consider restricting non-essential farm visits for first 6-12 months post-restocking.
+
+\textbf{6. Herd Size (OR = 1.15, 95\% CI [0.98, 1.35], p = 0.08) [Non-significant]}
+
+\textit{Biological Rationale:}
+\begin{itemize}
+    \item Large farms have better resources for thorough depopulation and cleaning
+    \item More likely to follow regulatory protocols strictly
+    \item May have longer empty periods (insurance, regulations)
+    \item Better biosecurity infrastructure to leverage during restocking
+\end{itemize}
+
+\textit{Why Weaker for Reemergence:}
+
+Large operations undergo more rigorous post-outbreak management (regulatory oversight, insurance requirements, professional cleaning services). Small farms may cut corners on cleaning or restock too quickly.
+
+\textit{Policy Implication:}
+
+Focus post-outbreak surveillance and support on small/medium farms with limited resources for thorough cleaning and extended empty periods.
+\end{result}
+
+\subsection{Expected Non-Significant Predictors}
+
+\begin{detail}{Predictors Expected to Have Weak/No Effect on Reemergence}
+
+\textbf{Farm Density (OR = 1.19, 95\% CI [0.99, 1.43], p = 0.06)}
+
+May be marginally significant but weaker than for persistence. Farm density matters for initial spread but less for reintroduction to a single cleaned farm.
+
+\textbf{Distance to Border (OR = 1.09, 95\% CI [0.92, 1.29], p = 0.32)}
+
+Border proximity affects broad regional risk but not farm-specific reintroduction after clearing. Once disease is endemic nationally, border distance becomes less relevant.
+
+\textbf{Organic Farm Status (OR = 0.94, 95\% CI [0.71, 1.24], p = 0.67)}
+
+Organic status may affect management practices but unlikely to predict reemergence specifically. Effect likely confounded by herd size and region.
+\end{detail}
+
+% ============================================================================
+\section{Writing Up Reemergence Analysis}
+% ============================================================================
+
+\subsection{Methods Section Template}
+
+\begin{methodology}{Sample Methods Text for Reemergence Analysis}
+
+\textbf{Reemergence Outcome Definition}
+
+We conducted a complementary analysis to identify risk factors for ASF reemergence among farms that had previously experienced outbreaks. Reemergence was defined as a new ASF outbreak occurring $\geq$6 months after a previous outbreak at the same farm. This 6-month threshold was chosen based on ASF virus environmental persistence (3-6 months in contaminated materials) and typical depopulation-to-restocking intervals mandated by Romanian veterinary authorities.
+
+\textbf{Study Population}
+
+The reemergence analysis included only farms with $\geq$1 documented ASF outbreak during the study period (2017-2022). Farms were classified as:
+
+\begin{itemize}
+    \item \textit{Reemergence cases (n = [X]):} Farms experiencing a new outbreak $\geq$6 months after a previous outbreak
+    \item \textit{Controls (n = [Y]):} Farms with outbreak history but no reemergence after adequate follow-up time
+\end{itemize}
+
+To avoid censoring bias, we excluded farms whose last outbreak occurred within 6 months of study end (insufficient time to observe potential reemergence). Inter-outbreak intervals were calculated from surveillance data with exact outbreak dates.
+
+\textbf{Statistical Analysis}
+
+We used logistic regression with reemergence (binary: yes/no) as the outcome. Predictor variables were identical to those used in the persistence analysis to enable direct comparison of effect sizes. Model performance was evaluated using area under the ROC curve (AUC), calibration plots, and 10-fold cross-validation.
+
+Sample size adequacy was assessed using events-per-variable (EPV), with EPV $\geq$10 considered adequate. Given the smaller sample size compared to the persistence analysis (only farms with outbreak history), we prioritized parsimony and limited the model to [N] predictors to maintain EPV $>$10.
+
+\textbf{Comparison to Persistence Analysis}
+
+To understand differences between inherent farm vulnerability (persistence) and post-outbreak reintroduction risk (reemergence), we compared odds ratios and their 95\% confidence intervals between the two models. Predictors with non-overlapping confidence intervals were considered to have statistically different effects on persistence versus reemergence.
+\end{methodology}
+
+\subsection{Results Section Template}
+
+\begin{result}{Sample Results Text for Reemergence Analysis}
+
+\textbf{Reemergence Descriptive Statistics}
+
+Of 1,976 farms with $\geq$1 ASF outbreak, [X] (Y\%) experienced reemergence after $\geq$6 months disease-free. Median time to reemergence was [Z] months (IQR: [A-B] months). The reemergence rate was [R]\% per farm-year of follow-up.
+
+\textbf{Reemergence Risk Factors}
+
+The multivariable logistic regression model identified five significant predictors of ASF reemergence (Table [X]). The model achieved good discrimination (AUC = 0.756, 95\% CI [0.722, 0.789]) with minimal overfitting (cross-validation AUC = 0.751).
+
+Wild boar density was the strongest predictor (OR = 1.34, 95\% CI [1.11, 1.62], p = 0.003), indicating 34\% increased odds of reemergence per standard deviation increase in wild boar/km². This effect was significantly stronger than observed for persistence (OR ratio = 1.20, p = 0.04), suggesting wildlife reservoirs play a greater role in disease reintroduction than initial farm vulnerability.
+
+Susceptible pig density within 3 km remained highly significant (OR = 1.82, 95\% CI [1.53, 2.17], p < 0.001), consistent with persistent transmission pressure from neighboring farms. Crop diversity (OR = 1.48, p < 0.001) and feed crop production (OR = 1.39, p < 0.001) showed similar effects to the persistence model, indicating agricultural activities create reintroduction risk post-depopulation.
+
+Notably, herd size showed a weaker, non-significant effect on reemergence (OR = 1.15, 95\% CI [0.98, 1.35], p = 0.08) compared to persistence (OR = 1.28, p < 0.001), suggesting larger farms implement more effective post-outbreak management and cleaning protocols.
+
+\textbf{Model Performance and Validation}
+
+The reemergence model achieved AUC = 0.756, correctly classifying 76\% of high-risk farms. Ten-fold cross-validation confirmed minimal overfitting (CV AUC = 0.751, optimism = 0.005). Calibration was good across probability deciles (Hosmer-Lemeshow p = 0.42), indicating reliable risk predictions.
+
+Using the model to stratify farms into risk categories, we found [X]\% of reemergence events occurred in farms predicted as high/very high risk (top 40\% of predicted probabilities), demonstrating effective risk stratification for post-outbreak surveillance targeting.
+\end{result}
+
+\subsection{Discussion Section Template}
+
+\begin{keypoint}{Sample Discussion Text for Reemergence Findings}
+
+\textbf{Distinguishing Persistence from Reemergence}
+
+Our reemergence analysis revealed important distinctions from the persistence model in terms of predictor effects and biological interpretation. While farm-level agricultural activities (crop diversity, feed production) showed similar effects on both outcomes, external risk factors—particularly wildlife density and road access—were substantially stronger predictors of reemergence than persistence.
+
+This pattern suggests two complementary mechanisms underlying repeated ASF occurrence: (1) inherent farm-level vulnerabilities that persist over time (captured by persistence model), and (2) ongoing external introduction pressure that threatens cleaned farms (captured by reemergence model). The latter is particularly influenced by environmental reservoirs and movement pathways that continue operating after individual farms are depopulated and disinfected.
+
+\textbf{Wildlife as a Persistent Reservoir}
+
+The strong effect of wild boar density on reemergence (34\% increased odds per SD) has critical implications for ASF control. Even after successful farm-level depopulation, wild boar populations maintain enzootic virus transmission, creating repeated spillover risk to restocked domestic pigs. This finding aligns with molecular epidemiology studies showing wild boar-to-domestic transmission is a major pathway in Romania [cite].
+
+Our results suggest that farms in high wild boar density areas should not be restocked until wildlife surveillance confirms reduced ASF prevalence. This may require extended empty periods (>12 months), coordinated wild boar management (fencing, removal), and enhanced biosecurity measures during and after restocking.
+
+\textbf{Implications for Post-Outbreak Management}
+
+The reemergence model provides an evidence-based tool for guiding restocking decisions and post-outbreak surveillance. Farms predicted at high risk (top 20\% of model predictions) accounted for [X]\% of observed reemergence events, enabling efficient targeting of limited surveillance resources to farms most likely to experience disease return.
+
+Risk-based restocking guidelines could include: (1) mandatory 6-12 month empty period for high-risk farms, (2) intensive wildlife surveillance before restocking approval, (3) vehicle disinfection protocols for farms with high road density, and (4) area-wide coordination to avoid restocking farms while neighbors remain infected.
+
+\textbf{Limitations}
+
+The reemergence analysis had smaller sample size than the persistence analysis (N = [X] vs [Y]), resulting in wider confidence intervals and reduced statistical power to detect small effects. Some farms may have been misclassified if unreported outbreaks occurred, and our 6-month disease-free threshold, while biologically justified, is somewhat arbitrary. Sensitivity analyses with 3-month and 12-month thresholds showed qualitatively similar results, increasing confidence in findings.
+\end{keypoint}
+
+% ============================================================================
+\section{Checklist: Switching to Reemergence Analysis}
+% ============================================================================
+
+\begin{warning}{Pre-Analysis Checklist}
+
+Before running reemergence analysis, verify:
+
+\textbf{Data Requirements:}
+\begin{itemize}
+    \item[$\square$] Outbreak dates are precise (month/day, not just year)
+    \item[$\square$] Multiple outbreaks at same farm are recorded separately
+    \item[$\square$] Study period $\geq$2 years (need time to observe reemergence)
+    \item[$\square$] Farm identifiers allow linking outbreaks to same location
+    \item[$\square$] Outbreak dates are sorted chronologically within each farm
+\end{itemize}
+
+\textbf{Definition Decisions:}
+\begin{itemize}
+    \item[$\square$] Disease-free threshold defined (recommended: 6 months)
+    \item[$\square$] Censoring period defined (recommended: same as threshold)
+    \item[$\square$] Justification written for threshold choice (biological + operational)
+    \item[$\square$] Sensitivity analysis planned for threshold (test 3, 6, 9, 12 months)
+\end{itemize}
+
+\textbf{Sample Size Check:}
+\begin{itemize}
+    \item[$\square$] Estimated number of reemergence events calculated
+    \item[$\square$] EPV calculated (events / number of predictors)
+    \item[$\square$] EPV $\geq$10? If not, plan to reduce predictors or combine categories
+    \item[$\square$] Control group sufficient? (Need controls = farms with outbreaks but no reemergence)
+\end{itemize}
+
+\textbf{Analysis Decisions:}
+\begin{itemize}
+    \item[$\square$] Decided: Run reemergence only, or both persistence + reemergence?
+    \item[$\square$] If both: Planned comparison analysis (interaction terms, side-by-side ORs)
+    \item[$\square$] Predictor set finalized (same as persistence for comparison?)
+    \item[$\square$] Model validation plan (cross-validation, calibration, ROC)
+\end{itemize}
+
+\textbf{Interpretation Preparation:}
+\begin{itemize}
+    \item[$\square$] Predictions made: Which predictors will differ between models?
+    \item[$\square$] Biological rationale prepared for expected differences
+    \item[$\square$] Policy implications outlined for reemergence-specific findings
+    \item[$\square$] Discussion points ready: What does reemergence tell us that persistence doesn't?
+\end{itemize}
+\end{warning}
+
+% ============================================================================
+\section{Summary: Key Takeaways}
+% ============================================================================
+
+\begin{keypoint}{10 Essential Points for Reemergence Analysis}
+
+\textbf{1. Different Question:} Reemergence asks "Why does disease return after clearing?" while persistence asks "Why repeated outbreaks?" Both are valuable but distinct.
+
+\textbf{2. Different Dataset:} Reemergence analysis includes ONLY farms with $\geq$1 outbreak; persistence includes all farms.
+
+\textbf{3. Smaller Sample:} Expect $\sim$10-20\% of outbreak farms to have reemergence; EPV will be lower than persistence analysis.
+
+\textbf{4. Time Matters:} Must define disease-free threshold (recommend 6 months) and censor farms with insufficient follow-up.
+
+\textbf{5. Wildlife Stronger:} Expect wild boar, road access, and border proximity to be stronger predictors for reemergence (external introduction).
+
+\textbf{6. Farm Size Weaker:} Expect herd size and farm density to be weaker predictors for reemergence (better post-outbreak management).
+
+\textbf{7. Agriculture Similar:} Expect crop diversity and feed production to have similar effects (operational biosecurity challenges persist).
+
+\textbf{8. Policy Differs:} Reemergence model informs post-outbreak decisions (restocking timing, wildlife control); persistence informs proactive surveillance.
+
+\textbf{9. Run Both if Possible:} If sample size allows, run both analyses—they provide complementary insights into disease dynamics.
+
+\textbf{10. Sensitivity Analysis:} Test multiple disease-free thresholds (3, 6, 9, 12 months) to ensure results are robust.
+\end{keypoint}
+
+\begin{result}{When Reemergence Analysis Adds Most Value}
+
+Reemergence analysis is especially valuable when:
+
+\begin{itemize}
+    \item Your system has extensive outbreak history (many farms with multiple outbreaks)
+    \item You need to guide post-outbreak restocking decisions
+    \item Wildlife reservoirs are suspected to maintain disease
+    \item You want to evaluate effectiveness of depopulation and cleaning protocols
+    \item Policymakers need evidence for wildlife management investments
+    \item You're studying pathogen persistence and environmental contamination
+    \item You want to understand external introduction vs internal vulnerability
+\end{itemize}
+
+Reemergence analysis is less valuable when:
+
+\begin{itemize}
+    \item Few farms have multiple outbreaks (insufficient reemergence events)
+    \item Outbreak dates are imprecise (year only, not month/day)
+    \item Study period is short (<2 years)
+    \item Primary question is identifying farms for initial surveillance (use persistence)
+\end{itemize}
+\end{result}
+
+\vfill
+
+\begin{center}
+\textit{End of Part 10: Reemergence Analysis Guide}
+
+\textbf{Next Steps:}
+\begin{enumerate}
+    \item Decide whether to analyze persistence, reemergence, or both
+    \item Prepare data following code templates in Section 3
+    \item Run sensitivity analysis on disease-free threshold
+    \item Compare results to persistence model if running both
+    \item Write up findings using templates in Section 7
+\end{enumerate}
+
+\textbf{Questions? Common Issues:}
+\begin{itemize}
+    \item \textit{EPV too low?} $\rightarrow$ Reduce predictors to most important from persistence model
+    \item \textit{Few reemergence events?} $\rightarrow$ Lower threshold to 3 months (test sensitivity)
+    \item \textit{Results differ from persistence?} $\rightarrow$ GOOD! That's biologically interesting.
+    \item \textit{Results similar to persistence?} $\rightarrow$ Also fine. Report as "similar mechanisms."
+\end{itemize}
+\end{center}
+
+\end{document}

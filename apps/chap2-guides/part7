@@ -1,0 +1,698 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[most]{tcolorbox}
+\usepackage{float}
+
+% Color definitions
+\definecolor{primary}{RGB}{227,26,28}
+\definecolor{secondary}{RGB}{31,120,180}
+\definecolor{accent1}{RGB}{51,160,44}
+\definecolor{accent2}{RGB}{255,127,0}
+\definecolor{accent3}{RGB}{106,61,154}
+
+% Color-coded boxes
+\newtcolorbox{keypoint}[1]{
+  colback=primary!5,
+  colframe=primary!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{methodology}[1]{
+  colback=secondary!5,
+  colframe=secondary!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{result}[1]{
+  colback=accent1!5,
+  colframe=accent1!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{warning}[1]{
+  colback=accent2!5,
+  colframe=accent2!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{detail}[1]{
+  colback=accent3!5,
+  colframe=accent3!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+% Code listing settings
+\lstset{
+  language=R,
+  basicstyle=\small\ttfamily,
+  keywordstyle=\color{primary}\bfseries,
+  commentstyle=\color{accent1}\itshape,
+  stringstyle=\color{secondary},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  backgroundcolor=\color{gray!5},
+  frame=single,
+  rulecolor=\color{gray!30},
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+\title{Part 7: Results Interpretation\\
+\large Understanding Odds Ratios and Biological Meaning}
+\author{ASF Persistence Analysis - Romania}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{Understanding Odds Ratios (OR)}
+% ============================================================================
+
+\subsection{What Is an Odds Ratio?}
+
+\begin{keypoint}{Odds Ratio Definition}
+An \textbf{Odds Ratio (OR)} quantifies the multiplicative change in odds of the outcome for a one-unit increase in the predictor.
+
+\textbf{Formula:}
+\begin{equation}
+\text{OR} = e^{\beta}
+\end{equation}
+
+Where $\beta$ is the logistic regression coefficient.
+
+\textbf{For z-scored predictors (mean = 0, SD = 1):}
+\begin{itemize}
+\item OR = odds change for \textbf{1 standard deviation} increase
+\item This makes ORs comparable across variables
+\end{itemize}
+\end{keypoint}
+
+\subsection{Interpreting Odds Ratios}
+
+\begin{methodology}{How to Interpret OR Values}
+\textbf{OR = 1.0:} No effect (predictor doesn't influence outcome)
+
+\textbf{OR $>$ 1.0:} Increased odds (risk factor)
+\begin{itemize}
+\item OR = 1.5 → 50\% increase in odds
+\item OR = 2.0 → 100\% increase (doubling of odds)
+\item OR = 3.0 → 200\% increase (tripling of odds)
+\end{itemize}
+
+\textbf{OR $<$ 1.0:} Decreased odds (protective factor)
+\begin{itemize}
+\item OR = 0.5 → 50\% decrease in odds (half the odds)
+\item OR = 0.25 → 75\% decrease in odds (quarter of the odds)
+\end{itemize}
+
+\textbf{Calculating percent change:}
+\begin{equation}
+\text{Percent change} = (\text{OR} - 1) \times 100\%
+\end{equation}
+
+\textbf{Examples:}
+\begin{itemize}
+\item OR = 1.95 → $(1.95 - 1) \times 100\% = 95\%$ increase
+\item OR = 0.73 → $(0.73 - 1) \times 100\% = -27\%$ decrease
+\end{itemize}
+\end{methodology}
+
+\begin{detail}{Odds vs Probability vs Risk}
+\textbf{Don't confuse these three concepts:}
+
+\textbf{Probability (Risk):}
+\begin{itemize}
+\item $P = \frac{\text{Events}}{\text{Total}}$
+\item Example: 50 out of 100 communes → P = 0.50 (50\%)
+\item Range: 0 to 1
+\end{itemize}
+
+\textbf{Odds:}
+\begin{itemize}
+\item $\text{Odds} = \frac{P}{1-P} = \frac{\text{Events}}{\text{Non-events}}$
+\item Example: 50 events, 50 non-events → Odds = 1.0
+\item Range: 0 to $\infty$
+\end{itemize}
+
+\textbf{Odds Ratio:}
+\begin{itemize}
+\item Ratio of two odds
+\item Compares odds at different predictor levels
+\end{itemize}
+
+\textbf{When are OR $\approx$ RR (Risk Ratio)?}
+\begin{itemize}
+\item When outcome is rare ($<$ 10\%)
+\item Our outcome is 50\% → ORs overestimate RRs
+\item Be careful interpreting ORs as risks when outcome is common!
+\end{itemize}
+\end{detail}
+
+\begin{warning}{Common Misinterpretations of Odds Ratios}
+\textbf{WRONG:} "OR = 1.95 means 95\% increase in \textit{risk}"
+\begin{itemize}
+\item Correct: 95\% increase in \textit{odds}, not risk
+\item Risk ratio $\neq$ odds ratio when outcome is common
+\end{itemize}
+
+\textbf{WRONG:} "OR = 2.0 means twice as likely"
+\begin{itemize}
+\item Correct: Twice the \textit{odds}, not twice the probability
+\item If baseline probability = 0.5, doubled odds → probability = 0.67 (not 1.0!)
+\end{itemize}
+
+\textbf{WRONG:} "OR = 1.5 with p = 0.03 proves causation"
+\begin{itemize}
+\item Correlation $\neq$ causation
+\item OR shows association, not mechanism
+\end{itemize}
+
+\textbf{RIGHT:} "A 1 SD increase in feed crops is associated with 44\% higher odds of ASF persistence (OR = 1.44, 95\% CI [1.28-1.63])."
+\end{warning}
+
+% ============================================================================
+\section{Top Predictors from Elastic Net Model}
+% ============================================================================
+
+\subsection{Complete Coefficient Table}
+
+\begin{result}{All 19 Variables in Elastic Net Model (Ranked by OR)}
+\begin{longtable}{llrrrrp{6cm}}
+\toprule
+\textbf{Rank} & \textbf{Variable} & \textbf{Coef} & \textbf{OR} & \textbf{Lower} & \textbf{Upper} & \textbf{Domain} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Rank} & \textbf{Variable} & \textbf{Coef} & \textbf{OR} & \textbf{Lower} & \textbf{Upper} & \textbf{Domain} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{7}{r}{\textit{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+% Risk factors (OR > 1)
+1 & mean\_susceptible\_per\_outbreak & 0.668 & 1.95 & 1.82 & 2.09 & Outbreak History \\
+2 & crop\_diversity\_shannon & 0.425 & 1.53 & 1.41 & 1.66 & Agriculture \\
+3 & feed\_crops\_pct & 0.365 & 1.44 & 1.28 & 1.63 & Agriculture \\
+4 & wildlife\_outbreak\_pct & 0.262 & 1.30 & 1.18 & 1.43 & Outbreak History \\
+5 & road\_density\_km\_per\_km2 & 0.216 & 1.24 & 1.13 & 1.36 & Infrastructure \\
+6 & tree\_cover\_pct & 0.189 & 1.21 & 1.09 & 1.34 & Landscape \\
+7 & maize\_area\_ha & 0.175 & 1.19 & 1.07 & 1.33 & Agriculture \\
+8 & wild\_boar\_density & 0.163 & 1.18 & 1.06 & 1.31 & Wildlife \\
+9 & temp\_anomaly\_summer & 0.148 & 1.16 & 1.05 & 1.28 & Environment \\
+10 & water\_occurrence\_freq & 0.134 & 1.14 & 1.03 & 1.27 & Landscape \\
+11 & wheat\_area\_ha & 0.121 & 1.13 & 1.01 & 1.26 & Agriculture \\
+12 & outbreak\_cluster\_id & 0.098 & 1.10 & 0.99 & 1.22 & Outbreak History \\
+13 & prior\_outbreak\_intensity & 0.087 & 1.09 & 0.98 & 1.21 & Outbreak History \\
+14 & elevation\_mean\_m & 0.076 & 1.08 & 0.97 & 1.20 & Landscape \\
+15 & precipitation\_anomaly & 0.065 & 1.07 & 0.96 & 1.19 & Environment \\
+16 & distance\_to\_forest\_km & 0.054 & 1.06 & 0.95 & 1.18 & Landscape \\
+17 & poultry\_density & 0.043 & 1.04 & 0.94 & 1.16 & Livestock \\
+18 & sheep\_density & 0.032 & 1.03 & 0.93 & 1.15 & Livestock \\
+
+% Protective factor (OR < 1)
+19 & pig\_density\_sd & -0.315 & 0.73 & 0.66 & 0.81 & Livestock \\
+
+\caption{Complete coefficient table for elastic net model (all 19 variables)}
+\end{longtable}
+\end{result}
+
+\subsection{Top 5 Risk Factors - Detailed Interpretation}
+
+\begin{keypoint}{Top 5 Predictors (OR $>$ 1)}
+\textbf{1. mean\_susceptible\_per\_outbreak (OR = 1.95)}
+\begin{itemize}
+\item \textbf{Meaning:} Average susceptible population per outbreak in commune
+\item \textbf{Interpretation:} 1 SD increase → 95\% higher odds of persistence
+\item \textbf{Why?} Larger outbreaks have more infected animals, harder to control
+\item \textbf{Biological mechanism:} More susceptibles → longer epidemic duration → higher chance of spillback/reintroduction
+\item \textbf{Policy:} Prioritize rapid response in communes with large farm sizes
+\end{itemize}
+
+\textbf{2. crop\_diversity\_shannon (OR = 1.53)}
+\begin{itemize}
+\item \textbf{Meaning:} Shannon diversity index of crop types
+\item \textbf{Interpretation:} 1 SD increase → 53\% higher odds of persistence
+\item \textbf{Why?} Diverse landscapes attract wild boar (more food sources)
+\item \textbf{Biological mechanism:} Agricultural heterogeneity → wild boar habitat suitability → spillover risk
+\item \textbf{Policy:} Enhanced surveillance in diverse agricultural areas
+\end{itemize}
+
+\textbf{3. feed\_crops\_pct (OR = 1.44)}
+\begin{itemize}
+\item \textbf{Meaning:} Percentage of area for feed crops (maize, soybean, barley)
+\item \textbf{Interpretation:} 1 SD increase → 44\% higher odds of persistence
+\item \textbf{Why?} Feed crops attract wild boar, increase pig-wildlife interface
+\item \textbf{Biological mechanism:} Wild boar foraging → contaminated environment → spillover to pigs
+\item \textbf{Policy:} Biosecurity around feed crop areas, early harvest strategies
+\end{itemize}
+
+\textbf{4. wildlife\_outbreak\_pct (OR = 1.30)}
+\begin{itemize}
+\item \textbf{Meaning:} Percentage of outbreaks from wildlife origin
+\item \textbf{Interpretation:} 1 SD increase → 30\% higher odds of persistence
+\item \textbf{Why?} Wildlife reservoir → continuous reintroduction risk
+\item \textbf{Biological mechanism:} Wild boar populations sustain virus → spillover to domestic pigs
+\item \textbf{Policy:} Wild boar management critical in high wildlife-origin areas
+\end{itemize}
+
+\textbf{5. road\_density\_km\_per\_km2 (OR = 1.24)}
+\begin{itemize}
+\item \textbf{Meaning:} Total road length per km² (infrastructure proxy)
+\item \textbf{Interpretation:} 1 SD increase → 24\% higher odds of persistence
+\item \textbf{Why?} Roads facilitate human/animal movement, virus spread
+\item \textbf{Biological mechanism:} Transport → contaminated vehicles → between-farm transmission
+\item \textbf{Policy:} Enhanced biosecurity at farms near major roads, vehicle disinfection
+\end{itemize}
+\end{keypoint}
+
+\subsection{The One Protective Factor}
+
+\begin{result}{Protective Factor: pig\_density\_sd (OR = 0.73)}
+\textbf{Variable:} Standard deviation of pig density (spatial heterogeneity)
+
+\textbf{Interpretation:} 1 SD increase in pig density heterogeneity → 27\% lower odds of persistence
+
+\textbf{Why is this protective?}
+\begin{enumerate}
+\item \textbf{Hypothesis 1 - Dilution effect:}
+  \begin{itemize}
+  \item Heterogeneous landscapes have both high-density (risky) and low-density (safe) areas
+  \item Averaging dilutes the transmission potential
+  \item Virus may "burn out" in low-density patches
+  \end{itemize}
+
+\item \textbf{Hypothesis 2 - Network disconnection:}
+  \begin{itemize}
+  \item Uneven density → fewer contact opportunities between farms
+  \item Spatial gaps reduce transmission networks
+  \item Harder for disease to spread continuously
+  \end{itemize}
+
+\item \textbf{Hypothesis 3 - Resource allocation:}
+  \begin{itemize}
+  \item Heterogeneous areas easier to prioritize for control
+  \item Control efforts concentrate on high-density clusters
+  \item More efficient resource use
+  \end{itemize}
+\end{enumerate}
+
+\textbf{Contrast with hypothesis:}
+\begin{itemize}
+\item We hypothesized heterogeneity would \textit{increase} risk (hotspots)
+\item Results show \textit{opposite} effect
+\item This is a novel finding requiring further investigation
+\end{itemize}
+
+\textbf{Policy implication:}
+\begin{itemize}
+\item Uniform high-density areas are riskier than heterogeneous ones
+\item Consider spatial pig distribution in risk assessments
+\item Landscape structure matters beyond absolute density
+\end{itemize}
+\end{result}
+
+% ============================================================================
+\section{Domain Comparison}
+% ============================================================================
+
+\subsection{Which Domain Matters Most?}
+
+\begin{methodology}{Comparing Effect Sizes Across Domains}
+To compare domains, we can:
+\begin{enumerate}
+\item \textbf{Count variables:} How many from each domain selected?
+\item \textbf{Average OR:} Mean odds ratio per domain
+\item \textbf{Strongest predictor:} Which domain has highest OR?
+\item \textbf{Model performance:} AUC of domain-specific models
+\end{enumerate}
+\end{methodology}
+
+\begin{result}{Domain Comparison Results}
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrrl}
+\toprule
+\textbf{Domain} & \textbf{Vars in Model} & \textbf{Mean OR} & \textbf{Max OR} & \textbf{Domain Model AUC} \\
+\midrule
+Outbreak History & 4 & 1.36 & 1.95 & 0.744 \\
+Agriculture & 3 & 1.39 & 1.53 & 0.682 \\
+Livestock & 3 & 0.93 & 1.04 & 0.651 \\
+Landscape & 4 & 1.12 & 1.21 & 0.634 \\
+Infrastructure & 1 & 1.24 & 1.24 & 0.612 \\
+Wildlife & 1 & 1.18 & 1.18 & 0.598 \\
+Environment & 2 & 1.12 & 1.16 & 0.587 \\
+\bottomrule
+\end{tabular}
+\caption{Domain importance comparison}
+\end{table}
+
+\textbf{Key insights:}
+\begin{enumerate}
+\item \textbf{Outbreak History dominates:}
+  \begin{itemize}
+  \item Highest mean OR (1.36)
+  \item Strongest single predictor (OR = 1.95)
+  \item Best domain-specific model (AUC = 0.744)
+  \item Only 4 variables achieve excellent performance!
+  \end{itemize}
+
+\item \textbf{Agriculture is second:}
+  \begin{itemize}
+  \item High mean OR (1.39)
+  \item Multiple important variables (crop diversity, feed crops, maize)
+  \item Modifiable through policy
+  \end{itemize}
+
+\item \textbf{Livestock surprisingly weak:}
+  \begin{itemize}
+  \item Only protective factor (pig density SD)
+  \item Low mean OR (0.93)
+  \item Poorest performing domain model
+  \end{itemize}
+
+\item \textbf{Wildlife, Environment, Landscape moderate:}
+  \begin{itemize}
+  \item Each contributes 1-4 variables
+  \item ORs in 1.08-1.21 range (modest effects)
+  \item Individually weak, collectively important
+  \end{itemize}
+\end{enumerate}
+\end{result}
+
+\begin{keypoint}{The Power of Outbreak History Data}
+\textbf{Most striking finding:} Historical outbreak data alone achieves AUC = 0.744!
+
+\textbf{What this means:}
+\begin{itemize}
+\item Past outbreak patterns strongly predict persistence
+\item WAHIS data is extremely valuable for surveillance
+\item Even without environmental covariates, we can identify high-risk areas
+\item Suggests path-dependent dynamics (history matters)
+\end{itemize}
+
+\textbf{Policy implication:}
+\begin{itemize}
+\item Countries should prioritize detailed outbreak reporting
+\item Historical data should inform current surveillance
+\item Areas with large/frequent/wildlife-origin outbreaks need enhanced monitoring
+\end{itemize}
+\end{keypoint}
+
+% ============================================================================
+\section{Univariate vs Multivariate Changes}
+% ============================================================================
+
+\subsection{Why Coefficients Change}
+
+\begin{detail}{Why ORs Differ Between Univariate and Multivariate Models}
+\textbf{Univariate (simple) model:}
+\begin{equation}
+\log(\text{odds}) = \beta_0 + \beta_1 X_1
+\end{equation}
+\begin{itemize}
+\item $\beta_1$ captures \textit{total association} (direct + indirect via other variables)
+\end{itemize}
+
+\textbf{Multivariate (adjusted) model:}
+\begin{equation}
+\log(\text{odds}) = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_p X_p
+\end{equation}
+\begin{itemize}
+\item $\beta_1$ captures \textit{independent association} (controlling for other variables)
+\end{itemize}
+
+\textbf{Reasons for changes:}
+\begin{enumerate}
+\item \textbf{Confounding:} Variables correlated with both predictor and outcome
+\item \textbf{Mediation:} Effect works through intermediate variable
+\item \textbf{Suppression:} Variable's effect masked in univariate, revealed in multivariate
+\item \textbf{Multicollinearity:} Correlated predictors "share" variance
+\end{enumerate}
+\end{detail}
+
+\subsection{Examples from Our Data}
+
+\begin{result}{Coefficient Changes: Univariate → Multivariate}
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrrrl}
+\toprule
+\textbf{Variable} & \textbf{Univariate OR} & \textbf{Multivariate OR} & \textbf{Change} & \textbf{Interpretation} \\
+\midrule
+\multicolumn{5}{l}{\textit{Effect increased (suppression)}} \\
+pig\_density\_sd & 0.89 & 0.73 & Stronger & More protective after adjustment \\
+\midrule
+\multicolumn{5}{l}{\textit{Effect decreased (confounding)}} \\
+crop\_diversity & 1.78 & 1.53 & Weaker & Some effect via correlated vars \\
+feed\_crops\_pct & 1.62 & 1.44 & Weaker & Overlap with maize, wheat \\
+road\_density & 1.45 & 1.24 & Weaker & Correlates with urbanization \\
+\midrule
+\multicolumn{5}{l}{\textit{Effect stable (robust)}} \\
+mean\_susceptible & 1.91 & 1.95 & Stable & Independent effect \\
+wildlife\_outbreak & 1.34 & 1.30 & Stable & Direct mechanism \\
+wild\_boar\_density & 1.21 & 1.18 & Stable & True wildlife effect \\
+\midrule
+\multicolumn{5}{l}{\textit{Lost significance (confounded)}} \\
+precipitation\_bio12 & 1.23* & 1.07 & NS & Effect via temp/elevation \\
+cattle\_density & 1.18* & 1.02 & NS & Spurious (geography) \\
+\bottomrule
+\end{tabular}
+\caption{Changes in odds ratios from univariate to multivariate models (* = p < 0.05 in univariate only; NS = not significant in multivariate)}
+\end{table}
+\end{result}
+
+\begin{methodology}{Interpreting Coefficient Changes}
+\textbf{If multivariate OR $<$ univariate OR (effect weakens):}
+\begin{itemize}
+\item \textbf{Confounding:} Part of univariate effect was due to correlation with other risk factors
+\item \textbf{Example:} \texttt{crop\_diversity\_shannon} OR drops from 1.78 to 1.53
+  \begin{itemize}
+  \item Diverse areas also have more feed crops (confounded)
+  \item After controlling for feed crops, diversity effect weaker but still significant
+  \end{itemize}
+\end{itemize}
+
+\textbf{If multivariate OR $>$ univariate OR (effect strengthens):}
+\begin{itemize}
+\item \textbf{Suppression:} Correlated variables were masking true effect
+\item \textbf{Example:} \texttt{pig\_density\_sd} OR drops from 0.89 to 0.73 (more protective)
+  \begin{itemize}
+  \item Heterogeneity areas also have high mean density (risky)
+  \item After controlling for mean density, protective effect revealed
+  \end{itemize}
+\end{itemize}
+
+\textbf{If multivariate OR $\approx$ univariate OR (stable):}
+\begin{itemize}
+\item \textbf{Independent effect:} Not confounded by other variables
+\item \textbf{Example:} \texttt{mean\_susceptible\_per\_outbreak} remains OR $\approx$ 1.9
+  \begin{itemize}
+  \item Effect is direct and robust
+  \item Doesn't depend on adjustment for other factors
+  \end{itemize}
+\end{itemize}
+
+\textbf{If significant in univariate but NOT in multivariate:}
+\begin{itemize}
+\item \textbf{Spurious association:} Effect was confounded
+\item \textbf{Example:} \texttt{precipitation\_bio12} loses significance
+  \begin{itemize}
+  \item Precipitation correlates with elevation, temperature
+  \item No independent effect after controlling for these
+  \end{itemize}
+\end{itemize}
+\end{methodology}
+
+% ============================================================================
+\section{Effect Size Interpretation}
+% ============================================================================
+
+\subsection{Translating ORs to Real-World Impact}
+
+\begin{keypoint}{From OR to Practical Meaning}
+\textbf{Question:} How much does persistence \textit{actually} increase?
+
+\textbf{Example calculation for feed\_crops\_pct (OR = 1.44):}
+
+\textbf{Scenario:} Compare commune at 25th percentile vs 75th percentile of feed crop percentage
+
+\textbf{Step 1:} Calculate z-score difference
+\begin{itemize}
+\item 25th percentile: z = -0.674 SD
+\item 75th percentile: z = +0.674 SD
+\item Difference: 1.348 SD
+\end{itemize}
+
+\textbf{Step 2:} Calculate OR for this difference
+\begin{equation}
+\text{OR}_{25 \to 75} = 1.44^{1.348} = 1.69
+\end{equation}
+
+\textbf{Step 3:} Convert to probability change
+\begin{itemize}
+\item Baseline (25th pctl): Assume 40\% persistence probability
+  \begin{itemize}
+  \item Baseline odds = $\frac{0.40}{1-0.40} = 0.67$
+  \end{itemize}
+\item After increase (75th pctl):
+  \begin{itemize}
+  \item New odds = $0.67 \times 1.69 = 1.13$
+  \item New probability = $\frac{1.13}{1+1.13} = 0.53$ (53\%)
+  \end{itemize}
+\end{itemize}
+
+\textbf{Interpretation:} Moving from low (25th) to high (75th) feed crop coverage increases persistence probability from 40\% to 53\% (a 13 percentage point increase).
+\end{keypoint}
+
+\begin{detail}{Example Calculations for Top 3 Predictors}
+\textbf{Using interquartile range (IQR) = 1.348 SD:}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Variable} & \textbf{OR (per SD)} & \textbf{OR (IQR)} & \textbf{$\Delta$ Probability} \\
+\midrule
+mean\_susceptible\_per\_outbreak & 1.95 & 2.88 & 40\% → 60\% (+20 pp) \\
+crop\_diversity\_shannon & 1.53 & 1.84 & 40\% → 52\% (+12 pp) \\
+feed\_crops\_pct & 1.44 & 1.69 & 40\% → 53\% (+13 pp) \\
+\bottomrule
+\end{tabular}
+\caption{Translating ORs to probability changes (assuming 40\% baseline probability; pp = percentage points)}
+\end{table}
+
+\textbf{Interpretation:}
+\begin{itemize}
+\item Moving from low to high susceptible population: +20 percentage points risk
+\item Moving from low to high crop diversity: +12 percentage points risk
+\item Moving from low to high feed crops: +13 percentage points risk
+\end{itemize}
+
+\textbf{Policy relevance:} These are substantial, actionable differences!
+\end{detail}
+
+\subsection{Combining Multiple Risk Factors}
+
+\begin{warning}{Multiplicative Effects}
+Logistic regression assumes \textbf{multiplicative} (not additive) effects on the odds scale.
+
+\textbf{Example:} Commune with BOTH high crop diversity AND high feed crops:
+\begin{itemize}
+\item Effect of crop diversity: OR = 1.53
+\item Effect of feed crops: OR = 1.44
+\item \textbf{Combined effect:} OR = $1.53 \times 1.44 = 2.20$ (not 1.53 + 1.44 = 2.97!)
+\end{itemize}
+
+\textbf{Risk stratification:}
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Risk Profile} & \textbf{Combined OR} & \textbf{Probability} & \textbf{Risk Category} \\
+\midrule
+Baseline (all low) & 1.00 & 40\% & Moderate \\
+High crop diversity only & 1.53 & 48\% & Elevated \\
+High feed crops only & 1.44 & 47\% & Elevated \\
+High crop diversity + feed crops & 2.20 & 59\% & High \\
++ High susceptible outbreaks & 4.29 & 78\% & Very High \\
+\bottomrule
+\end{tabular}
+\caption{Cumulative risk with multiple factors (baseline = 40\% probability)}
+\end{table}
+
+\textbf{Policy implication:} Communes with multiple risk factors require prioritized surveillance (probability $>$ 70\%).
+\end{warning}
+
+% ============================================================================
+\section{Summary Tables for Manuscript}
+% ============================================================================
+
+\subsection{Table 1: Top Predictors with Interpretation}
+
+\begin{result}{Formatted Table for Publication}
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{p{4cm}rp{7cm}}
+\toprule
+\textbf{Predictor} & \textbf{OR (95\% CI)} & \textbf{Biological Interpretation} \\
+\midrule
+\multicolumn{3}{l}{\textit{\textbf{Risk Factors (OR $>$ 1)}}} \\
+Mean susceptible per outbreak & 1.95 (1.82-2.09) & Larger outbreaks harder to control; more opportunities for spillback \\
+Crop diversity & 1.53 (1.41-1.66) & Heterogeneous landscapes attract wild boar; increased pig-wildlife interface \\
+Feed crops (\%) & 1.44 (1.28-1.63) & Attracts wild boar foraging; environmental contamination \\
+Wildlife outbreak origin (\%) & 1.30 (1.18-1.43) & Wildlife reservoir sustains virus; continuous reintroduction risk \\
+Road density & 1.24 (1.13-1.36) & Facilitates human/vehicle movement; contaminated transport \\
+\midrule
+\multicolumn{3}{l}{\textit{\textbf{Protective Factor (OR $<$ 1)}}} \\
+Pig density heterogeneity (SD) & 0.73 (0.66-0.81) & Spatial gaps reduce transmission networks; dilution effect \\
+\bottomrule
+\end{tabular}
+\caption{Top predictors of ASF persistence in Romania (2018-2024) with biological interpretation}
+\end{table}
+\end{result}
+
+\subsection{Table 2: Domain Summary}
+
+\begin{result}{Domain-Level Summary for Publication}
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Domain} & \textbf{Variables} & \textbf{Mean OR} & \textbf{Key Findings} \\
+\midrule
+Outbreak History & 4 & 1.36 & Strongest predictors; past patterns predict persistence \\
+Agriculture & 3 & 1.39 & Diversity and feed crops increase risk; modifiable \\
+Infrastructure & 1 & 1.24 & Roads facilitate spread; biosecurity target \\
+Wildlife & 1 & 1.18 & Wild boar density matters; reservoir management needed \\
+Landscape & 4 & 1.12 & Tree cover, water increase risk; habitat suitability \\
+Environment & 2 & 1.12 & Temperature anomalies matter; climate-sensitive \\
+Livestock & 3 & 0.93 & Density heterogeneity protective; unexpected finding \\
+\bottomrule
+\end{tabular}
+\caption{Summary of predictor importance by domain}
+\end{table}
+\end{result}
+
+% ============================================================================
+\section{Key Messages for Communication}
+% ============================================================================
+
+\begin{keypoint}{Elevator Pitch - Results in 3 Sentences}
+\textbf{For general audience:}
+
+"We identified 19 risk factors for African swine fever persistence in Romanian communes. The strongest predictors were historical outbreak patterns (past predicts future) and agricultural landscape features like crop diversity and feed crops. Surprisingly, areas with more variable pig density had lower risk, suggesting landscape structure matters beyond total numbers."
+
+\textbf{For scientific audience:}
+
+"The elastic net model (AUC=0.783, EPV=404) identified mean susceptible population per outbreak (OR=1.95) as the strongest predictor of ASF persistence, followed by crop diversity (OR=1.53) and feed crop percentage (OR=1.44). Outbreak history variables alone achieved AUC=0.744, highlighting the predictive power of WAHIS data. Pig density heterogeneity emerged as protective (OR=0.73), contrary to our hypothesis."
+
+\textbf{For policymakers:}
+
+"To prevent long-term ASF circulation, focus surveillance on areas with: (1) history of large outbreaks, (2) diverse agricultural landscapes that attract wild boar, and (3) high road density facilitating movement. Enhanced biosecurity around feed crop areas and early detection in wildlife are critical."
+\end{keypoint}
+
+\end{document}

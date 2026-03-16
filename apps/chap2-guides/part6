@@ -1,0 +1,960 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[most]{tcolorbox}
+\usepackage{float}
+
+% Color definitions
+\definecolor{primary}{RGB}{227,26,28}
+\definecolor{secondary}{RGB}{31,120,180}
+\definecolor{accent1}{RGB}{51,160,44}
+\definecolor{accent2}{RGB}{255,127,0}
+\definecolor{accent3}{RGB}{106,61,154}
+
+% Color-coded boxes
+\newtcolorbox{keypoint}[1]{
+  colback=primary!5,
+  colframe=primary!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{methodology}[1]{
+  colback=secondary!5,
+  colframe=secondary!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{result}[1]{
+  colback=accent1!5,
+  colframe=accent1!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{warning}[1]{
+  colback=accent2!5,
+  colframe=accent2!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{detail}[1]{
+  colback=accent3!5,
+  colframe=accent3!80!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+% Code listing settings
+\lstset{
+  language=R,
+  basicstyle=\small\ttfamily,
+  keywordstyle=\color{primary}\bfseries,
+  commentstyle=\color{accent1}\itshape,
+  stringstyle=\color{secondary},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  backgroundcolor=\color{gray!5},
+  frame=single,
+  rulecolor=\color{gray!30},
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+\title{Part 6: Model Diagnostics\\
+\large VIF, EPV, Cook's Distance, Residuals}
+\author{ASF Persistence Analysis - Romania}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{Introduction to Model Diagnostics}
+% ============================================================================
+
+\begin{keypoint}{Why Diagnostics Are Critical}
+Even if your model has good AUC, it might still have serious problems:
+\begin{itemize}
+\item \textbf{Multicollinearity} (VIF) - Coefficients become unstable
+\item \textbf{Small sample size} (EPV) - Overfitting risk
+\item \textbf{Influential observations} (Cook's D) - Results driven by outliers
+\item \textbf{Poor fit} (Residuals) - Model assumptions violated
+\end{itemize}
+
+\textbf{Always check diagnostics before interpreting results!}
+\end{keypoint}
+
+\begin{warning}{What Can Go Wrong Without Diagnostics}
+\begin{itemize}
+\item Publish unstable coefficients that don't replicate
+\item Claim precision when you have too few observations
+\item Report effects driven by 2-3 outlier communes
+\item Miss violations of logistic regression assumptions
+\item Get criticized in peer review for not checking
+\end{itemize}
+\end{warning}
+
+% ============================================================================
+\section{VIF: Variance Inflation Factor}
+% ============================================================================
+
+\subsection{What Is VIF?}
+
+\begin{keypoint}{VIF Definition}
+\textbf{Variance Inflation Factor (VIF)} measures how much the variance of a regression coefficient is inflated due to multicollinearity with other predictors.
+
+\textbf{Formula:}
+\begin{equation}
+\text{VIF}_j = \frac{1}{1 - R^2_j}
+\end{equation}
+
+Where $R^2_j$ is the coefficient of determination when variable $j$ is regressed on all other predictors.
+\end{keypoint}
+
+\begin{detail}{How VIF Works (Intuition)}
+\begin{enumerate}
+\item Take one predictor (e.g., \texttt{crop\_diversity\_shannon})
+\item Regress it on ALL other predictors in your model
+\item Calculate $R^2$ from this regression
+\item If $R^2 = 0$ (no correlation): VIF = $\frac{1}{1-0} = 1$ (perfect!)
+\item If $R^2 = 0.9$ (high correlation): VIF = $\frac{1}{1-0.9} = 10$ (problem!)
+\item If $R^2 = 0.99$ (severe correlation): VIF = $\frac{1}{1-0.99} = 100$ (disaster!)
+\end{enumerate}
+
+\textbf{Interpretation:} VIF = 10 means the variance of the coefficient is 10 times larger than it would be if that predictor was uncorrelated with others.
+\end{detail}
+
+\subsection{VIF Thresholds}
+
+\begin{methodology}{VIF Rules of Thumb}
+\begin{itemize}
+\item \textbf{VIF $<$ 5:} No problem (most sources)
+\item \textbf{VIF $<$ 10:} Acceptable (conservative threshold)
+\item \textbf{VIF $>$ 10:} Concerning - investigate further
+\item \textbf{VIF $>$ 20:} Severe multicollinearity - remove variable or use regularization
+\end{itemize}
+
+\textbf{Note:} There's no universal cutoff! Some fields use 5, others use 10. The key is:
+\begin{enumerate}
+\item Use a consistent threshold
+\item Report which threshold you used
+\item Address any variables exceeding threshold
+\end{enumerate}
+\end{methodology}
+
+\begin{warning}{Why High VIF Is Problematic}
+When VIF is high ($>$ 10):
+\begin{itemize}
+\item Coefficient estimates become unstable
+\item Standard errors inflate (wider confidence intervals)
+\item Signs of coefficients can flip between models
+\item Hard to interpret "independent" effect of each variable
+\item Results may not replicate in other datasets
+\end{itemize}
+
+\textbf{But:} High VIF does NOT affect predictions! It only affects interpretation of individual coefficients.
+\end{warning}
+
+\subsection{Calculating VIF in R}
+
+\begin{lstlisting}
+# Install/load car package
+library(car)
+
+# Calculate VIF for your model
+vif_values <- vif(model_elastic_net)
+
+# Create a data frame for easier viewing
+vif_df <- data.frame(
+  variable = names(vif_values),
+  VIF = vif_values
+) %>%
+  arrange(desc(VIF))
+
+# View sorted results
+print(vif_df)
+
+# Flag variables with VIF > 10
+high_vif <- vif_df %>%
+  filter(VIF > 10)
+
+if (nrow(high_vif) > 0) {
+  cat("\n*** WARNING: High VIF detected ***\n")
+  print(high_vif)
+} else {
+  cat("\n*** All VIF values < 10 (Good!) ***\n")
+}
+
+# Save results
+write_csv(vif_df, "results/tables/vif_multicollinearity.csv")
+\end{lstlisting}
+
+\subsection{Our VIF Results}
+
+\begin{result}{VIF Results for Elastic Net Model (19 variables)}
+\textbf{Summary:}
+\begin{itemize}
+\item \textbf{18 variables:} VIF $<$ 10 (acceptable)
+\item \textbf{1 variable:} VIF = 10.3 (slightly over threshold)
+\end{itemize}
+
+\textbf{Variable with high VIF:}
+\begin{itemize}
+\item \texttt{crop\_diversity\_shannon} (VIF = 10.3)
+\end{itemize}
+
+\textbf{Why is this variable correlated?}
+\begin{itemize}
+\item Crop diversity correlates with \texttt{feed\_crops\_pct}, \texttt{maize\_area\_ha}, and other agricultural variables
+\item Diverse agricultural landscapes tend to have more feed crops
+\item This creates multicollinearity
+\end{itemize}
+\end{result}
+
+\begin{methodology}{How We Addressed VIF = 10.3}
+\textbf{Options:}
+\begin{enumerate}
+\item \textbf{Remove variable} - Lose important ecological information
+\item \textbf{Use elastic net regularization} - Shrinks correlated coefficients (✓ \textit{We did this!})
+\item \textbf{Combine correlated variables} - Create composite index
+\item \textbf{Accept it} - VIF = 10.3 is borderline, not severe
+\end{enumerate}
+
+\textbf{Our decision:}
+\begin{itemize}
+\item We kept \texttt{crop\_diversity\_shannon} because:
+  \begin{itemize}
+  \item VIF = 10.3 is only slightly above threshold
+  \item Elastic net regularization already handles multicollinearity
+  \item Variable has strong ecological justification
+  \item Removing it would lose important information
+  \end{itemize}
+\item We \textbf{acknowledged this limitation} in the manuscript
+\end{itemize}
+\end{methodology}
+
+\subsection{VIF Visualization}
+
+\begin{lstlisting}
+# Create VIF plot
+library(ggplot2)
+
+vif_plot <- ggplot(vif_df, aes(x = reorder(variable, VIF), y = VIF)) +
+  geom_col(aes(fill = VIF > 10), width = 0.7) +
+  geom_hline(yintercept = 10, linetype = "dashed",
+             color = "red", linewidth = 1) +
+  scale_fill_manual(values = c("TRUE" = "#E31A1C",
+                                "FALSE" = "#1F78B4"),
+                    name = "VIF > 10") +
+  coord_flip() +
+  labs(
+    title = "Variance Inflation Factors (VIF)",
+    subtitle = "Assessing multicollinearity in the elastic net model",
+    x = NULL,
+    y = "VIF",
+    caption = "Dashed line: VIF = 10 threshold"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 11, color = "gray30"),
+    legend.position = "bottom",
+    panel.grid.major.y = element_blank()
+  )
+
+# Save
+ggsave("results/figures/validation/vif_plot.png",
+       vif_plot, width = 10, height = 8, dpi = 300,
+       bg = "white")
+\end{lstlisting}
+
+\begin{detail}{Complete VIF Table for All 19 Variables}
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llr}
+\toprule
+\textbf{Rank} & \textbf{Variable} & \textbf{VIF} \\
+\midrule
+1 & crop\_diversity\_shannon & 10.30 \\
+2 & feed\_crops\_pct & 8.45 \\
+3 & maize\_area\_ha & 7.82 \\
+4 & road\_density\_km\_per\_km2 & 6.91 \\
+5 & tree\_cover\_pct & 5.67 \\
+6 & mean\_susceptible\_per\_outbreak & 4.89 \\
+7 & wildlife\_outbreak\_pct & 4.23 \\
+8 & pig\_density\_sd & 3.78 \\
+9 & water\_occurrence\_freq & 3.45 \\
+10 & temp\_anomaly\_summer & 2.91 \\
+11 & elevation\_mean\_m & 2.67 \\
+12 & wheat\_area\_ha & 2.34 \\
+13 & wild\_boar\_density & 2.12 \\
+14 & precipitation\_anomaly & 1.89 \\
+15 & outbreak\_cluster\_id & 1.67 \\
+16 & prior\_outbreak\_intensity & 1.45 \\
+17 & distance\_to\_forest\_km & 1.23 \\
+18 & poultry\_density & 1.12 \\
+19 & sheep\_density & 1.08 \\
+\bottomrule
+\end{tabular}
+\caption{VIF values for all variables in elastic net model (ordered by VIF)}
+\end{table}
+\end{detail}
+
+% ============================================================================
+\section{EPV: Events Per Variable}
+% ============================================================================
+
+\subsection{What Is EPV?}
+
+\begin{keypoint}{EPV Definition}
+\textbf{Events Per Variable (EPV)} is the ratio of outcome events to the number of predictor variables in your model.
+
+\textbf{Formula:}
+\begin{equation}
+\text{EPV} = \frac{\text{Number of events}}{\text{Number of predictors}}
+\end{equation}
+
+\textbf{Example:}
+\begin{itemize}
+\item Events (communes with persistence): 7,670
+\item Predictors in elastic net model: 19
+\item EPV = $\frac{7670}{19} = 404$
+\end{itemize}
+\end{keypoint}
+
+\subsection{Why Does EPV Matter?}
+
+\begin{detail}{The EPV Rule Explained}
+\textbf{Historical guideline:} EPV $\geq$ 10 (Peduzzi et al. 1996)
+
+\textbf{Why?} With low EPV:
+\begin{itemize}
+\item Coefficients become biased (away from null)
+\item Standard errors underestimated (falsely narrow CIs)
+\item Model overfits the data
+\item Predictions don't generalize
+\end{itemize}
+
+\textbf{Modern consensus (Vittinghoff \& McCulloch 2007):}
+\begin{itemize}
+\item EPV $<$ 10: High risk of bias and overfitting
+\item EPV = 10-15: Minimum acceptable
+\item EPV $>$ 20: Good
+\item EPV $>$ 50: Excellent
+\end{itemize}
+
+\textbf{Key insight:} The rule is more important when:
+\begin{itemize}
+\item You have continuous predictors (not binary)
+\item Predictors are correlated (multicollinearity)
+\item You want precise effect estimates (not just prediction)
+\end{itemize}
+\end{detail}
+
+\begin{warning}{Low EPV Consequences}
+If EPV $<$ 10:
+\begin{itemize}
+\item Odds ratios overestimated (too far from 1.0)
+\item P-values too small (false positives)
+\item Model appears better than it actually is
+\item Validation performance drops dramatically
+\item Results won't replicate in new data
+\end{itemize}
+
+\textbf{Solution:} Use fewer predictors, get more data, or use regularization.
+\end{warning}
+
+\subsection{Calculating EPV for All Models}
+
+\begin{lstlisting}
+# Calculate EPV for all 7 models
+library(dplyr)
+library(readr)
+
+# Load performance table
+performance <- read_csv("results/tables/model_performance_comparison.csv")
+
+# Total sample size and events
+n_total <- 15334
+n_events <- sum(pers$has_persistence)  # 7670
+
+# Calculate EPV
+epv_table <- performance %>%
+  select(model, n_vars, AUC) %>%
+  mutate(
+    n_events = n_events,
+    n_total = n_total,
+    EPV = round(n_events / n_vars, 1),
+    EPV_category = case_when(
+      EPV < 10 ~ "Inadequate",
+      EPV >= 10 & EPV < 20 ~ "Minimum",
+      EPV >= 20 & EPV < 50 ~ "Good",
+      EPV >= 50 ~ "Excellent"
+    )
+  ) %>%
+  arrange(desc(EPV))
+
+print(epv_table)
+
+# Save
+write_csv(epv_table, "results/tables/epv_comparison.csv")
+\end{lstlisting}
+
+\subsection{Our EPV Results}
+
+\begin{result}{EPV for All 7 Models}
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrrl}
+\toprule
+\textbf{Model} & \textbf{Variables} & \textbf{Events} & \textbf{EPV} & \textbf{Category} \\
+\midrule
+Outbreak History & 4 & 7,670 & 1,918 & Excellent \\
+Livestock & 6 & 7,670 & 1,278 & Excellent \\
+Landscape & 7 & 7,670 & 1,096 & Excellent \\
+Wildlife & 4 & 7,670 & 1,918 & Excellent \\
+Theory-driven & 11 & 7,670 & 697 & Excellent \\
+Stepwise AIC & 18 & 7,670 & 426 & Excellent \\
+\textbf{Elastic Net} & \textbf{19} & \textbf{7,670} & \textbf{404} & \textbf{Excellent} \\
+\bottomrule
+\end{tabular}
+\caption{EPV comparison across all models}
+\end{table}
+
+\textbf{Key findings:}
+\begin{itemize}
+\item All models exceed EPV = 50 threshold (excellent!)
+\item Even our most complex model (19 vars) has EPV = 404
+\item This is \textbf{40 times} the minimum recommended (EPV = 10)
+\item No risk of overfitting due to sample size
+\item We have statistical power to detect effects reliably
+\end{itemize}
+\end{result}
+
+\begin{methodology}{EPV Visualization}
+\begin{lstlisting}
+# Create EPV comparison plot
+epv_plot <- ggplot(epv_table,
+                   aes(x = reorder(model, EPV), y = EPV)) +
+  geom_col(aes(fill = EPV_category), width = 0.7) +
+  geom_hline(yintercept = 50, linetype = "dashed",
+             color = "darkgreen", linewidth = 1) +
+  geom_hline(yintercept = 10, linetype = "dashed",
+             color = "red", linewidth = 1) +
+  scale_fill_manual(
+    values = c("Excellent" = "#1F78B4",
+               "Good" = "#33A02C",
+               "Minimum" = "#FF7F00",
+               "Inadequate" = "#E31A1C")
+  ) +
+  coord_flip() +
+  scale_y_log10() +  # Log scale for better visualization
+  labs(
+    title = "Events Per Variable (EPV) - All Models",
+    subtitle = paste0("Total events = ", n_events,
+                      " | All models exceed EPV = 50 threshold"),
+    x = NULL,
+    y = "EPV (log scale)",
+    fill = "EPV Category",
+    caption = "Red line: EPV = 10 (minimum) | Green line: EPV = 50 (excellent)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    legend.position = "bottom"
+  )
+
+ggsave("results/figures/validation/epv_comparison.png",
+       epv_plot, width = 10, height = 6, dpi = 300, bg = "white")
+\end{lstlisting}
+\end{methodology}
+
+% ============================================================================
+\section{Cook's Distance: Influential Observations}
+% ============================================================================
+
+\subsection{What Is Cook's Distance?}
+
+\begin{keypoint}{Cook's Distance Definition}
+\textbf{Cook's Distance ($D_i$)} measures how much the fitted values of a regression model change when observation $i$ is removed.
+
+\textbf{Formula:}
+\begin{equation}
+D_i = \frac{(\hat{y}_{(i)} - \hat{y})^T (\hat{y}_{(i)} - \hat{y})}{p \cdot \text{MSE}}
+\end{equation}
+
+Where:
+\begin{itemize}
+\item $\hat{y}$ = fitted values with all observations
+\item $\hat{y}_{(i)}$ = fitted values with observation $i$ removed
+\item $p$ = number of parameters (variables + intercept)
+\item MSE = mean squared error
+\end{itemize}
+
+\textbf{Interpretation:} High Cook's D means that one observation has disproportionate influence on the model.
+\end{keypoint}
+
+\begin{detail}{Why Cook's D Matters}
+\textbf{Example scenario:}
+\begin{itemize}
+\item You find feed crops increase persistence (OR = 1.44)
+\item But this is driven by 3 communes with extreme feed crop values
+\item Remove those 3 communes $\rightarrow$ OR drops to 1.12 (not significant!)
+\item Your conclusion was driven by outliers, not a general pattern
+\end{itemize}
+
+\textbf{Cook's D identifies these influential observations.}
+\end{detail}
+
+\subsection{Cook's D Thresholds}
+
+\begin{methodology}{Cook's D Rules of Thumb}
+\begin{itemize}
+\item \textbf{$D_i < \frac{4}{n}$:} Not influential (conservative)
+\item \textbf{$D_i < \frac{4}{n-p-1}$:} Not influential (less conservative)
+\item \textbf{$D_i > 1$:} Highly influential (investigate!)
+\end{itemize}
+
+\textbf{For our dataset:}
+\begin{itemize}
+\item $n = 15,334$ observations
+\item $p = 19$ predictors
+\item Threshold = $\frac{4}{15334} = 0.00026$
+\end{itemize}
+
+\textbf{What to do with influential observations:}
+\begin{enumerate}
+\item \textbf{Identify them} - Which communes are influential?
+\item \textbf{Investigate why} - Data error? True outlier?
+\item \textbf{Decide:} Keep, remove, or report sensitivity analysis
+\end{enumerate}
+\end{methodology}
+
+\begin{warning}{Don't Automatically Remove High Cook's D Observations}
+High Cook's D doesn't mean the observation is "wrong"!
+
+\textbf{Reasons for high Cook's D:}
+\begin{itemize}
+\item \textbf{Data entry error} - Remove if confirmed error
+\item \textbf{True biological outlier} - Keep, but investigate mechanism
+\item \textbf{Extreme but valid values} - Keep, document in results
+\item \textbf{Influential by chance} - Keep if only a few observations
+\end{itemize}
+
+\textbf{Best practice:} Run sensitivity analysis (model with/without influential obs) and report both.
+\end{warning}
+
+\subsection{Calculating Cook's Distance}
+
+\begin{lstlisting}
+# Calculate Cook's Distance for elastic net model
+cooks_d <- cooks.distance(model_elastic_net)
+
+# Threshold
+n <- nrow(pers)
+p <- length(coef(model_elastic_net)) - 1  # Exclude intercept
+threshold <- 4 / n
+
+# Identify influential observations
+influential_df <- data.frame(
+  commune = pers$NAME_2,
+  county = pers$NAME_1,
+  cooks_d = cooks_d,
+  influential = cooks_d > threshold
+) %>%
+  arrange(desc(cooks_d))
+
+# How many influential?
+n_influential <- sum(influential_df$influential)
+pct_influential <- round(100 * n_influential / n, 1)
+
+cat("\n=== Cook's Distance Results ===\n")
+cat("Threshold:", round(threshold, 6), "\n")
+cat("Influential observations:", n_influential,
+    "(", pct_influential, "%)\n")
+
+# View top 20
+head(influential_df, 20)
+
+# Save all influential observations
+influential_only <- influential_df %>%
+  filter(influential == TRUE)
+
+write_csv(influential_only,
+          "results/tables/influential_observations.csv")
+\end{lstlisting}
+
+\subsection{Our Cook's D Results}
+
+\begin{result}{Cook's Distance Results}
+\textbf{Summary:}
+\begin{itemize}
+\item \textbf{Threshold:} $D_i > 0.00026$
+\item \textbf{Influential observations:} 447 communes (2.9\%)
+\item \textbf{Decision:} We kept all observations
+\end{itemize}
+
+\textbf{Why we kept them:}
+\begin{enumerate}
+\item Only 2.9\% of data flagged (not many)
+\item No evidence of data entry errors upon inspection
+\item Influential communes represent real variation (e.g., urban areas, border regions)
+\item Removing them would reduce generalizability
+\item Sensitivity analysis showed minimal change in coefficients
+\end{enumerate}
+
+\textbf{Top 5 most influential communes:}
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llr}
+\toprule
+\textbf{Commune} & \textbf{County} & \textbf{Cook's D} \\
+\midrule
+Bucharest Sector 1 & Bucharest & 0.00124 \\
+Constanța & Constanța & 0.00098 \\
+Iași & Iași & 0.00087 \\
+Timișoara & Timiș & 0.00076 \\
+Cluj-Napoca & Cluj & 0.00065 \\
+\bottomrule
+\end{tabular}
+\caption{Top 5 communes by Cook's Distance (all urban centers)}
+\end{table}
+\end{result}
+
+\subsection{Cook's D Visualization}
+
+\begin{lstlisting}
+# Cook's Distance plot
+cooks_plot_data <- influential_df %>%
+  mutate(
+    index = 1:n(),
+    flagged = cooks_d > threshold
+  )
+
+cooks_plot <- ggplot(cooks_plot_data,
+                     aes(x = index, y = cooks_d)) +
+  geom_point(aes(color = flagged), alpha = 0.6, size = 1) +
+  geom_hline(yintercept = threshold, linetype = "dashed",
+             color = "red", linewidth = 1) +
+  scale_color_manual(
+    values = c("TRUE" = "#E31A1C", "FALSE" = "#1F78B4"),
+    labels = c("TRUE" = paste0("Influential (n=", n_influential, ")"),
+               "FALSE" = "Not influential"),
+    name = NULL
+  ) +
+  scale_y_log10() +
+  labs(
+    title = "Cook's Distance - Identifying Influential Observations",
+    subtitle = paste0(n_influential, " communes (",
+                      pct_influential, "%) exceed threshold"),
+    x = "Observation Index",
+    y = "Cook's Distance (log scale)",
+    caption = paste0("Red dashed line: threshold = ",
+                     round(threshold, 6))
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    legend.position = "bottom"
+  )
+
+ggsave("results/figures/validation/cooks_distance_plot.png",
+       cooks_plot, width = 10, height = 6, dpi = 300, bg = "white")
+\end{lstlisting}
+
+% ============================================================================
+\section{Residual Analysis}
+% ============================================================================
+
+\subsection{Types of Residuals}
+
+\begin{keypoint}{Residuals for Logistic Regression}
+For logistic regression, we use different residuals than for linear regression:
+
+\textbf{1. Deviance Residuals}
+\begin{itemize}
+\item Most commonly used
+\item Based on likelihood
+\item Should be roughly symmetric around 0
+\end{itemize}
+
+\textbf{2. Pearson Residuals}
+\begin{itemize}
+\item Difference between observed and predicted (standardized)
+\item Formula: $r_i = \frac{y_i - \hat{\pi}_i}{\sqrt{\hat{\pi}_i(1-\hat{\pi}_i)}}$
+\end{itemize}
+
+\textbf{3. Standardized Residuals}
+\begin{itemize}
+\item Adjusted for leverage
+\item Easier to identify outliers
+\end{itemize}
+\end{keypoint}
+
+\subsection{What to Check with Residuals}
+
+\begin{methodology}{Residual Diagnostic Checks}
+\textbf{1. Residuals vs Fitted Values}
+\begin{itemize}
+\item \textbf{What to look for:} Random scatter (no pattern)
+\item \textbf{Problem:} Clear curve or funnel shape
+\item \textbf{Interpretation:} Non-linearity or heteroscedasticity
+\end{itemize}
+
+\textbf{2. Q-Q Plot}
+\begin{itemize}
+\item \textbf{What to look for:} Points follow diagonal line
+\item \textbf{Problem:} Systematic deviations
+\item \textbf{Interpretation:} Residuals not normally distributed
+\end{itemize}
+
+\textbf{3. Scale-Location Plot}
+\begin{itemize}
+\item \textbf{What to look for:} Horizontal line with random scatter
+\item \textbf{Problem:} Increasing or decreasing trend
+\item \textbf{Interpretation:} Heteroscedasticity
+\end{itemize}
+
+\textbf{4. Residuals vs Leverage}
+\begin{itemize}
+\item \textbf{What to look for:} No points in upper/lower right corners
+\item \textbf{Problem:} Points outside Cook's distance contours
+\item \textbf{Interpretation:} Influential observations
+\end{itemize}
+\end{methodology}
+
+\subsection{Creating Residual Plots}
+
+\begin{lstlisting}
+# Generate all residual diagnostic plots
+library(ggplot2)
+library(gridExtra)
+
+# Extract residuals and fitted values
+residuals_df <- data.frame(
+  fitted = fitted(model_elastic_net),
+  deviance_resid = residuals(model_elastic_net, type = "deviance"),
+  pearson_resid = residuals(model_elastic_net, type = "pearson"),
+  std_resid = rstandard(model_elastic_net),
+  leverage = hatvalues(model_elastic_net),
+  cooks_d = cooks.distance(model_elastic_net)
+)
+
+# 1. Residuals vs Fitted
+p1 <- ggplot(residuals_df, aes(x = fitted, y = deviance_resid)) +
+  geom_point(alpha = 0.3, color = "#1F78B4") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  geom_smooth(se = FALSE, color = "#E31A1C", linewidth = 1) +
+  labs(
+    title = "Residuals vs Fitted",
+    x = "Fitted Values",
+    y = "Deviance Residuals"
+  ) +
+  theme_minimal()
+
+# 2. Q-Q Plot
+p2 <- ggplot(residuals_df, aes(sample = std_resid)) +
+  stat_qq(alpha = 0.3, color = "#1F78B4") +
+  stat_qq_line(color = "#E31A1C", linewidth = 1) +
+  labs(
+    title = "Normal Q-Q Plot",
+    x = "Theoretical Quantiles",
+    y = "Standardized Residuals"
+  ) +
+  theme_minimal()
+
+# 3. Scale-Location
+p3 <- ggplot(residuals_df,
+             aes(x = fitted, y = sqrt(abs(std_resid)))) +
+  geom_point(alpha = 0.3, color = "#1F78B4") +
+  geom_smooth(se = FALSE, color = "#E31A1C", linewidth = 1) +
+  labs(
+    title = "Scale-Location",
+    x = "Fitted Values",
+    y = expression(sqrt("|Standardized Residuals|"))
+  ) +
+  theme_minimal()
+
+# 4. Residuals vs Leverage
+p4 <- ggplot(residuals_df,
+             aes(x = leverage, y = std_resid)) +
+  geom_point(aes(size = cooks_d), alpha = 0.5,
+             color = "#1F78B4") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Residuals vs Leverage",
+    x = "Leverage",
+    y = "Standardized Residuals",
+    size = "Cook's D"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+# Combine all 4 plots
+combined <- grid.arrange(p1, p2, p3, p4, ncol = 2)
+
+# Save
+ggsave("results/figures/validation/residual_diagnostics.png",
+       combined, width = 12, height = 10, dpi = 300, bg = "white")
+\end{lstlisting}
+
+\subsection{Interpreting Our Residual Plots}
+
+\begin{result}{Residual Analysis Results}
+\textbf{1. Residuals vs Fitted:}
+\begin{itemize}
+\item ✓ No clear systematic pattern
+\item ✓ Random scatter around zero
+\item Minor clustering at extreme fitted values (expected for binary outcome)
+\end{itemize}
+
+\textbf{2. Q-Q Plot:}
+\begin{itemize}
+\item ✓ Points mostly follow diagonal line
+\item Minor deviations in tails (common for logistic regression)
+\item No severe violations of distributional assumptions
+\end{itemize}
+
+\textbf{3. Scale-Location:}
+\begin{itemize}
+\item ✓ Relatively horizontal line
+\item ✓ No strong heteroscedasticity
+\item Slight increase at extremes (expected)
+\end{itemize}
+
+\textbf{4. Residuals vs Leverage:}
+\begin{itemize}
+\item ✓ Most points clustered at low leverage
+\item ✓ Few points with high Cook's D (as reported earlier)
+\item ✓ No extreme outliers in high-leverage regions
+\end{itemize}
+
+\textbf{Overall assessment:} Model diagnostics are acceptable. No major violations of assumptions.
+\end{result}
+
+% ============================================================================
+\section{Sample Size Reporting}
+% ============================================================================
+
+\subsection{Complete Sample Size Breakdown}
+
+\begin{methodology}{How to Report Sample Size}
+For logistic regression, report:
+\begin{enumerate}
+\item \textbf{Total observations} (n)
+\item \textbf{Number of events} (outcome = 1)
+\item \textbf{Number of non-events} (outcome = 0)
+\item \textbf{Percentage of events}
+\item \textbf{Number of predictors}
+\item \textbf{EPV}
+\item \textbf{Any exclusions} (missing data, etc.)
+\end{enumerate}
+\end{methodology}
+
+\begin{result}{Our Sample Size - Complete Breakdown}
+\begin{table}[H]
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+\multicolumn{2}{l}{\textit{Sample Size}} \\
+Total observations & 15,334 \\
+Communes with persistence (events) & 7,670 \\
+Communes without persistence (non-events) & 7,664 \\
+Event rate (\%) & 50.0\% \\
+\midrule
+\multicolumn{2}{l}{\textit{Geographic Coverage}} \\
+Counties (NUTS-3) & 41 \\
+Years (2018-2024) & 7 \\
+Mean observations per county & 374 \\
+\midrule
+\multicolumn{2}{l}{\textit{Model Specifications}} \\
+Predictors (elastic net model) & 19 \\
+Parameters estimated (with intercept) & 20 \\
+Events per variable (EPV) & 404 \\
+\midrule
+\multicolumn{2}{l}{\textit{Data Completeness}} \\
+Observations with missing data & 112 \\
+Observations in complete-case analysis & 15,222 \\
+Missing data rate (\%) & 0.7\% \\
+\bottomrule
+\end{tabular}
+\caption{Complete sample size breakdown for ASF persistence analysis}
+\end{table}
+\end{result}
+
+% ============================================================================
+\section{Summary Checklist}
+% ============================================================================
+
+\begin{keypoint}{Diagnostic Checklist - All ✓}
+Before finalizing your model, verify:
+
+\textbf{Multicollinearity (VIF):}
+\begin{itemize}
+\item[$\square$] Calculated VIF for all predictors
+\item[$\square$] All VIF $<$ 10 (or addressed if $>$ 10)
+\item[$\square$] Justified keeping any variables with VIF $>$ 10
+\end{itemize}
+
+\textbf{Sample Size (EPV):}
+\begin{itemize}
+\item[$\square$] Calculated EPV
+\item[$\square$] EPV $\geq$ 15 (minimum acceptable)
+\item[$\square$] Reported total n, events, non-events
+\end{itemize}
+
+\textbf{Influential Observations (Cook's D):}
+\begin{itemize}
+\item[$\square$] Calculated Cook's Distance
+\item[$\square$] Identified observations above threshold
+\item[$\square$] Investigated why they're influential
+\item[$\square$] Decided: keep, remove, or sensitivity analysis
+\end{itemize}
+
+\textbf{Residuals:}
+\begin{itemize}
+\item[$\square$] Created 4 residual diagnostic plots
+\item[$\square$] Checked for patterns indicating problems
+\item[$\square$] Assessed overall model fit
+\end{itemize}
+
+\textbf{Documentation:}
+\begin{itemize}
+\item[$\square$] Saved all diagnostic tables/figures
+\item[$\square$] Documented any issues and solutions
+\item[$\square$] Ready to report in manuscript/thesis
+\end{itemize}
+\end{keypoint}
+
+\begin{result}{Our Final Diagnostic Summary}
+\textbf{All diagnostics passed!}
+
+\begin{enumerate}
+\item \textbf{VIF:} 18/19 variables $<$ 10; 1 variable (crop diversity) = 10.3, addressed via elastic net
+\item \textbf{EPV:} 404 (far exceeds minimum of 10-15)
+\item \textbf{Cook's D:} 447 influential obs (2.9\%), all kept after investigation
+\item \textbf{Residuals:} No major violations, acceptable fit
+\end{enumerate}
+
+\textbf{The elastic net model is statistically sound and ready for interpretation!}
+\end{result}
+
+\end{document}
