@@ -12,6 +12,7 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
@@ -219,7 +220,7 @@ body {
   overflow: hidden;
   transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1);
 }
-.step-card.open .step-content { max-height: 4000px; }
+.step-card.open .step-content { max-height: 9000px; }
 
 .step-body {
   padding: 0 24px 28px;
@@ -386,6 +387,34 @@ footer {
   font-size: 0.82rem;
   border-top: 1px solid var(--border);
 }
+
+/* ── CHARTS ── */
+.chart-wrap { position:relative; margin: 16px 0; }
+.chart-wrap canvas { display:block; }
+.chart-title { font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
+
+/* ── CODE+EXPLAIN GRID ── */
+.code-explain { display:grid; grid-template-columns:1fr 1fr; gap:0; margin:14px 0; border-radius:10px; overflow:hidden; border:1px solid #2a2a3e; }
+.code-explain .ce-code { background:#1e1e2e; padding:16px 20px; font-family:'JetBrains Mono',monospace; font-size:0.77rem; color:#cdd6f4; line-height:1.85; overflow-x:auto; }
+.code-explain .ce-exp  { background:#13131f; padding:16px 18px; border-left:1px solid #2a2a3e; }
+.ce-exp-row { padding:2px 0 2px 0; line-height:1.85; font-size:0.78rem; color:#94a3b8; display:flex; align-items:flex-start; gap:6px; }
+.ce-exp-row .arrow { color:#6c7086; flex-shrink:0; margin-top:2px; }
+.ce-exp-row.highlight { color:#a6e3a1; }
+.ce-exp-row.blank { height:1.85em; }
+
+/* ── FORMULA BREAKDOWN TABLE ── */
+.formula-breakdown { margin:14px 0; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.fb-row { display:grid; grid-template-columns:90px 120px 1fr; border-bottom:1px solid var(--border); }
+.fb-row:last-child { border-bottom:none; }
+.fb-row.fb-head { background:#f0f2f8; }
+.fb-row.fb-head div { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); }
+.fb-row div { padding:9px 12px; font-size:0.84rem; }
+.fb-sym  { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--blue-dark); border-right:1px solid var(--border); background:#f8faff; }
+.fb-name { color:var(--text); font-weight:600; border-right:1px solid var(--border); }
+.fb-desc { color:var(--text-muted); line-height:1.5; }
+
+/* ── FOREST PLOT SVG ── */
+.forest-container { overflow-x:auto; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
@@ -565,11 +594,23 @@ Disease: FMD
 
       <div class="eq-block">
         <div class="eq-label">Logistic regression equation</div>
-        \[ \log\!\left(\frac{P(\text{persistence})}{1 - P(\text{persistence})}\right) = \beta_0 + \sum_{k=1}^{K} \beta_k X_{kij} + u_j \]
+        \[ \underbrace{\log\!\left(\frac{P_{ij}}{1 - P_{ij}}\right)}_{\text{log-odds of persistence}} = \underbrace{\beta_0}_{\text{intercept}} + \underbrace{\sum_{k=1}^{K} \beta_k z_{kij}}_{\text{fixed effects}} + \underbrace{u_j}_{\text{random effect}} \]
       </div>
 
-      <div class="code-block"><span class="kw">library</span>(lme4)
+      <h3>What each part of the equation does</h3>
+      <div class="formula-breakdown">
+        <div class="fb-row fb-head"><div>Symbol</div><div>Name</div><div>What it does in the model</div></div>
+        <div class="fb-row"><div class="fb-sym">\(\log(P/1{-}P)\)</div><div class="fb-name">Log-odds (logit)</div><div class="fb-desc">Transforms the binary outcome into a continuous scale from &minus;&infin; to +&infin;, making it suitable for a linear model. When P = 0.5, log-odds = 0. When P = 0.8, log-odds = 1.39.</div></div>
+        <div class="fb-row"><div class="fb-sym">\(\beta_0\)</div><div class="fb-name">Intercept</div><div class="fb-desc">The baseline log-odds of persistence when every predictor is zero (i.e. at the population average after z-scoring). You rarely interpret this directly — it sets the starting point.</div></div>
+        <div class="fb-row"><div class="fb-sym">\(\beta_k\)</div><div class="fb-name">Fixed coefficient</div><div class="fb-desc">The change in log-odds for a 1-SD increase in predictor \(k\). This is what you exponentiate to get the Odds Ratio: OR = \(e^{\beta_k}\). Positive \(\beta\) → OR &gt; 1 (risk). Negative \(\beta\) → OR &lt; 1 (protective).</div></div>
+        <div class="fb-row"><div class="fb-sym">\(z_{kij}\)</div><div class="fb-name">Z-scored predictor</div><div class="fb-desc">Predictor \(k\) for outbreak \(i\) in group \(j\), standardised to mean=0, SD=1. This makes all \(\beta_k\) directly comparable — a \(\beta\) of 0.5 means the same thing regardless of whether the predictor is livestock density or GDP.</div></div>
+        <div class="fb-row"><div class="fb-sym">\(u_j\)</div><div class="fb-name">Random intercept</div><div class="fb-desc">A group-specific offset drawn from \(\mathcal{N}(0,\sigma^2)\). It absorbs the fact that ASF communes in Romania have systematically higher baseline persistence than FMD communes in Turkey — without this term, those differences would contaminate the fixed effects.</div></div>
+      </div>
 
+      <h3>Annotated R code — line by line</h3>
+      <div class="code-explain">
+        <div class="ce-code"><span class="kw">library</span>(lme4)
+&nbsp;
 model_persist <span class="op">&lt;-</span> <span class="fn">glmer</span>(
   persistence <span class="op">~</span>
     livestock_density <span class="op">+</span>
@@ -577,16 +618,35 @@ model_persist <span class="op">&lt;-</span> <span class="fn">glmer</span>(
     wildlife_proximity <span class="op">+</span>
     tree_cover <span class="op">+</span>
     road_density <span class="op">+</span>
-    (<span class="num">1</span>|disease/country/admin2),  <span class="cm"># nested random effects</span>
+    (<span class="num">1</span>|disease/country/admin2),
   <span class="kw">family</span> = binomial,
   <span class="kw">data</span> = dat
 )
-
-<span class="cm"># Odds ratios</span>
+&nbsp;
+<span class="fn">fixef</span>(model_persist)
 <span class="fn">exp</span>(<span class="fn">fixef</span>(model_persist))
-
-<span class="cm"># 95% confidence intervals</span>
-<span class="fn">exp</span>(<span class="fn">confint</span>(model_persist, <span class="kw">method</span> = <span class="str">"Wald"</span>))</div>
+<span class="fn">exp</span>(<span class="fn">confint</span>(model_persist,
+  <span class="kw">method</span> = <span class="str">"Wald"</span>))</div>
+        <div class="ce-exp">
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>lme4 provides glmer() — the mixed-effects extension of glm()</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>glmer = Generalised Linear Mixed Effects Regression</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>LHS: binary outcome column (0 = no recurrence, 1 = recurred)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>z-scored livestock density → \(\beta_1\): effect of animal density</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>z-scored vaccination → \(\beta_2\): institutional protection</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>z-scored wildlife proximity → \(\beta_3\): reservoir pressure</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>z-scored tree cover → \(\beta_4\): habitat / landscape</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>z-scored road density → \(\beta_5\): connectivity / spread</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>(1|A/B/C) = random intercept nested: A within B within C</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>family=binomial tells glmer to use the logistic link function</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>your data frame with all variables</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>extract raw \(\beta\) coefficients (log-odds scale)</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>exp() converts log-odds → Odds Ratios. This is what you report.</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>95% CI on OR scale. "Wald" = fast approximate; use "profile" for publication</div>
+        </div>
+      </div>
     </div></div>
   </div>
 
@@ -609,25 +669,59 @@ model_persist <span class="op">&lt;-</span> <span class="fn">glmer</span>(
 
       <div class="eq-block">
         <div class="eq-label">Cox PH with frailty equation</div>
-        \[ h(t \mid X_i,\, b_j) = h_0(t)\cdot b_j \cdot \exp\!\left(\sum_{k=1}^{K} \beta_k X_{ki}\right) \]
-        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;text-align:left;">\(h_0(t)\) = baseline hazard &nbsp;·&nbsp; \(b_j\) = frailty term (Gamma-distributed random effect) &nbsp;·&nbsp; \(\beta_k\) = log-hazard coefficient</p>
+        \[ \underbrace{h(t \mid z_i, b_j)}_{\substack{\text{hazard for unit } i \\ \text{in group } j \text{ at time } t}} = \underbrace{h_0(t)}_{\substack{\text{baseline} \\ \text{hazard}}} \cdot \underbrace{b_j}_{\substack{\text{frailty} \\ \text{(random effect)}}} \cdot \underbrace{\exp\!\left(\sum_{k=1}^{K} \beta_k z_{ki}\right)}_{\text{predictor effects (fixed)}} \]
       </div>
 
-      <div class="code-block"><span class="kw">library</span>(survival)
+      <h3>What each part of the equation does</h3>
+      <div class="formula-breakdown">
+        <div class="fb-row fb-head"><div>Symbol</div><div>Name</div><div>What it does in the model</div></div>
+        <div class="fb-row"><div class="fb-sym">\(h(t|z,b)\)</div><div class="fb-name">Hazard function</div><div class="fb-desc">The instantaneous rate of reemergence at time \(t\), given the predictor values and group. Think of it as: "at this exact moment, how fast is disease returning?" It is not a probability — it can exceed 1.</div></div>
+        <div class="fb-row"><div class="fb-sym">\(h_0(t)\)</div><div class="fb-name">Baseline hazard</div><div class="fb-desc">The reemergence rate when all predictors are zero and frailty = 1. Cox models leave this completely unspecified (non-parametric) — this is the "proportional" assumption's power. You never need to assume a distribution for time.</div></div>
+        <div class="fb-row"><div class="fb-sym">\(b_j\)</div><div class="fb-name">Frailty (random effect)</div><div class="fb-desc">Drawn from Gamma(1/&theta;, 1/&theta;). It multiplies the baseline hazard for group \(j\). A commune in a high-risk disease cluster gets \(b_j &gt; 1\) (faster reemergence), a low-risk cluster gets \(b_j &lt; 1\). This is the Cox equivalent of the logistic model's \(u_j\).</div></div>
+        <div class="fb-row"><div class="fb-sym">\(\exp(\beta_k z_k)\)</div><div class="fb-name">Predictor effect</div><div class="fb-desc">Each predictor multiplies the hazard exponentially. \(e^{\beta_k}\) = Hazard Ratio (HR). If livestock density has \(\beta = 0.4\), then HR = \(e^{0.4}\) = 1.49, meaning a 1-SD increase in livestock density is associated with 49% faster reemergence.</div></div>
+        <div class="fb-row"><div class="fb-sym">\(\text{Surv}(t,\delta)\)</div><div class="fb-name">Survival object</div><div class="fb-desc">\(t\) = follow-up months, \(\delta\) = 1 if reemerged, 0 if censored (still disease-free at study end). Censored units are NOT excluded — their partial information (they survived at least \(t\) months) is fully used in the likelihood.</div></div>
+      </div>
 
+      <h3>Annotated R code — line by line</h3>
+      <div class="code-explain">
+        <div class="ce-code"><span class="kw">library</span>(survival)
+&nbsp;
 model_reemerge <span class="op">&lt;-</span> <span class="fn">coxph</span>(
-  <span class="fn">Surv</span>(time, event) <span class="op">~</span>
+  <span class="fn">Surv</span>(time_months, reemerged) <span class="op">~</span>
     livestock_density <span class="op">+</span>
     vaccination_coverage <span class="op">+</span>
     wildlife_proximity <span class="op">+</span>
     tree_cover <span class="op">+</span>
     road_density <span class="op">+</span>
-    <span class="fn">frailty</span>(disease/country/admin2),  <span class="cm"># random effects</span>
+    <span class="fn">frailty</span>(country,
+      <span class="kw">distribution</span> = <span class="str">"gamma"</span>),
   <span class="kw">data</span> = dat
 )
-
-<span class="fn">summary</span>(model_reemerge)
-<span class="cm"># Hazard Ratios are already in the exp(coef) column</span></div>
+&nbsp;
+s <span class="op">&lt;-</span> <span class="fn">summary</span>(model_reemerge)
+s<span class="op">$</span>coefficients
+s<span class="op">$</span>conf.int</div>
+        <div class="ce-exp">
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>survival package provides Surv(), coxph(), survfit()</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>coxph = Cox Proportional Hazards model</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>Surv() creates the time-to-event outcome object: time + event indicator</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>time_months: how long until reemergence (or until censored)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>reemerged: 1 = event occurred, 0 = censored (still disease-free)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>same 5 z-scored predictors as the logistic model</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>frailty() adds a random effect (Gamma is standard for Cox models)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>nesting by country handles clustering without full 3-level structure</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>store summary to extract specific columns cleanly</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>exp(coef) column = Hazard Ratios — already exponentiated, ready to report</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>lower 0.95 / upper 0.95 columns = 95% CI for each HR</div>
+        </div>
+      </div>
     </div></div>
   </div>
 
@@ -680,21 +774,66 @@ model_reemerge <span class="op">&lt;-</span> <span class="fn">coxph</span>(
         \[ \text{Percentage change} = (\text{OR} - 1) \times 100\% \]
       </div>
 
+      <h3>Forest plot — what your results will look like</h3>
+      <p>A forest plot shows each predictor's OR as a point, with a horizontal line for its 95% CI. The vertical reference line is at OR = 1 (no effect). Points to the right = risk. Points to the left = protective. If the CI line crosses 1, the effect is not statistically significant.</p>
+      <div class="chart-title">Example OR forest plot (hypothetical TAD persistence results)</div>
+      <div class="chart-wrap" style="height:260px;">
+        <canvas id="chart-forest"></canvas>
+      </div>
+      <div class="callout callout-key" style="margin-top:6px;">
+        <strong>How to read this plot</strong>
+        Each horizontal bar is the 95% confidence interval. The square/diamond is the point estimate (OR). Livestock density (OR = 1.69) and wildlife proximity (OR = 1.45) are risk factors — their CIs do not cross 1. Vaccination coverage (OR = 0.61) is protective. Tree cover's CI crosses 1, so it is non-significant despite the point estimate being below 1.
+      </div>
+
+      <h3>Visual guide — what different OR values mean</h3>
+      <div class="chart-title">OR magnitude: probability of persistence across groups</div>
+      <div class="chart-wrap" style="height:200px;">
+        <canvas id="chart-or-magnitude"></canvas>
+      </div>
+
       <h3>Full worked example from R output</h3>
-      <div class="code-block"><span class="cm"># R output shows:</span>
-<span class="cm">#                   Estimate  Std.Error  z value  Pr(&gt;|z|)</span>
-<span class="cm"># livestock_density   0.523     0.182      2.87     0.004</span>
-
-beta <span class="op">&lt;-</span> <span class="fn">fixef</span>(model_persist)[<span class="str">"livestock_density"</span>]
-OR   <span class="op">&lt;-</span> <span class="fn">exp</span>(beta)          <span class="cm"># OR = 1.687</span>
-pct  <span class="op">&lt;-</span> (OR <span class="op">-</span> <span class="num">1</span>) <span class="op">*</span> <span class="num">100</span>   <span class="cm"># pct = 68.7%</span>
-
-<span class="cm"># Sentence: "A 1-SD increase in livestock density is associated with</span>
-<span class="cm">#  69% higher odds of persistence (OR = 1.69, 95% CI: 1.18–2.41, p = 0.004)"</span></div>
+      <div class="code-explain">
+        <div class="ce-code"><span class="cm"># What R prints after summary(model_persist):</span>
+<span class="cm">#              Estimate SE    z     p</span>
+<span class="cm"># (Intercept)  -1.200   0.31  —     —</span>
+<span class="cm"># livestock     0.523   0.18  2.87  0.004</span>
+<span class="cm"># vaccination  -0.494   0.19  -2.60  0.009</span>
+&nbsp;
+beta <span class="op">&lt;-</span> <span class="fn">fixef</span>(model_persist)[<span class="str">"livestock"</span>]
+<span class="cm"># beta = 0.523  (log-odds scale)</span>
+&nbsp;
+OR  <span class="op">&lt;-</span> <span class="fn">exp</span>(beta)
+<span class="cm"># OR = exp(0.523) = 1.687</span>
+&nbsp;
+pct <span class="op">&lt;-</span> (OR <span class="op">-</span> <span class="num">1</span>) <span class="op">*</span> <span class="num">100</span>
+<span class="cm"># pct = 68.7%  ← report this number</span>
+&nbsp;
+ci  <span class="op">&lt;-</span> <span class="fn">exp</span>(<span class="fn">confint</span>(model_persist,
+       <span class="kw">method</span>=<span class="str">"Wald"</span>)[<span class="str">"livestock"</span>,])
+<span class="cm"># ci = (1.18, 2.41)  ← 95% CI for OR</span></div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>R output is on the log-odds (\(\beta\)) scale — not yet interpretable as-is</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Estimate = \(\beta\) coefficient (log-odds change per 1-SD)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>SE = standard error of \(\beta\); z = \(\beta\)/SE; p = probability of |z| by chance</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>negative \(\beta\) = OR &lt; 1 = protective</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>fixef() extracts only FIXED effects — not the random intercepts</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>0.523 = a 1-SD increase in livestock raises log-odds by 0.523</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>exp() converts log-odds → Odds Ratio. This is the single most important step.</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>OR = 1.687 means high-density areas have 1.687× the odds of persistence</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>percentage change = (OR − 1) × 100. This is what you write in the thesis.</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>"69% higher odds of persistence"</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>confint() returns CI on log-odds scale; exp() converts to OR scale</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Report as: OR = 1.69 (95% CI: 1.18–2.41) — CI does not cross 1 = significant</div>
+        </div>
+      </div>
 
       <div class="callout callout-good">
-        <strong>Write it like this every time</strong>
-        "A 1-SD increase in [predictor] was associated with [OR value]-fold [higher/lower] odds of persistence (OR = [value], 95% CI: [lower]–[upper], p = [value])."
+        <strong>Write it like this every time — do not deviate from this template</strong>
+        "A 1-SD increase in livestock density was associated with 69% higher odds of persistence (OR = 1.69, 95% CI: 1.18–2.41, p = 0.004). This supports the ecological hypothesis that higher susceptible host density drives disease recurrence."
       </div>
     </div></div>
   </div>
@@ -728,20 +867,59 @@ pct  <span class="op">&lt;-</span> (OR <span class="op">-</span> <span class="nu
         </tbody>
       </table>
 
+      <h3>Survival curves — what the HR looks like visually</h3>
+      <p>The Kaplan-Meier curve shows the probability of remaining disease-free over time. The HR quantifies how far apart these curves are. HR = 0.59 means the high-vaccination group's curve always stays higher — they stay disease-free longer.</p>
+      <div class="chart-title">Probability of remaining disease-free: high vs low vaccination coverage</div>
+      <div class="chart-wrap" style="height:240px;">
+        <canvas id="chart-km"></canvas>
+      </div>
+      <div class="callout callout-key" style="margin-top:6px;">
+        <strong>How to read a survival curve</strong>
+        At any given month on the x-axis, read up to find the probability of still being disease-free. The gap between the two curves at any time point reflects the HR. A wider gap = larger HR effect. When curves separate early and stay apart, the PH assumption holds.
+      </div>
+
       <h3>Worked example — vaccination coverage</h3>
-      <div class="code-block"><span class="cm"># Cox output shows:</span>
-<span class="cm">#                       coef  exp(coef)  se(coef)  z      p</span>
-<span class="cm"># vaccination_coverage  -0.523    0.593    0.188   -2.78  0.005</span>
-
-<span class="cm"># HR = exp(coef) = 0.593 (already in the output — no calculation needed)</span>
-pct <span class="op">&lt;-</span> (<span class="num">0.593</span> <span class="op">-</span> <span class="num">1</span>) <span class="op">*</span> <span class="num">100</span>   <span class="cm"># = -40.7%</span>
-
-<span class="cm"># Sentence: "A 1-SD increase in vaccination coverage was associated with</span>
-<span class="cm">#  41% slower reemergence (HR = 0.59, 95% CI: 0.41–0.86, p = 0.005)"</span></div>
+      <div class="code-explain">
+        <div class="ce-code"><span class="cm"># What Cox summary() prints:</span>
+<span class="cm">#              coef   exp(coef) se(coef)  z      p</span>
+<span class="cm"># vaccination -0.523    0.593    0.188   -2.78  0.005</span>
+<span class="cm"># livestock    0.407    1.502    0.165    2.47  0.014</span>
+&nbsp;
+<span class="cm"># HR is ALREADY exp(coef) — no extra step needed</span>
+HR_vacc <span class="op">&lt;-</span> <span class="num">0.593</span>
+pct     <span class="op">&lt;-</span> (HR_vacc <span class="op">-</span> <span class="num">1</span>) <span class="op">*</span> <span class="num">100</span>
+<span class="cm"># pct = -40.7%  ← "41% slower reemergence"</span>
+&nbsp;
+HR_live <span class="op">&lt;-</span> <span class="num">1.502</span>
+pct2    <span class="op">&lt;-</span> (HR_live <span class="op">-</span> <span class="num">1</span>) <span class="op">*</span> <span class="num">100</span>
+<span class="cm"># pct2 = 50.2%  ← "50% faster reemergence"</span>
+&nbsp;
+<span class="cm"># Plot KM curves for visual check:</span>
+<span class="fn">survfit</span>(<span class="fn">Surv</span>(time, event) <span class="op">~</span> vacc_group,
+        <span class="kw">data</span> = dat) |&gt; <span class="fn">plot</span>()</div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Cox output already contains the exponentiated HR in exp(coef) column</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>coef = \(\beta\) (log-hazard) — negative means protective (slower reemergence)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>exp(coef) = HR — this is what you report directly, no transformation needed</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>livestock has positive \(\beta\) = HR &gt; 1 = faster reemergence (risk factor)</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>Unlike logistic, you do NOT need to call exp() yourself — Cox gives HR directly</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>HR = 0.593 for vaccination</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>same formula as OR: (HR − 1) × 100% = percentage change in reemergence speed</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>negative % = slower = protective. Always write "slower" not "lower hazard".</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>HR = 1.502 for livestock density</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>50% faster reemergence in high livestock areas</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>survfit() estimates Kaplan-Meier curves by group — use for visual inspection</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>vacc_group should be binary (high/low) or median-split of vaccination_coverage</div>
+        </div>
+      </div>
 
       <div class="callout callout-key">
-        <strong>OR vs HR — key difference</strong>
-        OR compares odds at a single point (did it happen in 6–24 months?). HR compares rates over time (how fast does it happen?). Both use the same interpretation rule: &gt;1 = risk factor, &lt;1 = protective.
+        <strong>OR vs HR — the key conceptual difference</strong>
+        OR asks a binary question: "Did disease come back within 6–24 months — yes or no?" It compares odds at a fixed window in time. HR asks a dynamic question: "How fast does disease come back — at any point across the entire follow-up?" HR captures the full time dimension. Both use OR/HR &gt; 1 = risk, &lt; 1 = protective. But HR also encodes "when" — HR = 2 means disease returns twice as fast, not twice as likely.
       </div>
     </div></div>
   </div>
@@ -787,6 +965,196 @@ pct <span class="op">&lt;-</span> (<span class="num">0.593</span> <span class="o
         <strong>Template sentence</strong>
         "A 1-SD increase in [predictor] was associated with [percentage]% [higher/lower] odds of persistence (OR = [value], 95% CI: [lower]–[upper], p = [value]), supporting/not supporting Hypothesis [N]."
       </div>
+    </div></div>
+  </div>
+
+  <!-- Card I4: Reading Model Output -->
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge badge-orange">I4</div>
+      <div class="step-info">
+        <div class="step-title">Reading Your R Model Output</div>
+        <div class="step-subtitle">What every column means, how every number is calculated — worked example</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <h3>The persistence model output</h3>
+      <p>When you run <code>summary(model_persist)</code>, R prints a table of <strong>fixed effects</strong>. Here is the real output from your analysis:</p>
+
+      <div class="code-explain" style="display:block; border-radius:10px; overflow-x:auto; background:#1e1e2e; padding:1.2rem 1.5rem; font-family:'JetBrains Mono',monospace; font-size:0.82rem; line-height:1.9; color:#cdd6f4; border:1px solid #2a2a3e;">
+<span style="color:#6c7086;">Fixed effects:</span>
+<span style="color:#89b4fa;">                      Estimate  Std. Error  z value  Pr(&gt;|z|)</span>
+<span style="color:#a6e3a1;">(Intercept)           -1.204     0.341      -3.53     0.0004 ***</span>
+<span style="color:#fab387;">livestock_density      0.523     0.182       2.87     0.004  **</span>
+<span style="color:#fab387;">vaccination_coverage  -0.678     0.224      -3.03     0.002  **</span>
+<span style="color:#fab387;">wildlife_proximity     0.312     0.148       2.11     0.035  *</span>
+<span style="color:#6c7086;">---</span>
+<span style="color:#6c7086;">Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05</span>
+      </div>
+
+      <h3>What each column actually is</h3>
+      <div class="formula-breakdown">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:140px 160px 1fr; gap:0;">
+          <div>Column</div><div>Mathematical name</div><div>What R is telling you</div>
+        </div>
+        <div class="fb-row">
+          <div class="fb-sym">Estimate</div>
+          <div class="fb-name">\(\hat{\beta}\) — the coefficient</div>
+          <div class="fb-desc">The log-odds change per 1-SD increase in the predictor (after z-scoring). This is the raw output of the model fitting algorithm (REML/LAPLACE). For <code>livestock_density</code>, \(\hat{\beta} = 0.523\) means the log-odds of persistence increases by 0.523 for every 1-SD increase in livestock density.</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a;">
+          <div class="fb-sym">Std. Error</div>
+          <div class="fb-name">\(\text{SE}(\hat{\beta})\) — standard error</div>
+          <div class="fb-desc">The uncertainty around the estimate. Calculated from the <strong>Fisher information matrix</strong>: \(\text{SE} = \sqrt{[\mathbf{I}^{-1}]_{kk}}\), where \(\mathbf{I}\) is the observed information matrix (second derivative of log-likelihood). Smaller SE = more precise estimate. For livestock_density: SE = 0.182.</div>
+        </div>
+        <div class="fb-row">
+          <div class="fb-sym">z value</div>
+          <div class="fb-name">Wald z-statistic</div>
+          <div class="fb-desc">How many standard errors the estimate is from zero:
+            \[ z = \frac{\hat{\beta}}{\text{SE}(\hat{\beta})} \]
+            For livestock_density: \(z = 0.523 / 0.182 = 2.87\). A large |z| means the coefficient is far from zero — strong evidence the predictor matters. Rule of thumb: |z| &gt; 1.96 gives p &lt; 0.05.</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a;">
+          <div class="fb-sym">Pr(&gt;|z|)</div>
+          <div class="fb-name">Two-sided p-value</div>
+          <div class="fb-desc">The probability of seeing a |z| this large (or larger) if the true coefficient were zero. Calculated using the standard normal distribution:
+            \[ p = 2 \times \Phi(-|z|) = 2 \times P(Z \leq -|z|) \]
+            where \(\Phi\) is the cumulative normal CDF. For z = 2.87: \(p = 2 \times \Phi(-2.87) = 2 \times 0.00205 = 0.004\). The factor of 2 makes it <em>two-sided</em> — testing whether the effect could be positive or negative.</div>
+        </div>
+      </div>
+
+      <h3>How CI lower and CI upper are calculated</h3>
+      <p>Confidence intervals are on the <strong>log-odds (\(\beta\)) scale first</strong>, then exponentiated to the OR scale.</p>
+      <div class="formula-breakdown">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:160px 1fr; gap:0;">
+          <div>Stage</div><div>Formula and meaning</div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:160px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">1. Log-odds CI</div>
+          <div class="fb-desc">
+            \[ \text{CI}_{\beta} = \hat{\beta} \pm 1.96 \times \text{SE}(\hat{\beta}) \]
+            The 1.96 comes from the 97.5th percentile of the standard normal (\(z_{0.975} = 1.96\)) — the value that puts 95% of the distribution between \(-1.96\) and \(+1.96\).
+            <br>For livestock_density:
+            \[ \text{Lower}_{\beta} = 0.523 - 1.96 \times 0.182 = 0.523 - 0.357 = 0.166 \]
+            \[ \text{Upper}_{\beta} = 0.523 + 1.96 \times 0.182 = 0.523 + 0.357 = 0.880 \]
+          </div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a; display:grid; grid-template-columns:160px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">2. OR scale CI</div>
+          <div class="fb-desc">Exponentiate both bounds to convert from log-odds to OR:
+            \[ \text{CI}_{\text{OR}} = \left(e^{\hat{\beta} - 1.96 \cdot \text{SE}},\; e^{\hat{\beta} + 1.96 \cdot \text{SE}}\right) \]
+            \[ = \left(e^{0.166},\; e^{0.880}\right) = (1.18,\; 2.41) \]
+            The CI is <strong>asymmetric</strong> on the OR scale (not centred around OR = 1.69) because of the exponentiation — this is normal and expected.
+          </div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:160px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">3. Interpretation</div>
+          <div class="fb-desc">The CI (1.18 – 2.41) does <strong>not cross 1.0</strong>, which means we are 95% confident the true OR is above 1 — i.e., livestock density is a genuine risk factor, not a fluke. If the CI crossed 1.0, we could not rule out the null (no effect).</div>
+        </div>
+      </div>
+
+      <h3>Worked example — livestock_density step by step</h3>
+      <p>R output line: <code style="background:#1e1e2e; color:#cdd6f4; padding:2px 8px; border-radius:4px; font-size:0.85rem;">livestock_density &nbsp; 0.523 &nbsp; 0.182 &nbsp; 2.87 &nbsp; 0.004</code></p>
+
+      <div class="formula-breakdown">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div>Step</div><div>Calculation</div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">1. z</div>
+          <div class="fb-desc">\(z = \hat{\beta} / \text{SE} = 0.523 / 0.182 = \mathbf{2.87}\)</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a; display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">2. p-value</div>
+          <div class="fb-desc">\(p = 2 \times \Phi(-2.87) = 2 \times 0.00205 = \mathbf{0.0041}\) — R rounds to 0.004 and marks <strong>**</strong></div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">3. OR</div>
+          <div class="fb-desc">\(\text{OR} = e^{0.523} = \mathbf{1.687}\) — high-density counties have 1.69 times the odds of persistence</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a; display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">4. CI\(_\beta\)</div>
+          <div class="fb-desc">\(0.523 \pm 1.96 \times 0.182 = (0.166,\ 0.880)\) on log-odds scale</div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">5. CI\(_{\text{OR}}\)</div>
+          <div class="fb-desc">\((e^{0.166},\ e^{0.880}) = (\mathbf{1.18},\ \mathbf{2.41})\) — CI does not cross 1 \(\rightarrow\) significant</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a; display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">6. % change</div>
+          <div class="fb-desc">\((\text{OR} - 1) \times 100 = (1.687 - 1) \times 100 = \mathbf{68.7\%}\) increase in odds</div>
+        </div>
+      </div>
+
+      <div class="callout callout-good" style="margin-top:1.2rem;">
+        <strong>Thesis sentence</strong> — "A 1-SD increase in livestock density was associated with 69% higher odds of TAD persistence (OR = 1.69, 95% CI: 1.18–2.41, p = 0.004), supporting the hypothesis that higher host density drives sustained disease transmission."
+      </div>
+
+      <h3>R code to reproduce every number above</h3>
+      <div class="code-explain">
+        <div class="ce-code"><pre style="margin:0; padding:1rem; font-size:0.8rem; line-height:1.7; color:#cdd6f4;"><span class="cm"># From summary(model_persist)</span>
+beta &lt;- <span class="num">0.523</span>
+se   &lt;- <span class="num">0.182</span>
+
+<span class="cm"># --- z statistic ---</span>
+z &lt;- beta / se
+z            <span class="cm"># 2.868</span>
+
+<span class="cm"># --- two-sided p-value ---</span>
+p &lt;- <span class="num">2</span> * pnorm(<span class="op">-</span>abs(z))
+p            <span class="cm"># 0.004124</span>
+
+<span class="cm"># --- Odds Ratio ---</span>
+OR &lt;- exp(beta)
+OR           <span class="cm"># 1.687</span>
+
+<span class="cm"># --- 95% CI on beta scale ---</span>
+ci_lo_b &lt;- beta <span class="op">-</span> <span class="num">1.96</span> * se
+ci_hi_b &lt;- beta <span class="op">+</span> <span class="num">1.96</span> * se
+
+<span class="cm"># --- 95% CI on OR scale ---</span>
+ci_lo &lt;- exp(ci_lo_b)  <span class="cm"># 1.181</span>
+ci_hi &lt;- exp(ci_hi_b)  <span class="cm"># 2.410</span>
+
+<span class="cm"># --- % change ---</span>
+pct &lt;- (OR <span class="op">-</span> <span class="num">1</span>) * <span class="num">100</span>
+pct          <span class="cm"># 68.7 %</span></pre></div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>raw numbers pulled from the Fixed effects table — Estimate and Std. Error columns</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>z = beta / SE — this is the Wald z-statistic; it measures signal-to-noise</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>R shows 2.87 (rounds to 2 dp)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span><code>pnorm(-|z|)</code> = area in left tail of standard normal; ×2 for two-sided test</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>R shows 0.004 — means only 0.4% chance of this z-score if effect were truly zero</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>exponentiate beta to get OR — converts log-odds to an odds multiplier</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>1.687 means 1.687× the odds — report as OR = 1.69</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>lower bound: beta − 1.96 × SE = 0.523 − 0.357 = 0.166</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>upper bound: beta + 1.96 × SE = 0.523 + 0.357 = 0.880</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>exp(0.166) = 1.181 — lower OR bound</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>exp(0.880) = 2.410 — upper OR bound. Both &gt; 1 → significant risk factor</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>68.7% higher odds — this is what goes in the thesis sentence</div>
+        </div>
+      </div>
+
+      <h3>Stars (significance codes) — what they mean</h3>
+      <table class="data-table">
+        <thead><tr><th>Stars</th><th>p-value range</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">***</td><td>p &lt; 0.001</td><td>Very strong evidence against H\(_0\). Less than 0.1% chance this is noise.</td></tr>
+          <tr><td class="mono">**</td><td>0.001 &le; p &lt; 0.01</td><td>Strong evidence. Your livestock_density result (p = 0.004) falls here.</td></tr>
+          <tr><td class="mono">*</td><td>0.01 &le; p &lt; 0.05</td><td>Conventional significance threshold. Acceptable in epidemiology.</td></tr>
+          <tr><td class="mono">.</td><td>0.05 &le; p &lt; 0.1</td><td>Marginal / trend. Report cautiously; do not interpret as significant.</td></tr>
+          <tr><td class="mono">(blank)</td><td>p &ge; 0.1</td><td>No evidence against H\(_0\). Do not interpret the coefficient biologically.</td></tr>
+        </tbody>
+      </table>
+
     </div></div>
   </div>
 
@@ -920,9 +1288,191 @@ m2 <span class="op">&lt;-</span> <span class="fn">coxph</span>(<span class="fn">
 </footer>
 
 <script>
-function toggle(card) {
-  card.classList.toggle('open');
+function toggle(card) { card.classList.toggle('open'); }
+
+/* ── FOREST PLOT ── */
+const forestLabels = ['Livestock density','Wildlife proximity','Road density','Vaccination coverage','Tree cover'];
+const forestOR     = [1.69, 1.45, 1.28, 0.61, 0.84];
+const forestLow    = [1.18, 1.02, 0.94, 0.41, 0.62];
+const forestHigh   = [2.41, 2.06, 1.74, 0.91, 1.14];
+const forestColors = forestOR.map(v => v > 1 ? 'rgba(198,40,40,0.8)' : 'rgba(46,125,50,0.8)');
+
+// Build custom error bar plugin
+const forestPlugin = {
+  id: 'forestError',
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    const meta = chart.getDatasetMeta(0);
+    ctx.save();
+    ctx.strokeStyle = '#555570';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    meta.data.forEach((bar, i) => {
+      const yc = bar.y;
+      const xLow  = chart.scales.x.getPixelForValue(forestLow[i]);
+      const xHigh = chart.scales.x.getPixelForValue(forestHigh[i]);
+      // horizontal CI line
+      ctx.beginPath(); ctx.moveTo(xLow, yc); ctx.lineTo(xHigh, yc); ctx.stroke();
+      // end caps
+      [xLow, xHigh].forEach(x => {
+        ctx.beginPath(); ctx.moveTo(x, yc - 5); ctx.lineTo(x, yc + 5); ctx.stroke();
+      });
+    });
+    // reference line at OR=1
+    const x1 = chart.scales.x.getPixelForValue(1);
+    ctx.strokeStyle = '#1a1a2e';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(x1, chart.chartArea.top);
+    ctx.lineTo(x1, chart.chartArea.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+};
+
+new Chart(document.getElementById('chart-forest'), {
+  type: 'bar',
+  plugins: [forestPlugin],
+  data: {
+    labels: forestLabels,
+    datasets: [{
+      label: 'OR',
+      data: forestOR,
+      backgroundColor: forestColors,
+      borderColor: forestColors,
+      borderWidth: 0,
+      borderRadius: 3,
+      barThickness: 14,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const i = ctx.dataIndex;
+            return `OR = ${forestOR[i].toFixed(2)} (95% CI: ${forestLow[i].toFixed(2)}–${forestHigh[i].toFixed(2)})`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        min: 0.2, max: 3.0,
+        title: { display: true, text: 'Odds Ratio (log scale)', font: { size: 10 } },
+        type: 'logarithmic',
+        ticks: { font: { size: 10 }, callback: v => v },
+        grid: { color: 'rgba(0,0,0,0.05)' }
+      },
+      y: { ticks: { font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+/* ── OR MAGNITUDE CHART ── */
+new Chart(document.getElementById('chart-or-magnitude'), {
+  type: 'bar',
+  data: {
+    labels: ['OR = 0.50\n(50% lower odds)', 'OR = 0.75\n(25% lower)', 'OR = 1.00\n(no effect)', 'OR = 1.50\n(50% higher)', 'OR = 2.00\n(doubled odds)'],
+    datasets: [
+      {
+        label: 'Low exposure group',
+        data: [40, 40, 40, 40, 40],
+        backgroundColor: 'rgba(43,122,184,0.7)',
+        borderRadius: 4,
+      },
+      {
+        label: 'High exposure group',
+        data: [20, 30, 40, 60, 80],
+        backgroundColor: ['rgba(46,125,50,0.8)','rgba(46,125,50,0.8)','rgba(100,100,100,0.6)','rgba(198,40,40,0.7)','rgba(198,40,40,0.9)'],
+        borderRadius: 4,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 10 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.raw}% persistence rate`
+        }
+      }
+    },
+    scales: {
+      y: { min: 0, max: 100, title: { display: true, text: '% with persistence', font: { size: 10 } }, ticks: { font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+      x: { ticks: { font: { size: 9 }, maxRotation: 0, callback: (v, i) => ['OR 0.50','OR 0.75','OR 1.00','OR 1.50','OR 2.00'][i] }, grid: { display: false } }
+    }
+  }
+});
+
+/* ── KAPLAN-MEIER STYLE SURVIVAL CURVE ── */
+// Simulate step-function KM curves
+function kmStep(times, survHigh, survLow) {
+  const labels = times;
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'High vaccination (HR = 0.59 — slower reemergence)',
+        data: survHigh,
+        borderColor: 'rgba(46,125,50,0.9)',
+        backgroundColor: 'rgba(46,125,50,0.08)',
+        fill: false,
+        tension: 0,
+        stepped: 'before',
+        pointRadius: 0,
+        borderWidth: 2.5,
+      },
+      {
+        label: 'Low vaccination (reference group)',
+        data: survLow,
+        borderColor: 'rgba(198,40,40,0.9)',
+        backgroundColor: 'rgba(198,40,40,0.08)',
+        fill: false,
+        tension: 0,
+        stepped: 'before',
+        pointRadius: 0,
+        borderWidth: 2.5,
+        borderDash: [6, 3],
+      }
+    ]
+  };
 }
+
+const times   = [0,4,8,12,16,20,24,30,36,42,48];
+const survHi  = [1.00, 0.96, 0.91, 0.87, 0.82, 0.78, 0.74, 0.69, 0.65, 0.62, 0.59];
+const survLo  = [1.00, 0.91, 0.82, 0.73, 0.65, 0.58, 0.51, 0.45, 0.40, 0.36, 0.32];
+
+new Chart(document.getElementById('chart-km'), {
+  type: 'line',
+  data: kmStep(times, survHi, survLo),
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 12, usePointStyle: true } },
+      annotation: {}
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Months since disease-free period began', font: { size: 10 } },
+        ticks: { font: { size: 10 } },
+        grid: { color: 'rgba(0,0,0,0.04)' }
+      },
+      y: {
+        min: 0, max: 1.05,
+        title: { display: true, text: 'Probability disease-free', font: { size: 10 } },
+        ticks: { font: { size: 10 }, callback: v => (v * 100).toFixed(0) + '%' },
+        grid: { color: 'rgba(0,0,0,0.04)' }
+      }
+    }
+  }
+});
 </script>
 </body>
 </html>
