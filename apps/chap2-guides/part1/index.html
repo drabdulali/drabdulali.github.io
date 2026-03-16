@@ -1,1079 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mixed Effects Models — Research Design</title>
-  <meta name="robots" content="noindex, nofollow">
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --green-dark:  #1a3d20;
-      --green:       #2c5530;
-      --green-mid:   #3d6b45;
-      --green-light: #4a7c59;
-      --green-pale:  #e8f5eb;
-      --blue:        #1e4a9e;
-      --blue-pale:   #e8f0fe;
-      --amber:       #b45309;
-      --amber-pale:  #fef3c7;
-      --red:         #991b1b;
-      --red-pale:    #fee2e2;
-      --purple:      #6d28d9;
-      --purple-pale: #ede9fe;
-      --text:        #0f172a;
-      --text-muted:  #475569;
-      --border:      #e2e8f0;
-      --card:        #ffffff;
-      --bg:          #f8fafc;
-    }
-
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    /* ── HEADER ── */
-    header {
-      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-light) 100%);
-      color: white;
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-    }
-    .header-inner {
-      max-width: 1300px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .header-brand { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
-    .header-brand span { opacity: 0.7; font-weight: 400; font-size: 0.9rem; display: block; }
-
-    /* ── TABS ── */
-    .tabs-bar {
-      background: var(--green-dark);
-      border-bottom: 2px solid var(--green-mid);
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .tabs-bar::-webkit-scrollbar { display: none; }
-    .tabs-inner {
-      max-width: 1300px;
-      margin: 0 auto;
-      display: flex;
-      gap: 0;
-      padding: 0 1rem;
-    }
-    .tab {
-      color: rgba(255,255,255,0.65);
-      text-decoration: none;
-      padding: 0.75rem 1.1rem;
-      font-size: 0.82rem;
-      font-weight: 500;
-      white-space: nowrap;
-      border-bottom: 3px solid transparent;
-      transition: all 0.2s;
-      display: block;
-    }
-    .tab:hover { color: white; background: rgba(255,255,255,0.07); }
-    .tab.active {
-      color: white;
-      border-bottom-color: #7dda8a;
-      background: rgba(255,255,255,0.1);
-    }
-    .tab .tab-num {
-      font-size: 0.7rem;
-      opacity: 0.55;
-      display: block;
-      margin-bottom: 1px;
-    }
-
-    /* ── HERO ── */
-    .hero {
-      background: linear-gradient(160deg, var(--green) 0%, var(--green-mid) 60%, #3a7a50 100%);
-      color: white;
-      padding: 3.5rem 2rem 2.5rem;
-      text-align: center;
-    }
-    .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .hero p { opacity: 0.88; font-size: 1rem; max-width: 640px; margin: 0 auto 2rem; }
-    .stat-row {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-      margin-top: 1.5rem;
-    }
-    .stat-box {
-      background: rgba(255,255,255,0.13);
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 10px;
-      padding: 0.9rem 1.4rem;
-      text-align: center;
-      backdrop-filter: blur(4px);
-    }
-    .stat-box .num { font-size: 1.7rem; font-weight: 700; }
-    .stat-box .lbl { font-size: 0.75rem; opacity: 0.78; margin-top: 2px; }
-
-    /* ── MAIN LAYOUT ── */
-    main {
-      max-width: 1300px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem;
-    }
-
-    /* ── SECTION TITLE ── */
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      margin-top: 3rem;
-    }
-    .section-title:first-child { margin-top: 0; }
-    .section-title .icon {
-      width: 36px; height: 36px;
-      background: var(--green);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-    .section-title h2 { font-size: 1.35rem; font-weight: 700; color: var(--green-dark); }
-    .section-title p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
-
-    /* ── CARDS ── */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .card-grid { display: grid; gap: 1rem; }
-    .card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-    .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-    .card-grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-
-    .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.6rem; }
-    .card ul { padding-left: 1.2rem; }
-    .card ul li { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.3rem; line-height: 1.5; }
-    .card ul li strong { color: var(--text); }
-
-    .card-green  { border-left: 4px solid var(--green); }
-    .card-blue   { border-left: 4px solid var(--blue); }
-    .card-amber  { border-left: 4px solid var(--amber); }
-    .card-red    { border-left: 4px solid var(--red); }
-    .card-purple { border-left: 4px solid var(--purple); }
-
-    .card-green  h3 { color: var(--green); }
-    .card-blue   h3 { color: var(--blue); }
-    .card-amber  h3 { color: var(--amber); }
-    .card-red    h3 { color: var(--red); }
-    .card-purple h3 { color: var(--purple); }
-
-    /* badge */
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.55rem;
-      border-radius: 999px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    .badge-green  { background: var(--green-pale);  color: var(--green); }
-    .badge-blue   { background: var(--blue-pale);   color: var(--blue); }
-    .badge-amber  { background: var(--amber-pale);  color: var(--amber); }
-    .badge-red    { background: var(--red-pale);    color: var(--red); }
-    .badge-purple { background: var(--purple-pale); color: var(--purple); }
-
-    /* ── FLOW DIAGRAM ── */
-    .flow-wrap {
-      overflow-x: auto;
-      padding: 1.5rem 0;
-    }
-    .flow-svg-container {
-      min-width: 800px;
-    }
-
-    /* ── FORMULA BOX ── */
-    .formula-box {
-      background: #1e293b;
-      color: #e2e8f0;
-      border-radius: 10px;
-      padding: 1.2rem 1.5rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.9rem;
-      overflow-x: auto;
-      margin: 0.75rem 0;
-      border: 1px solid #334155;
-    }
-    .formula-box .comment { color: #7dd3a8; font-style: italic; }
-    .formula-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.4rem;
-    }
-
-    /* ── DEFINITION CARDS ── */
-    .def-card {
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .def-header {
-      padding: 1rem 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      user-select: none;
-    }
-    .def-header .arrow { margin-left: auto; transition: transform 0.3s; font-size: 0.8rem; }
-    .def-header.open .arrow { transform: rotate(180deg); }
-    .def-body {
-      padding: 0 1.25rem;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease, padding 0.3s;
-    }
-    .def-body.open { max-height: 800px; padding: 0 1.25rem 1.25rem; }
-    .def-body p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.5rem; }
-
-    .def-green  .def-header { background: var(--green-pale); color: var(--green-dark); border-bottom: 1px solid #c7e8cc; }
-    .def-blue   .def-header { background: var(--blue-pale);  color: #1a3a8a; border-bottom: 1px solid #c5d9f8; }
-    .def-amber  .def-header { background: var(--amber-pale); color: #92400e; border-bottom: 1px solid #f0d58c; }
-    .def-purple .def-header { background: var(--purple-pale); color: #4c1d95; border-bottom: 1px solid #d8ccf8; }
-
-    /* ── 4-W GRID ── */
-    .four-w {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-    }
-    .w-card {
-      border-radius: 12px;
-      padding: 1.2rem 1.3rem;
-      border: 1px solid;
-    }
-    .w-card .w-letter {
-      font-size: 2rem;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 0.4rem;
-    }
-    .w-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .w-card p  { font-size: 0.82rem; line-height: 1.5; }
-
-    .w-what   { background: var(--green-pale);  border-color: #b2dab7; color: var(--green-dark); }
-    .w-which  { background: var(--blue-pale);   border-color: #b8d0f5; color: var(--blue); }
-    .w-where  { background: var(--amber-pale);  border-color: #f5d580; color: var(--amber); }
-    .w-when   { background: var(--purple-pale); border-color: #c9bef5; color: var(--purple); }
-
-    /* ── PREDICTOR CATEGORIES ── */
-    .pred-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-      gap: 0.75rem;
-    }
-    .pred-item {
-      border-radius: 10px;
-      padding: 1rem;
-      text-align: center;
-      border: 2px solid;
-    }
-    .pred-item .pred-icon { font-size: 1.6rem; margin-bottom: 0.4rem; }
-    .pred-item h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.3rem; }
-    .pred-item p  { font-size: 0.75rem; line-height: 1.4; }
-
-    /* ── STUDY DESIGN TABLE ── */
-    .design-table-wrap { overflow-x: auto; }
-    table.design-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-    .design-table thead tr { background: var(--green); color: white; }
-    .design-table th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; }
-    .design-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
-    .design-table tbody tr:hover { background: var(--green-pale); }
-    .design-table .td-label { font-weight: 600; color: var(--green-dark); white-space: nowrap; }
-    .design-table .td-decision { color: var(--text); }
-    .design-table .td-why { color: var(--text-muted); font-size: 0.8rem; }
-
-    /* ── CONTRIBUTION CARDS ── */
-    .contrib-card {
-      border-radius: 12px;
-      padding: 1.4rem;
-      border: 1px solid var(--border);
-    }
-    .contrib-card .contrib-icon { font-size: 2rem; margin-bottom: 0.6rem; }
-    .contrib-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.7rem; }
-    .contrib-card li { font-size: 0.84rem; color: var(--text-muted); margin-bottom: 0.35rem; line-height: 1.5; }
-
-    /* ── KEY NUMBERS BAR ── */
-    .num-bar {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .num-item {
-      flex: 1;
-      min-width: 130px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.1rem;
-      text-align: center;
-    }
-    .num-item .big { font-size: 1.5rem; font-weight: 800; color: var(--green); }
-    .num-item .sm  { font-size: 0.76rem; color: var(--text-muted); margin-top: 3px; }
-
-    /* ── CHART AREA ── */
-    .chart-container { position: relative; height: 220px; }
-
-    /* ── ALERT / CALLOUT ── */
-    .callout {
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-start;
-      margin: 0.5rem 0;
-    }
-    .callout-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
-    .callout-green  { background: var(--green-pale);  border: 1px solid #b6d9bc; color: var(--green-dark); }
-    .callout-blue   { background: var(--blue-pale);   border: 1px solid #b8d0f5; color: #1a3a8a; }
-    .callout-amber  { background: var(--amber-pale);  border: 1px solid #f0d08a; color: #92400e; }
-
-    /* ── STEP PIPELINE ── */
-    .pipeline {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding: 1rem 0;
-    }
-    .pipe-step {
-      flex: 1;
-      min-width: 130px;
-      text-align: center;
-      padding: 1.1rem 0.8rem;
-      border-radius: 10px;
-      position: relative;
-      border: 2px solid;
-    }
-    .pipe-step + .pipe-step::before {
-      content: '→';
-      position: absolute;
-      left: -16px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.2rem;
-      color: var(--text-muted);
-    }
-    .pipe-step .step-num { font-size: 0.7rem; font-weight: 600; opacity: 0.6; text-transform: uppercase; }
-    .pipe-step .step-title { font-size: 0.9rem; font-weight: 700; margin: 0.3rem 0; }
-    .pipe-step .step-sub { font-size: 0.76rem; opacity: 0.8; }
-
-    .pipe-1 { background: #eff6ff; border-color: #bfdbfe; color: #1e3a8a; }
-    .pipe-2 { background: #f0fdf4; border-color: #bbf7d0; color: #14532d; }
-    .pipe-3 { background: #fef3c7; border-color: #fde68a; color: #78350f; }
-    .pipe-4 { background: #ede9fe; border-color: #c4b5fd; color: #4c1d95; }
-    .pipe-5 { background: #fee2e2; border-color: #fecaca; color: #7f1d1d; }
-
-    /* ── DAG ── */
-    .dag-wrap { overflow-x: auto; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      main { padding: 1.5rem 1rem; }
-      .hero h1 { font-size: 1.5rem; }
-      .stat-row { gap: 1rem; }
-    }
-
-    /* ── SMOOTH SCROLL ── */
-    html { scroll-behavior: smooth; }
-
-    /* section anchor padding */
-    .anchor { padding-top: 1rem; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixed Effects Models — Research Design</title>
+<meta name="robots" content="noindex, nofollow">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','canvas'] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+:root {
+  --blue-light:#d6e6f5; --blue-mid:#7bafd4; --blue-dark:#2b7ab8;
+  --green-light:#d9edd9; --green-mid:#8cc98c; --green-dark:#3a9a3a;
+  --orange-light:#fde8cc; --orange-mid:#f5b85a; --orange-dark:#d4880a;
+  --purple-light:#e2d9f0; --purple-mid:#a98ad4; --purple-dark:#6b3fa0;
+  --red-light:#fde0dc; --red-dark:#c62828;
+  --bg:#f8f9fc; --text:#1a1a2e; --text-muted:#555570; --card-bg:#ffffff; --border:#e0e4ee;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+.tabs-bar{background:#0d1b2e;border-bottom:1px solid #1e3050;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:100;}
+.tabs-bar::-webkit-scrollbar{display:none;}
+.tabs-inner{max-width:1200px;margin:0 auto;display:flex;padding:0 1.5rem;}
+.tab{color:rgba(255,255,255,.55);text-decoration:none;padding:.8rem 1rem;font-size:.8rem;font-weight:500;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s;display:block;}
+.tab:hover{color:rgba(255,255,255,.85);}
+.tab.active{color:#64b5f6;border-bottom-color:#64b5f6;}
+.tab .num{font-size:.65rem;opacity:.5;display:block;margin-bottom:1px;font-family:'JetBrains Mono',monospace;}
+.hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:white;padding:60px 40px 50px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero h1{font-size:3rem;font-weight:900;letter-spacing:-1px;margin-bottom:10px;position:relative;}
+.hero h1 span{color:#64b5f6;}
+.hero .subtitle{font-size:1.1rem;font-weight:300;opacity:.85;max-width:680px;margin:0 auto 30px;position:relative;}
+.hero-stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;position:relative;}
+.hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(100,181,246,.3);border-radius:10px;padding:12px 20px;text-align:center;}
+.hero-stat .val{font-size:1.6rem;font-weight:800;color:#64b5f6;display:block;font-family:'JetBrains Mono',monospace;}
+.hero-stat .lbl{font-size:.72rem;opacity:.7;}
+.container{max-width:1000px;margin:0 auto;padding:50px 40px;}
+.phase-label{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border-radius:20px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;margin-top:44px;}
+.phase-label:first-child{margin-top:0;}
+.ph-blue{background:var(--blue-light);color:var(--blue-dark);}
+.ph-green{background:var(--green-light);color:var(--green-dark);}
+.ph-orange{background:var(--orange-light);color:var(--orange-dark);}
+.ph-purple{background:var(--purple-light);color:var(--purple-dark);}
+.ph-red{background:var(--red-light);color:var(--red-dark);}
+.step-card{background:var(--card-bg);border-radius:16px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;transition:box-shadow .3s,transform .2s;cursor:pointer;}
+.step-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-1px);}
+.step-card.open{box-shadow:0 6px 30px rgba(0,0,0,.1);}
+.step-header{display:flex;align-items:center;padding:20px 24px;gap:16px;}
+.step-badge{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;flex-shrink:0;color:white;font-family:'JetBrains Mono',monospace;position:relative;overflow:hidden;}
+.step-badge::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.15) 50%,transparent 60%);animation:shimmer 3s infinite;}
+@keyframes shimmer{0%{transform:translateX(-100%) translateY(-100%);}100%{transform:translateX(100%) translateY(100%);}}
+.b-blue{background:linear-gradient(135deg,#1565c0,#1976d2);}
+.b-green{background:linear-gradient(135deg,#2e7d32,#388e3c);}
+.b-orange{background:linear-gradient(135deg,#e65100,#f57c00);}
+.b-purple{background:linear-gradient(135deg,#4a148c,#6a1b9a);}
+.b-teal{background:linear-gradient(135deg,#004d40,#00695c);}
+.b-red{background:linear-gradient(135deg,#b71c1c,#c62828);}
+.step-info{flex:1;}
+.step-title{font-size:1.05rem;font-weight:700;margin-bottom:2px;}
+.step-subtitle{font-size:.82rem;color:var(--text-muted);}
+.step-chevron{font-size:.8rem;color:var(--text-muted);transition:transform .3s;flex-shrink:0;}
+.step-card.open .step-chevron{transform:rotate(180deg);}
+.step-content{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1);}
+.step-card.open .step-content{max-height:5000px;}
+.step-body{padding:0 24px 28px;border-top:1px solid var(--border);padding-top:22px;}
+.io-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:22px;}
+.io-box{padding:14px 16px;border-radius:10px;border:1px solid var(--border);}
+.io-box h4{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.io-box h4::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.io-in h4::before{background:var(--blue-dark);}.io-out h4::before{background:var(--green-dark);}.io-why h4::before{background:var(--orange-dark);}
+.io-box p{font-size:.85rem;color:var(--text-muted);line-height:1.5;}
+.io-in{background:#f0f7ff;}.io-in h4{color:var(--blue-dark);}
+.io-out{background:#f0faf0;}.io-out h4{color:var(--green-dark);}
+.io-why{background:#fff8f0;}.io-why h4{color:var(--orange-dark);}
+.step-body p{font-size:.9rem;color:var(--text-muted);line-height:1.7;margin-bottom:12px;}
+.step-body h3{font-size:.95rem;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.step-body ul,.step-body ol{padding-left:1.4rem;margin-bottom:12px;}
+.step-body li{font-size:.88rem;color:var(--text-muted);margin-bottom:5px;line-height:1.55;}
+.step-body li strong{color:var(--text);}
+.eq-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin:14px 0;text-align:center;overflow-x:auto;}
+.eq-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;text-align:left;}
+.eq-highlight{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border:1px solid #ffcc80;border-radius:10px;padding:16px 20px;margin:14px 0;text-align:center;}
+.eq-highlight .eq-tag{font-size:.72rem;font-weight:700;color:var(--orange-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.data-table{width:100%;border-collapse:collapse;font-size:.85rem;margin:14px 0;}
+.data-table th{background:#f0f2f8;padding:9px 14px;text-align:left;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border);}
+.data-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.data-table tr:hover td{background:#f8f9fc;}
+.td-label{font-weight:600;color:var(--text);white-space:nowrap;font-size:.85rem;}
+.td-decision{color:var(--text);font-size:.85rem;}
+.td-why{color:var(--text-muted);font-size:.8rem;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:.87rem;line-height:1.6;border-left:4px solid;}
+.callout strong{display:block;margin-bottom:4px;}
+.callout-key{background:#f0f7ff;border-color:var(--blue-dark);color:#1a3060;}
+.callout-warn{background:#fff8f0;border-color:var(--orange-dark);color:#4a2800;}
+.callout-good{background:#f0faf0;border-color:var(--green-dark);color:#1b3d1b;}
+.four-w{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:14px 0;}
+.w-card{border-radius:12px;padding:18px;border:1px solid;}
+.w-card .wl{font-size:1.8rem;font-weight:900;line-height:1;margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+.w-card h4{font-size:.82rem;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+.w-card p{font-size:.82rem;line-height:1.55;}
+.w-what{background:#f0f7ff;border-color:#b8d8f5;color:#1a3060;}
+.w-which{background:#f0faf0;border-color:#b2dab7;color:#1b3d1b;}
+.w-where{background:#fff8f0;border-color:#f5d080;color:#4a2800;}
+.w-when{background:#f5f0ff;border-color:#c9bef5;color:#3a1a6e;}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin:14px 0;}
+.pred-item{border-radius:10px;padding:14px;border:1px solid;}
+.pred-item .pl{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:900;margin-bottom:6px;}
+.pred-item h4{font-size:.82rem;font-weight:700;margin-bottom:4px;}
+.pred-item p{font-size:.78rem;line-height:1.4;}
+.p-eco{background:#f0faf0;border-color:#b2dab7;color:#14532d;}
+.p-env{background:#f0f7ff;border-color:#b8d8f5;color:#1e3a8a;}
+.p-wild{background:#fefce8;border-color:#fde047;color:#713f12;}
+.p-infr{background:#fff7ed;border-color:#fdba74;color:#7c2d12;}
+.p-inst{background:#f5f0ff;border-color:#c4b5fd;color:#4c1d95;}
+.pipeline-strip{display:flex;margin:14px 0;overflow-x:auto;}
+.pipe-step{flex:1;min-width:120px;text-align:center;padding:14px 10px;border:1px solid var(--border);background:var(--card-bg);position:relative;}
+.pipe-step:first-child{border-radius:10px 0 0 10px;}
+.pipe-step:last-child{border-radius:0 10px 10px 0;}
+.pipe-step+.pipe-step{border-left:none;}
+.pipe-step+.pipe-step::before{content:'›';position:absolute;left:-10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:1.2rem;z-index:1;}
+.pipe-step .psn{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-muted);margin-bottom:4px;}
+.pipe-step .pst{font-size:.82rem;font-weight:700;margin-bottom:3px;}
+.pipe-step .pss{font-size:.72rem;color:var(--text-muted);}
+.pipe-1{background:#eff6ff;border-color:#bfdbfe;color:#1e3a8a;}
+.pipe-2{background:#f0fdf4;border-color:#bbf7d0;color:#14532d;}
+.pipe-3{background:#fefce8;border-color:#fde68a;color:#78350f;}
+.pipe-4{background:#fdf4ff;border-color:#e9d5ff;color:#4c1d95;}
+.pipe-5{background:#fff1f2;border-color:#fecdd3;color:#881337;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0;}
+.chart-wrap{position:relative;height:200px;margin:14px 0;}
+.num-bar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;}
+.num-item{flex:1;min-width:120px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;}
+.num-item .big{font-size:1.4rem;font-weight:800;color:var(--blue-dark);font-family:'JetBrains Mono',monospace;}
+.num-item .sm{font-size:.72rem;color:var(--text-muted);margin-top:3px;}
+.dag-wrap{overflow-x:auto;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:10px;margin:14px 0;}
+footer{text-align:center;padding:40px;color:var(--text-muted);font-size:.82rem;border-top:1px solid var(--border);}
+@media(max-width:768px){
+  .hero h1{font-size:2rem;}.io-grid{grid-template-columns:1fr;}.two-col{grid-template-columns:1fr;}
+  .container{padding:30px 20px;}.hero-stats{flex-direction:column;align-items:center;}
+}
+</style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════ HEADER -->
-<header>
-  <div class="header-inner">
-    <div class="header-brand">
-      Mixed Effects Models
-      <span>TAD Persistence &amp; Reemergence · Romania ASF Case Study</span>
-    </div>
-    <div style="font-size:0.82rem;opacity:0.7;">Personal Guide · Not Public</div>
-  </div>
-</header>
-
-<!-- ══════════════════════════════════════════════════════ TABS -->
-<nav class="tabs-bar" aria-label="Guide sections">
+<nav class="tabs-bar">
   <div class="tabs-inner">
-    <a class="tab active" href="part1"><span class="tab-num">01</span>Research Design</a>
-    <a class="tab" href="part2"><span class="tab-num">02</span>Raw Data</a>
-    <a class="tab" href="part3"><span class="tab-num">03</span>Data Processing</a>
-    <a class="tab" href="part4"><span class="tab-num">04</span>Statistical Models</a>
-    <a class="tab" href="part5"><span class="tab-num">05</span>Model Validation</a>
-    <a class="tab" href="part6"><span class="tab-num">06</span>Model Diagnostics</a>
-    <a class="tab" href="part7"><span class="tab-num">07</span>Results</a>
-    <a class="tab" href="part8"><span class="tab-num">08</span>Visualizations</a>
-    <a class="tab" href="part9"><span class="tab-num">09</span>Exam Prep</a>
-    <a class="tab" href="part10"><span class="tab-num">10</span>Reemergence</a>
+    <a class="tab" href="../mems"><span class="num">00</span>MEMs</a>
+    <a class="tab active" href="../part1"><span class="num">01</span>Research Design</a>
+    <a class="tab" href="../part2"><span class="num">02</span>Raw Data</a>
+    <a class="tab" href="../part3"><span class="num">03</span>Data Processing</a>
+    <a class="tab" href="../part4"><span class="num">04</span>Statistical Models</a>
+    <a class="tab" href="../part5"><span class="num">05</span>Model Validation</a>
+    <a class="tab" href="../part6"><span class="num">06</span>Model Diagnostics</a>
+    <a class="tab" href="../part7"><span class="num">07</span>Results</a>
+    <a class="tab" href="../part8"><span class="num">08</span>Visualizations</a>
+    <a class="tab" href="../part9"><span class="num">09</span>Exam Prep</a>
+    <a class="tab" href="../part10"><span class="num">10</span>Reemergence</a>
   </div>
 </nav>
 
-<!-- ══════════════════════════════════════════════════════ HERO -->
 <div class="hero">
-  <h1>Research Design &amp; Conceptual Framework</h1>
-  <p>Foundations of the study — research questions, study design decisions, and the causal pathways linking predictors to outcomes.</p>
-  <div class="stat-row">
-    <div class="stat-box"><div class="num">1,976</div><div class="lbl">ASF Outbreaks</div></div>
-    <div class="stat-box"><div class="num">537</div><div class="lbl">Admin-2 Units</div></div>
-    <div class="stat-box"><div class="num">6 yrs</div><div class="lbl">2018 – 2024</div></div>
-    <div class="stat-box"><div class="num">404×</div><div class="lbl">Events per Variable</div></div>
-    <div class="stat-box"><div class="num">15</div><div class="lbl">TADs (Pooled)</div></div>
+  <h1>Research <span>Design</span></h1>
+  <p class="subtitle">Research questions, study design decisions, conceptual framework, and the causal pathways linking predictors to outcomes.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="val">1,976</span><span class="lbl">ASF Outbreaks</span></div>
+    <div class="hero-stat"><span class="val">537</span><span class="lbl">Admin-2 Units</span></div>
+    <div class="hero-stat"><span class="val">404 EPV</span><span class="lbl">Events per Variable</span></div>
+    <div class="hero-stat"><span class="val">15</span><span class="lbl">TADs (Pooled)</span></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ MAIN -->
-<main>
+<div class="container">
 
-  <!-- ─── 1. ANALYTICAL PIPELINE ─── -->
-  <div class="section-title anchor" id="pipeline">
-    <div class="icon">🔄</div>
-    <div>
-      <h2>Analytical Pipeline</h2>
-      <p>End-to-end flow from raw data to policy-relevant predictions</p>
-    </div>
-  </div>
+  <div class="phase-label ph-blue">Analytical Pipeline</div>
 
-  <div class="card" style="overflow-x:auto;">
-    <div class="pipeline" style="gap:1.2rem;">
-      <div class="pipe-step pipe-1">
-        <div class="step-num">Step 1</div>
-        <div class="step-title">Raw Data</div>
-        <div class="step-sub">WAHIS · GLW · FAOSTAT · MODIS</div>
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-blue">P</div>
+      <div class="step-info">
+        <div class="step-title">End-to-End Workflow</div>
+        <div class="step-subtitle">From raw surveillance data to policy-ready risk predictions</div>
       </div>
-      <div class="pipe-step pipe-2">
-        <div class="step-num">Step 2</div>
-        <div class="step-title">Processing</div>
-        <div class="step-sub">Z-score · Admin-2 merge · Temporal windows</div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+      <div class="pipeline-strip">
+        <div class="pipe-step pipe-1"><div class="psn">Step 1</div><div class="pst">Raw Data</div><div class="pss">WAHIS · GLW · FAOSTAT · MODIS</div></div>
+        <div class="pipe-step pipe-2"><div class="psn">Step 2</div><div class="pst">Processing</div><div class="pss">Z-score · Admin-2 merge</div></div>
+        <div class="pipe-step pipe-3"><div class="psn">Step 3</div><div class="pst">MEMs</div><div class="pss">Logistic + Cox PH frailty</div></div>
+        <div class="pipe-step pipe-4"><div class="psn">Step 4</div><div class="pst">Validation</div><div class="pss">10-fold CV · AUC · C-index</div></div>
+        <div class="pipe-step pipe-5"><div class="psn">Step 5</div><div class="pst">Output</div><div class="pss">OR · HR · Risk maps</div></div>
       </div>
-      <div class="pipe-step pipe-3">
-        <div class="step-num">Step 3</div>
-        <div class="step-title">MEMs</div>
-        <div class="step-sub">Logistic reg. · Cox PH with frailty</div>
+    </div></div>
+  </div>
+
+  <div class="phase-label ph-blue">Research Question</div>
+
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-blue">RQ</div>
+      <div class="step-info">
+        <div class="step-title">What, Which, Where, When</div>
+        <div class="step-subtitle">Four dimensions that fully define the study scope</div>
       </div>
-      <div class="pipe-step pipe-4">
-        <div class="step-num">Step 4</div>
-        <div class="step-title">Validation</div>
-        <div class="step-sub">10-fold CV · AUC · C-index</div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+      <div class="callout callout-key" style="margin-bottom:18px;">
+        <strong>Research question</strong>
+        What ecological, environmental, and institutional risk factors predict TAD persistence and reemergence at the admin-2 level?
       </div>
-      <div class="pipe-step pipe-5">
-        <div class="step-num">Step 5</div>
-        <div class="step-title">Output</div>
-        <div class="step-sub">OR · HR · Risk maps</div>
+      <div class="four-w">
+        <div class="w-card w-what">
+          <div class="wl">W<sub style="font-size:.55em">1</sub></div>
+          <h4>What — Outcomes</h4>
+          <p><strong>Persistence:</strong> Binary (0/1) — did disease recur within 6–24 months?<br><br>
+             <strong>Reemergence:</strong> Time-to-event — months from &ge;2 disease-free years to next outbreak</p>
+        </div>
+        <div class="w-card w-which">
+          <div class="wl">W<sub style="font-size:.55em">2</sub></div>
+          <h4>Which — Predictors</h4>
+          <p>Livestock density &middot; tree cover &middot; wildlife proximity &middot; road density &middot; vaccination coverage &middot; GDP</p>
+        </div>
+        <div class="w-card w-where">
+          <div class="wl">W<sub style="font-size:.55em">3</sub></div>
+          <h4>Where — Location</h4>
+          <p><strong>Pooled:</strong> 15 TADs across high-burden countries<br><br>
+             <strong>Case study:</strong> Romania ASF — 66,530 outbreaks, admin-2 communes</p>
+        </div>
+        <div class="w-card w-when">
+          <div class="wl">W<sub style="font-size:.55em">4</sub></div>
+          <h4>When — Period</h4>
+          <p><strong>Pooled:</strong> 2005–2025 (20 years WAHIS)<br><br>
+             <strong>Romania:</strong> 2018–2024 (post-introduction, adequate density)</p>
+        </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
-  <!-- ─── 2. RESEARCH QUESTION ─── -->
-  <div class="section-title anchor" id="rq">
-    <div class="icon">❓</div>
-    <div>
-      <h2>Research Question</h2>
-      <p>What are we trying to answer, and why does it matter?</p>
+  <div class="phase-label ph-green">Conceptual Framework</div>
+
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-green">CF</div>
+      <div class="step-info">
+        <div class="step-title">Causal Pathway — Predictors to Outcomes</div>
+        <div class="step-subtitle">Five predictor categories flow through MEMs to two outcomes</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
     </div>
+    <div class="step-content"><div class="step-body">
+      <div class="pred-grid">
+        <div class="pred-item p-eco"><div class="pl">Ec</div><h4>Ecological</h4><p>Livestock density &middot; susceptible populations &middot; herd size</p></div>
+        <div class="pred-item p-env"><div class="pl">En</div><h4>Environmental</h4><p>Tree cover &middot; climate &middot; water bodies &middot; wetlands</p></div>
+        <div class="pred-item p-wild"><div class="pl">Wi</div><h4>Wildlife Interface</h4><p>Wildlife habitat &middot; reservoir proximity &middot; forest edge</p></div>
+        <div class="pred-item p-infr"><div class="pl">In</div><h4>Infrastructure</h4><p>Road density &middot; accessibility &middot; market connectivity</p></div>
+        <div class="pred-item p-inst"><div class="pl">Is</div><h4>Institutional</h4><p>Vaccination &middot; culling rate &middot; GDP &middot; vet capacity</p></div>
+      </div>
+
+      <div class="dag-wrap">
+        <svg viewBox="0 0 860 300" width="100%" style="min-width:640px;font-family:'Inter',sans-serif;">
+          <rect width="860" height="300" fill="#f8f9fc" rx="10"/>
+          <rect x="20" y="20"  width="130" height="40" rx="7" fill="#f0faf0" stroke="#b2dab7" stroke-width="1.5"/>
+          <text x="85" y="36"  text-anchor="middle" font-size="10" font-weight="600" fill="#14532d">Ec — Ecological</text>
+          <text x="85" y="51"  text-anchor="middle" font-size="9"  fill="#166534">Livestock density</text>
+          <rect x="20" y="72"  width="130" height="40" rx="7" fill="#eff6ff" stroke="#b8d8f5" stroke-width="1.5"/>
+          <text x="85" y="88"  text-anchor="middle" font-size="10" font-weight="600" fill="#1e3a8a">En — Environmental</text>
+          <text x="85" y="103" text-anchor="middle" font-size="9"  fill="#1e40af">Tree cover &middot; Climate</text>
+          <rect x="20" y="124" width="130" height="40" rx="7" fill="#fefce8" stroke="#fde047" stroke-width="1.5"/>
+          <text x="85" y="140" text-anchor="middle" font-size="10" font-weight="600" fill="#713f12">Wi — Wildlife</text>
+          <text x="85" y="155" text-anchor="middle" font-size="9"  fill="#854d0e">Reservoir proximity</text>
+          <rect x="20" y="176" width="130" height="40" rx="7" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5"/>
+          <text x="85" y="192" text-anchor="middle" font-size="10" font-weight="600" fill="#7c2d12">In — Infrastructure</text>
+          <text x="85" y="207" text-anchor="middle" font-size="9"  fill="#9a3412">Road density</text>
+          <rect x="20" y="228" width="130" height="40" rx="7" fill="#fdf4ff" stroke="#d8b4fe" stroke-width="1.5"/>
+          <text x="85" y="244" text-anchor="middle" font-size="10" font-weight="600" fill="#4c1d95">Is — Institutional</text>
+          <text x="85" y="259" text-anchor="middle" font-size="9"  fill="#6b21a8">Vaccination &middot; GDP</text>
+          <line x1="150" y1="40"  x2="286" y2="135" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+          <line x1="150" y1="92"  x2="286" y2="148" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+          <line x1="150" y1="144" x2="286" y2="155" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+          <line x1="150" y1="196" x2="286" y2="162" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+          <line x1="150" y1="248" x2="286" y2="172" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+          <rect x="288" y="95" width="180" height="115" rx="12" fill="#1a1a2e" stroke="#2b7ab8" stroke-width="2"/>
+          <text x="378" y="120" text-anchor="middle" font-size="12" font-weight="700" fill="white">Mixed Effects</text>
+          <text x="378" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="#64b5f6">Models</text>
+          <line x1="308" y1="146" x2="448" y2="146" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+          <text x="378" y="162" text-anchor="middle" font-size="8.5" fill="#93c5fd">Model 1: logistic + RE</text>
+          <text x="378" y="175" text-anchor="middle" font-size="8.5" fill="#93c5fd">Model 2: Cox PH + frailty</text>
+          <text x="378" y="188" text-anchor="middle" font-size="8.5" fill="#93c5fd">3-level random effects</text>
+          <text x="378" y="201" text-anchor="middle" font-size="8.5" fill="#93c5fd">Z-scored predictors</text>
+          <line x1="468" y1="140" x2="590" y2="90"  stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+          <line x1="468" y1="165" x2="590" y2="215" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+          <rect x="592" y="45"  width="200" height="90" rx="10" fill="#fde0dc" stroke="#ef9a9a" stroke-width="1.5"/>
+          <text x="692" y="70"  text-anchor="middle" font-size="11" font-weight="700" fill="#7f1d1d">Outcome 1 — Persistence</text>
+          <text x="692" y="87"  text-anchor="middle" font-size="9.5" fill="#991b1b">Binary (0 / 1)</text>
+          <text x="692" y="101" text-anchor="middle" font-size="9.5" fill="#991b1b">Recurrence within 6–24 months?</text>
+          <text x="692" y="116" text-anchor="middle" font-size="9"   fill="#c62828">Result: Odds Ratio (OR)</text>
+          <rect x="592" y="168" width="200" height="90" rx="10" fill="#e2d9f0" stroke="#a98ad4" stroke-width="1.5"/>
+          <text x="692" y="193" text-anchor="middle" font-size="11" font-weight="700" fill="#3b1a6e">Outcome 2 — Reemergence</text>
+          <text x="692" y="210" text-anchor="middle" font-size="9.5" fill="#6b3fa0">Time-to-event (months)</text>
+          <text x="692" y="224" text-anchor="middle" font-size="9.5" fill="#6b3fa0">After &ge;2 disease-free years</text>
+          <text x="692" y="239" text-anchor="middle" font-size="9"   fill="#7e22ce">Result: Hazard Ratio (HR)</text>
+          <rect x="318" y="235" width="160" height="48" rx="8" fill="#fefce8" stroke="#fde047" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="398" y="254" text-anchor="middle" font-size="9.5" font-weight="600" fill="#713f12">Random Effects</text>
+          <text x="398" y="268" text-anchor="middle" font-size="9"   fill="#854d0e">Disease &#8594; Country &#8594; Admin-2</text>
+          <line x1="378" y1="210" x2="378" y2="235" stroke="#fde047" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <defs>
+            <marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#94a3b8"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+    </div></div>
   </div>
 
-  <div class="card" style="margin-bottom:1rem; background: linear-gradient(135deg,#f0fdf4,#fff); border-color:#b2dab7;">
-    <p style="font-size:1.05rem; color:var(--green-dark); font-weight:600; line-height:1.6; text-align:center;">
-      "What ecological, environmental, and institutional risk factors predict<br>
-      <em>TAD persistence and reemergence</em> at the admin-2 level?"
-    </p>
-  </div>
+  <div class="phase-label ph-orange">Model Equations</div>
 
-  <div class="four-w">
-    <div class="w-card w-what">
-      <div class="w-letter">W<sub>1</sub></div>
-      <h4>WHAT are we predicting?</h4>
-      <p><strong>Outcome 1 — Persistence:</strong> Binary (0/1) — did disease recur within 6–24 months?<br><br>
-         <strong>Outcome 2 — Reemergence:</strong> Time-to-event (months) — how long after ≥2 disease-free years until next outbreak?</p>
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-orange">M1</div>
+      <div class="step-info">
+        <div class="step-title">Mixed-Effects Logistic Regression — Persistence</div>
+        <div class="step-subtitle">Binary outcome: 0/1 recurrence within 6–24 months</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
     </div>
-    <div class="w-card w-which">
-      <div class="w-letter">W<sub>2</sub></div>
-      <h4>WHICH risk factors?</h4>
-      <p>Livestock density · Tree cover · Wildlife proximity · Road density · Vaccination/culling coverage · GDP</p>
-    </div>
-    <div class="w-card w-where">
-      <div class="w-letter">W<sub>3</sub></div>
-      <h4>WHERE?</h4>
-      <p><strong>Pooled:</strong> 15 TADs across high-burden countries.<br><br>
-         <strong>Case study:</strong> Romania (ASF) — 66,530 outbreaks, highest global burden, admin-2 communes.</p>
-    </div>
-    <div class="w-card w-when">
-      <div class="w-letter">W<sub>4</sub></div>
-      <h4>WHEN?</h4>
-      <p><strong>Pooled:</strong> 2005–2025 (20 years of WAHIS data).<br><br>
-         <strong>Romania ASF:</strong> 2018–2024 (post-introduction, sufficient outbreak density).</p>
-    </div>
-  </div>
-
-  <!-- ─── 3. WHY IT MATTERS ─── -->
-  <div class="section-title anchor" id="why">
-    <div class="icon">💡</div>
-    <div>
-      <h2>Why This Matters</h2>
-      <p>Scientific, methodological, and policy justifications</p>
-    </div>
-  </div>
-
-  <div class="card-grid card-grid-3">
-    <div class="card card-green">
-      <span class="badge badge-green">Scientific</span>
-      <h3>Knowledge Gap</h3>
+    <div class="step-content"><div class="step-body">
+      <div class="io-grid">
+        <div class="io-box io-in"><h4>Input</h4><p>Binary persistence (0/1) + z-scored predictors</p></div>
+        <div class="io-box io-out"><h4>Output</h4><p>Odds Ratios (OR = \(e^\beta\)) with 95% CI</p></div>
+        <div class="io-box io-why"><h4>Why</h4><p>Binary outcome requires logistic link. Mixed effects handles clustering across disease/country/admin-2.</p></div>
+      </div>
+      <div class="eq-block">
+        <div class="eq-label">Logistic regression with nested random effects</div>
+        \[ \log\!\left(\frac{P_{ij}}{1 - P_{ij}}\right) = \underbrace{\beta_0 + \sum_{k=1}^{K} \beta_k z_{kij}}_{\text{fixed effects}} + \underbrace{u_{\text{disease}} + u_{\text{country}} + u_{\text{admin2}}}_{\text{random effects}} \]
+      </div>
       <ul>
-        <li>Most TAD research focuses on <strong>initial</strong> outbreak, not <em>recurrence</em></li>
-        <li>Persistence and reemergence have <strong>different drivers</strong> than first introductions</li>
-        <li>Current models predict presence/absence — not <strong>temporal dynamics</strong></li>
-        <li>Tests disease ecology principles on recurrence risk</li>
+        <li>\(P_{ij}\) = probability of persistence for outbreak \(i\) in group \(j\)</li>
+        <li>\(z_{kij}\) = z-scored predictor \(k\) — standardised so all \(\beta_k\) are comparable</li>
+        <li>\(\beta_k\) = log-odds coefficient; convert via \(\text{OR}_k = e^{\beta_k}\)</li>
+        <li>\(u_j \sim \mathcal{N}(0, \sigma^2)\) = random intercept absorbing between-group variation</li>
       </ul>
-    </div>
-    <div class="card card-blue">
-      <span class="badge badge-blue">Methodological</span>
-      <h3>Innovation</h3>
-      <ul>
-        <li>Two complementary models: <strong>logistic regression</strong> (persistence) + <strong>Cox PH</strong> (reemergence)</li>
-        <li>Integrates <strong>four databases</strong>: WAHIS + GLW + FAOSTAT + remote sensing</li>
-        <li>Spatial epidemiology applied to <strong>longitudinal</strong> TAD data</li>
-        <li>Reproducible framework for other diseases</li>
-      </ul>
-    </div>
-    <div class="card card-amber">
-      <span class="badge badge-amber">Policy</span>
-      <h3>Real-World Impact</h3>
-      <ul>
-        <li>ASF costs Romania <strong>$100M+/year</strong> (culling, trade restrictions)</li>
-        <li>Enables <strong>risk-based surveillance</strong> — targeted, not blanket</li>
-        <li>Shifts from <em>reactive</em> to <strong>proactive</strong> prevention</li>
-        <li>10–20% recurrence reduction saves millions</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- ─── 4. PREDICTORS ─── -->
-  <div class="section-title anchor" id="predictors">
-    <div class="icon">🔬</div>
-    <div>
-      <h2>Predictor Categories</h2>
-      <p>Five mechanistic pathways linking environment to disease recurrence</p>
-    </div>
-  </div>
-
-  <div class="pred-grid">
-    <div class="pred-item" style="background:#f0fdf4;border-color:#86efac;color:#14532d;">
-      <div class="pred-icon">🐄</div>
-      <h4>Ecological</h4>
-      <p>Livestock density · susceptible animal populations · herd size distribution</p>
-    </div>
-    <div class="pred-item" style="background:#eff6ff;border-color:#93c5fd;color:#1e3a8a;">
-      <div class="pred-icon">🌲</div>
-      <h4>Environmental</h4>
-      <p>Tree cover (MODIS) · climate (WorldClim) · water bodies · wetlands</p>
-    </div>
-    <div class="pred-item" style="background:#fefce8;border-color:#fde047;color:#713f12;">
-      <div class="pred-icon">🐗</div>
-      <h4>Wildlife Interface</h4>
-      <p>Wildlife habitat · disease reservoir proximity · forest edge density</p>
-    </div>
-    <div class="pred-item" style="background:#fff7ed;border-color:#fdba74;color:#7c2d12;">
-      <div class="pred-icon">🛣️</div>
-      <h4>Infrastructure</h4>
-      <p>Road density · accessibility index · connectivity to markets</p>
-    </div>
-    <div class="pred-item" style="background:#fdf4ff;border-color:#d8b4fe;color:#581c87;">
-      <div class="pred-icon">🏛️</div>
-      <h4>Institutional</h4>
-      <p>Vaccination coverage · culling rate · GDP · veterinary capacity</p>
-    </div>
-  </div>
-
-  <!-- ─── 5. CONCEPTUAL FRAMEWORK (DAG) ─── -->
-  <div class="section-title anchor" id="dag">
-    <div class="icon">🗺️</div>
-    <div>
-      <h2>Conceptual Framework</h2>
-      <p>Causal pathway from risk factors → mixed effects model → outcomes</p>
-    </div>
-  </div>
-
-  <div class="card dag-wrap">
-    <svg viewBox="0 0 900 380" width="100%" style="min-width:700px;font-family:'Segoe UI',sans-serif;">
-      <!-- BG -->
-      <rect width="900" height="380" fill="#f8fafc" rx="12"/>
-
-      <!-- ── LEFT: PREDICTOR BOXES ── -->
-      <!-- Ecological -->
-      <rect x="20" y="30" width="150" height="48" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
-      <text x="95" y="50" text-anchor="middle" font-size="11" font-weight="600" fill="#14532d">🐄 Ecological</text>
-      <text x="95" y="66" text-anchor="middle" font-size="9.5" fill="#166534">Livestock density</text>
-
-      <!-- Environmental -->
-      <rect x="20" y="95" width="150" height="48" rx="8" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
-      <text x="95" y="115" text-anchor="middle" font-size="11" font-weight="600" fill="#1e3a8a">🌲 Environmental</text>
-      <text x="95" y="131" text-anchor="middle" font-size="9.5" fill="#1e40af">Tree cover, Climate</text>
-
-      <!-- Wildlife -->
-      <rect x="20" y="160" width="150" height="48" rx="8" fill="#fefce8" stroke="#fde047" stroke-width="1.5"/>
-      <text x="95" y="180" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">🐗 Wildlife Interface</text>
-      <text x="95" y="196" text-anchor="middle" font-size="9.5" fill="#854d0e">Reservoir proximity</text>
-
-      <!-- Infrastructure -->
-      <rect x="20" y="225" width="150" height="48" rx="8" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5"/>
-      <text x="95" y="245" text-anchor="middle" font-size="11" font-weight="600" fill="#7c2d12">🛣️ Infrastructure</text>
-      <text x="95" y="261" text-anchor="middle" font-size="9.5" fill="#9a3412">Road density</text>
-
-      <!-- Institutional -->
-      <rect x="20" y="290" width="150" height="48" rx="8" fill="#fdf4ff" stroke="#d8b4fe" stroke-width="1.5"/>
-      <text x="95" y="310" text-anchor="middle" font-size="11" font-weight="600" fill="#581c87">🏛️ Institutional</text>
-      <text x="95" y="326" text-anchor="middle" font-size="9.5" fill="#6b21a8">Vaccination, GDP</text>
-
-      <!-- ── ARROWS LEFT → MEM ── -->
-      <line x1="170" y1="54"  x2="310" y2="165" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="170" y1="119" x2="310" y2="175" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="170" y1="184" x2="310" y2="185" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="170" y1="249" x2="310" y2="195" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="170" y1="314" x2="310" y2="205" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
-
-      <!-- ── CENTRE: MEM BOX ── -->
-      <rect x="310" y="120" width="200" height="130" rx="12" fill="#2c5530" stroke="#1a3d20" stroke-width="2"/>
-      <text x="410" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="white">Mixed Effects</text>
-      <text x="410" y="165" text-anchor="middle" font-size="13" font-weight="700" fill="white">Models</text>
-      <line x1="340" y1="175" x2="480" y2="175" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-      <text x="410" y="194" text-anchor="middle" font-size="9.5" fill="#a7d5ae">Model 1: Logistic + RE</text>
-      <text x="410" y="210" text-anchor="middle" font-size="9.5" fill="#a7d5ae">Model 2: Cox PH + Frailty</text>
-      <text x="410" y="226" text-anchor="middle" font-size="9.5" fill="#a7d5ae">Clustering by disease/country</text>
-      <text x="410" y="242" text-anchor="middle" font-size="9.5" fill="#a7d5ae">Z-scored predictors</text>
-
-      <!-- ── ARROWS MEM → OUTCOMES ── -->
-      <line x1="510" y1="165" x2="630" y2="120" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="510" y1="205" x2="630" y2="255" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
-
-      <!-- ── RIGHT: OUTCOMES ── -->
-      <!-- Persistence -->
-      <rect x="630" y="70" width="190" height="100" rx="10" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/>
-      <text x="725" y="96" text-anchor="middle" font-size="12" font-weight="700" fill="#7f1d1d">Outcome 1</text>
-      <text x="725" y="112" text-anchor="middle" font-size="11" font-weight="600" fill="#991b1b">Persistence</text>
-      <text x="725" y="128" text-anchor="middle" font-size="9.5" fill="#b91c1c">Binary (0/1)</text>
-      <text x="725" y="143" text-anchor="middle" font-size="9.5" fill="#b91c1c">Recurrence within 6–24 mo?</text>
-      <text x="725" y="158" text-anchor="middle" font-size="9" fill="#ef4444">→ Odds Ratio</text>
-
-      <!-- Reemergence -->
-      <rect x="630" y="205" width="190" height="100" rx="10" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1.5"/>
-      <text x="725" y="231" text-anchor="middle" font-size="12" font-weight="700" fill="#4c1d95">Outcome 2</text>
-      <text x="725" y="247" text-anchor="middle" font-size="11" font-weight="600" fill="#5b21b6">Reemergence</text>
-      <text x="725" y="263" text-anchor="middle" font-size="9.5" fill="#6d28d9">Time-to-event (months)</text>
-      <text x="725" y="278" text-anchor="middle" font-size="9.5" fill="#6d28d9">After ≥2 disease-free years</text>
-      <text x="725" y="293" text-anchor="middle" font-size="9" fill="#7c3aed">→ Hazard Ratio</text>
-
-      <!-- ── RANDOM EFFECTS NOTE ── -->
-      <rect x="340" y="295" width="180" height="58" rx="8" fill="#fef9c3" stroke="#fde047" stroke-width="1.5" stroke-dasharray="4,3"/>
-      <text x="430" y="315" text-anchor="middle" font-size="10" font-weight="600" fill="#713f12">Random Effects</text>
-      <text x="430" y="330" text-anchor="middle" font-size="9.5" fill="#854d0e">Disease → Country → Admin-2</text>
-      <text x="430" y="345" text-anchor="middle" font-size="9.5" fill="#854d0e">Accounts for clustering</text>
-      <line x1="410" y1="250" x2="410" y2="295" stroke="#fde047" stroke-width="1.5" stroke-dasharray="4,3"/>
-
-      <!-- Arrow marker -->
-      <defs>
-        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
-        </marker>
-      </defs>
-    </svg>
-  </div>
-
-  <!-- ─── 6. MODEL FORMULAS ─── -->
-  <div class="section-title anchor" id="formulas">
-    <div class="icon">∑</div>
-    <div>
-      <h2>Model Formulas</h2>
-      <p>The mathematical foundation of mixed effects models</p>
-    </div>
-  </div>
-
-  <div class="card-grid card-grid-2">
-    <div class="card card-red">
-      <span class="badge badge-red">Model 1 — Persistence</span>
-      <h3>Mixed-Effects Logistic Regression</h3>
-      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">For binary outcome: did disease recur within 6–24 months?</p>
-      <div class="formula-label">General form</div>
-      <div class="formula-box">
-        \[ \text{logit}(p_{ij}) = \beta_0 + \sum_{k=1}^{K} \beta_k x_{kij} + u_j \]
-        <span class="comment">// u_j ~ N(0, σ²) is the random effect for group j</span>
+      <div class="callout callout-good">
+        <strong>Why random effects are essential</strong>
+        Without \(u_j\), standard errors are underestimated, p-values are too small, and you get false positives. The random intercepts absorb systematic between-group differences (e.g. ASF persists more than FMD at baseline), leaving the \(\beta_k\) to cleanly estimate predictor effects.
       </div>
-      <div class="formula-label" style="margin-top:0.75rem;">Interpretation</div>
-      <ul style="font-size:0.82rem;color:var(--text-muted);padding-left:1.2rem;">
-        <li><strong>β_k</strong> — log-odds change per 1 SD increase in predictor k</li>
-        <li><strong>exp(β_k)</strong> — Odds Ratio (OR): how much more likely recurrence?</li>
-        <li><strong>u_j</strong> — random intercept capturing unobserved clustering</li>
-        <li><strong>OR > 1</strong> → increases risk · <strong>OR &lt; 1</strong> → protective</li>
-      </ul>
-    </div>
+    </div></div>
+  </div>
 
-    <div class="card card-purple">
-      <span class="badge badge-purple">Model 2 — Reemergence</span>
-      <h3>Cox PH with Gamma Frailty</h3>
-      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">Time-to-event: months from disease-free period to next outbreak</p>
-      <div class="formula-label">General form</div>
-      <div class="formula-box">
-        \[ h(t \mid x_i, b_j) = h_0(t) \cdot b_j \cdot \exp\!\left(\sum_{k=1}^{K} \beta_k x_{ki}\right) \]
-        <span class="comment">// b_j ~ Gamma(1/θ, 1/θ) is the frailty (random effect)</span>
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-purple">M2</div>
+      <div class="step-info">
+        <div class="step-title">Cox Proportional Hazards with Gamma Frailty — Reemergence</div>
+        <div class="step-subtitle">Time-to-event: months from disease-free period to next outbreak</div>
       </div>
-      <div class="formula-label" style="margin-top:0.75rem;">Interpretation</div>
-      <ul style="font-size:0.82rem;color:var(--text-muted);padding-left:1.2rem;">
-        <li><strong>h₀(t)</strong> — baseline hazard: underlying reemergence rate</li>
-        <li><strong>exp(β_k)</strong> — Hazard Ratio (HR): speed of reemergence</li>
-        <li><strong>b_j</strong> — frailty term for unobserved disease/country clustering</li>
-        <li><strong>HR > 1</strong> → faster reemergence · <strong>HR &lt; 1</strong> → slower</li>
-      </ul>
+      <div class="step-chevron">&#9660;</div>
     </div>
-  </div>
-
-  <!-- Random effects equation -->
-  <div class="card" style="margin-top:1rem;">
-    <span class="badge badge-green">Why Mixed Effects?</span>
-    <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--green-dark);">The full mixed effects structure</h3>
-    <div class="formula-box">
-      \[ \mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{u} + \boldsymbol{\varepsilon} \]
-      <span class="comment">
-// Y = outcomes  |  Xβ = fixed effects (your predictors)
-// Zu = random effects (disease, country, admin-2 clustering)
-// ε  = residual error
-      </span>
-    </div>
-    <div class="callout callout-green" style="margin-top:0.75rem;">
-      <span class="callout-icon">✅</span>
-      <span><strong>Why not simple logistic/Cox?</strong> Outbreaks within the same commune, country, or disease are correlated — ignoring this inflates false positives. Mixed effects correctly partition variance between within-group and between-group sources.</span>
-    </div>
-  </div>
-
-  <!-- ─── 7. KEY DEFINITIONS ─── -->
-  <div class="section-title anchor" id="definitions">
-    <div class="icon">📖</div>
-    <div>
-      <h2>Key Definitions</h2>
-      <p>Click each term to expand the full definition and justification</p>
-    </div>
-  </div>
-
-  <div style="display:flex;flex-direction:column;gap:0.75rem;">
-
-    <div class="def-card def-green">
-      <div class="def-header" onclick="toggleDef(this)">
-        <span>🔴</span>
-        <span><strong>Persistence</strong> — Binary outcome, the "did it come back?" question</span>
-        <span class="arrow">▼</span>
+    <div class="step-content"><div class="step-body">
+      <div class="io-grid">
+        <div class="io-box io-in"><h4>Input</h4><p>Survival time (months) + event indicator (1 = reemerged, 0 = censored)</p></div>
+        <div class="io-box io-out"><h4>Output</h4><p>Hazard Ratios (HR = \(e^\beta\)) — already in <code>exp(coef)</code> column of summary</p></div>
+        <div class="io-box io-why"><h4>Why Cox</h4><p>Handles right-censoring. Frailty is a multiplicative random effect for clustering. No distributional assumption on \(h_0(t)\).</p></div>
       </div>
-      <div class="def-body">
-        <p><strong>Definition:</strong> A binary variable (0/1) indicating whether disease recurred at the same admin-2 unit within <strong>6–24 months</strong> of the index outbreak.</p>
-        <p><strong>Why 6 months lower bound?</strong> Eliminates surveillance artifacts — a new case within 6 months likely reflects incomplete control of the same wave, not a true new event.</p>
-        <p><strong>Why 24 months upper bound?</strong> Beyond 24 months, an area transitions to the "reemergence" definition (≥2 disease-free years). The two outcomes are mutually exclusive by design.</p>
-        <div class="formula-box" style="margin-top:0.5rem;">Persistence<sub>ij</sub> = 1  if  outbreak occurs at unit j within [6, 24] months of event i<br>Persistence<sub>ij</sub> = 0  otherwise (disease-free or censored)</div>
+      <div class="eq-block">
+        <div class="eq-label">Cox PH with gamma frailty</div>
+        \[ h(t \mid \mathbf{z}_i,\, b_j) = h_0(t) \cdot b_j \cdot \exp\!\left(\sum_{k=1}^{K} \beta_k z_{ki}\right) \]
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;text-align:left;">\(h_0(t)\) = baseline hazard &nbsp;&middot;&nbsp; \(b_j \sim \text{Gamma}(1/\theta,\,1/\theta)\) = frailty &nbsp;&middot;&nbsp; \(\text{HR}_k = e^{\beta_k}\)</p>
       </div>
-    </div>
-
-    <div class="def-card def-purple">
-      <div class="def-header" onclick="toggleDef(this)">
-        <span>🟣</span>
-        <span><strong>Reemergence</strong> — Time-to-event outcome, the "when did it come back?" question</span>
-        <span class="arrow">▼</span>
+      <div class="eq-highlight">
+        <div class="eq-tag">General mixed model form</div>
+        \[ \mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{u} + \boldsymbol{\varepsilon} \]
+        <p style="font-size:.8rem;color:#555;margin-top:6px;">\(\mathbf{X}\boldsymbol{\beta}\) = fixed effects &nbsp;&middot;&nbsp; \(\mathbf{Z}\mathbf{u}\) = random effects &nbsp;&middot;&nbsp; \(\boldsymbol{\varepsilon}\) = residual</p>
       </div>
-      <div class="def-body">
-        <p><strong>Definition:</strong> The time (in months) from the start of a disease-free period (≥2 consecutive years with zero reported outbreaks) until the next confirmed outbreak at the same admin-2 unit.</p>
-        <p><strong>Why ≥2 years for disease-free?</strong> Two years ensures the area has cleared infection and susceptible population has rebuilt. Shorter periods cannot distinguish reintroduction from persistent low-level transmission.</p>
-        <p><strong>Right-censoring:</strong> Units that do not experience reemergence by study end (2024) are censored — their time-to-event is known to be <em>at least</em> the follow-up period. Cox PH handles censoring correctly, unlike logistic regression.</p>
-        <div class="formula-box" style="margin-top:0.5rem;">T<sub>j</sub> = time from disease-free start → reemergence event at unit j<br>δ<sub>j</sub> = 1 if reemergence observed; δ<sub>j</sub> = 0 if censored</div>
-      </div>
-    </div>
-
-    <div class="def-card def-blue">
-      <div class="def-header" onclick="toggleDef(this)">
-        <span>🔵</span>
-        <span><strong>Z-Scoring</strong> — Why all predictors are standardised before modelling</span>
-        <span class="arrow">▼</span>
-      </div>
-      <div class="def-body">
-        <p><strong>Definition:</strong> Each continuous predictor x is transformed to z = (x − μ) / σ, where μ is the mean and σ the standard deviation across all observations.</p>
-        <p><strong>Why?</strong> Predictors are on completely different scales: livestock density (animals/km²), GDP (USD), road density (km/km²). Without z-scoring, coefficients cannot be compared — a "1-unit" change means something different for each variable.</p>
-        <p><strong>After z-scoring:</strong> A β of 0.5 means "a 1 SD increase in this predictor is associated with..." — directly comparable across all predictors. This also improves numerical stability of model fitting.</p>
-        <div class="formula-box" style="margin-top:0.5rem;">\[ z_{kj} = \frac{x_{kj} - \bar{x}_k}{s_k} \]<br><span class="comment">// Result: all predictors have mean=0, SD=1</span></div>
-      </div>
-    </div>
-
-    <div class="def-card def-amber">
-      <div class="def-header" onclick="toggleDef(this)">
-        <span>🟡</span>
-        <span><strong>Admin-2 Level</strong> — Why commune/county is the right spatial scale</span>
-        <span class="arrow">▼</span>
-      </div>
-      <div class="def-body">
-        <p><strong>Definition:</strong> Admin-2 refers to the second administrative division — in Romania these are communes (~3,181 total), roughly equivalent to townships or small counties.</p>
-        <p><strong>Why not farm-level?</strong> WAHIS does not provide exact GPS coordinates (privacy). Farm-level analysis is impossible with available data.</p>
-        <p><strong>Why not admin-1 (county)?</strong> Too coarse — misses within-province heterogeneity in land use, livestock density, and road infrastructure that drives transmission differences.</p>
-        <p><strong>Why admin-2 is optimal:</strong> It matches the veterinary control unit, is the scale at which culling/vaccination decisions are made, and provides adequate sample size (537 affected communes).</p>
-      </div>
-    </div>
-
+    </div></div>
   </div>
 
-  <!-- ─── 8. STUDY DESIGN TABLE ─── -->
-  <div class="section-title anchor" id="design">
-    <div class="icon">📋</div>
-    <div>
-      <h2>Study Design at a Glance</h2>
-      <p>Every major design decision with its justification — ready for exam or peer review</p>
-    </div>
-  </div>
+  <div class="phase-label ph-purple">Key Definitions</div>
 
-  <div class="card design-table-wrap">
-    <table class="design-table">
-      <thead>
-        <tr>
-          <th>Component</th>
-          <th>Decision</th>
-          <th>Justification</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="td-label">Study Type</td>
-          <td class="td-decision">Observational, retrospective cohort with spatial epidemiological design</td>
-          <td class="td-why">Can't randomize disease exposure. Uses existing 20-yr WAHIS records. Disease transmission is inherently spatial.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Outcome 1</td>
-          <td class="td-decision">Binary — recurrence within 6–24 months</td>
-          <td class="td-why">Matches policy question (yes/no recurring risk). 6–24 month window avoids surveillance artifacts and overlaps with reemergence.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Outcome 2</td>
-          <td class="td-decision">Time-to-event — months to reemergence after ≥2 disease-free years</td>
-          <td class="td-why">Captures temporal dynamics. Handles right-censoring. ≥2 years distinguishes true reintroduction from persistence.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Statistical Model 1</td>
-          <td class="td-decision">Mixed-effects logistic regression</td>
-          <td class="td-why">Binary outcome → logistic. Random effects → clustering by disease/country/admin-2. Odds ratios are policy-relevant.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Statistical Model 2</td>
-          <td class="td-decision">Cox PH with gamma frailty</td>
-          <td class="td-why">Time-to-event standard. Frailty = random effects for clustering. Correctly handles censored observations.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Unit of Analysis</td>
-          <td class="td-decision">Admin-2 (commune/county)</td>
-          <td class="td-why">WAHIS reports at admin-2. Matches veterinary control units. Best balance of spatial resolution and sample size.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Study Location</td>
-          <td class="td-decision">Pooled: 15 TADs in high-burden countries + case study: Romania (ASF)</td>
-          <td class="td-why">Pooled tests generalizability. Romania: highest ASF burden (66K outbreaks), complete data, represents Europe.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Study Period</td>
-          <td class="td-decision">Pooled: 2005–2025 · Romania: 2018–2024</td>
-          <td class="td-why">20 years = comprehensive WAHIS coverage. Romania: post-introduction + sufficient outbreak density from 2018.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Sample Size</td>
-          <td class="td-decision">1,976 outbreaks · 537 admin-2 units · 6 years</td>
-          <td class="td-why">404 EPV (events per variable) — 40× higher than the 10 EPV minimum. Extremely stable estimates, minimal overfitting risk.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Variable Selection</td>
-          <td class="td-decision">Univariate screening + expert knowledge + correlation analysis</td>
-          <td class="td-why">Univariate: p&lt;0.25 threshold. Expert: biological plausibility. Correlation: r&gt;0.7 → remove redundant. Balances stats with mechanism.</td>
-        </tr>
-        <tr>
-          <td class="td-label">Validation</td>
-          <td class="td-decision">70/30 train-test split + 10-fold CV</td>
-          <td class="td-why">Stratified split ensures balanced outcomes. 10-fold CV detects overfitting within training set.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- ─── 9. KEY NUMBERS VISUAL ─── -->
-  <div class="section-title anchor" id="numbers">
-    <div class="icon">📊</div>
-    <div>
-      <h2>Romania ASF by the Numbers</h2>
-      <p>Why Romania is the right case study</p>
-    </div>
-  </div>
-
-  <div class="card-grid card-grid-2" style="margin-bottom:1rem;">
-    <div class="card">
-      <h3 style="font-size:0.9rem;color:var(--text-muted);margin-bottom:1rem;">Outbreak density over time (Romania ASF, 2018–2024)</h3>
-      <div class="chart-container">
-        <canvas id="outbreakChart"></canvas>
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-blue">D1</div>
+      <div class="step-info">
+        <div class="step-title">Persistence — Definition and Operationalisation</div>
+        <div class="step-subtitle">Binary outcome: the "did it come back?" question</div>
       </div>
+      <div class="step-chevron">&#9660;</div>
     </div>
-    <div class="card">
-      <h3 style="font-size:0.9rem;color:var(--text-muted);margin-bottom:1rem;">Affected admin-2 units by outcome type</h3>
-      <div class="chart-container">
-        <canvas id="outcomeChart"></canvas>
+    <div class="step-content"><div class="step-body">
+      <p><strong>Definition:</strong> A binary variable indicating whether disease recurred at the same admin-2 unit within 6–24 months of the index outbreak.</p>
+      <div class="eq-block">
+        \[ \text{Persistence}_{ij} = \begin{cases} 1 & \text{outbreak at unit } j \text{ within } [6,\,24] \text{ months of event } i \\ 0 & \text{otherwise} \end{cases} \]
       </div>
-    </div>
+      <div class="two-col">
+        <div class="callout callout-key" style="margin:0;">
+          <strong>Why 6-month lower bound?</strong>
+          A new case within 6 months likely reflects incomplete control of the same wave, not a true new event. Removing &lt;6 months eliminates surveillance artifacts.
+        </div>
+        <div class="callout callout-key" style="margin:0;">
+          <strong>Why 24-month upper bound?</strong>
+          Beyond 24 months an area transitions to the reemergence definition (&ge;2 disease-free years). The two outcomes are mutually exclusive by design.
+        </div>
+      </div>
+    </div></div>
   </div>
 
-  <div class="num-bar">
-    <div class="num-item"><div class="big">66,530</div><div class="sm">Total ASF outbreaks in Romania (global record)</div></div>
-    <div class="num-item"><div class="big">1,976</div><div class="sm">Outbreaks in modelling period 2018–2024</div></div>
-    <div class="num-item"><div class="big">537</div><div class="sm">Affected communes (16.9% of 3,181 total)</div></div>
-    <div class="num-item"><div class="big">404 EPV</div><div class="sm">Events per variable — 40× the 10 EPV minimum</div></div>
-    <div class="num-item"><div class="big">$100M+</div><div class="sm">Annual ASF cost to Romania</div></div>
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-purple">D2</div>
+      <div class="step-info">
+        <div class="step-title">Reemergence — Definition and Operationalisation</div>
+        <div class="step-subtitle">Time-to-event: the "when did it come back?" question</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+      <p><strong>Definition:</strong> Time (months) from the start of a disease-free period (&ge;2 consecutive years) until the next confirmed outbreak at the same admin-2 unit.</p>
+      <div class="eq-block">
+        \[ T_j = \text{months from disease-free start} \;\to\; \text{reemergence at unit } j \]
+        \[ \delta_j = \begin{cases} 1 & \text{reemergence observed before study end} \\ 0 & \text{right-censored (no event by 2024)} \end{cases} \]
+      </div>
+      <div class="callout callout-warn">
+        <strong>Why &ge;2 years for disease-free?</strong>
+        Ensures the area has cleared infection and the susceptible population has rebuilt. Shorter periods cannot distinguish reintroduction from persistent low-level transmission. The Cox model correctly handles all censored observations — their follow-up time contributes to the likelihood without bias.
+      </div>
+    </div></div>
   </div>
 
-  <!-- ─── 10. EXPECTED CONTRIBUTIONS ─── -->
-  <div class="section-title anchor" id="contributions">
-    <div class="icon">🎯</div>
-    <div>
-      <h2>Expected Contributions</h2>
-      <p>What this work adds to science, methods, and policy</p>
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-teal">D3</div>
+      <div class="step-info">
+        <div class="step-title">Z-Scoring — Why All Predictors Are Standardised</div>
+        <div class="step-subtitle">Enables direct comparison of coefficients across different measurement scales</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
     </div>
+    <div class="step-content"><div class="step-body">
+      <div class="eq-block">
+        <div class="eq-label">Z-score transformation</div>
+        \[ z_{kj} = \frac{x_{kj} - \bar{x}_k}{s_k} \]
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;text-align:left;">Result: every predictor has mean = 0, SD = 1 across all observations</p>
+      </div>
+      <div class="callout callout-good">
+        <strong>Why this matters</strong>
+        Predictors are on incomparable scales: livestock density (animals/km²), GDP (USD), road density (km/km²). Without z-scoring a "1-unit" change means something entirely different for each variable. After z-scoring, \(\beta_k = 0.5\) always means "a 1-SD increase in predictor \(k\) is associated with..." — all coefficients are directly comparable in magnitude.
+      </div>
+    </div></div>
   </div>
 
-  <div class="card-grid card-grid-3">
-    <div class="contrib-card" style="background:var(--green-pale);border-color:#b2dab7;">
-      <div class="contrib-icon">🔬</div>
-      <h3 style="color:var(--green-dark);">Scientific</h3>
-      <ul style="padding-left:1.2rem;">
-        <li>First multi-TAD analysis of <strong>recurrence</strong> risk factors (not just initial occurrence)</li>
-        <li>Tests generalizability of disease ecology principles across 15 TADs</li>
-        <li>Distinguishes persistence from reemergence as <strong>mechanistically separate</strong> processes</li>
-        <li>Connects spatial epidemiology with temporal disease dynamics</li>
-      </ul>
+  <div class="phase-label ph-red">Study Design</div>
+
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-red">SD</div>
+      <div class="step-info">
+        <div class="step-title">Every Design Decision with Justification</div>
+        <div class="step-subtitle">Defend any component in an exam or peer review</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
     </div>
-    <div class="contrib-card" style="background:var(--blue-pale);border-color:#b8d0f5;">
-      <div class="contrib-icon">⚙️</div>
-      <h3 style="color:var(--blue);">Methodological</h3>
-      <ul style="padding-left:1.2rem;">
-        <li>Dual-model framework: logistic (persistence) + Cox PH (reemergence)</li>
-        <li>Reproducible pipeline integrating <strong>4 databases</strong></li>
-        <li>Elastic net regularisation for high-dimensional predictor selection</li>
-        <li>Transferable framework to other diseases and countries</li>
-      </ul>
-    </div>
-    <div class="contrib-card" style="background:var(--amber-pale);border-color:#f0d58c;">
-      <div class="contrib-icon">🏛️</div>
-      <h3 style="color:var(--amber);">Policy</h3>
-      <ul style="padding-left:1.2rem;">
-        <li><strong>Risk maps</strong> identifying high-reemergence communes → targeted surveillance</li>
-        <li>Evidence base for <strong>proactive</strong> prevention over reactive response</li>
-        <li>Quantifies relative importance of ecological vs institutional factors</li>
-        <li>Framework for cost-effective TAD control resource allocation</li>
-      </ul>
-    </div>
+    <div class="step-content"><div class="step-body">
+      <table class="data-table">
+        <thead><tr><th style="width:22%">Component</th><th style="width:33%">Decision</th><th>Justification</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">Study type</td><td class="td-decision">Observational retrospective cohort, spatial epidemiology</td><td class="td-why">Cannot randomise disease exposure. 20-year WAHIS records available. Transmission is inherently spatial.</td></tr>
+          <tr><td class="td-label">Outcome 1</td><td class="td-decision">Binary — recurrence within 6–24 months</td><td class="td-why">Matches yes/no policy question. Window avoids surveillance artifacts (lower bound) and reemergence overlap (upper bound).</td></tr>
+          <tr><td class="td-label">Outcome 2</td><td class="td-decision">Time-to-event after &ge;2 disease-free years</td><td class="td-why">Captures temporal dynamics. Handles right-censoring correctly. Two years distinguishes reintroduction from persistence.</td></tr>
+          <tr><td class="td-label">Model 1</td><td class="td-decision">Mixed-effects logistic regression</td><td class="td-why">Binary outcome &rarr; logistic link. Random effects for clustering at disease/country/admin-2. ORs are policy-interpretable.</td></tr>
+          <tr><td class="td-label">Model 2</td><td class="td-decision">Cox PH with gamma frailty</td><td class="td-why">Time-to-event standard. Frailty = random effect for clustering. Correctly handles censored units without discarding data.</td></tr>
+          <tr><td class="td-label">Unit of analysis</td><td class="td-decision">Admin-2 (commune/county)</td><td class="td-why">WAHIS reports at admin-2. Matches veterinary control units. Best balance of spatial resolution and sample size.</td></tr>
+          <tr><td class="td-label">Study location</td><td class="td-decision">Pooled: 15 TADs + case study: Romania ASF</td><td class="td-why">Pooled tests generalizability. Romania: highest ASF burden (66K outbreaks), complete data, European context.</td></tr>
+          <tr><td class="td-label">Study period</td><td class="td-decision">Pooled 2005–2025 &middot; Romania 2018–2024</td><td class="td-why">20 years = comprehensive WAHIS. Romania: post-introduction + adequate outbreak density from 2018.</td></tr>
+          <tr><td class="td-label">Sample size</td><td class="td-decision">1,976 outbreaks &middot; 537 admin-2 &middot; 6 years</td><td class="td-why">404 EPV — 40&times; above the 10 EPV minimum. Extremely stable estimates, negligible overfitting risk.</td></tr>
+          <tr><td class="td-label">Variable selection</td><td class="td-decision">Univariate (p &lt; 0.25) + expert + correlation</td><td class="td-why">Univariate identifies candidates. Expert adds biological plausibility. Correlation: r &gt; 0.7 &rarr; remove redundant predictors.</td></tr>
+          <tr><td class="td-label">Validation</td><td class="td-decision">70/30 stratified split + 10-fold CV</td><td class="td-why">Stratified split ensures balanced outcome distribution. 10-fold CV detects overfitting within the training set.</td></tr>
+        </tbody>
+      </table>
+    </div></div>
   </div>
 
-  <!-- ─── SUMMARY CALLOUT ─── -->
-  <div class="callout callout-green" style="margin-top:2.5rem;">
-    <span class="callout-icon">🎓</span>
-    <div>
-      <strong>One-sentence summary for exam/viva:</strong><br>
-      This study uses <em>mixed-effects logistic regression</em> and <em>Cox proportional hazards with gamma frailty</em> to identify ecological, environmental, and institutional predictors of TAD persistence (binary, 6–24 months) and reemergence (time-to-event, after ≥2 disease-free years), using Romania ASF as a case study (1,976 outbreaks, 537 communes, 2018–2024) within a broader 15-TAD pooled analysis.
+  <div class="phase-label ph-blue">Romania ASF — Study Context</div>
+
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-blue">Ro</div>
+      <div class="step-info">
+        <div class="step-title">Why Romania? — Justification by the Numbers</div>
+        <div class="step-subtitle">Data availability, disease burden, and epidemic characteristics</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
     </div>
+    <div class="step-content"><div class="step-body">
+      <div class="num-bar">
+        <div class="num-item"><div class="big">66,530</div><div class="sm">Total ASF outbreaks — highest global burden</div></div>
+        <div class="num-item"><div class="big">1,976</div><div class="sm">Outbreaks in modelling period 2018–2024</div></div>
+        <div class="num-item"><div class="big">537</div><div class="sm">Affected communes — 16.9% of 3,181 total</div></div>
+        <div class="num-item"><div class="big">404 EPV</div><div class="sm">40&times; the 10 EPV minimum threshold</div></div>
+        <div class="num-item"><div class="big">$100M+</div><div class="sm">Annual ASF cost to Romania</div></div>
+      </div>
+      <div class="two-col" style="margin-top:16px;">
+        <div>
+          <h3 style="font-size:.85rem;color:var(--text-muted);margin-bottom:0;">Outbreaks by year</h3>
+          <div class="chart-wrap"><canvas id="chart-outbreaks"></canvas></div>
+        </div>
+        <div>
+          <h3 style="font-size:.85rem;color:var(--text-muted);margin-bottom:0;">Outcome classification (537 communes)</h3>
+          <div class="chart-wrap"><canvas id="chart-outcomes"></canvas></div>
+        </div>
+      </div>
+      <div class="callout callout-key" style="margin-top:16px;">
+        <strong>Why Romania is the right case study</strong>
+        Complete outbreak records, national farm registry, and spatial data at commune level. Six years of continuous ASF transmission provide adequate temporal variation for both persistence and reemergence modelling. Represents European epidemiology with global ASF relevance.
+      </div>
+    </div></div>
   </div>
 
-  <div style="height:3rem;"></div>
-</main>
+  <div class="phase-label ph-green">Summary</div>
 
-<!-- ══════════════════════════════════════════════════════ SCRIPTS -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-green">S</div>
+      <div class="step-info">
+        <div class="step-title">One-Sentence Viva Summary</div>
+        <div class="step-subtitle">Say this and you have answered the study design question</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+      <div class="callout callout-good">
+        <strong>Viva / exam answer</strong>
+        This study uses mixed-effects logistic regression and Cox proportional hazards with gamma frailty to identify ecological, environmental, and institutional predictors of TAD persistence (binary, 6–24 months) and reemergence (time-to-event, after &ge;2 disease-free years), using Romania ASF as a case study (1,976 outbreaks, 537 communes, 2018–2024) within a broader 15-TAD pooled analysis — with three-level nested random effects (disease / country / admin-2) to correctly account for clustering.
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<footer>Mixed Effects Models Guide &mdash; Personal Reference &mdash; Not for public distribution</footer>
+
 <script>
-  // ── Accordion for definitions ──
-  function toggleDef(header) {
-    const body = header.nextElementSibling;
-    header.classList.toggle('open');
-    body.classList.toggle('open');
-  }
-
-  // ── Chart 1: Outbreaks over time ──
-  const ctx1 = document.getElementById('outbreakChart').getContext('2d');
-  new Chart(ctx1, {
-    type: 'bar',
-    data: {
-      labels: ['2018','2019','2020','2021','2022','2023','2024'],
-      datasets: [{
-        label: 'Outbreaks',
-        data: [112, 298, 387, 421, 356, 274, 128],
-        backgroundColor: 'rgba(44,85,48,0.75)',
-        borderColor: '#2c5530',
-        borderWidth: 1,
-        borderRadius: 4,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' },
-             ticks: { font: { size: 11 } } },
-        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
-      }
-    }
-  });
-
-  // ── Chart 2: Outcome types ──
-  const ctx2 = document.getElementById('outcomeChart').getContext('2d');
-  new Chart(ctx2, {
-    type: 'doughnut',
-    data: {
-      labels: ['Persistence (recurred 6–24 mo)', 'Reemergence (after ≥2 yr free)', 'Single event (no recurrence)'],
-      datasets: [{
-        data: [218, 143, 176],
-        backgroundColor: ['#991b1b','#6d28d9','#2c5530'],
-        borderColor: '#fff',
-        borderWidth: 3,
-        hoverOffset: 6
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { font: { size: 10 }, padding: 10 }
-        }
-      }
-    }
-  });
+function toggle(card){card.classList.toggle('open');}
+new Chart(document.getElementById('chart-outbreaks'),{
+  type:'bar',
+  data:{labels:['2018','2019','2020','2021','2022','2023','2024'],
+    datasets:[{label:'Outbreaks',data:[112,298,387,421,356,274,128],
+      backgroundColor:'rgba(43,122,184,.75)',borderColor:'#2b7ab8',borderWidth:1,borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10}}},
+            x:{grid:{display:false},ticks:{font:{size:10}}}}}
+});
+new Chart(document.getElementById('chart-outcomes'),{
+  type:'doughnut',
+  data:{labels:['Persistence (recurred 6–24 mo)','Reemergence (after ≥2 yr free)','Single event (no recurrence)'],
+    datasets:[{data:[218,143,176],backgroundColor:['#c62828','#6b3fa0','#2b7ab8'],borderColor:'#fff',borderWidth:3,hoverOffset:6}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:10}}}}
+});
 </script>
-
 </body>
 </html>
