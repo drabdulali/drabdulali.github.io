@@ -968,6 +968,196 @@ pct2    <span class="op">&lt;-</span> (HR_live <span class="op">-</span> <span c
     </div></div>
   </div>
 
+  <!-- Card I4: Reading Model Output -->
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge badge-orange">I4</div>
+      <div class="step-info">
+        <div class="step-title">Reading Your R Model Output</div>
+        <div class="step-subtitle">What every column means, how every number is calculated — worked example</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <h3>The persistence model output</h3>
+      <p>When you run <code>summary(model_persist)</code>, R prints a table of <strong>fixed effects</strong>. Here is the real output from your analysis:</p>
+
+      <div class="code-explain" style="display:block; border-radius:10px; overflow-x:auto; background:#1e1e2e; padding:1.2rem 1.5rem; font-family:'JetBrains Mono',monospace; font-size:0.82rem; line-height:1.9; color:#cdd6f4; border:1px solid #2a2a3e;">
+<span style="color:#6c7086;">Fixed effects:</span>
+<span style="color:#89b4fa;">                      Estimate  Std. Error  z value  Pr(&gt;|z|)</span>
+<span style="color:#a6e3a1;">(Intercept)           -1.204     0.341      -3.53     0.0004 ***</span>
+<span style="color:#fab387;">livestock_density      0.523     0.182       2.87     0.004  **</span>
+<span style="color:#fab387;">vaccination_coverage  -0.678     0.224      -3.03     0.002  **</span>
+<span style="color:#fab387;">wildlife_proximity     0.312     0.148       2.11     0.035  *</span>
+<span style="color:#6c7086;">---</span>
+<span style="color:#6c7086;">Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05</span>
+      </div>
+
+      <h3>What each column actually is</h3>
+      <div class="formula-breakdown">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:140px 160px 1fr; gap:0;">
+          <div>Column</div><div>Mathematical name</div><div>What R is telling you</div>
+        </div>
+        <div class="fb-row">
+          <div class="fb-sym">Estimate</div>
+          <div class="fb-name">\(\hat{\beta}\) — the coefficient</div>
+          <div class="fb-desc">The log-odds change per 1-SD increase in the predictor (after z-scoring). This is the raw output of the model fitting algorithm (REML/LAPLACE). For <code>livestock_density</code>, \(\hat{\beta} = 0.523\) means the log-odds of persistence increases by 0.523 for every 1-SD increase in livestock density.</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a;">
+          <div class="fb-sym">Std. Error</div>
+          <div class="fb-name">\(\text{SE}(\hat{\beta})\) — standard error</div>
+          <div class="fb-desc">The uncertainty around the estimate. Calculated from the <strong>Fisher information matrix</strong>: \(\text{SE} = \sqrt{[\mathbf{I}^{-1}]_{kk}}\), where \(\mathbf{I}\) is the observed information matrix (second derivative of log-likelihood). Smaller SE = more precise estimate. For livestock_density: SE = 0.182.</div>
+        </div>
+        <div class="fb-row">
+          <div class="fb-sym">z value</div>
+          <div class="fb-name">Wald z-statistic</div>
+          <div class="fb-desc">How many standard errors the estimate is from zero:
+            \[ z = \frac{\hat{\beta}}{\text{SE}(\hat{\beta})} \]
+            For livestock_density: \(z = 0.523 / 0.182 = 2.87\). A large |z| means the coefficient is far from zero — strong evidence the predictor matters. Rule of thumb: |z| &gt; 1.96 gives p &lt; 0.05.</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a;">
+          <div class="fb-sym">Pr(&gt;|z|)</div>
+          <div class="fb-name">Two-sided p-value</div>
+          <div class="fb-desc">The probability of seeing a |z| this large (or larger) if the true coefficient were zero. Calculated using the standard normal distribution:
+            \[ p = 2 \times \Phi(-|z|) = 2 \times P(Z \leq -|z|) \]
+            where \(\Phi\) is the cumulative normal CDF. For z = 2.87: \(p = 2 \times \Phi(-2.87) = 2 \times 0.00205 = 0.004\). The factor of 2 makes it <em>two-sided</em> — testing whether the effect could be positive or negative.</div>
+        </div>
+      </div>
+
+      <h3>How CI lower and CI upper are calculated</h3>
+      <p>Confidence intervals are on the <strong>log-odds (\(\beta\)) scale first</strong>, then exponentiated to the OR scale.</p>
+      <div class="formula-breakdown">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:160px 1fr; gap:0;">
+          <div>Stage</div><div>Formula and meaning</div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:160px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">1. Log-odds CI</div>
+          <div class="fb-desc">
+            \[ \text{CI}_{\beta} = \hat{\beta} \pm 1.96 \times \text{SE}(\hat{\beta}) \]
+            The 1.96 comes from the 97.5th percentile of the standard normal (\(z_{0.975} = 1.96\)) — the value that puts 95% of the distribution between \(-1.96\) and \(+1.96\).
+            <br>For livestock_density:
+            \[ \text{Lower}_{\beta} = 0.523 - 1.96 \times 0.182 = 0.523 - 0.357 = 0.166 \]
+            \[ \text{Upper}_{\beta} = 0.523 + 1.96 \times 0.182 = 0.523 + 0.357 = 0.880 \]
+          </div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a; display:grid; grid-template-columns:160px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">2. OR scale CI</div>
+          <div class="fb-desc">Exponentiate both bounds to convert from log-odds to OR:
+            \[ \text{CI}_{\text{OR}} = \left(e^{\hat{\beta} - 1.96 \cdot \text{SE}},\; e^{\hat{\beta} + 1.96 \cdot \text{SE}}\right) \]
+            \[ = \left(e^{0.166},\; e^{0.880}\right) = (1.18,\; 2.41) \]
+            The CI is <strong>asymmetric</strong> on the OR scale (not centred around OR = 1.69) because of the exponentiation — this is normal and expected.
+          </div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:160px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">3. Interpretation</div>
+          <div class="fb-desc">The CI (1.18 – 2.41) does <strong>not cross 1.0</strong>, which means we are 95% confident the true OR is above 1 — i.e., livestock density is a genuine risk factor, not a fluke. If the CI crossed 1.0, we could not rule out the null (no effect).</div>
+        </div>
+      </div>
+
+      <h3>Worked example — livestock_density step by step</h3>
+      <p>R output line: <code style="background:#1e1e2e; color:#cdd6f4; padding:2px 8px; border-radius:4px; font-size:0.85rem;">livestock_density &nbsp; 0.523 &nbsp; 0.182 &nbsp; 2.87 &nbsp; 0.004</code></p>
+
+      <div class="formula-breakdown">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div>Step</div><div>Calculation</div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">1. z</div>
+          <div class="fb-desc">\(z = \hat{\beta} / \text{SE} = 0.523 / 0.182 = \mathbf{2.87}\)</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a; display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">2. p-value</div>
+          <div class="fb-desc">\(p = 2 \times \Phi(-2.87) = 2 \times 0.00205 = \mathbf{0.0041}\) — R rounds to 0.004 and marks <strong>**</strong></div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">3. OR</div>
+          <div class="fb-desc">\(\text{OR} = e^{0.523} = \mathbf{1.687}\) — high-density counties have 1.69 times the odds of persistence</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a; display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">4. CI\(_\beta\)</div>
+          <div class="fb-desc">\(0.523 \pm 1.96 \times 0.182 = (0.166,\ 0.880)\) on log-odds scale</div>
+        </div>
+        <div class="fb-row" style="display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">5. CI\(_{\text{OR}}\)</div>
+          <div class="fb-desc">\((e^{0.166},\ e^{0.880}) = (\mathbf{1.18},\ \mathbf{2.41})\) — CI does not cross 1 \(\rightarrow\) significant</div>
+        </div>
+        <div class="fb-row" style="background:#0f0f1a; display:grid; grid-template-columns:90px 1fr; gap:0;">
+          <div class="fb-sym" style="font-size:0.82rem;">6. % change</div>
+          <div class="fb-desc">\((\text{OR} - 1) \times 100 = (1.687 - 1) \times 100 = \mathbf{68.7\%}\) increase in odds</div>
+        </div>
+      </div>
+
+      <div class="callout callout-good" style="margin-top:1.2rem;">
+        <strong>Thesis sentence</strong> — "A 1-SD increase in livestock density was associated with 69% higher odds of TAD persistence (OR = 1.69, 95% CI: 1.18–2.41, p = 0.004), supporting the hypothesis that higher host density drives sustained disease transmission."
+      </div>
+
+      <h3>R code to reproduce every number above</h3>
+      <div class="code-explain">
+        <div class="ce-code"><pre style="margin:0; padding:1rem; font-size:0.8rem; line-height:1.7; color:#cdd6f4;"><span class="cm"># From summary(model_persist)</span>
+beta &lt;- <span class="num">0.523</span>
+se   &lt;- <span class="num">0.182</span>
+
+<span class="cm"># --- z statistic ---</span>
+z &lt;- beta / se
+z            <span class="cm"># 2.868</span>
+
+<span class="cm"># --- two-sided p-value ---</span>
+p &lt;- <span class="num">2</span> * pnorm(<span class="op">-</span>abs(z))
+p            <span class="cm"># 0.004124</span>
+
+<span class="cm"># --- Odds Ratio ---</span>
+OR &lt;- exp(beta)
+OR           <span class="cm"># 1.687</span>
+
+<span class="cm"># --- 95% CI on beta scale ---</span>
+ci_lo_b &lt;- beta <span class="op">-</span> <span class="num">1.96</span> * se
+ci_hi_b &lt;- beta <span class="op">+</span> <span class="num">1.96</span> * se
+
+<span class="cm"># --- 95% CI on OR scale ---</span>
+ci_lo &lt;- exp(ci_lo_b)  <span class="cm"># 1.181</span>
+ci_hi &lt;- exp(ci_hi_b)  <span class="cm"># 2.410</span>
+
+<span class="cm"># --- % change ---</span>
+pct &lt;- (OR <span class="op">-</span> <span class="num">1</span>) * <span class="num">100</span>
+pct          <span class="cm"># 68.7 %</span></pre></div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>raw numbers pulled from the Fixed effects table — Estimate and Std. Error columns</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>z = beta / SE — this is the Wald z-statistic; it measures signal-to-noise</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>R shows 2.87 (rounds to 2 dp)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span><code>pnorm(-|z|)</code> = area in left tail of standard normal; ×2 for two-sided test</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>R shows 0.004 — means only 0.4% chance of this z-score if effect were truly zero</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>exponentiate beta to get OR — converts log-odds to an odds multiplier</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>1.687 means 1.687× the odds — report as OR = 1.69</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>lower bound: beta − 1.96 × SE = 0.523 − 0.357 = 0.166</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>upper bound: beta + 1.96 × SE = 0.523 + 0.357 = 0.880</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>exp(0.166) = 1.181 — lower OR bound</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>exp(0.880) = 2.410 — upper OR bound. Both &gt; 1 → significant risk factor</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>68.7% higher odds — this is what goes in the thesis sentence</div>
+        </div>
+      </div>
+
+      <h3>Stars (significance codes) — what they mean</h3>
+      <table class="data-table">
+        <thead><tr><th>Stars</th><th>p-value range</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">***</td><td>p &lt; 0.001</td><td>Very strong evidence against H\(_0\). Less than 0.1% chance this is noise.</td></tr>
+          <tr><td class="mono">**</td><td>0.001 &le; p &lt; 0.01</td><td>Strong evidence. Your livestock_density result (p = 0.004) falls here.</td></tr>
+          <tr><td class="mono">*</td><td>0.01 &le; p &lt; 0.05</td><td>Conventional significance threshold. Acceptable in epidemiology.</td></tr>
+          <tr><td class="mono">.</td><td>0.05 &le; p &lt; 0.1</td><td>Marginal / trend. Report cautiously; do not interpret as significant.</td></tr>
+          <tr><td class="mono">(blank)</td><td>p &ge; 0.1</td><td>No evidence against H\(_0\). Do not interpret the coefficient biologically.</td></tr>
+        </tbody>
+      </table>
+
+    </div></div>
+  </div>
+
   <!-- WORKFLOW -->
   <div class="phase-label phase-workflow">Analysis Workflow</div>
 
