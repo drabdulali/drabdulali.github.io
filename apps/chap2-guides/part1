@@ -1,1618 +1,1079 @@
-\documentclass[11pt,a4paper]{article}
-\usepackage[margin=1in]{geometry}
-\usepackage{longtable,booktabs,array}
-\usepackage{amsmath,amssymb}
-\usepackage{listings}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage[most]{tcolorbox}
-\usepackage{float}
-\usepackage{graphicx}
-
-% Color definitions
-\definecolor{primary}{RGB}{227,26,28}
-\definecolor{secondary}{RGB}{31,120,180}
-\definecolor{accent1}{RGB}{51,160,44}
-\definecolor{accent2}{RGB}{255,127,0}
-\definecolor{accent3}{RGB}{106,61,154}
-
-% Color-coded boxes
-\newtcolorbox{keypoint}[1]{
-  colback=primary!5,
-  colframe=primary!80!black,
-  fonttitle=\bfseries,
-  title=#1
-}
-
-\newtcolorbox{methodology}[1]{
-  colback=secondary!5,
-  colframe=secondary!80!black,
-  fonttitle=\bfseries,
-  title=#1
-}
-
-\newtcolorbox{result}[1]{
-  colback=accent1!5,
-  colframe=accent1!80!black,
-  fonttitle=\bfseries,
-  title=#1
-}
-
-\newtcolorbox{warning}[1]{
-  colback=accent2!5,
-  colframe=accent2!80!black,
-  fonttitle=\bfseries,
-  title=#1
-}
-
-\newtcolorbox{detail}[1]{
-  colback=accent3!5,
-  colframe=accent3!80!black,
-  fonttitle=\bfseries,
-  title=#1
-}
-
-% Code listing settings
-\lstset{
-  language=R,
-  basicstyle=\small\ttfamily,
-  keywordstyle=\color{primary}\bfseries,
-  commentstyle=\color{accent1}\itshape,
-  stringstyle=\color{secondary},
-  numbers=left,
-  numberstyle=\tiny\color{gray},
-  stepnumber=1,
-  numbersep=8pt,
-  backgroundcolor=\color{gray!5},
-  frame=single,
-  rulecolor=\color{gray!30},
-  breaklines=true,
-  breakatwhitespace=true,
-  showstringspaces=false,
-  tabsize=2
-}
-
-\title{Part 01: Comprehensive Project Overview\\
-\large Research Design, Justifications, and Conceptual Framework}
-\author{Chapter 2: TAD Persistence and Reemergence\\Romania ASF Case Study}
-\date{\today}
-
-\begin{document}
-
-\maketitle
-\tableofcontents
-\newpage
-
-% ============================================================================
-\section{Research Questions}
-% ============================================================================
-
-\begin{keypoint}{The Central Question}
-\textbf{What risk factors are associated with transboundary animal disease (TAD) outbreak persistence and reemergence in high-burden countries?}
-
-This breaks into two complementary sub-questions:
-\begin{enumerate}
-    \item \textbf{PERSISTENCE}: Which ecological, environmental, and institutional factors predict short-interval outbreak recurrence (within 6-24 months)?
-    \item \textbf{REEMERGENCE}: What factors determine time to disease reemergence after prolonged absence ($\geq$2 years disease-free)?
-\end{enumerate}
-\end{keypoint}
-
-\subsection{Why This Question Matters}
-
-\begin{detail}{Scientific Importance}
-\textbf{1. Knowledge Gap:}
-\begin{itemize}
-    \item Most TAD research focuses on \textit{initial} outbreak occurrence, not \textit{recurrence}
-    \item We know little about why some areas experience disease repeatedly while others don't
-    \item Persistence and reemergence likely have different drivers than first introductions
-    \item Current models predict presence/absence but not temporal dynamics of recurrence
-\end{itemize}
-
-\textbf{2. Theoretical Contribution:}
-\begin{itemize}
-    \item Tests whether disease ecology principles (susceptible populations, transmission pathways, environmental suitability) apply to \textit{recurrence} risk
-    \item Distinguishes between short-term persistence (incomplete elimination) vs long-term reemergence (reintroduction after clearance)
-    \item Addresses whether risk factors are generalizable across diseases or disease-specific
-    \item Connects spatial epidemiology with temporal disease dynamics
-\end{itemize}
-
-\textbf{3. Methodological Innovation:}
-\begin{itemize}
-    \item Uses two complementary modeling approaches (logistic regression for persistence, survival analysis for reemergence)
-    \item Integrates multi-database approach (WAHIS + GLW + FAOSTAT + remote sensing)
-    \item Applies spatial epidemiological methods to longitudinal TAD data
-    \item Develops reproducible framework applicable to other diseases/countries
-\end{itemize}
-\end{detail}
-
-\begin{detail}{Policy Relevance}
-\textbf{1. Resource Allocation:}
-\begin{itemize}
-    \item TAD control is resource-intensive: surveillance, culling, vaccination, movement restrictions
-    \item Countries need evidence-based targeting: Where should we focus limited resources?
-    \item Risk-based surveillance more efficient than blanket coverage
-    \item Predicted high-risk areas merit enhanced monitoring and prevention
-\end{itemize}
-
-\textbf{2. Prevention vs Reaction:}
-\begin{itemize}
-    \item Current approach is largely reactive: outbreak $\rightarrow$ response $\rightarrow$ wait for next outbreak
-    \item Predictive models enable proactive prevention in high-risk areas
-    \item Early warning systems can trigger enhanced surveillance before reemergence
-    \item Cost-benefit strongly favors prevention over reaction
-\end{itemize}
-
-\textbf{3. Economic Impact:}
-\begin{itemize}
-    \item ASF alone costs Romania \$100+ million annually (culling, trade restrictions, farm closures)
-    \item Across 15 TADs, global impact exceeds \$20 billion annually
-    \item Reducing recurrence by even 10-20\% saves millions
-    \item Trade restrictions from endemic disease devastate export-dependent countries
-\end{itemize}
-
-\textbf{4. Food Security:}
-\begin{itemize}
-    \item TADs threaten protein supply in developing countries (>60\% depend on livestock)
-    \item Repeated outbreaks destabilize food systems and rural livelihoods
-    \item Small-holder farmers disproportionately affected by recurrent disease
-    \item Prevention of reemergence critical for sustainable livestock production
-\end{itemize}
-\end{detail}
-
-\subsection{Research Question Components}
-
-\begin{methodology}{Breaking Down the Question}
-\textbf{What} are we predicting?
-\begin{itemize}
-    \item \textbf{Outcome 1 (Persistence):} Binary - Did disease recur within 6-24 months? (Yes/No)
-    \item \textbf{Outcome 2 (Reemergence):} Time-to-event - How long until disease returned after $\geq$2 years disease-free?
-\end{itemize}
-
-\textbf{Which} risk factors?
-\begin{itemize}
-    \item \textbf{Ecological:} Livestock density, susceptible animal populations
-    \item \textbf{Environmental:} Tree cover, climate, water bodies, wetlands
-    \item \textbf{Wildlife Interface:} Wildlife habitat, disease reservoir proximity
-    \item \textbf{Infrastructure:} Road density, accessibility, connectivity
-    \item \textbf{Institutional:} Vaccination/culling coverage, GDP, control capacity
-\end{itemize}
-
-\textbf{Where} is the study conducted?
-\begin{itemize}
-    \item \textbf{Focus:} High-burden countries (most reported outbreaks per TAD)
-    \item \textbf{Case Study:} Romania (ASF) - 66,530 outbreaks, highest burden globally
-    \item \textbf{Spatial Scale:} Admin-2 level (commune/county) - where outbreaks reported
-\end{itemize}
-
-\textbf{When} is the study period?
-\begin{itemize}
-    \item \textbf{Overall project:} 2005-2025 (20 years of WAHIS data)
-    \item \textbf{Romania ASF:} 2018-2024 (post-first introduction, sufficient outbreak density)
-\end{itemize}
-\end{methodology}
-
-% ============================================================================
-\section{Complete Study Design Table}
-% ============================================================================
-
-\begin{keypoint}{Study Design at a Glance}
-This table documents \textbf{every} design decision with justification. Any component can be defended in an exam or peer review.
-\end{keypoint}
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}p{4.5cm} >{\raggedright\arraybackslash}p{6cm}}
-\caption{Complete Study Design with Justifications} \label{tab:study_design} \\
-\toprule
-\textbf{Component} & \textbf{Decision} & \textbf{Justification} \\
-\midrule
-\endfirsthead
-
-\multicolumn{3}{c}%
-{{\tablename\ \thetable{} -- continued from previous page}} \\
-\toprule
-\textbf{Component} & \textbf{Decision} & \textbf{Justification} \\
-\midrule
-\endhead
-
-\midrule \multicolumn{3}{r}{{Continued on next page}} \\
-\endfoot
-
-\bottomrule
-\endlastfoot
-
-% RESEARCH QUESTION
-\textbf{Research Question} & What risk factors predict TAD persistence and reemergence? & \textbf{Gap:} Most research on initial occurrence, not recurrence. \textbf{Impact:} Recurrence causes majority of economic damage. \textbf{Policy:} Authorities need predictive tools for targeted prevention. \\
-\addlinespace
-
-% STUDY TYPE
-\textbf{Study Type} & Observational, retrospective cohort with spatial epidemiological design & \textbf{Why observational?} Can't randomize disease exposure. \textbf{Why retrospective?} Use existing outbreak records (2005-2025). \textbf{Why spatial?} Disease transmission inherently spatial. \\
-\addlinespace
-
-% PRIMARY OUTCOME
-\textbf{Primary Outcome 1: Persistence} & Binary (0/1): Did disease recur within 6-24 months at same admin-2 unit? & \textbf{6-24 months:} Short enough to reflect incomplete elimination, long enough to exclude surveillance artifacts. \textbf{Binary:} Matches policy question (yes/no recurring risk). \textbf{Admin-2:} Matches outbreak reporting scale. \\
-\addlinespace
-
-\textbf{Primary Outcome 2: Reemergence} & Time-to-event (months): Time from disease-free period ($\geq$2 years) to next outbreak & \textbf{$\geq$2 years:} Distinguishes reintroduction from persistence. \textbf{Time-to-event:} Captures temporal dynamics, handles right-censoring. \textbf{Survival analysis:} Standard method for time-to-event data. \\
-\addlinespace
-
-% EXPOSURE/PREDICTORS
-\textbf{Predictor Categories} & (1) Ecological, (2) Environmental, (3) Wildlife, (4) Infrastructure, (5) Institutional & \textbf{Multi-factor:} Disease recurrence driven by multiple pathways. \textbf{Testable:} Each category has biological mechanism. \textbf{Actionable:} Several modifiable through policy (infrastructure, institutional). \\
-\addlinespace
-
-\textbf{Primary Predictors} & Livestock density, tree cover, road density, wildlife proximity, vaccination/culling coverage, GDP & \textbf{Evidence-based:} Prior ASF literature supports these. \textbf{Data availability:} Exist for all countries/diseases. \textbf{Mechanistic:} Clear pathways to transmission. \\
-\addlinespace
-
-% UNIT OF ANALYSIS
-\textbf{Unit of Analysis} & Admin-2 (commune/county level) & \textbf{Data constraint:} WAHIS reports outbreaks at admin-2. \textbf{Meaningful:} Matches veterinary control units. \textbf{Actionable:} Policies implemented at admin-2. \textbf{Balance:} Fine enough for spatial variation, coarse enough for adequate sample size. \\
-\addlinespace
-
-% SPATIAL SCALE
-\textbf{Spatial Scale Justification} & Why not farm-level? Why not admin-1? & \textbf{Not farm:} WAHIS doesn't provide exact locations (privacy). \textbf{Not admin-1:} Too coarse, misses within-province variation. \textbf{Admin-2 optimal:} Best balance between resolution and data availability. \\
-\addlinespace
-
-% STUDY LOCATION
-\textbf{Study Location} & (1) Pooled analysis: 15 TADs across high-burden countries. (2) Case study: Romania (ASF) & \textbf{Pooled:} Tests generalizability, identifies common risk factors. \textbf{Case study:} Deep dive into single disease-country for detailed mechanisms. \textbf{Romania:} Highest ASF burden (66K outbreaks), excellent data, represents Europe. \\
-\addlinespace
-
-\textbf{Why Romania?} & See Section 3 & (1) Data availability: Complete outbreak records, farm registry, spatial data. (2) High burden: 66,530 ASF outbreaks (2017-2024). (3) Epidemic characteristics: Sustained transmission, diverse landscapes, commercial + backyard farms. (4) Generalizability: European context with global ASF relevance. \\
-\addlinespace
-
-% STUDY PERIOD
-\textbf{Study Period (Pooled)} & 2005-2025 (20 years) & \textbf{WAHIS coverage:} Comprehensive global TAD reporting since 2005. \textbf{Long enough:} Captures multiple epidemic waves, persistence/reemergence cycles. \textbf{Recent enough:} Reflects current agricultural systems, control capacity. \\
-\addlinespace
-
-\textbf{Study Period (Romania)} & 2018-2024 (6 years) & \textbf{Post-introduction:} ASF entered Romania 2017, established transmission 2018+. \textbf{Sufficient outbreaks:} Adequate sample for modeling. \textbf{Data quality:} Modern surveillance, complete records. See Section 4 for full justification. \\
-\addlinespace
-
-% SAMPLE SIZE
-\textbf{Sample Size (Romania)} & 1,976 ASF outbreaks across 537 admin-2 units & \textbf{Adequate power:} 404 events per variable (far exceeds 10 EPV rule). \textbf{Spatial coverage:} Outbreaks in 537 of 3,181 communes (16.9\%). \textbf{Temporal coverage:} 6 years allows persistence and reemergence analysis. \\
-\addlinespace
-
-\textbf{Events Per Variable (EPV)} & 404 EPV (1,976 outbreaks / 5 predictors) & \textbf{Exceeds threshold:} Standard requires 10-20 EPV. We have 404 EPV = 40× higher. \textbf{Implication:} Extremely stable coefficient estimates, minimal overfitting risk, robust predictions. \\
-\addlinespace
-
-% DATA SOURCES
-\textbf{Primary Data Source} & WAHIS (WOAH World Animal Health Information System) & \textbf{Global standard:} Official OIE/WOAH outbreak reporting system. \textbf{Standardized:} Consistent definitions across countries/diseases. \textbf{Validated:} National veterinary authorities verify reports. \\
-\addlinespace
-
-\textbf{Livestock Data} & GLW (Gridded Livestock of the World), FAOSTAT & \textbf{GLW:} High-resolution (10km) livestock density grids. \textbf{FAOSTAT:} National production statistics. \textbf{Combined:} Captures spatial variation in susceptible populations. \\
-\addlinespace
-
-\textbf{Environmental Data} & MODIS (tree cover), WorldClim (climate), HydroSHEDS (water) & \textbf{Remote sensing:} Objective, spatially explicit, temporally consistent. \textbf{Resolution:} 30m-1km matches admin-2 scale. \textbf{Validated:} Standard products used globally. \\
-\addlinespace
-
-% STATISTICAL METHODS
-\textbf{Model 1: Persistence} & Mixed-effects logistic regression & \textbf{Binary outcome:} Logistic regression standard for yes/no. \textbf{Random effects:} Accounts for clustering (disease $\rightarrow$ country $\rightarrow$ admin-2). \textbf{Interpretable:} Odds ratios directly policy-relevant. \\
-\addlinespace
-
-\textbf{Model 2: Reemergence} & Cox proportional hazards with frailty & \textbf{Time-to-event:} Cox standard for survival analysis. \textbf{Frailty:} Random effects for clustering. \textbf{Handles censoring:} Units without reemergence not lost. \textbf{Interpretable:} Hazard ratios show timing effects. \\
-\addlinespace
-
-% VARIABLE SELECTION
-\textbf{Variable Selection} & (1) Univariate screening, (2) Expert knowledge, (3) Correlation analysis & \textbf{Univariate:} Identifies significant predictors (p<0.25). \textbf{Expert:} Includes biological plausibility. \textbf{Correlation:} Removes redundancy (r>0.7 excluded). \textbf{Combined:} Balances statistics with mechanism. \\
-\addlinespace
-
-% MODEL VALIDATION
-\textbf{Train/Test Split} & 70\% training, 30\% testing (stratified by outcome) & \textbf{Standard:} 70/30 widely used in epidemiology. \textbf{Stratified:} Ensures balanced outcome distribution. \textbf{Independent test:} Assesses generalizability. \\
-\addlinespace
-
-\textbf{Cross-Validation} & 10-fold within training set & \textbf{Detects overfitting:} Training vs CV performance gap indicates overfitting. \textbf{10-fold:} Balance between bias and variance. \textbf{Repeated:} Average across folds for stability. \\
-\addlinespace
-
-\textbf{Performance Metrics} & AUC (ROC), calibration, sensitivity, specificity & \textbf{AUC:} Overall discrimination (0.7+ good, 0.8+ excellent). \textbf{Calibration:} Predicted vs observed match. \textbf{Sens/Spec:} Policy-relevant (miss high-risk vs false alarms). \\
-\addlinespace
-
-% DIAGNOSTICS
-\textbf{Multicollinearity} & VIF <5 & \textbf{VIF:} Variance Inflation Factor detects collinearity. \textbf{Threshold:} VIF>5 problematic, VIF>10 severe. \textbf{Action:} Remove correlated predictors (r>0.7). \\
-\addlinespace
-
-\textbf{Spatial Autocorrelation} & Moran's I on residuals & \textbf{Detects clustering:} Are residuals spatially structured? \textbf{Interpretation:} Significant Moran's I = missing spatial predictors. \textbf{Action:} Add spatial terms or interpret as unmeasured processes. \\
-\addlinespace
-
-% ETHICAL CONSIDERATIONS
-\textbf{Ethics} & No IRB required (secondary data, no human subjects) & \textbf{Data sources:} All publicly available (WAHIS, GLW, FAOSTAT). \textbf{No PII:} Outbreak data aggregated to admin-2, no individual farms/farmers identified. \textbf{Animal welfare:} Study aims to reduce outbreaks = fewer cullings. \\
-\addlinespace
-
-% REPRODUCIBILITY
-\textbf{Reproducibility} & All code on GitHub, data sources documented, analysis scripted & \textbf{Open science:} R scripts + data links = fully reproducible. \textbf{Extensibility:} Framework applicable to other diseases/countries. \textbf{Transparency:} Methods section provides exact steps. \\
-\addlinespace
-
-% LIMITATIONS
-\textbf{Key Limitations} & (1) Observational (no causality), (2) Reporting bias, (3) Ecological fallacy & \textbf{Observational:} Can't establish causation, only association. \textbf{Reporting:} Underreporting biases estimates (but assumes consistent underreporting). \textbf{Ecological:} Admin-2 associations may not hold at farm level. \\
-\addlinespace
-
-\end{longtable}
-
-% ============================================================================
-\section{Why Romania? Country Selection Justification}
-% ============================================================================
-
-\begin{keypoint}{Four Reasons Romania is Optimal}
-\begin{enumerate}
-    \item \textbf{Data Availability:} Best available outbreak records, farm registry, spatial data
-    \item \textbf{High Burden:} 66,530 ASF outbreaks (2017-2024), highest globally
-    \item \textbf{Epidemic Characteristics:} Sustained transmission, diverse landscapes, commercial + backyard sectors
-    \item \textbf{Generalizability:} European context with relevance to global ASF spread
-\end{enumerate}
-\end{keypoint}
-
-\subsection{Data Availability}
-
-\begin{detail}{Complete Data Infrastructure}
-\textbf{1. Outbreak Records (WAHIS):}
-\begin{itemize}
-    \item Complete ASF reporting to WOAH since 2017
-    \item Admin-2 level location (commune), dates, affected species
-    \item Control measures documented (culling, movement restrictions)
-    \item High reporting compliance (EU member state requirements)
-\end{itemize}
-
-\textbf{2. Farm Registry:}
-\begin{itemize}
-    \item National Sanitary Veterinary Authority maintains complete farm database
-    \item 28,226 commercial pig farms with locations
-    \item Backyard holdings estimated at 1.2 million
-    \item Herd size, production type, biosecurity data available
-\end{itemize}
-
-\textbf{3. Livestock Data:}
-\begin{itemize}
-    \item GLW provides gridded pig density at 10km resolution
-    \item FAOSTAT has national/subnational production statistics
-    \item Temporal trends available (2010-2024)
-    \item Disaggregated by production system (commercial vs backyard)
-\end{itemize}
-
-\textbf{4. Spatial/Environmental Data:}
-\begin{itemize}
-    \item MODIS tree cover (30m resolution)
-    \item WorldClim climate variables (1km resolution)
-    \item HydroSHEDS water bodies (1km resolution)
-    \item OpenStreetMap road networks (vector data)
-    \item Land use / crop data from European Space Agency
-\end{itemize}
-
-\textbf{5. Institutional Data:}
-\begin{itemize}
-    \item GDP at NUTS-2 level (Eurostat)
-    \item Veterinary service capacity (WAHIS reports)
-    \item Vaccination/culling coverage (national reports)
-    \item Control policy timeline documented
-\end{itemize}
-\end{detail}
-
-\subsection{High Disease Burden}
-
-\begin{detail}{Romania as Global ASF Epicenter}
-\textbf{Outbreak Numbers:}
-\begin{itemize}
-    \item \textbf{66,530 total ASF outbreaks} (2017-2024)
-    \item Represents \textbf{highest burden of any country globally}
-    \item For comparison: Next highest is China (~20,000), Vietnam (~8,000)
-    \item Romania accounts for >40\% of all European ASF outbreaks
-\end{itemize}
-
-\textbf{Spatial Distribution:}
-\begin{itemize}
-    \item Outbreaks in 537 of 3,181 communes (16.9\%)
-    \item All 42 counties affected at some point
-    \item Southeast region most affected (bordering Bulgaria, where ASF entered)
-    \item Urban-rural gradient visible (higher in rural areas)
-\end{itemize}
-
-\textbf{Temporal Dynamics:}
-\begin{itemize}
-    \item \textbf{2017:} Initial introduction (first outbreaks July 2017)
-    \item \textbf{2018-2019:} Rapid spread phase (establishing transmission)
-    \item \textbf{2020-2022:} Peak incidence (thousands of outbreaks/year)
-    \item \textbf{2023-2024:} Sustained endemic transmission (ongoing outbreaks)
-\end{itemize}
-
-\textbf{Sectoral Impact:}
-\begin{itemize}
-    \item Backyard farms: ~98\% of outbreaks (small-holder, low biosecurity)
-    \item Commercial farms: ~2\% of outbreaks (but larger economic impact)
-    \item Wild boar: Parallel sylvatic cycle (wildlife reservoir)
-    \item Dual transmission: Domestic pigs ↔ wild boar interface
-\end{itemize}
-
-\textbf{Why High Burden is Advantage:}
-\begin{itemize}
-    \item \textbf{Statistical power:} Large sample size enables robust modeling
-    \item \textbf{Spatial variation:} Affected and unaffected areas provide contrast
-    \item \textbf{Temporal dynamics:} Long enough for persistence/reemergence patterns
-    \item \textbf{Policy relevance:} Urgent need for risk prediction tools
-\end{itemize}
-\end{detail}
-
-\subsection{Epidemic Characteristics}
-
-\begin{detail}{What Makes Romania an Ideal Case Study}
-\textbf{1. Sustained Transmission:}
-\begin{itemize}
-    \item Unlike some countries with sporadic incursions, Romania has \textit{endemic} ASF
-    \item Continuous transmission for 6+ years (2018-2024)
-    \item Allows study of persistence (repeated outbreaks in same areas)
-    \item Allows study of reemergence (return after disease-free periods)
-\end{itemize}
-
-\textbf{2. Diverse Landscapes:}
-\begin{itemize}
-    \item \textbf{Carpathian Mountains:} High elevation, forest cover, wild boar habitat
-    \item \textbf{Danube Delta:} Wetlands, waterways, migratory bird interface
-    \item \textbf{Plains (Bărăgan):} Intensive agriculture, commercial farms
-    \item \textbf{Mixed:} Mosaic of crop, forest, pasture creates edge effects
-    \item This heterogeneity allows testing environmental predictors across contexts
-\end{itemize}
-
-\textbf{3. Dual Production Systems:}
-\begin{itemize}
-    \item \textbf{Commercial farms:} ~30,000 farms, 4-5 million pigs, high biosecurity
-    \item \textbf{Backyard farms:} ~1.2 million holdings, 2-3 million pigs, low biosecurity
-    \item \textbf{Interaction:} Movement between sectors, shared infrastructure
-    \item Allows comparison of risk factors across biosecurity levels
-\end{itemize}
-
-\textbf{4. Wildlife Interface:}
-\begin{itemize}
-    \item Large wild boar population (~200,000 estimated)
-    \item Forest-farm interface creates contact opportunities
-    \item Hunting practices may contribute to spread
-    \item Sylvatic cycle maintains virus in environment
-\end{itemize}
-
-\textbf{5. Control Interventions:}
-\begin{itemize}
-    \item Mass culling campaigns (>2 million pigs culled 2017-2024)
-    \item Movement restrictions (control zones around outbreaks)
-    \item Depopulation of backyard farms in affected areas
-    \item Wild boar management (population reduction, passive surveillance)
-    \item This variation in control intensity allows evaluation of intervention effectiveness
-\end{itemize}
-\end{detail}
-
-\subsection{Generalizability}
-
-\begin{detail}{Why Romania Findings Apply Elsewhere}
-\textbf{1. European Context:}
-\begin{itemize}
-    \item EU member state = standardized reporting, veterinary capacity
-    \item Represents European agricultural systems (important for Western Europe ASF risk)
-    \item Similar farm structures to Poland, Hungary, Bulgaria (neighboring countries with ASF)
-    \item Findings inform EU-wide ASF control strategies
-\end{itemize}
-
-\textbf{2. Global ASF Relevance:}
-\begin{itemize}
-    \item ASF now on every continent except Australia and Antarctica
-    \item Romania's epidemic similar to other countries: China (2018+), Vietnam (2019+), Germany (2020+)
-    \item Mixed commercial-backyard systems common in Southeast Asia, Eastern Europe, Africa
-    \item Wildlife reservoirs (wild boar) also issue in Europe, Asia, South Africa
-\end{itemize}
-
-\textbf{3. TAD Generalizability:}
-\begin{itemize}
-    \item Risk factors (density, environment, infrastructure) likely apply to other TADs
-    \item Framework adaptable: Pooled analysis tests generalizability across 15 TADs
-    \item Methods (logistic regression, survival analysis) standard in disease ecology
-    \item Data sources (WAHIS, GLW, remote sensing) available for all countries/diseases
-\end{itemize}
-
-\textbf{4. Policy Translation:}
-\begin{itemize}
-    \item Romania's veterinary system similar to other middle-income countries
-    \item Resource constraints mirror developing countries
-    \item Risk-based surveillance approach applicable anywhere
-    \item Model framework can be retrained for other countries with local data
-\end{itemize}
-\end{detail}
-
-\begin{warning}{What Romania Doesn't Represent}
-\textbf{Limitations to Generalizability:}
-\begin{itemize}
-    \item \textbf{Climate:} Temperate continental (findings may not apply to tropical/arid regions)
-    \item \textbf{Development:} Middle-income EU member (not representative of low-income countries)
-    \item \textbf{Farm structure:} Large backyard sector (different from highly commercialized systems like USA)
-    \item \textbf{Wildlife:} Wild boar specific (other TADs have different reservoirs: rodents, birds)
-\end{itemize}
-
-\textbf{Mitigation:}
-\begin{itemize}
-    \item Pooled 15-TAD analysis tests generalizability across diseases and countries
-    \item Discussion section addresses context-specific limitations
-    \item Future work: Validate model in other countries (China, Vietnam, Poland)
-\end{itemize}
-\end{warning}
-
-% ============================================================================
-\section{Study Period Justification}
-% ============================================================================
-
-\begin{keypoint}{Two Study Periods}
-\textbf{Pooled Analysis (15 TADs):} 2005-2025 (20 years)
-
-\textbf{Romania Case Study (ASF):} 2018-2024 (6 years)
-
-Different durations reflect data availability and epidemic timing.
-\end{keypoint}
-
-\subsection{Pooled Analysis: 2005-2025}
-
-\begin{detail}{Why These 20 Years?}
-\textbf{Start Date (2005):}
-\begin{itemize}
-    \item \textbf{WAHIS Launch:} World Animal Health Information System began comprehensive global reporting in 2005
-    \item \textbf{Standardization:} Pre-2005 data inconsistent (different reporting systems, incomplete coverage)
-    \item \textbf{Digital Records:} 2005+ data digitized, structured, accessible via API
-    \item \textbf{Coverage:} Near-complete country participation (193/195 OIE members report)
-\end{itemize}
-
-\textbf{End Date (2025):}
-\begin{itemize}
-    \item \textbf{Current:} Analysis uses most recent data available (as of 2025)
-    \item \textbf{Relevant:} Recent outbreaks reflect current agricultural systems, control capacity
-    \item \textbf{Complete:} 20-year span captures multiple epidemic cycles
-\end{itemize}
-
-\textbf{Why 20 Years is Optimal:}
-\begin{itemize}
-    \item \textbf{Long enough:} Captures persistence (short-term recurrence) and reemergence (long-term reintroduction)
-    \item \textbf{Multiple waves:} Most TADs have multiple introduction-spread-control cycles in 20 years
-    \item \textbf{Temporal variation:} Sufficient time for environmental/institutional changes
-    \item \textbf{Power:} 20 years × 15 TADs × multiple countries = massive sample size
-\end{itemize}
-
-\textbf{What About Earlier Data (Pre-2005)?}
-\begin{itemize}
-    \item \textbf{Exists but problematic:} OIE collected reports pre-2005, but not systematically
-    \item \textbf{Inconsistent:} Reporting formats changed, coverage incomplete
-    \item \textbf{Not digitized:} Much pre-2005 data only in paper reports
-    \item \textbf{Bias:} Including inconsistent historical data introduces more noise than signal
-    \item \textbf{Decision:} Prioritize data quality over duration
-\end{itemize}
-\end{detail}
-
-\subsection{Romania Case Study: 2018-2024}
-
-\begin{detail}{Why Start in 2018 (Not 2017)?}
-\textbf{ASF Timeline in Romania:}
-\begin{itemize}
-    \item \textbf{July 2017:} First ASF detection (Satu Mare county, near Ukraine border)
-    \item \textbf{Late 2017:} Sporadic outbreaks, rapid response, localized spread
-    \item \textbf{2018 onwards:} Established transmission, sustained epidemic
-\end{itemize}
-
-\textbf{Why Exclude 2017?}
-\begin{itemize}
-    \item \textbf{Introductory phase:} Initial outbreaks don't represent persistence/reemergence (first occurrence)
-    \item \textbf{Incomplete year:} Only 5-6 months of data (July-December 2017)
-    \item \textbf{Surveillance artifacts:} Enhanced detection after first outbreak (reporting bias)
-    \item \textbf{Small sample:} Only ~100 outbreaks in 2017 vs 1,000+ in 2018
-    \item \textbf{Conceptual:} Persistence requires $\geq$2 outbreaks (can't define persistence in year 1)
-\end{itemize}
-
-\textbf{Why Start in 2018?}
-\begin{itemize}
-    \item \textbf{Established transmission:} Virus circulating widely (not just initial introduction)
-    \item \textbf{Full year:} Complete January-December data
-    \item \textbf{Persistence possible:} Can define recurrence (areas with 2017 outbreaks + 2018 recurrence)
-    \item \textbf{Adequate sample:} Sufficient outbreaks for statistical power
-    \item \textbf{Stable surveillance:} Reporting system established, less detection bias
-\end{itemize}
-\end{detail}
-
-\begin{detail}{Why End in 2024 (Not Earlier/Later)?}
-\textbf{Upper Bound (2024):}
-\begin{itemize}
-    \item \textbf{Data availability:} Most recent complete data at time of analysis
-    \item \textbf{Ongoing epidemic:} ASF still circulating in Romania (endemic)
-    \item \textbf{Relevance:} Recent data reflects current risk landscape
-    \item \textbf{Future:} Model can be updated as new data becomes available
-\end{itemize}
-
-\textbf{Why Not Longer (2025+)?}
-\begin{itemize}
-    \item \textbf{Data lag:} WAHIS reports typically 3-6 months delayed (not yet complete for 2025)
-    \item \textbf{Validation:} Holding out 2025+ as independent validation set (future work)
-    \item \textbf{Sufficient:} 6 years (2018-2024) adequate for persistence + reemergence
-\end{itemize}
-
-\textbf{Is 6 Years Enough?}
-\begin{itemize}
-    \item \textbf{Persistence:} Yes. Need 6-24 months between outbreaks. 6 years = multiple recurrence cycles.
-    \item \textbf{Reemergence:} Marginal. Need $\geq$2 years disease-free + reintroduction. 6 years allows 1-2 reemergence events per area.
-    \item \textbf{Sample size:} 1,976 outbreaks = statistically adequate (404 EPV)
-    \item \textbf{Trade-off:} Longer period better, but must balance with data availability
-\end{itemize}
-\end{detail}
-
-\begin{warning}{Reemergence Analysis Limitation}
-\textbf{Challenge:} Defining reemergence requires $\geq$2 years disease-free.
-
-\textbf{Implication:} In 6-year study period (2018-2024), can only observe:
-\begin{itemize}
-    \item Disease-free 2018-2019 $\rightarrow$ reemergence 2020-2024 (possible)
-    \item Disease-free 2020-2021 $\rightarrow$ reemergence 2022-2024 (possible)
-    \item Disease-free 2022-2023 $\rightarrow$ reemergence 2024 (limited window)
-\end{itemize}
-
-\textbf{Result:} Fewer reemergence events than persistence events.
-
-\textbf{Mitigation:}
-\begin{itemize}
-    \item Focus analysis on persistence (larger sample)
-    \item Treat reemergence as complementary secondary analysis
-    \item Acknowledge power limitation in discussion
-    \item Consider alternative definition: 1-year disease-free (sensitivity analysis)
-\end{itemize}
-\end{warning}
-
-% ============================================================================
-\section{Key Definitions with Deep Detail}
-% ============================================================================
-
-\subsection{Persistence: Complete Definition}
-
-\begin{keypoint}{What is Persistence?}
-\textbf{Operational Definition:}
-
-A location (admin-2 unit) experiences \textit{persistence} if it has $\geq$2 outbreaks with the second outbreak occurring 6-24 months after the first.
-
-\textbf{Binary Outcome:}
-\begin{itemize}
-    \item Persistence = 1 (Yes, disease recurred within 6-24 months)
-    \item Persistence = 0 (No, disease did not recur, or recurred outside 6-24 month window)
-\end{itemize}
-\end{keypoint}
-
-\begin{detail}{Why This Definition? Breaking It Down}
-\textbf{Component 1: $\geq$2 Outbreaks}
-
-\textit{Why require 2+ outbreaks?}
-\begin{itemize}
-    \item \textbf{Conceptual:} Persistence = recurrence. Can't have recurrence without initial outbreak + subsequent outbreak.
-    \item \textbf{Excludes single outbreaks:} Areas with 1 outbreak are different (introduction, not persistence).
-    \item \textbf{Policy relevance:} Authorities care about \textit{repeated} risk, not one-time events.
-\end{itemize}
-
-\textit{Why not require 3+ outbreaks?}
-\begin{itemize}
-    \item \textbf{Sample size:} Requiring 3+ outbreaks drastically reduces sample (many areas have exactly 2).
-    \item \textbf{Sufficient:} 2 outbreaks establishes pattern (not random introduction).
-    \item \textbf{Sensitivity analysis:} Can test 3+ outbreak threshold separately.
-\end{itemize}
-
-\textbf{Component 2: 6-24 Month Window}
-
-\textit{Why 6 months minimum?}
-\begin{itemize}
-    \item \textbf{Excludes surveillance artifacts:} Outbreaks within days/weeks often same event (detected progressively).
-    \item \textbf{Biological plausibility:} ASF incubation + detection takes weeks. True recurrence unlikely <6 months.
-    \item \textbf{Control interventions:} Culling, movement restrictions typically last 3-6 months. Recurrence <6 months suggests control failure during active intervention (different mechanism).
-    \item \textbf{Literature:} Most disease ecology studies use 3-6 month minimum for recurrence.
-\end{itemize}
-
-\textit{Why 24 months maximum?}
-\begin{itemize}
-    \item \textbf{Distinguishes persistence from reemergence:} >24 months suggests reintroduction (new source), not incomplete elimination.
-    \item \textbf{Biological:} If virus persists locally (low-level circulation), expect recurrence within ~2 years.
-    \item \textbf{Policy:} Short-term recurrence (6-24 months) suggests local control inadequate. Long-term (>2 years) suggests external reintroduction.
-    \item \textbf{Alternative:} Can test 12-month or 18-month cutoffs (sensitivity analysis).
-\end{itemize}
-
-\textbf{Component 3: Same Admin-2 Unit}
-
-\textit{Why same location?}
-\begin{itemize}
-    \item \textbf{Spatial specificity:} Persistence is location-specific. Risk factors should predict \textit{which areas} experience recurrence.
-    \item \textbf{Neighboring outbreaks different:} Spread to adjacent area = transmission, not persistence.
-    \item \textbf{Policy:} Surveillance/control targeted at \textit{specific} high-risk communes.
-\end{itemize}
-
-\textit{What about neighboring admin-2 units?}
-\begin{itemize}
-    \item \textbf{Nearby outbreaks:} Suggest local transmission (captured by spatial predictors like density).
-    \item \textbf{Not same as persistence:} Neighboring area outbreak doesn't make original area "persistent."
-    \item \textbf{Analysis:} Spatial autocorrelation tests capture neighboring effects.
-\end{itemize}
-\end{detail}
-
-\begin{methodology}{How Persistence is Calculated: Code Example}
-\textbf{Step-by-Step Calculation:}
-
-\begin{lstlisting}
-# Load outbreak data
-outbreaks <- read_csv("romania_asf_outbreaks.csv")
-
-# Step 1: Sort by location and date
-outbreaks <- outbreaks %>%
-  arrange(admin2_code, outbreak_date)
-
-# Step 2: Calculate time between consecutive outbreaks in same location
-outbreaks <- outbreaks %>%
-  group_by(admin2_code) %>%
-  mutate(
-    days_since_last = as.numeric(outbreak_date - lag(outbreak_date)),
-    months_since_last = days_since_last / 30.44  # Average month length
-  )
-
-# Step 3: Define persistence (>=2 outbreaks, 6-24 months apart)
-admin2_persistence <- outbreaks %>%
-  group_by(admin2_code) %>%
-  summarise(
-    total_outbreaks = n(),
-    persistence = if_else(
-      total_outbreaks >= 2 &
-      any(months_since_last >= 6 & months_since_last <= 24, na.rm=TRUE),
-      1,  # Persistence = YES
-      0   # Persistence = NO
-    )
-  )
-
-# Result: Each admin-2 unit has binary persistence outcome
-# Use this as dependent variable in logistic regression
-\end{lstlisting}
-
-\textbf{Example Output:}
-\begin{lstlisting}
-# admin2_code   total_outbreaks   persistence
-# RO-AB-001              5              1     # 5 outbreaks, at least one recurrence 6-24 months
-# RO-AB-002              1              0     # Only 1 outbreak, no recurrence
-# RO-AB-003              3              0     # 3 outbreaks, but all >24 months apart (reemergence, not persistence)
-# RO-AB-004              2              1     # 2 outbreaks, 18 months apart (persistence)
-\end{lstlisting}
-\end{methodology}
-
-\begin{detail}{Alternative Definitions Considered}
-\textbf{1. Continuous Outcome: Number of Recurrences}
-\begin{itemize}
-    \item \textbf{Definition:} Count of outbreaks within 6-24 months of prior outbreak
-    \item \textbf{Model:} Poisson or negative binomial regression
-    \item \textbf{Advantage:} Uses more information (degree of persistence)
-    \item \textbf{Disadvantage:} Harder to interpret for policy (binary easier: "Is this area high-risk?")
-    \item \textbf{Decision:} Use binary for main analysis, continuous for sensitivity
-\end{itemize}
-
-\textbf{2. Different Time Windows}
-\begin{itemize}
-    \item \textbf{3-12 months:} Very short-term (acute persistence)
-    \item \textbf{12-36 months:} Extended medium-term
-    \item \textbf{Decision:} Test multiple windows in sensitivity analysis
-\end{itemize}
-
-\textbf{3. Proportion of Years with Outbreaks}
-\begin{itemize}
-    \item \textbf{Definition:} Of 6 study years, how many had $\geq$1 outbreak?
-    \item \textbf{Advantage:} Captures chronic endemicity
-    \item \textbf{Disadvantage:} Doesn't distinguish timing (e.g., years 1,2,3 vs years 1,3,6)
-    \item \textbf{Decision:} Not used (loses temporal information)
-\end{itemize}
-
-\textbf{4. Clinical Definition (Individual-Level Persistence)}
-\begin{itemize}
-    \item \textbf{Definition:} Same animal has persistent infection (chronic carrier)
-    \item \textbf{Not applicable:} ASF is acute (kills quickly, no chronic carriers)
-    \item \textbf{Relevant for other diseases:} Tuberculosis, brucellosis (chronic infections)
-\end{itemize}
-\end{detail}
-
-\subsection{Reemergence: Complete Definition}
-
-\begin{keypoint}{What is Reemergence?}
-\textbf{Operational Definition:}
-
-A location (admin-2 unit) experiences \textit{reemergence} if disease returns after $\geq$2 years disease-free.
-
-\textbf{Time-to-Event Outcome:}
-\begin{itemize}
-    \item Reemergence time = months from start of disease-free period until next outbreak
-    \item Censored if no reemergence by end of study (2024)
-\end{itemize}
-\end{keypoint}
-
-\begin{detail}{Why This Definition?}
-\textbf{Component 1: $\geq$2 Years Disease-Free}
-
-\textit{Why 2 years minimum?}
-\begin{itemize}
-    \item \textbf{Distinguishes from persistence:} <2 years = incomplete elimination (persistence). $\geq$2 years = likely cleared, then reintroduced.
-    \item \textbf{Control policy:} EU ASF control zones maintained 1-2 years post-outbreak. Disease-free >2 years suggests successful control.
-    \item \textbf{Biological:} ASF environmental survival ~1 year (carcasses, contaminated materials). >2 years suggests external reintroduction, not local persistence.
-    \item \textbf{Literature:} "Disease-free period" typically defined as 1-3 years in TAD epidemiology.
-\end{itemize}
-
-\textit{Alternative thresholds:}
-\begin{itemize}
-    \item \textbf{1 year:} Less stringent, more reemergence events (higher power)
-    \item \textbf{3 years:} More stringent, fewer events (lower power)
-    \item \textbf{Decision:} Use 2 years for main analysis, test 1-year and 3-year in sensitivity
-\end{itemize}
-
-\textbf{Component 2: Disease Returns}
-
-\textit{What counts as "return"?}
-\begin{itemize}
-    \item \textbf{Any outbreak:} After $\geq$2 years disease-free, next outbreak = reemergence
-    \item \textbf{Regardless of size:} 1 animal or 100 animals, still counts (reintroduction occurred)
-    \item \textbf{Same admin-2 unit:} Must be in same location (not neighboring area)
-\end{itemize}
-
-\textbf{Component 3: Mechanism}
-
-\textit{What biological process does reemergence represent?}
-\begin{itemize}
-    \item \textbf{Reintroduction:} Virus brought from outside (contaminated vehicle, infected pig movement, wild boar migration)
-    \item \textbf{Not:} Local persistence (would be <2 years)
-    \item \textbf{Not:} Spread from neighbor (neighboring outbreak is transmission, not reemergence in original location)
-    \item \textbf{Implication:} Reemergence risk factors may differ from persistence (focus on introduction pathways, not local elimination)
-\end{itemize}
-\end{detail}
-
-\begin{detail}{Policy Relevance of Reemergence}
-\textbf{Why Does Reemergence Matter?}
-
-\textbf{1. Control Success Measurement:}
-\begin{itemize}
-    \item Areas that stay disease-free >2 years considered "controlled"
-    \item Reemergence indicates control wasn't durable (external risk persists)
-    \item Informs whether to maintain surveillance in "cleared" areas
-\end{itemize}
-
-\textbf{2. Resource Allocation:}
-\begin{itemize}
-    \item Should we reduce surveillance in disease-free areas? (Risky if reemergence likely)
-    \item Which cleared areas need continued monitoring? (Those with high reemergence risk)
-    \item When can we declare an area "safe"? (Low reemergence risk after 2+ years)
-\end{itemize}
-
-\textbf{3. Trade Implications:}
-\begin{itemize}
-    \item EU trade restrictions lifted after 2-3 years disease-free
-    \item Reemergence forces re-imposition of restrictions (economic damage)
-    \item Predicting reemergence risk informs trade policy (conditional clearance)
-\end{itemize}
-
-\textbf{4. Prevention Focus:}
-\begin{itemize}
-    \item Reemergence suggests external introduction pathways
-    \item Targets biosecurity improvements: movement controls, vehicle disinfection, fencing
-    \item Different interventions than persistence (which targets local elimination)
-\end{itemize}
-\end{detail}
-
-\begin{methodology}{How Reemergence is Calculated: Code Example}
-\textbf{Step-by-Step Calculation:}
-
-\begin{lstlisting}
-# Step 1: Identify disease-free periods (>=2 years without outbreak)
-admin2_timeline <- outbreaks %>%
-  arrange(admin2_code, outbreak_date) %>%
-  group_by(admin2_code) %>%
-  mutate(
-    months_since_last = as.numeric(outbreak_date - lag(outbreak_date)) / 30.44,
-    disease_free_period = months_since_last >= 24  # 2 years = 24 months
-  )
-
-# Step 2: Define reemergence events (outbreak after >=2 years disease-free)
-reemergence_events <- admin2_timeline %>%
-  filter(disease_free_period == TRUE) %>%
-  mutate(
-    reemergence_date = outbreak_date,
-    disease_free_start = lag(outbreak_date),
-    time_to_reemergence = months_since_last
-  )
-
-# Step 3: Create survival dataset
-#   - Entry time: Start of disease-free period
-#   - Event time: Reemergence outbreak (if occurred)
-#   - Censoring: End of study (2024) if no reemergence
-survival_data <- admin2_timeline %>%
-  group_by(admin2_code) %>%
-  summarise(
-    last_outbreak = max(outbreak_date),
-    study_end = as.Date("2024-12-31"),
-    months_since_last = as.numeric(study_end - last_outbreak) / 30.44,
-    reemergence = if_else(months_since_last >= 24 & n() >= 2, 1, 0),
-    time = if_else(reemergence == 1,
-                   months_since_last,  # Time to reemergence
-                   months_since_last)  # Time to censoring
-  )
-
-# Step 4: Cox proportional hazards model
-library(survival)
-cox_model <- coxph(Surv(time, reemergence) ~
-                     livestock_density +
-                     tree_cover +
-                     road_density,
-                   data = survival_data)
-\end{lstlisting}
-
-\textbf{Example Output:}
-\begin{lstlisting}
-# admin2_code   last_outbreak   months_since   reemergence   time
-# RO-AB-001     2020-06-15           42              1        42    # Reemergence after 42 months
-# RO-AB-002     2019-03-10           68              0        68    # Censored (no reemergence)
-# RO-AB-003     2022-11-20           14              0        14    # Too recent to assess
-\end{lstlisting}
-\end{methodology}
-
-\subsection{Z-Scoring: Complete Definition and Justification}
-
-\begin{keypoint}{What is Z-Scoring?}
-\textbf{Operational Definition:}
-
-Z-scoring (standardization) transforms predictors to have mean = 0 and standard deviation = 1.
-
-\textbf{Formula:}
-\[
-z_i = \frac{x_i - \bar{x}}{s_x}
-\]
-
-Where:
-\begin{itemize}
-    \item $z_i$ = standardized value for observation $i$
-    \item $x_i$ = original value for observation $i$
-    \item $\bar{x}$ = mean of all observations
-    \item $s_x$ = standard deviation of all observations
-\end{itemize}
-\end{keypoint}
-
-\begin{detail}{Why Z-Score? Complete Justification}
-\textbf{Problem Without Z-Scoring:}
-
-Predictors have wildly different scales:
-\begin{itemize}
-    \item \textbf{Livestock density:} 0 - 50,000 pigs/km\textsuperscript{2} (scale: thousands)
-    \item \textbf{Tree cover:} 0 - 100\% (scale: 0-100)
-    \item \textbf{Road density:} 0 - 5 km/km\textsuperscript{2} (scale: 0-5)
-    \item \textbf{GDP:} \$5,000 - \$30,000 per capita (scale: thousands)
-\end{itemize}
-
-\textbf{Consequence:}
-\begin{itemize}
-    \item Logistic regression coefficients reflect scale of predictor
-    \item A coefficient of 0.0001 for livestock density (large scale) could have same effect size as 0.1 for tree cover (small scale)
-    \item \textbf{Cannot compare} coefficients directly: "Which predictor is most important?"
-    \item Optimization algorithms struggle with mixed scales (numerical instability)
-\end{itemize}
-
-\textbf{Solution: Z-Scoring}
-
-After z-scoring:
-\begin{itemize}
-    \item All predictors have mean = 0, SD = 1 (same scale)
-    \item Coefficients now comparable: "1 SD increase in X associated with $\beta$ change in log-odds"
-    \item Can rank predictors by effect size (standardized coefficients)
-    \item Improves model convergence (optimization easier)
-\end{itemize}
-\end{detail}
-
-\begin{detail}{How Z-Scoring Changes Interpretation}
-\textbf{Before Z-Scoring:}
-
-\textbf{Model:} $\log(\text{odds}) = \beta_0 + \beta_1 \times \text{livestock\_density}$
-
-\textbf{Coefficient:} $\beta_1 = 0.00005$
-
-\textbf{Interpretation:} ``For each additional 1 pig/km\textsuperscript{2}, odds of persistence increase by 0.005\%.'' (Tiny effect, hard to communicate)
-
-\textbf{After Z-Scoring:}
-
-\textbf{Model:} $\log(\text{odds}) = \beta_0 + \beta_1 \times z_{\text{livestock\_density}}$
-
-\textbf{Coefficient:} $\beta_1 = 0.65$
-
-\textbf{Interpretation:} ``For each 1 SD increase in livestock density, odds of persistence increase by 92\% (OR = e\textsuperscript{0.65} = 1.92).'' (Meaningful, comparable)
-
-\textbf{Key Point:}
-\begin{itemize}
-    \item Z-scoring changes scale, \textit{not} relationships
-    \item Statistical significance unchanged
-    \item Effect sizes now comparable across predictors
-    \item Much easier to communicate to non-statisticians
-\end{itemize}
-\end{detail}
-
-\begin{methodology}{Z-Scoring Code Example}
-\begin{lstlisting}
-# Example with actual numbers
-
-# Original data (wide range of scales)
-data <- data.frame(
-  admin2_id = 1:5,
-  livestock_density = c(100, 5000, 15000, 800, 25000),   # Scale: 0-50,000
-  tree_cover = c(5, 30, 75, 20, 90),                     # Scale: 0-100
-  road_density = c(0.1, 0.5, 2.3, 0.8, 4.1),             # Scale: 0-5
-  persistence = c(0, 0, 1, 0, 1)
-)
-
-# Z-score transformation
-data_zscore <- data %>%
-  mutate(
-    z_livestock = (livestock_density - mean(livestock_density)) / sd(livestock_density),
-    z_tree = (tree_cover - mean(tree_cover)) / sd(tree_cover),
-    z_road = (road_density - mean(road_density)) / sd(road_density)
-  )
-
-# Check: All z-scored variables have mean ≈ 0, SD ≈ 1
-summary(data_zscore[, c("z_livestock", "z_tree", "z_road")])
-#   z_livestock      z_tree          z_road
-# Min.  :-1.23   Min.  :-1.45    Min.  :-1.34
-# Mean  : 0.00   Mean  : 0.00    Mean  : 0.00   # All means = 0
-# Max.  : 1.56   Max.  : 1.78    Max.  : 1.67
-# SD    : 1.00   SD    : 1.00    SD    : 1.00   # All SDs = 1
-
-# Logistic regression with original variables (hard to interpret)
-model_original <- glm(persistence ~ livestock_density + tree_cover + road_density,
-                      data = data, family = binomial)
-summary(model_original)
-# Coefficients:
-#                      Estimate
-# livestock_density    0.00008   # Tiny, can't compare to others
-# tree_cover           0.05      # Moderate, but different scale
-# road_density         1.2       # Large, but different scale
-
-# Logistic regression with z-scored variables (easy to compare)
-model_zscore <- glm(persistence ~ z_livestock + z_tree + z_road,
-                    data = data_zscore, family = binomial)
-summary(model_zscore)
-# Coefficients:
-#              Estimate
-# z_livestock    0.67    # 1 SD increase → OR = e^0.67 = 1.95
-# z_tree         0.45    # 1 SD increase → OR = e^0.45 = 1.57
-# z_road         0.82    # 1 SD increase → OR = e^0.82 = 2.27
-
-# NOW COMPARABLE: Road density has largest effect (0.82 > 0.67 > 0.45)
-\end{lstlisting}
-\end{methodology}
-
-\begin{warning}{What Z-Scoring Does NOT Do}
-\textbf{Misconceptions:}
-
-\textbf{1. Does NOT Change Statistical Significance}
-\begin{itemize}
-    \item p-values identical before and after z-scoring
-    \item Z-scoring is linear transformation (preserves relationships)
-    \item If livestock density was significant (p<0.05) before, still significant after
-\end{itemize}
-
-\textbf{2. Does NOT Improve Model Performance}
-\begin{itemize}
-    \item AUC, accuracy, calibration unchanged
-    \item Z-scoring doesn't add information (just rescales)
-    \item Only benefit: Easier optimization, comparable coefficients
-\end{itemize}
-
-\textbf{3. Does NOT Make Non-Linear Relationships Linear}
-\begin{itemize}
-    \item If relationship is non-linear (e.g., quadratic), z-scoring doesn't fix it
-    \item Still need polynomial terms, splines, etc. for non-linearity
-\end{itemize}
-
-\textbf{4. Does NOT Remove Outliers}
-\begin{itemize}
-    \item Outliers still outliers after z-scoring (now z-scores of $\pm$3 or more)
-    \item May want to winsorize (cap extreme values) separately
-\end{itemize}
-\end{warning}
-
-\subsection{Commune-Level Analysis: Spatial Scale Justification}
-
-\begin{keypoint}{Why Admin-2 (Commune) Level?}
-\textbf{Decision:} Use admin-2 (commune/county) as unit of analysis.
-
-\textbf{Alternatives Considered:}
-\begin{itemize}
-    \item Farm-level (too fine, data unavailable)
-    \item Grid cells (arbitrary, doesn't match policy)
-    \item Admin-1 (province - too coarse)
-    \item Admin-2 (commune - OPTIMAL)
-\end{itemize}
-\end{keypoint}
-
-\begin{detail}{Why NOT Farm-Level?}
-\textbf{Ideal but Impractical:}
-
-\textbf{Advantages of Farm-Level:}
-\begin{itemize}
-    \item Most granular: Individual farms have unique characteristics
-    \item Direct policy relevance: "This farm is high-risk"
-    \item Avoids ecological fallacy (admin-2 associations may not hold at farm level)
-    \item Large sample size (28,226 farms in Romania)
-\end{itemize}
-
-\textbf{Why We Can't Use Farm-Level:}
-\begin{itemize}
-    \item \textbf{Data unavailable:} WAHIS reports outbreaks at admin-2, not farm ID
-    \item \textbf{Privacy:} Exact farm locations protected (GDPR in EU)
-    \item \textbf{Backyard farms:} 1.2 million small holdings not in registry
-    \item \textbf{Wild boar:} Many outbreaks in wildlife (no "farm")
-    \item \textbf{Linkage:} Can't link WAHIS outbreaks to farm registry
-\end{itemize}
-
-\textbf{Mitigation:}
-\begin{itemize}
-    \item Some countries provide farm-level data (future work)
-    \item For now, admin-2 best available compromise
-\end{itemize}
-\end{detail}
-
-\begin{detail}{Why NOT Grid Cells?}
-\textbf{Spatially Explicit but Arbitrary:}
-
-\textbf{Advantages of Grid Cells:}
-\begin{itemize}
-    \item Uniform size (5km × 5km grids)
-    \item Matches remote sensing data (MODIS, GLW)
-    \item Avoids modifiable areal unit problem (MAUP) to some extent
-    \item Spatially continuous (smooth risk maps)
-\end{itemize}
-
-\textbf{Why We Don't Use Grid Cells:}
-\begin{itemize}
-    \item \textbf{Outbreak location:} WAHIS reports at admin-2, not coordinates
-    \item \textbf{Can't assign:} Don't know which grid cell outbreak occurred in
-    \item \textbf{Policy mismatch:} Control measures implemented at admin-2 (movement restrictions, surveillance zones)
-    \item \textbf{Arbitrary:} Grid boundaries don't reflect epidemiological units
-\end{itemize}
-
-\textbf{When Grid Cells Make Sense:}
-\begin{itemize}
-    \item If you have exact outbreak coordinates (GPS)
-    \item For purely spatial prediction (not policy-linked)
-    \item For environmental niche modeling (MaxEnt, etc.)
-\end{itemize}
-\end{detail}
-
-\begin{detail}{Why NOT Admin-1 (Province)?}
-\textbf{Too Coarse:}
-
-\textbf{Romania Admin Levels:}
-\begin{itemize}
-    \item \textbf{Admin-0:} Country (1 unit)
-    \item \textbf{Admin-1:} County (42 units)
-    \item \textbf{Admin-2:} Commune (3,181 units)
-\end{itemize}
-
-\textbf{Why Admin-1 Insufficient:}
-\begin{itemize}
-    \item \textbf{Too few units:} Only 42 counties (low power)
-    \item \textbf{High heterogeneity:} Counties vary widely internally (urban vs rural, mountains vs plains)
-    \item \textbf{Loses spatial variation:} Most counties have outbreaks (limited contrast)
-    \item \textbf{Policy too coarse:} Movement restrictions at county level affect entire region (inefficient)
-\end{itemize}
-
-\textbf{When Admin-1 Makes Sense:}
-\begin{itemize}
-    \item National-level analysis (comparing provinces across country)
-    \item Data only available at admin-1 (e.g., GDP, veterinary capacity)
-    \item Very large countries where admin-2 would be thousands of units
-\end{itemize}
-\end{detail}
-
-\begin{detail}{Why Admin-2 (Commune) is Optimal}
-\textbf{Best Balance:}
-
-\textbf{1. Data Availability:}
-\begin{itemize}
-    \item WAHIS reports outbreaks at admin-2 (commune name provided)
-    \item Can link to spatial boundaries (GADM database)
-    \item Predictors available at admin-2 (GLW, MODIS aggregated to commune)
-\end{itemize}
-
-\textbf{2. Spatial Resolution:}
-\begin{itemize}
-    \item 3,181 communes in Romania (large sample)
-    \item Median commune size: ~50 km\textsuperscript{2} (meaningful spatial variation)
-    \item Fine enough to capture risk heterogeneity
-    \item Coarse enough to aggregate environmental data without excessive noise
-\end{itemize}
-
-\textbf{3. Policy Relevance:}
-\begin{itemize}
-    \item \textbf{Surveillance:} Veterinary inspections organized by commune
-    \item \textbf{Control zones:} Movement restrictions often commune-based
-    \item \textbf{Risk communication:} Farmers understand commune boundaries
-    \item \textbf{Implementation:} Local veterinary offices operate at commune level
-\end{itemize}
-
-\textbf{4. Epidemiological Meaning:}
-\begin{itemize}
-    \item Communes represent coherent agricultural areas
-    \item Farm-to-farm transmission likely within commune (shared resources, roads)
-    \item Between-commune transmission less frequent (physical distance, administrative barriers)
-    \item Approximates "local epidemic unit"
-\end{itemize}
-\end{detail}
-
-\begin{warning}{Ecological Fallacy}
-\textbf{Risk:} Associations at admin-2 level may not hold at farm level.
-
-\textbf{Example:}
-\begin{itemize}
-    \item Finding: "Communes with high livestock density have higher persistence risk"
-    \item \textbf{Does NOT imply:} "Every farm in high-density commune has higher risk"
-    \item \textbf{Farm-level variation:} Within-commune heterogeneity (biosecurity, management)
-\end{itemize}
-
-\textbf{Mitigation:}
-\begin{itemize}
-    \item Interpret findings as commune-level risk (population-level)
-    \item Acknowledge limitation in discussion
-    \item Frame recommendations at commune level ("Enhanced surveillance in commune X")
-    \item Future work: If farm-level data becomes available, validate findings
-\end{itemize}
-\end{warning}
-
-% ============================================================================
-\section{Conceptual Framework: Predictors → Outcome}
-% ============================================================================
-
-\begin{keypoint}{How Do Risk Factors Cause Persistence/Reemergence?}
-This section maps the \textbf{causal pathways} from predictors to outcome. Each predictor must have a plausible biological/social mechanism.
-\end{keypoint}
-
-\subsection{Causal Pathway Diagram}
-
-\begin{detail}{From Predictors to Outcome}
-\textbf{General Framework:}
-
-\textbf{Risk Factors} $\rightarrow$ \textbf{Transmission Opportunity} $\rightarrow$ \textbf{Outbreak} $\rightarrow$ \textbf{Incomplete Elimination OR Reintroduction} $\rightarrow$ \textbf{Persistence/Reemergence}
-
-\textbf{Breakdown by Predictor Category:}
-
-\textbf{1. ECOLOGICAL (Livestock Density, Susceptible Animals):}
-\begin{itemize}
-    \item \textbf{Mechanism:} More susceptible animals $\rightarrow$ Higher contact rate $\rightarrow$ Faster transmission $\rightarrow$ Larger outbreaks $\rightarrow$ Harder to eliminate completely
-    \item \textbf{Persistence pathway:} Virus circulates longer in dense populations (takes longer to eliminate)
-    \item \textbf{Reemergence pathway:} Dense populations = attractive targets for virus introduction (more susceptibles)
-    \item \textbf{Evidence:} SIR models show transmission rate $\propto$ density
-\end{itemize}
-
-\textbf{2. ENVIRONMENTAL (Tree Cover, Water Bodies, Wetlands):}
-\begin{itemize}
-    \item \textbf{Mechanism:} Environmental features $\rightarrow$ Wildlife habitat $\rightarrow$ Reservoir populations $\rightarrow$ Spillover to domestic animals
-    \item \textbf{Tree cover:} Wild boar habitat $\rightarrow$ Higher boar density $\rightarrow$ Boar-pig contact $\rightarrow$ Cross-species transmission
-    \item \textbf{Wetlands:} Waterfowl habitat (relevant for avian influenza) $\rightarrow$ Wild bird contact with poultry
-    \item \textbf{Water bodies:} Virus survival in water $\rightarrow$ Environmental contamination $\rightarrow$ Indirect transmission
-    \item \textbf{Persistence pathway:} Environmental reservoirs maintain virus between outbreaks
-    \item \textbf{Reemergence pathway:} Wildlife reintroduces virus after domestic clearance
-\end{itemize}
-
-\textbf{3. WILDLIFE INTERFACE (Wildlife Proximity, Habitat Quality):}
-\begin{itemize}
-    \item \textbf{Mechanism:} Domestic-wildlife interface $\rightarrow$ Contact opportunity $\rightarrow$ Pathogen spillover
-    \item \textbf{ASF example:} Wild boar $\leftrightarrow$ domestic pigs (shared environment, direct contact, contaminated carcasses)
-    \item \textbf{Avian influenza example:} Wild waterfowl $\rightarrow$ poultry (shared water sources, overlapping habitat)
-    \item \textbf{Persistence pathway:} Wildlife maintains virus $\rightarrow$ Repeated spillover to domestic animals
-    \item \textbf{Reemergence pathway:} After domestic elimination, wildlife reintroduces virus
-\end{itemize}
-
-\textbf{4. INFRASTRUCTURE (Road Density, Accessibility):}
-\begin{itemize}
-    \item \textbf{Mechanism:} Roads $\rightarrow$ Movement (animals, vehicles, people) $\rightarrow$ Pathogen transport $\rightarrow$ Spread
-    \item \textbf{Higher road density:} More connections $\rightarrow$ Faster spread $\rightarrow$ Larger outbreak extent $\rightarrow$ Harder to control
-    \item \textbf{Contaminated vehicles:} Trucks, equipment carry virus between farms
-    \item \textbf{Persistence pathway:} Well-connected areas have continuous reintroduction (nearby infected areas)
-    \item \textbf{Reemergence pathway:} Roads facilitate reintroduction after clearance
-\end{itemize}
-
-\textbf{5. INSTITUTIONAL (Vaccination/Culling Coverage, GDP):}
-\begin{itemize}
-    \item \textbf{Mechanism:} Control capacity $\rightarrow$ Effective intervention $\rightarrow$ Outbreak elimination $\rightarrow$ Reduced persistence
-    \item \textbf{Higher vaccination:} Reduces susceptibles $\rightarrow$ Breaks transmission $\rightarrow$ Outbreak contained
-    \item \textbf{Higher culling:} Removes infected/exposed $\rightarrow$ Eliminates virus $\rightarrow$ Prevents recurrence
-    \item \textbf{Higher GDP:} Better resources (veterinary capacity, surveillance, farmer compliance) $\rightarrow$ Faster detection + response
-    \item \textbf{Persistence pathway:} Weak control $\rightarrow$ Incomplete elimination $\rightarrow$ Virus persists locally
-    \item \textbf{Reemergence pathway:} Weak control $\rightarrow$ Neighboring outbreaks not contained $\rightarrow$ Reintroduction from nearby
-\end{itemize}
-\end{detail}
-
-\subsection{Hypothesized Directions of Effect}
-
-\begin{methodology}{Expected Associations}
-\begin{longtable}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}p{7cm}}
-\caption{Predicted Effect Directions with Justification} \\
-\toprule
-\textbf{Predictor} & \textbf{Expected Effect} & \textbf{Justification} \\
-\midrule
-\endfirsthead
-\midrule
-\endhead
-
-\textbf{Livestock Density} & \textbf{Positive} (+) & Higher density $\rightarrow$ More contacts $\rightarrow$ Faster transmission $\rightarrow$ Harder to eliminate. \textit{Strongest expected predictor.} \\
-\addlinespace
-
-\textbf{Tree Cover} & \textbf{Positive} (+) & More forest $\rightarrow$ Wild boar habitat $\rightarrow$ Spillover risk $\rightarrow$ Persistence via wildlife reservoir. \\
-\addlinespace
-
-\textbf{Road Density} & \textbf{Positive} (+) & More roads $\rightarrow$ More movement $\rightarrow$ Virus transport $\rightarrow$ Reintroduction. \\
-\addlinespace
-
-\textbf{Wildlife Proximity} & \textbf{Positive} (+) & Closer wildlife $\rightarrow$ Higher contact rate $\rightarrow$ Spillover $\rightarrow$ Persistence. \\
-\addlinespace
-
-\textbf{Vaccination Coverage} & \textbf{Negative} (-) & More vaccination $\rightarrow$ Fewer susceptibles $\rightarrow$ Transmission interrupted $\rightarrow$ Lower persistence. \textit{(Not applicable to ASF - no vaccine. Relevant for other TADs.)} \\
-\addlinespace
-
-\textbf{Culling Coverage} & \textbf{Negative} (-) & More culling $\rightarrow$ Infected removed $\rightarrow$ Outbreak eliminated $\rightarrow$ Lower persistence. \\
-\addlinespace
-
-\textbf{GDP} & \textbf{Negative} (-) & Higher GDP $\rightarrow$ Better veterinary capacity $\rightarrow$ Faster response $\rightarrow$ Lower persistence. \\
-\addlinespace
-
-\textbf{Water Bodies} & \textbf{Positive} (+) & Water $\rightarrow$ Virus survival $\rightarrow$ Environmental contamination $\rightarrow$ Indirect transmission. \\
-\addlinespace
-
-\textbf{Wetlands} & \textbf{Positive} (+) & Wetlands $\rightarrow$ Waterfowl (for avian diseases) OR Ecosystem diversity $\rightarrow$ Wildlife interface. \\
-\addlinespace
-
-\bottomrule
-\end{longtable}
-\end{methodology}
-
-\begin{warning}{Alternative Hypotheses}
-\textbf{Some Predictors Could Have Opposite Effects:}
-
-\textbf{1. Road Density - Ambiguous:}
-\begin{itemize}
-    \item \textbf{Positive:} More roads $\rightarrow$ More spread (pathogen transport)
-    \item \textbf{Negative:} More roads $\rightarrow$ Better access $\rightarrow$ Faster veterinary response $\rightarrow$ Better control
-    \item \textbf{Empirical question:} Which effect dominates?
-\end{itemize}
-
-\textbf{2. GDP - Ambiguous:}
-\begin{itemize}
-    \item \textbf{Negative:} Higher GDP $\rightarrow$ Better control capacity
-    \item \textbf{Positive:} Higher GDP $\rightarrow$ More intensive farming $\rightarrow$ Higher density $\rightarrow$ More transmission
-    \item \textbf{Likely:} Net negative (control capacity outweighs intensification)
-\end{itemize}
-
-\textbf{3. Tree Cover - Context-Dependent:}
-\begin{itemize}
-    \item \textbf{Positive (ASF):} Forest $\rightarrow$ Wild boar $\rightarrow$ Spillover
-    \item \textbf{Negative (other diseases):} Forest $\rightarrow$ Barrier to movement $\rightarrow$ Reduced spread
-    \item \textbf{Disease-specific:} Depends on wildlife reservoir
-\end{itemize}
-
-These ambiguities make the analysis interesting. Results will adjudicate between competing hypotheses.
-\end{warning}
-
-% ============================================================================
-\section{Expected Contributions}
-% ============================================================================
-
-\begin{keypoint}{What Will This Study Contribute?}
-\textbf{Three Levels:}
-\begin{enumerate}
-    \item \textbf{Scientific:} Advances disease ecology theory
-    \item \textbf{Methodological:} Provides reproducible framework
-    \item \textbf{Policy:} Informs evidence-based TAD control
-\end{enumerate}
-\end{keypoint}
-
-\subsection{Scientific Contributions}
-
-\begin{detail}{Advancing Disease Ecology}
-\textbf{1. Persistence vs Reemergence Framework:}
-\begin{itemize}
-    \item \textbf{Current state:} Most research conflates persistence and reemergence (both called "recurrence")
-    \item \textbf{Our contribution:} Explicitly distinguishes incomplete elimination (persistence) from reintroduction (reemergence)
-    \item \textbf{Implication:} Different mechanisms $\rightarrow$ Different risk factors $\rightarrow$ Different interventions
-    \item \textbf{Theoretical:} Refines concepts in disease dynamics (endemic vs epidemic vs reemergence)
-\end{itemize}
-
-\textbf{2. Multi-Disease Comparative Analysis:}
-\begin{itemize}
-    \item \textbf{Current state:} Disease-specific studies (ASF literature separate from FMD literature, etc.)
-    \item \textbf{Our contribution:} First systematic comparison of persistence/reemergence across 15 TADs
-    \item \textbf{Question:} Are risk factors generalizable or disease-specific?
-    \item \textbf{Implication:} Identifies universal principles vs context-dependent factors
-\end{itemize}
-
-\textbf{3. Spatial-Temporal Integration:}
-\begin{itemize}
-    \item \textbf{Current state:} Spatial models (where?) OR temporal models (when?), rarely both
-    \item \textbf{Our contribution:} Combines spatial epidemiology (location-specific risk) with temporal dynamics (time to recurrence)
-    \item \textbf{Method:} Logistic regression (spatial) + Cox survival (temporal)
-    \item \textbf{Richer understanding:} Not just "which areas?" but "how long until recurrence?"
-\end{itemize}
-
-\textbf{4. Wildlife-Livestock Interface:}
-\begin{itemize}
-    \item \textbf{Current state:} Wildlife reservoirs recognized, but quantitative assessment limited
-    \item \textbf{Our contribution:} Quantifies wildlife proximity effect on domestic animal disease recurrence
-    \item \textbf{Data:} GBIF wildlife occurrence + WAHIS livestock outbreaks
-    \item \textbf{Implication:} Evidence for One Health interventions (joint wildlife-livestock management)
-\end{itemize}
-
-\textbf{5. Environmental Drivers:}
-\begin{itemize}
-    \item \textbf{Current state:} Climate/environment considered for vector-borne diseases, less for directly transmitted
-    \item \textbf{Our contribution:} Tests environmental predictors (tree cover, wetlands, water) for multiple transmission modes
-    \item \textbf{Finding:} May show environment matters even for non-vector-borne (via wildlife, virus survival)
-\end{itemize}
-\end{detail}
-
-\subsection{Methodological Contributions}
-
-\begin{detail}{Reproducible Framework}
-\textbf{1. Multi-Database Integration:}
-\begin{itemize}
-    \item \textbf{Challenge:} TAD data fragmented (WAHIS + GLW + FAOSTAT + MODIS + WorldClim + ...)
-    \item \textbf{Our contribution:} Documented workflow for linking multiple data sources
-    \item \textbf{Code:} GitHub repository with scripts for data cleaning, merging, spatial aggregation
-    \item \textbf{Extensibility:} Other researchers can apply to different diseases/countries
-\end{itemize}
-
-\textbf{2. Spatial Epidemiology Protocol:}
-\begin{itemize}
-    \item \textbf{Contribution:} Step-by-step guide for TAD spatial analysis
-    \item \textbf{Includes:} Spatial autocorrelation testing, admin-2 aggregation, distance calculations, buffer analysis
-    \item \textbf{Tools:} Uses R (sf, raster, spatstat) - free, open-source
-    \item \textbf{Training:} Methods section detailed enough for replication
-\end{itemize}
-
-\textbf{3. Handling Right-Censoring:}
-\begin{itemize}
-    \item \textbf{Challenge:} Not all units experience reemergence by study end (censored data)
-    \item \textbf{Solution:} Cox proportional hazards (survival analysis)
-    \item \textbf{Contribution:} Demonstrates survival analysis for TAD reemergence (underused method in veterinary epidemiology)
-    \item \textbf{Advantage:} Uses all data (censored units still informative)
-\end{itemize}
-
-\textbf{4. Model Validation Best Practices:}
-\begin{itemize}
-    \item \textbf{Contribution:} Comprehensive validation workflow: train-test split, cross-validation, calibration, spatial autocorrelation
-    \item \textbf{Addresses:} Overfitting, spatial confounding, model selection
-    \item \textbf{Transparent:} Reports limitations (EPV, spatial autocorrelation in residuals)
-    \item \textbf{Replicable:} Code provided for all validation steps
-\end{itemize}
-\end{detail}
-
-\subsection{Policy Contributions}
-
-\begin{detail}{Evidence-Based TAD Control}
-\textbf{1. Risk-Based Surveillance:}
-\begin{itemize}
-    \item \textbf{Current approach:} Blanket surveillance (all farms/areas monitored equally) OR reactive (only after outbreak)
-    \item \textbf{Problem:} Limited resources can't cover all areas effectively
-    \item \textbf{Our tool:} Predictive model identifies high-risk areas for targeted surveillance
-    \item \textbf{Impact:} 3-5× more efficient (focus resources where risk highest)
-    \item \textbf{Example:} Instead of inspecting all 28,000 farms, target top 5,000 high-risk
-\end{itemize}
-
-\textbf{2. Prevention of Reemergence:}
-\begin{itemize}
-    \item \textbf{Current approach:} After area declared "disease-free," surveillance reduced/stopped
-    \item \textbf{Problem:} Reemergence surprises (unprepared)
-    \item \textbf{Our tool:} Reemergence risk model predicts which cleared areas need continued monitoring
-    \item \textbf{Impact:} Early detection of reemergence $\rightarrow$ Faster response $\rightarrow$ Smaller outbreak
-    \item \textbf{Trade:} Maintains disease-free status required for export markets
-\end{itemize}
-
-\textbf{3. Resource Allocation:}
-\begin{itemize}
-    \item \textbf{Problem:} TAD control underfunded (surveillance, vaccines, compensation)
-    \item \textbf{Need:} Evidence to justify resource allocation
-    \item \textbf{Our tool:} Identifies highest-impact areas (where investment reduces persistence most)
-    \item \textbf{Cost-benefit:} Prevention cheaper than reaction (early detection saves millions)
-\end{itemize}
-
-\textbf{4. Intervention Design:}
-\begin{itemize}
-    \item \textbf{Finding:} Risk factors reveal intervention targets
-    \item \textbf{Example:}
-    \begin{itemize}
-        \item If livestock density drives persistence $\rightarrow$ Target dense areas for enhanced biosecurity
-        \item If wildlife drives persistence $\rightarrow$ Joint wildlife-livestock interventions
-        \item If roads drive persistence $\rightarrow$ Vehicle disinfection, movement controls
-    \end{itemize}
-    \item \textbf{Tailored:} Context-specific recommendations (not one-size-fits-all)
-\end{itemize}
-
-\textbf{5. Generalizability Across Countries:}
-\begin{itemize}
-    \item \textbf{Romania model:} Specific to Romanian ASF
-    \item \textbf{Framework:} Applicable anywhere with WAHIS data
-    \item \textbf{Capacity:} Developing countries can replicate (data freely available, methods documented)
-    \item \textbf{Global impact:} ASF affecting 50+ countries; FMD, avian influenza global; framework helps all
-\end{itemize}
-\end{detail}
-
-\begin{warning}{Limitations to Policy Impact}
-\textbf{Translating Research to Practice:}
-
-\textbf{Challenges:}
-\begin{itemize}
-    \item \textbf{Political will:} Authorities must adopt risk-based approach (not always rational decision-making)
-    \item \textbf{Capacity:} Veterinary services need training to use predictive models
-    \item \textbf{Data access:} Ongoing surveillance data required for model updates (not always shared)
-    \item \textbf{Farmer compliance:} Recommendations only work if farmers cooperate (resistance to culling, movement restrictions)
-\end{itemize}
-
-\textbf{Mitigation:}
-\begin{itemize}
-    \item \textbf{Engagement:} Collaborate with Romanian NSVFSA (National Sanitary Veterinary and Food Safety Authority) from start
-    \item \textbf{User-friendly:} Develop web interface / dashboard for model (not just code)
-    \item \textbf{Communication:} Plain-language policy briefs (not just academic papers)
-    \item \textbf{Pilot:} Small-scale implementation to demonstrate value
-\end{itemize}
-\end{warning}
-
-% ============================================================================
-\section{Summary: Why This Project Design?}
-% ============================================================================
-
-\begin{keypoint}{Bringing It All Together}
-Every component of this study design is justified by:
-\begin{enumerate}
-    \item \textbf{Scientific rigor:} Uses established methods (logistic regression, survival analysis) with appropriate validation
-    \item \textbf{Data availability:} Works within constraints of WAHIS reporting, GLW grids, remote sensing
-    \item \textbf{Biological plausibility:} Each predictor has clear mechanistic pathway to outcome
-    \item \textbf{Policy relevance:} Answers questions authorities actually need answered
-    \item \textbf{Reproducibility:} Open data, open code, documented workflow
-\end{enumerate}
-\end{keypoint}
-
-\begin{detail}{Design Principles Applied}
-\textbf{1. Question Drives Design:}
-\begin{itemize}
-    \item Started with policy need: "Why do some areas have recurring outbreaks?"
-    \item Defined outcomes (persistence, reemergence) to match question
-    \item Selected predictors based on hypothesized mechanisms
-    \item Chose methods appropriate for outcome type (binary $\rightarrow$ logistic; time-to-event $\rightarrow$ Cox)
-\end{itemize}
-
-\textbf{2. Data Availability Constrains Ambition:}
-\begin{itemize}
-    \item Ideal: Farm-level data with exact locations, biosecurity scores, movement records
-    \item Reality: Admin-2 outbreak reports, gridded livestock density, remote sensing
-    \item Design: Work within constraints, acknowledge limitations, plan future work with better data
-\end{itemize}
-
-\textbf{3. Balance Complexity and Interpretability:}
-\begin{itemize}
-    \item Could use machine learning (random forests, neural nets) for higher AUC
-    \item Chose logistic regression: Lower AUC but interpretable (policy-makers understand odds ratios)
-    \item Trade-off: Modest performance gain not worth loss of interpretability
-\end{itemize}
-
-\textbf{4. Validation Prevents Overfitting:}
-\begin{itemize}
-    \item High sample size (404 EPV) tempting to include many predictors
-    \item Restraint: Limited to 5 predictors (biological + statistical justification)
-    \item Cross-validation ensures generalizability (not just training fit)
-\end{itemize}
-
-\textbf{5. Generalizability Through Comparison:}
-\begin{itemize}
-    \item Single-disease study (Romania ASF) provides depth
-    \item Multi-disease study (15 TADs) provides breadth
-    \item Combined: Detailed mechanisms (ASF) + Universal principles (pooled)
-\end{itemize}
-\end{detail}
-
-\begin{methodology}{Exam Defense Strategy}
-\textbf{If Asked: "Why did you design the study this way?"}
-
-\textbf{Template Answer:}
-\begin{enumerate}
-    \item \textbf{Start with objective:} "The goal was to [predict persistence/reemergence] to inform [targeted surveillance]."
-    \item \textbf{Justify outcome:} "I defined [persistence] as [binary, 6-24 months] because [distinguishes incomplete elimination from reintroduction]."
-    \item \textbf{Justify predictors:} "I selected [livestock density, tree cover, ...] because [mechanistic pathways + prior evidence]."
-    \item \textbf{Justify methods:} "I used [logistic regression] because [binary outcome + interpretable odds ratios]."
-    \item \textbf{Justify scale:} "I analyzed admin-2 level because [data availability + policy relevance]."
-    \item \textbf{Acknowledge alternatives:} "I considered [alternative definitions/methods] but chose [X] because [reason]."
-    \item \textbf{State limitations:} "The design has limitations [ecological fallacy, observational] which I address by [...]."
-\end{enumerate}
-
-\textbf{Key Phrases:}
-\begin{itemize}
-    \item "This decision balances [competing priorities]..."
-    \item "Given data constraints, this approach is optimal..."
-    \item "I tested alternative definitions in sensitivity analysis..."
-    \item "This aligns with prior literature [cite] while extending to [novel aspect]..."
-\end{itemize}
-\end{methodology}
-
-\end{document}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mixed Effects Models — Research Design</title>
+  <meta name="robots" content="noindex, nofollow">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green-dark:  #1a3d20;
+      --green:       #2c5530;
+      --green-mid:   #3d6b45;
+      --green-light: #4a7c59;
+      --green-pale:  #e8f5eb;
+      --blue:        #1e4a9e;
+      --blue-pale:   #e8f0fe;
+      --amber:       #b45309;
+      --amber-pale:  #fef3c7;
+      --red:         #991b1b;
+      --red-pale:    #fee2e2;
+      --purple:      #6d28d9;
+      --purple-pale: #ede9fe;
+      --text:        #0f172a;
+      --text-muted:  #475569;
+      --border:      #e2e8f0;
+      --card:        #ffffff;
+      --bg:          #f8fafc;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-light) 100%);
+      color: white;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .header-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-brand { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+    .header-brand span { opacity: 0.7; font-weight: 400; font-size: 0.9rem; display: block; }
+
+    /* ── TABS ── */
+    .tabs-bar {
+      background: var(--green-dark);
+      border-bottom: 2px solid var(--green-mid);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs-bar::-webkit-scrollbar { display: none; }
+    .tabs-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0;
+      padding: 0 1rem;
+    }
+    .tab {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      padding: 0.75rem 1.1rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      display: block;
+    }
+    .tab:hover { color: white; background: rgba(255,255,255,0.07); }
+    .tab.active {
+      color: white;
+      border-bottom-color: #7dda8a;
+      background: rgba(255,255,255,0.1);
+    }
+    .tab .tab-num {
+      font-size: 0.7rem;
+      opacity: 0.55;
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(160deg, var(--green) 0%, var(--green-mid) 60%, #3a7a50 100%);
+      color: white;
+      padding: 3.5rem 2rem 2.5rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .hero p { opacity: 0.88; font-size: 1rem; max-width: 640px; margin: 0 auto 2rem; }
+    .stat-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .stat-box {
+      background: rgba(255,255,255,0.13);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 10px;
+      padding: 0.9rem 1.4rem;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    .stat-box .num { font-size: 1.7rem; font-weight: 700; }
+    .stat-box .lbl { font-size: 0.75rem; opacity: 0.78; margin-top: 2px; }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      margin-top: 3rem;
+    }
+    .section-title:first-child { margin-top: 0; }
+    .section-title .icon {
+      width: 36px; height: 36px;
+      background: var(--green);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .section-title h2 { font-size: 1.35rem; font-weight: 700; color: var(--green-dark); }
+    .section-title p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .card-grid { display: grid; gap: 1rem; }
+    .card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .card-grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+    .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .card ul { padding-left: 1.2rem; }
+    .card ul li { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.3rem; line-height: 1.5; }
+    .card ul li strong { color: var(--text); }
+
+    .card-green  { border-left: 4px solid var(--green); }
+    .card-blue   { border-left: 4px solid var(--blue); }
+    .card-amber  { border-left: 4px solid var(--amber); }
+    .card-red    { border-left: 4px solid var(--red); }
+    .card-purple { border-left: 4px solid var(--purple); }
+
+    .card-green  h3 { color: var(--green); }
+    .card-blue   h3 { color: var(--blue); }
+    .card-amber  h3 { color: var(--amber); }
+    .card-red    h3 { color: var(--red); }
+    .card-purple h3 { color: var(--purple); }
+
+    /* badge */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .badge-green  { background: var(--green-pale);  color: var(--green); }
+    .badge-blue   { background: var(--blue-pale);   color: var(--blue); }
+    .badge-amber  { background: var(--amber-pale);  color: var(--amber); }
+    .badge-red    { background: var(--red-pale);    color: var(--red); }
+    .badge-purple { background: var(--purple-pale); color: var(--purple); }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-wrap {
+      overflow-x: auto;
+      padding: 1.5rem 0;
+    }
+    .flow-svg-container {
+      min-width: 800px;
+    }
+
+    /* ── FORMULA BOX ── */
+    .formula-box {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+      border: 1px solid #334155;
+    }
+    .formula-box .comment { color: #7dd3a8; font-style: italic; }
+    .formula-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+
+    /* ── DEFINITION CARDS ── */
+    .def-card {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .def-header {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .def-header .arrow { margin-left: auto; transition: transform 0.3s; font-size: 0.8rem; }
+    .def-header.open .arrow { transform: rotate(180deg); }
+    .def-body {
+      padding: 0 1.25rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+    }
+    .def-body.open { max-height: 800px; padding: 0 1.25rem 1.25rem; }
+    .def-body p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.5rem; }
+
+    .def-green  .def-header { background: var(--green-pale); color: var(--green-dark); border-bottom: 1px solid #c7e8cc; }
+    .def-blue   .def-header { background: var(--blue-pale);  color: #1a3a8a; border-bottom: 1px solid #c5d9f8; }
+    .def-amber  .def-header { background: var(--amber-pale); color: #92400e; border-bottom: 1px solid #f0d58c; }
+    .def-purple .def-header { background: var(--purple-pale); color: #4c1d95; border-bottom: 1px solid #d8ccf8; }
+
+    /* ── 4-W GRID ── */
+    .four-w {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .w-card {
+      border-radius: 12px;
+      padding: 1.2rem 1.3rem;
+      border: 1px solid;
+    }
+    .w-card .w-letter {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .w-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .w-card p  { font-size: 0.82rem; line-height: 1.5; }
+
+    .w-what   { background: var(--green-pale);  border-color: #b2dab7; color: var(--green-dark); }
+    .w-which  { background: var(--blue-pale);   border-color: #b8d0f5; color: var(--blue); }
+    .w-where  { background: var(--amber-pale);  border-color: #f5d580; color: var(--amber); }
+    .w-when   { background: var(--purple-pale); border-color: #c9bef5; color: var(--purple); }
+
+    /* ── PREDICTOR CATEGORIES ── */
+    .pred-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 0.75rem;
+    }
+    .pred-item {
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      border: 2px solid;
+    }
+    .pred-item .pred-icon { font-size: 1.6rem; margin-bottom: 0.4rem; }
+    .pred-item h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .pred-item p  { font-size: 0.75rem; line-height: 1.4; }
+
+    /* ── STUDY DESIGN TABLE ── */
+    .design-table-wrap { overflow-x: auto; }
+    table.design-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .design-table thead tr { background: var(--green); color: white; }
+    .design-table th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; }
+    .design-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .design-table tbody tr:hover { background: var(--green-pale); }
+    .design-table .td-label { font-weight: 600; color: var(--green-dark); white-space: nowrap; }
+    .design-table .td-decision { color: var(--text); }
+    .design-table .td-why { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* ── CONTRIBUTION CARDS ── */
+    .contrib-card {
+      border-radius: 12px;
+      padding: 1.4rem;
+      border: 1px solid var(--border);
+    }
+    .contrib-card .contrib-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+    .contrib-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.7rem; }
+    .contrib-card li { font-size: 0.84rem; color: var(--text-muted); margin-bottom: 0.35rem; line-height: 1.5; }
+
+    /* ── KEY NUMBERS BAR ── */
+    .num-bar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .num-item {
+      flex: 1;
+      min-width: 130px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      text-align: center;
+    }
+    .num-item .big { font-size: 1.5rem; font-weight: 800; color: var(--green); }
+    .num-item .sm  { font-size: 0.76rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── CHART AREA ── */
+    .chart-container { position: relative; height: 220px; }
+
+    /* ── ALERT / CALLOUT ── */
+    .callout {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      margin: 0.5rem 0;
+    }
+    .callout-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .callout-green  { background: var(--green-pale);  border: 1px solid #b6d9bc; color: var(--green-dark); }
+    .callout-blue   { background: var(--blue-pale);   border: 1px solid #b8d0f5; color: #1a3a8a; }
+    .callout-amber  { background: var(--amber-pale);  border: 1px solid #f0d08a; color: #92400e; }
+
+    /* ── STEP PIPELINE ── */
+    .pipeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 1rem 0;
+    }
+    .pipe-step {
+      flex: 1;
+      min-width: 130px;
+      text-align: center;
+      padding: 1.1rem 0.8rem;
+      border-radius: 10px;
+      position: relative;
+      border: 2px solid;
+    }
+    .pipe-step + .pipe-step::before {
+      content: '→';
+      position: absolute;
+      left: -16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+      color: var(--text-muted);
+    }
+    .pipe-step .step-num { font-size: 0.7rem; font-weight: 600; opacity: 0.6; text-transform: uppercase; }
+    .pipe-step .step-title { font-size: 0.9rem; font-weight: 700; margin: 0.3rem 0; }
+    .pipe-step .step-sub { font-size: 0.76rem; opacity: 0.8; }
+
+    .pipe-1 { background: #eff6ff; border-color: #bfdbfe; color: #1e3a8a; }
+    .pipe-2 { background: #f0fdf4; border-color: #bbf7d0; color: #14532d; }
+    .pipe-3 { background: #fef3c7; border-color: #fde68a; color: #78350f; }
+    .pipe-4 { background: #ede9fe; border-color: #c4b5fd; color: #4c1d95; }
+    .pipe-5 { background: #fee2e2; border-color: #fecaca; color: #7f1d1d; }
+
+    /* ── DAG ── */
+    .dag-wrap { overflow-x: auto; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      main { padding: 1.5rem 1rem; }
+      .hero h1 { font-size: 1.5rem; }
+      .stat-row { gap: 1rem; }
+    }
+
+    /* ── SMOOTH SCROLL ── */
+    html { scroll-behavior: smooth; }
+
+    /* section anchor padding */
+    .anchor { padding-top: 1rem; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════ HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-brand">
+      Mixed Effects Models
+      <span>TAD Persistence &amp; Reemergence · Romania ASF Case Study</span>
+    </div>
+    <div style="font-size:0.82rem;opacity:0.7;">Personal Guide · Not Public</div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════ TABS -->
+<nav class="tabs-bar" aria-label="Guide sections">
+  <div class="tabs-inner">
+    <a class="tab active" href="part1"><span class="tab-num">01</span>Research Design</a>
+    <a class="tab" href="part2"><span class="tab-num">02</span>Raw Data</a>
+    <a class="tab" href="part3"><span class="tab-num">03</span>Data Processing</a>
+    <a class="tab" href="part4"><span class="tab-num">04</span>Statistical Models</a>
+    <a class="tab" href="part5"><span class="tab-num">05</span>Model Validation</a>
+    <a class="tab" href="part6"><span class="tab-num">06</span>Model Diagnostics</a>
+    <a class="tab" href="part7"><span class="tab-num">07</span>Results</a>
+    <a class="tab" href="part8"><span class="tab-num">08</span>Visualizations</a>
+    <a class="tab" href="part9"><span class="tab-num">09</span>Exam Prep</a>
+    <a class="tab" href="part10"><span class="tab-num">10</span>Reemergence</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════ HERO -->
+<div class="hero">
+  <h1>Research Design &amp; Conceptual Framework</h1>
+  <p>Foundations of the study — research questions, study design decisions, and the causal pathways linking predictors to outcomes.</p>
+  <div class="stat-row">
+    <div class="stat-box"><div class="num">1,976</div><div class="lbl">ASF Outbreaks</div></div>
+    <div class="stat-box"><div class="num">537</div><div class="lbl">Admin-2 Units</div></div>
+    <div class="stat-box"><div class="num">6 yrs</div><div class="lbl">2018 – 2024</div></div>
+    <div class="stat-box"><div class="num">404×</div><div class="lbl">Events per Variable</div></div>
+    <div class="stat-box"><div class="num">15</div><div class="lbl">TADs (Pooled)</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ MAIN -->
+<main>
+
+  <!-- ─── 1. ANALYTICAL PIPELINE ─── -->
+  <div class="section-title anchor" id="pipeline">
+    <div class="icon">🔄</div>
+    <div>
+      <h2>Analytical Pipeline</h2>
+      <p>End-to-end flow from raw data to policy-relevant predictions</p>
+    </div>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <div class="pipeline" style="gap:1.2rem;">
+      <div class="pipe-step pipe-1">
+        <div class="step-num">Step 1</div>
+        <div class="step-title">Raw Data</div>
+        <div class="step-sub">WAHIS · GLW · FAOSTAT · MODIS</div>
+      </div>
+      <div class="pipe-step pipe-2">
+        <div class="step-num">Step 2</div>
+        <div class="step-title">Processing</div>
+        <div class="step-sub">Z-score · Admin-2 merge · Temporal windows</div>
+      </div>
+      <div class="pipe-step pipe-3">
+        <div class="step-num">Step 3</div>
+        <div class="step-title">MEMs</div>
+        <div class="step-sub">Logistic reg. · Cox PH with frailty</div>
+      </div>
+      <div class="pipe-step pipe-4">
+        <div class="step-num">Step 4</div>
+        <div class="step-title">Validation</div>
+        <div class="step-sub">10-fold CV · AUC · C-index</div>
+      </div>
+      <div class="pipe-step pipe-5">
+        <div class="step-num">Step 5</div>
+        <div class="step-title">Output</div>
+        <div class="step-sub">OR · HR · Risk maps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 2. RESEARCH QUESTION ─── -->
+  <div class="section-title anchor" id="rq">
+    <div class="icon">❓</div>
+    <div>
+      <h2>Research Question</h2>
+      <p>What are we trying to answer, and why does it matter?</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem; background: linear-gradient(135deg,#f0fdf4,#fff); border-color:#b2dab7;">
+    <p style="font-size:1.05rem; color:var(--green-dark); font-weight:600; line-height:1.6; text-align:center;">
+      "What ecological, environmental, and institutional risk factors predict<br>
+      <em>TAD persistence and reemergence</em> at the admin-2 level?"
+    </p>
+  </div>
+
+  <div class="four-w">
+    <div class="w-card w-what">
+      <div class="w-letter">W<sub>1</sub></div>
+      <h4>WHAT are we predicting?</h4>
+      <p><strong>Outcome 1 — Persistence:</strong> Binary (0/1) — did disease recur within 6–24 months?<br><br>
+         <strong>Outcome 2 — Reemergence:</strong> Time-to-event (months) — how long after ≥2 disease-free years until next outbreak?</p>
+    </div>
+    <div class="w-card w-which">
+      <div class="w-letter">W<sub>2</sub></div>
+      <h4>WHICH risk factors?</h4>
+      <p>Livestock density · Tree cover · Wildlife proximity · Road density · Vaccination/culling coverage · GDP</p>
+    </div>
+    <div class="w-card w-where">
+      <div class="w-letter">W<sub>3</sub></div>
+      <h4>WHERE?</h4>
+      <p><strong>Pooled:</strong> 15 TADs across high-burden countries.<br><br>
+         <strong>Case study:</strong> Romania (ASF) — 66,530 outbreaks, highest global burden, admin-2 communes.</p>
+    </div>
+    <div class="w-card w-when">
+      <div class="w-letter">W<sub>4</sub></div>
+      <h4>WHEN?</h4>
+      <p><strong>Pooled:</strong> 2005–2025 (20 years of WAHIS data).<br><br>
+         <strong>Romania ASF:</strong> 2018–2024 (post-introduction, sufficient outbreak density).</p>
+    </div>
+  </div>
+
+  <!-- ─── 3. WHY IT MATTERS ─── -->
+  <div class="section-title anchor" id="why">
+    <div class="icon">💡</div>
+    <div>
+      <h2>Why This Matters</h2>
+      <p>Scientific, methodological, and policy justifications</p>
+    </div>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card card-green">
+      <span class="badge badge-green">Scientific</span>
+      <h3>Knowledge Gap</h3>
+      <ul>
+        <li>Most TAD research focuses on <strong>initial</strong> outbreak, not <em>recurrence</em></li>
+        <li>Persistence and reemergence have <strong>different drivers</strong> than first introductions</li>
+        <li>Current models predict presence/absence — not <strong>temporal dynamics</strong></li>
+        <li>Tests disease ecology principles on recurrence risk</li>
+      </ul>
+    </div>
+    <div class="card card-blue">
+      <span class="badge badge-blue">Methodological</span>
+      <h3>Innovation</h3>
+      <ul>
+        <li>Two complementary models: <strong>logistic regression</strong> (persistence) + <strong>Cox PH</strong> (reemergence)</li>
+        <li>Integrates <strong>four databases</strong>: WAHIS + GLW + FAOSTAT + remote sensing</li>
+        <li>Spatial epidemiology applied to <strong>longitudinal</strong> TAD data</li>
+        <li>Reproducible framework for other diseases</li>
+      </ul>
+    </div>
+    <div class="card card-amber">
+      <span class="badge badge-amber">Policy</span>
+      <h3>Real-World Impact</h3>
+      <ul>
+        <li>ASF costs Romania <strong>$100M+/year</strong> (culling, trade restrictions)</li>
+        <li>Enables <strong>risk-based surveillance</strong> — targeted, not blanket</li>
+        <li>Shifts from <em>reactive</em> to <strong>proactive</strong> prevention</li>
+        <li>10–20% recurrence reduction saves millions</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── 4. PREDICTORS ─── -->
+  <div class="section-title anchor" id="predictors">
+    <div class="icon">🔬</div>
+    <div>
+      <h2>Predictor Categories</h2>
+      <p>Five mechanistic pathways linking environment to disease recurrence</p>
+    </div>
+  </div>
+
+  <div class="pred-grid">
+    <div class="pred-item" style="background:#f0fdf4;border-color:#86efac;color:#14532d;">
+      <div class="pred-icon">🐄</div>
+      <h4>Ecological</h4>
+      <p>Livestock density · susceptible animal populations · herd size distribution</p>
+    </div>
+    <div class="pred-item" style="background:#eff6ff;border-color:#93c5fd;color:#1e3a8a;">
+      <div class="pred-icon">🌲</div>
+      <h4>Environmental</h4>
+      <p>Tree cover (MODIS) · climate (WorldClim) · water bodies · wetlands</p>
+    </div>
+    <div class="pred-item" style="background:#fefce8;border-color:#fde047;color:#713f12;">
+      <div class="pred-icon">🐗</div>
+      <h4>Wildlife Interface</h4>
+      <p>Wildlife habitat · disease reservoir proximity · forest edge density</p>
+    </div>
+    <div class="pred-item" style="background:#fff7ed;border-color:#fdba74;color:#7c2d12;">
+      <div class="pred-icon">🛣️</div>
+      <h4>Infrastructure</h4>
+      <p>Road density · accessibility index · connectivity to markets</p>
+    </div>
+    <div class="pred-item" style="background:#fdf4ff;border-color:#d8b4fe;color:#581c87;">
+      <div class="pred-icon">🏛️</div>
+      <h4>Institutional</h4>
+      <p>Vaccination coverage · culling rate · GDP · veterinary capacity</p>
+    </div>
+  </div>
+
+  <!-- ─── 5. CONCEPTUAL FRAMEWORK (DAG) ─── -->
+  <div class="section-title anchor" id="dag">
+    <div class="icon">🗺️</div>
+    <div>
+      <h2>Conceptual Framework</h2>
+      <p>Causal pathway from risk factors → mixed effects model → outcomes</p>
+    </div>
+  </div>
+
+  <div class="card dag-wrap">
+    <svg viewBox="0 0 900 380" width="100%" style="min-width:700px;font-family:'Segoe UI',sans-serif;">
+      <!-- BG -->
+      <rect width="900" height="380" fill="#f8fafc" rx="12"/>
+
+      <!-- ── LEFT: PREDICTOR BOXES ── -->
+      <!-- Ecological -->
+      <rect x="20" y="30" width="150" height="48" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+      <text x="95" y="50" text-anchor="middle" font-size="11" font-weight="600" fill="#14532d">🐄 Ecological</text>
+      <text x="95" y="66" text-anchor="middle" font-size="9.5" fill="#166534">Livestock density</text>
+
+      <!-- Environmental -->
+      <rect x="20" y="95" width="150" height="48" rx="8" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+      <text x="95" y="115" text-anchor="middle" font-size="11" font-weight="600" fill="#1e3a8a">🌲 Environmental</text>
+      <text x="95" y="131" text-anchor="middle" font-size="9.5" fill="#1e40af">Tree cover, Climate</text>
+
+      <!-- Wildlife -->
+      <rect x="20" y="160" width="150" height="48" rx="8" fill="#fefce8" stroke="#fde047" stroke-width="1.5"/>
+      <text x="95" y="180" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">🐗 Wildlife Interface</text>
+      <text x="95" y="196" text-anchor="middle" font-size="9.5" fill="#854d0e">Reservoir proximity</text>
+
+      <!-- Infrastructure -->
+      <rect x="20" y="225" width="150" height="48" rx="8" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5"/>
+      <text x="95" y="245" text-anchor="middle" font-size="11" font-weight="600" fill="#7c2d12">🛣️ Infrastructure</text>
+      <text x="95" y="261" text-anchor="middle" font-size="9.5" fill="#9a3412">Road density</text>
+
+      <!-- Institutional -->
+      <rect x="20" y="290" width="150" height="48" rx="8" fill="#fdf4ff" stroke="#d8b4fe" stroke-width="1.5"/>
+      <text x="95" y="310" text-anchor="middle" font-size="11" font-weight="600" fill="#581c87">🏛️ Institutional</text>
+      <text x="95" y="326" text-anchor="middle" font-size="9.5" fill="#6b21a8">Vaccination, GDP</text>
+
+      <!-- ── ARROWS LEFT → MEM ── -->
+      <line x1="170" y1="54"  x2="310" y2="165" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="170" y1="119" x2="310" y2="175" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="170" y1="184" x2="310" y2="185" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="170" y1="249" x2="310" y2="195" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="170" y1="314" x2="310" y2="205" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- ── CENTRE: MEM BOX ── -->
+      <rect x="310" y="120" width="200" height="130" rx="12" fill="#2c5530" stroke="#1a3d20" stroke-width="2"/>
+      <text x="410" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="white">Mixed Effects</text>
+      <text x="410" y="165" text-anchor="middle" font-size="13" font-weight="700" fill="white">Models</text>
+      <line x1="340" y1="175" x2="480" y2="175" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+      <text x="410" y="194" text-anchor="middle" font-size="9.5" fill="#a7d5ae">Model 1: Logistic + RE</text>
+      <text x="410" y="210" text-anchor="middle" font-size="9.5" fill="#a7d5ae">Model 2: Cox PH + Frailty</text>
+      <text x="410" y="226" text-anchor="middle" font-size="9.5" fill="#a7d5ae">Clustering by disease/country</text>
+      <text x="410" y="242" text-anchor="middle" font-size="9.5" fill="#a7d5ae">Z-scored predictors</text>
+
+      <!-- ── ARROWS MEM → OUTCOMES ── -->
+      <line x1="510" y1="165" x2="630" y2="120" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="510" y1="205" x2="630" y2="255" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- ── RIGHT: OUTCOMES ── -->
+      <!-- Persistence -->
+      <rect x="630" y="70" width="190" height="100" rx="10" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/>
+      <text x="725" y="96" text-anchor="middle" font-size="12" font-weight="700" fill="#7f1d1d">Outcome 1</text>
+      <text x="725" y="112" text-anchor="middle" font-size="11" font-weight="600" fill="#991b1b">Persistence</text>
+      <text x="725" y="128" text-anchor="middle" font-size="9.5" fill="#b91c1c">Binary (0/1)</text>
+      <text x="725" y="143" text-anchor="middle" font-size="9.5" fill="#b91c1c">Recurrence within 6–24 mo?</text>
+      <text x="725" y="158" text-anchor="middle" font-size="9" fill="#ef4444">→ Odds Ratio</text>
+
+      <!-- Reemergence -->
+      <rect x="630" y="205" width="190" height="100" rx="10" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1.5"/>
+      <text x="725" y="231" text-anchor="middle" font-size="12" font-weight="700" fill="#4c1d95">Outcome 2</text>
+      <text x="725" y="247" text-anchor="middle" font-size="11" font-weight="600" fill="#5b21b6">Reemergence</text>
+      <text x="725" y="263" text-anchor="middle" font-size="9.5" fill="#6d28d9">Time-to-event (months)</text>
+      <text x="725" y="278" text-anchor="middle" font-size="9.5" fill="#6d28d9">After ≥2 disease-free years</text>
+      <text x="725" y="293" text-anchor="middle" font-size="9" fill="#7c3aed">→ Hazard Ratio</text>
+
+      <!-- ── RANDOM EFFECTS NOTE ── -->
+      <rect x="340" y="295" width="180" height="58" rx="8" fill="#fef9c3" stroke="#fde047" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="430" y="315" text-anchor="middle" font-size="10" font-weight="600" fill="#713f12">Random Effects</text>
+      <text x="430" y="330" text-anchor="middle" font-size="9.5" fill="#854d0e">Disease → Country → Admin-2</text>
+      <text x="430" y="345" text-anchor="middle" font-size="9.5" fill="#854d0e">Accounts for clustering</text>
+      <line x1="410" y1="250" x2="410" y2="295" stroke="#fde047" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Arrow marker -->
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- ─── 6. MODEL FORMULAS ─── -->
+  <div class="section-title anchor" id="formulas">
+    <div class="icon">∑</div>
+    <div>
+      <h2>Model Formulas</h2>
+      <p>The mathematical foundation of mixed effects models</p>
+    </div>
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card card-red">
+      <span class="badge badge-red">Model 1 — Persistence</span>
+      <h3>Mixed-Effects Logistic Regression</h3>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">For binary outcome: did disease recur within 6–24 months?</p>
+      <div class="formula-label">General form</div>
+      <div class="formula-box">
+        \[ \text{logit}(p_{ij}) = \beta_0 + \sum_{k=1}^{K} \beta_k x_{kij} + u_j \]
+        <span class="comment">// u_j ~ N(0, σ²) is the random effect for group j</span>
+      </div>
+      <div class="formula-label" style="margin-top:0.75rem;">Interpretation</div>
+      <ul style="font-size:0.82rem;color:var(--text-muted);padding-left:1.2rem;">
+        <li><strong>β_k</strong> — log-odds change per 1 SD increase in predictor k</li>
+        <li><strong>exp(β_k)</strong> — Odds Ratio (OR): how much more likely recurrence?</li>
+        <li><strong>u_j</strong> — random intercept capturing unobserved clustering</li>
+        <li><strong>OR > 1</strong> → increases risk · <strong>OR &lt; 1</strong> → protective</li>
+      </ul>
+    </div>
+
+    <div class="card card-purple">
+      <span class="badge badge-purple">Model 2 — Reemergence</span>
+      <h3>Cox PH with Gamma Frailty</h3>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">Time-to-event: months from disease-free period to next outbreak</p>
+      <div class="formula-label">General form</div>
+      <div class="formula-box">
+        \[ h(t \mid x_i, b_j) = h_0(t) \cdot b_j \cdot \exp\!\left(\sum_{k=1}^{K} \beta_k x_{ki}\right) \]
+        <span class="comment">// b_j ~ Gamma(1/θ, 1/θ) is the frailty (random effect)</span>
+      </div>
+      <div class="formula-label" style="margin-top:0.75rem;">Interpretation</div>
+      <ul style="font-size:0.82rem;color:var(--text-muted);padding-left:1.2rem;">
+        <li><strong>h₀(t)</strong> — baseline hazard: underlying reemergence rate</li>
+        <li><strong>exp(β_k)</strong> — Hazard Ratio (HR): speed of reemergence</li>
+        <li><strong>b_j</strong> — frailty term for unobserved disease/country clustering</li>
+        <li><strong>HR > 1</strong> → faster reemergence · <strong>HR &lt; 1</strong> → slower</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Random effects equation -->
+  <div class="card" style="margin-top:1rem;">
+    <span class="badge badge-green">Why Mixed Effects?</span>
+    <h3 style="font-size:1rem;margin-bottom:0.75rem;color:var(--green-dark);">The full mixed effects structure</h3>
+    <div class="formula-box">
+      \[ \mathbf{Y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{u} + \boldsymbol{\varepsilon} \]
+      <span class="comment">
+// Y = outcomes  |  Xβ = fixed effects (your predictors)
+// Zu = random effects (disease, country, admin-2 clustering)
+// ε  = residual error
+      </span>
+    </div>
+    <div class="callout callout-green" style="margin-top:0.75rem;">
+      <span class="callout-icon">✅</span>
+      <span><strong>Why not simple logistic/Cox?</strong> Outbreaks within the same commune, country, or disease are correlated — ignoring this inflates false positives. Mixed effects correctly partition variance between within-group and between-group sources.</span>
+    </div>
+  </div>
+
+  <!-- ─── 7. KEY DEFINITIONS ─── -->
+  <div class="section-title anchor" id="definitions">
+    <div class="icon">📖</div>
+    <div>
+      <h2>Key Definitions</h2>
+      <p>Click each term to expand the full definition and justification</p>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:0.75rem;">
+
+    <div class="def-card def-green">
+      <div class="def-header" onclick="toggleDef(this)">
+        <span>🔴</span>
+        <span><strong>Persistence</strong> — Binary outcome, the "did it come back?" question</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="def-body">
+        <p><strong>Definition:</strong> A binary variable (0/1) indicating whether disease recurred at the same admin-2 unit within <strong>6–24 months</strong> of the index outbreak.</p>
+        <p><strong>Why 6 months lower bound?</strong> Eliminates surveillance artifacts — a new case within 6 months likely reflects incomplete control of the same wave, not a true new event.</p>
+        <p><strong>Why 24 months upper bound?</strong> Beyond 24 months, an area transitions to the "reemergence" definition (≥2 disease-free years). The two outcomes are mutually exclusive by design.</p>
+        <div class="formula-box" style="margin-top:0.5rem;">Persistence<sub>ij</sub> = 1  if  outbreak occurs at unit j within [6, 24] months of event i<br>Persistence<sub>ij</sub> = 0  otherwise (disease-free or censored)</div>
+      </div>
+    </div>
+
+    <div class="def-card def-purple">
+      <div class="def-header" onclick="toggleDef(this)">
+        <span>🟣</span>
+        <span><strong>Reemergence</strong> — Time-to-event outcome, the "when did it come back?" question</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="def-body">
+        <p><strong>Definition:</strong> The time (in months) from the start of a disease-free period (≥2 consecutive years with zero reported outbreaks) until the next confirmed outbreak at the same admin-2 unit.</p>
+        <p><strong>Why ≥2 years for disease-free?</strong> Two years ensures the area has cleared infection and susceptible population has rebuilt. Shorter periods cannot distinguish reintroduction from persistent low-level transmission.</p>
+        <p><strong>Right-censoring:</strong> Units that do not experience reemergence by study end (2024) are censored — their time-to-event is known to be <em>at least</em> the follow-up period. Cox PH handles censoring correctly, unlike logistic regression.</p>
+        <div class="formula-box" style="margin-top:0.5rem;">T<sub>j</sub> = time from disease-free start → reemergence event at unit j<br>δ<sub>j</sub> = 1 if reemergence observed; δ<sub>j</sub> = 0 if censored</div>
+      </div>
+    </div>
+
+    <div class="def-card def-blue">
+      <div class="def-header" onclick="toggleDef(this)">
+        <span>🔵</span>
+        <span><strong>Z-Scoring</strong> — Why all predictors are standardised before modelling</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="def-body">
+        <p><strong>Definition:</strong> Each continuous predictor x is transformed to z = (x − μ) / σ, where μ is the mean and σ the standard deviation across all observations.</p>
+        <p><strong>Why?</strong> Predictors are on completely different scales: livestock density (animals/km²), GDP (USD), road density (km/km²). Without z-scoring, coefficients cannot be compared — a "1-unit" change means something different for each variable.</p>
+        <p><strong>After z-scoring:</strong> A β of 0.5 means "a 1 SD increase in this predictor is associated with..." — directly comparable across all predictors. This also improves numerical stability of model fitting.</p>
+        <div class="formula-box" style="margin-top:0.5rem;">\[ z_{kj} = \frac{x_{kj} - \bar{x}_k}{s_k} \]<br><span class="comment">// Result: all predictors have mean=0, SD=1</span></div>
+      </div>
+    </div>
+
+    <div class="def-card def-amber">
+      <div class="def-header" onclick="toggleDef(this)">
+        <span>🟡</span>
+        <span><strong>Admin-2 Level</strong> — Why commune/county is the right spatial scale</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="def-body">
+        <p><strong>Definition:</strong> Admin-2 refers to the second administrative division — in Romania these are communes (~3,181 total), roughly equivalent to townships or small counties.</p>
+        <p><strong>Why not farm-level?</strong> WAHIS does not provide exact GPS coordinates (privacy). Farm-level analysis is impossible with available data.</p>
+        <p><strong>Why not admin-1 (county)?</strong> Too coarse — misses within-province heterogeneity in land use, livestock density, and road infrastructure that drives transmission differences.</p>
+        <p><strong>Why admin-2 is optimal:</strong> It matches the veterinary control unit, is the scale at which culling/vaccination decisions are made, and provides adequate sample size (537 affected communes).</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── 8. STUDY DESIGN TABLE ─── -->
+  <div class="section-title anchor" id="design">
+    <div class="icon">📋</div>
+    <div>
+      <h2>Study Design at a Glance</h2>
+      <p>Every major design decision with its justification — ready for exam or peer review</p>
+    </div>
+  </div>
+
+  <div class="card design-table-wrap">
+    <table class="design-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Decision</th>
+          <th>Justification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-label">Study Type</td>
+          <td class="td-decision">Observational, retrospective cohort with spatial epidemiological design</td>
+          <td class="td-why">Can't randomize disease exposure. Uses existing 20-yr WAHIS records. Disease transmission is inherently spatial.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Outcome 1</td>
+          <td class="td-decision">Binary — recurrence within 6–24 months</td>
+          <td class="td-why">Matches policy question (yes/no recurring risk). 6–24 month window avoids surveillance artifacts and overlaps with reemergence.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Outcome 2</td>
+          <td class="td-decision">Time-to-event — months to reemergence after ≥2 disease-free years</td>
+          <td class="td-why">Captures temporal dynamics. Handles right-censoring. ≥2 years distinguishes true reintroduction from persistence.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Statistical Model 1</td>
+          <td class="td-decision">Mixed-effects logistic regression</td>
+          <td class="td-why">Binary outcome → logistic. Random effects → clustering by disease/country/admin-2. Odds ratios are policy-relevant.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Statistical Model 2</td>
+          <td class="td-decision">Cox PH with gamma frailty</td>
+          <td class="td-why">Time-to-event standard. Frailty = random effects for clustering. Correctly handles censored observations.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Unit of Analysis</td>
+          <td class="td-decision">Admin-2 (commune/county)</td>
+          <td class="td-why">WAHIS reports at admin-2. Matches veterinary control units. Best balance of spatial resolution and sample size.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Study Location</td>
+          <td class="td-decision">Pooled: 15 TADs in high-burden countries + case study: Romania (ASF)</td>
+          <td class="td-why">Pooled tests generalizability. Romania: highest ASF burden (66K outbreaks), complete data, represents Europe.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Study Period</td>
+          <td class="td-decision">Pooled: 2005–2025 · Romania: 2018–2024</td>
+          <td class="td-why">20 years = comprehensive WAHIS coverage. Romania: post-introduction + sufficient outbreak density from 2018.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Sample Size</td>
+          <td class="td-decision">1,976 outbreaks · 537 admin-2 units · 6 years</td>
+          <td class="td-why">404 EPV (events per variable) — 40× higher than the 10 EPV minimum. Extremely stable estimates, minimal overfitting risk.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Variable Selection</td>
+          <td class="td-decision">Univariate screening + expert knowledge + correlation analysis</td>
+          <td class="td-why">Univariate: p&lt;0.25 threshold. Expert: biological plausibility. Correlation: r&gt;0.7 → remove redundant. Balances stats with mechanism.</td>
+        </tr>
+        <tr>
+          <td class="td-label">Validation</td>
+          <td class="td-decision">70/30 train-test split + 10-fold CV</td>
+          <td class="td-why">Stratified split ensures balanced outcomes. 10-fold CV detects overfitting within training set.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── 9. KEY NUMBERS VISUAL ─── -->
+  <div class="section-title anchor" id="numbers">
+    <div class="icon">📊</div>
+    <div>
+      <h2>Romania ASF by the Numbers</h2>
+      <p>Why Romania is the right case study</p>
+    </div>
+  </div>
+
+  <div class="card-grid card-grid-2" style="margin-bottom:1rem;">
+    <div class="card">
+      <h3 style="font-size:0.9rem;color:var(--text-muted);margin-bottom:1rem;">Outbreak density over time (Romania ASF, 2018–2024)</h3>
+      <div class="chart-container">
+        <canvas id="outbreakChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:0.9rem;color:var(--text-muted);margin-bottom:1rem;">Affected admin-2 units by outcome type</h3>
+      <div class="chart-container">
+        <canvas id="outcomeChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="num-bar">
+    <div class="num-item"><div class="big">66,530</div><div class="sm">Total ASF outbreaks in Romania (global record)</div></div>
+    <div class="num-item"><div class="big">1,976</div><div class="sm">Outbreaks in modelling period 2018–2024</div></div>
+    <div class="num-item"><div class="big">537</div><div class="sm">Affected communes (16.9% of 3,181 total)</div></div>
+    <div class="num-item"><div class="big">404 EPV</div><div class="sm">Events per variable — 40× the 10 EPV minimum</div></div>
+    <div class="num-item"><div class="big">$100M+</div><div class="sm">Annual ASF cost to Romania</div></div>
+  </div>
+
+  <!-- ─── 10. EXPECTED CONTRIBUTIONS ─── -->
+  <div class="section-title anchor" id="contributions">
+    <div class="icon">🎯</div>
+    <div>
+      <h2>Expected Contributions</h2>
+      <p>What this work adds to science, methods, and policy</p>
+    </div>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="contrib-card" style="background:var(--green-pale);border-color:#b2dab7;">
+      <div class="contrib-icon">🔬</div>
+      <h3 style="color:var(--green-dark);">Scientific</h3>
+      <ul style="padding-left:1.2rem;">
+        <li>First multi-TAD analysis of <strong>recurrence</strong> risk factors (not just initial occurrence)</li>
+        <li>Tests generalizability of disease ecology principles across 15 TADs</li>
+        <li>Distinguishes persistence from reemergence as <strong>mechanistically separate</strong> processes</li>
+        <li>Connects spatial epidemiology with temporal disease dynamics</li>
+      </ul>
+    </div>
+    <div class="contrib-card" style="background:var(--blue-pale);border-color:#b8d0f5;">
+      <div class="contrib-icon">⚙️</div>
+      <h3 style="color:var(--blue);">Methodological</h3>
+      <ul style="padding-left:1.2rem;">
+        <li>Dual-model framework: logistic (persistence) + Cox PH (reemergence)</li>
+        <li>Reproducible pipeline integrating <strong>4 databases</strong></li>
+        <li>Elastic net regularisation for high-dimensional predictor selection</li>
+        <li>Transferable framework to other diseases and countries</li>
+      </ul>
+    </div>
+    <div class="contrib-card" style="background:var(--amber-pale);border-color:#f0d58c;">
+      <div class="contrib-icon">🏛️</div>
+      <h3 style="color:var(--amber);">Policy</h3>
+      <ul style="padding-left:1.2rem;">
+        <li><strong>Risk maps</strong> identifying high-reemergence communes → targeted surveillance</li>
+        <li>Evidence base for <strong>proactive</strong> prevention over reactive response</li>
+        <li>Quantifies relative importance of ecological vs institutional factors</li>
+        <li>Framework for cost-effective TAD control resource allocation</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── SUMMARY CALLOUT ─── -->
+  <div class="callout callout-green" style="margin-top:2.5rem;">
+    <span class="callout-icon">🎓</span>
+    <div>
+      <strong>One-sentence summary for exam/viva:</strong><br>
+      This study uses <em>mixed-effects logistic regression</em> and <em>Cox proportional hazards with gamma frailty</em> to identify ecological, environmental, and institutional predictors of TAD persistence (binary, 6–24 months) and reemergence (time-to-event, after ≥2 disease-free years), using Romania ASF as a case study (1,976 outbreaks, 537 communes, 2018–2024) within a broader 15-TAD pooled analysis.
+    </div>
+  </div>
+
+  <div style="height:3rem;"></div>
+</main>
+
+<!-- ══════════════════════════════════════════════════════ SCRIPTS -->
+<script>
+  // ── Accordion for definitions ──
+  function toggleDef(header) {
+    const body = header.nextElementSibling;
+    header.classList.toggle('open');
+    body.classList.toggle('open');
+  }
+
+  // ── Chart 1: Outbreaks over time ──
+  const ctx1 = document.getElementById('outbreakChart').getContext('2d');
+  new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: ['2018','2019','2020','2021','2022','2023','2024'],
+      datasets: [{
+        label: 'Outbreaks',
+        data: [112, 298, 387, 421, 356, 274, 128],
+        backgroundColor: 'rgba(44,85,48,0.75)',
+        borderColor: '#2c5530',
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' },
+             ticks: { font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  // ── Chart 2: Outcome types ──
+  const ctx2 = document.getElementById('outcomeChart').getContext('2d');
+  new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['Persistence (recurred 6–24 mo)', 'Reemergence (after ≥2 yr free)', 'Single event (no recurrence)'],
+      datasets: [{
+        data: [218, 143, 176],
+        backgroundColor: ['#991b1b','#6d28d9','#2c5530'],
+        borderColor: '#fff',
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 10 }, padding: 10 }
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
