@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixed Effects Models — Visualizations</title>
+<meta name="robots" content="noindex, nofollow">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','canvas'] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+:root {
+  --blue-light:#d6e6f5; --blue-mid:#7bafd4; --blue-dark:#2b7ab8;
+  --green-light:#d9edd9; --green-mid:#8cc98c; --green-dark:#3a9a3a;
+  --orange-light:#fde8cc; --orange-mid:#f5b85a; --orange-dark:#d4880a;
+  --purple-light:#e2d9f0; --purple-mid:#a98ad4; --purple-dark:#6b3fa0;
+  --red-light:#fde0dc; --red-dark:#c62828;
+  --bg:#f8f9fc; --text:#1a1a2e; --text-muted:#555570; --card-bg:#ffffff; --border:#e0e4ee;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+.tabs-bar{background:#0d1b2e;border-bottom:1px solid #1e3050;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:100;}
+.tabs-bar::-webkit-scrollbar{display:none;}
+.tabs-inner{max-width:1200px;margin:0 auto;display:flex;padding:0 1.5rem;}
+.tab{color:rgba(255,255,255,.55);text-decoration:none;padding:.8rem 1rem;font-size:.8rem;font-weight:500;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s;display:block;}
+.tab:hover{color:rgba(255,255,255,.85);}
+.tab.active{color:#64b5f6;border-bottom-color:#64b5f6;}
+.tab .num{font-size:.65rem;opacity:.5;display:block;margin-bottom:1px;font-family:'JetBrains Mono',monospace;}
+.hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:white;padding:60px 40px 50px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero h1{font-size:3rem;font-weight:900;letter-spacing:-1px;margin-bottom:10px;position:relative;}
+.hero h1 span{color:#64b5f6;}
+.hero .subtitle{font-size:1.1rem;font-weight:300;opacity:.85;max-width:700px;margin:0 auto 30px;position:relative;}
+.hero-stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;position:relative;}
+.hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(100,181,246,.3);border-radius:10px;padding:12px 20px;text-align:center;}
+.hero-stat .val{font-size:1.3rem;font-weight:800;color:#64b5f6;display:block;font-family:'JetBrains Mono',monospace;}
+.hero-stat .lbl{font-size:.72rem;opacity:.7;}
+.container{max-width:1000px;margin:0 auto;padding:50px 40px;}
+.phase-label{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border-radius:20px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;margin-top:44px;}
+.phase-label:first-child{margin-top:0;}
+.ph-blue{background:var(--blue-light);color:var(--blue-dark);}
+.ph-green{background:var(--green-light);color:var(--green-dark);}
+.ph-orange{background:var(--orange-light);color:var(--orange-dark);}
+.ph-purple{background:var(--purple-light);color:var(--purple-dark);}
+.ph-red{background:var(--red-light);color:var(--red-dark);}
+.step-card{background:var(--card-bg);border-radius:16px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;transition:box-shadow .3s,transform .2s;cursor:pointer;}
+.step-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-1px);}
+.step-card.open{box-shadow:0 6px 30px rgba(0,0,0,.1);}
+.step-header{display:flex;align-items:center;padding:20px 24px;gap:16px;}
+.step-badge{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:900;flex-shrink:0;color:white;font-family:'JetBrains Mono',monospace;position:relative;overflow:hidden;}
+.step-badge::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.15) 50%,transparent 60%);animation:shimmer 3s infinite;}
+@keyframes shimmer{0%{transform:translateX(-100%) translateY(-100%);}100%{transform:translateX(100%) translateY(100%);}}
+.b-blue{background:linear-gradient(135deg,#1565c0,#1976d2);}
+.b-green{background:linear-gradient(135deg,#2e7d32,#388e3c);}
+.b-orange{background:linear-gradient(135deg,#e65100,#f57c00);}
+.b-purple{background:linear-gradient(135deg,#4a148c,#6a1b9a);}
+.b-teal{background:linear-gradient(135deg,#004d40,#00695c);}
+.b-red{background:linear-gradient(135deg,#b71c1c,#c62828);}
+.step-info{flex:1;}
+.step-title{font-size:1.05rem;font-weight:700;margin-bottom:2px;}
+.step-subtitle{font-size:.82rem;color:var(--text-muted);}
+.step-chevron{font-size:.8rem;color:var(--text-muted);transition:transform .3s;flex-shrink:0;}
+.step-card.open .step-chevron{transform:rotate(180deg);}
+.step-content{max-height:0;overflow:hidden;transition:max-height .6s cubic-bezier(.4,0,.2,1);}
+.step-card.open .step-content{max-height:8000px;}
+.step-body{padding:0 24px 28px;border-top:1px solid var(--border);padding-top:22px;}
+.io-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:22px;}
+.io-box{padding:14px 16px;border-radius:10px;border:1px solid var(--border);}
+.io-box h4{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.io-box h4::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.io-in h4::before{background:var(--blue-dark);}.io-out h4::before{background:var(--green-dark);}.io-why h4::before{background:var(--orange-dark);}
+.io-box p{font-size:.85rem;color:var(--text-muted);line-height:1.5;}
+.io-in{background:#f0f7ff;}.io-in h4{color:var(--blue-dark);}
+.io-out{background:#f0faf0;}.io-out h4{color:var(--green-dark);}
+.io-why{background:#fff8f0;}.io-why h4{color:var(--orange-dark);}
+.step-body p{font-size:.9rem;color:var(--text-muted);line-height:1.7;margin-bottom:12px;}
+.step-body h3{font-size:.95rem;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.step-body ul,.step-body ol{padding-left:1.4rem;margin-bottom:12px;}
+.step-body li{font-size:.88rem;color:var(--text-muted);margin-bottom:5px;line-height:1.55;}
+.step-body li strong{color:var(--text);}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:.87rem;line-height:1.6;border-left:4px solid;}
+.callout strong{display:block;margin-bottom:4px;}
+.callout-key{background:#f0f7ff;border-color:var(--blue-dark);color:#1a3060;}
+.callout-warn{background:#fff8f0;border-color:var(--orange-dark);color:#4a2800;}
+.callout-good{background:#f0faf0;border-color:var(--green-dark);color:#1b3d1b;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0;}
+pre{background:#0d1b2e;border-radius:10px;padding:18px 20px;overflow-x:auto;margin:14px 0;border:1px solid #1e3050;}
+pre code{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;color:#e2e8f0;}
+.code-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.code-label::before{content:'R';display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--blue-dark);color:white;border-radius:4px;font-size:.65rem;font-weight:800;}
+.pkg-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.pkg{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.76rem;font-weight:600;font-family:'JetBrains Mono',monospace;}
+.pkg-blue{background:var(--blue-light);color:var(--blue-dark);}
+.pkg-green{background:var(--green-light);color:var(--green-dark);}
+.pkg-orange{background:var(--orange-light);color:var(--orange-dark);}
+.pkg-purple{background:var(--purple-light);color:var(--purple-dark);}
+footer{text-align:center;padding:40px;color:var(--text-muted);font-size:.82rem;border-top:1px solid var(--border);}
+@media(max-width:768px){
+  .hero h1{font-size:2rem;}.io-grid{grid-template-columns:1fr;}.two-col{grid-template-columns:1fr;}
+  .container{padding:30px 20px;}.hero-stats{flex-direction:column;align-items:center;}
+}
+</style>
+</head>
+<body>
+
+<nav class="tabs-bar">
+  <div class="tabs-inner">
+    <a class="tab" href="../mems"><span class="num">00</span>MEMs</a>
+    <a class="tab" href="../part1"><span class="num">01</span>Research Design</a>
+    <a class="tab" href="../part2"><span class="num">02</span>Raw Data</a>
+    <a class="tab" href="../part3"><span class="num">03</span>Data Processing</a>
+    <a class="tab" href="../part4"><span class="num">04</span>Statistical Models</a>
+    <a class="tab" href="../part5"><span class="num">05</span>Model Validation</a>
+    <a class="tab" href="../part6"><span class="num">06</span>Model Diagnostics</a>
+    <a class="tab" href="../part7"><span class="num">07</span>Results</a>
+    <a class="tab active" href="../part8"><span class="num">08</span>Visualizations</a>
+    <a class="tab" href="../part9"><span class="num">09</span>Exam Prep</a>
+    <a class="tab" href="../part10"><span class="num">10</span>Reemergence</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Visuali<span>zations</span></h1>
+  <p class="subtitle">Forest plots, ROC curves, Kaplan-Meier survival curves, calibration plots, risk maps, and random effects caterpillar plots in R.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="val">ggplot2</span><span class="lbl">Core Library</span></div>
+    <div class="hero-stat"><span class="val">survminer</span><span class="lbl">KM Curves</span></div>
+    <div class="hero-stat"><span class="val">pROC</span><span class="lbl">ROC / AUC</span></div>
+    <div class="hero-stat"><span class="val">tmap</span><span class="lbl">Risk Maps</span></div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ===================== PHASE 1 ===================== -->
+<div class="phase-label ph-blue">Phase 1 &mdash; Model Results Plots</div>
+
+<!-- Card 1: Forest Plot -->
+<div class="step-card open" onclick="toggle(this)">
+  <div class="step-header">
+    <div class="step-badge b-blue">F1</div>
+    <div class="step-info">
+      <div class="step-title">Forest Plot for OR / HR</div>
+      <div class="step-subtitle">ggplot2 coefficient plot with log x-axis, hypothesis colour coding, and model facets</div>
+    </div>
+    <div class="step-chevron">&#9660;</div>
+  </div>
+  <div class="step-content"><div class="step-body">
+
+    <div class="io-grid">
+      <div class="io-box io-in"><h4>Input</h4><p>Fitted <code>glmer</code> / <code>coxme</code> model objects. <code>broom.mixed::tidy()</code> extracts coefficients, SE, and 95% CI on the log scale.</p></div>
+      <div class="io-box io-out"><h4>Output</h4><p>Forest plot with log x-axis. Points = OR or HR. Horizontal bars = 95% CI. Vertical reference line at 1. Faceted by model type.</p></div>
+      <div class="io-box io-why"><h4>Why</h4><p>Standard evidence-synthesis format. Reviewers expect forest plots. Log x-axis keeps CI bars symmetric. Colour by hypothesis reveals predictor clusters visually.</p></div>
+    </div>
+
+    <div class="pkg-row">
+      <span class="pkg pkg-blue">broom.mixed</span>
+      <span class="pkg pkg-blue">ggplot2</span>
+      <span class="pkg pkg-green">dplyr</span>
+      <span class="pkg pkg-orange">forcats</span>
+    </div>
+
+    <div class="code-label">Step 1 — Extract coefficients into a tidy data frame</div>
+    <pre><code>library(broom.mixed)
+library(dplyr)
+
+# --- Persistence model (glmer, logistic) ---
+tidy_persist &lt;- broom.mixed::tidy(
+  model_persist,
+  effects    = "fixed",
+  conf.int   = TRUE,
+  conf.level = 0.95,
+  exponentiate = TRUE   # converts log-OR -> OR automatically
+) |&gt;
+  filter(term != "(Intercept)") |&gt;
+  mutate(
+    model = "Persistence (OR)",
+    # Map terms to hypothesis labels H1-H5
+    hypothesis = case_when(
+      term %in% c("livestock_density_z", "herd_size_z")          ~ "H1: Ecological",
+      term %in% c("tree_cover_z", "climate_pc1_z")               ~ "H2: Environmental",
+      term %in% c("wildlife_prox_z", "forest_edge_z")            ~ "H3: Wildlife Interface",
+      term %in% c("road_density_z", "market_access_z")           ~ "H4: Infrastructure",
+      term %in% c("vaccination_cov_z", "gdp_pc_z", "vet_cap_z") ~ "H5: Institutional",
+      TRUE ~ "Other"
+    )
+  )
+
+# --- Reemergence model (coxme / coxph frailty) ---
+tidy_reemerg &lt;- broom.mixed::tidy(
+  model_reemerg,
+  effects      = "fixed",
+  conf.int     = TRUE,
+  conf.level   = 0.95,
+  exponentiate = TRUE   # log-HR -> HR
+) |&gt;
+  filter(term != "(Intercept)") |&gt;
+  mutate(
+    model = "Reemergence (HR)",
+    hypothesis = case_when(
+      term %in% c("livestock_density_z", "herd_size_z")          ~ "H1: Ecological",
+      term %in% c("tree_cover_z", "climate_pc1_z")               ~ "H2: Environmental",
+      term %in% c("wildlife_prox_z", "forest_edge_z")            ~ "H3: Wildlife Interface",
+      term %in% c("road_density_z", "market_access_z")           ~ "H4: Infrastructure",
+      term %in% c("vaccination_cov_z", "gdp_pc_z", "vet_cap_z") ~ "H5: Institutional",
+      TRUE ~ "Other"
+    )
+  )
+
+coef_df &lt;- bind_rows(tidy_persist, tidy_reemerg)</code></pre>
+
+    <div class="code-label">Step 2 — Build the forest plot with ggplot2</div>
+    <pre><code>library(ggplot2)
+library(forcats)
+
+# Palette for H1-H5
+hyp_colours &lt;- c(
+  "H1: Ecological"         = "#1976d2",
+  "H2: Environmental"      = "#388e3c",
+  "H3: Wildlife Interface" = "#f57c00",
+  "H4: Infrastructure"     = "#6a1b9a",
+  "H5: Institutional"      = "#c62828"
+)
+
+# Order terms by OR within persistence for consistent ordering
+term_order &lt;- coef_df |&gt;
+  filter(model == "Persistence (OR)") |&gt;
+  arrange(estimate) |&gt;
+  pull(term)
+
+coef_df &lt;- coef_df |&gt;
+  mutate(term_f = fct_relevel(term, term_order))
+
+forest_plot &lt;- ggplot(coef_df,
+    aes(x = estimate, y = term_f, colour = hypothesis)) +
+
+  # CI bars
+  geom_errorbarh(
+    aes(xmin = conf.low, xmax = conf.high),
+    height = 0.25, linewidth = 0.6, alpha = 0.8
+  ) +
+
+  # Point estimates
+  geom_point(size = 3.2, shape = 15) +
+
+  # Reference line at OR/HR = 1
+  geom_vline(xintercept = 1, linetype = "dashed",
+             colour = "grey40", linewidth = 0.7) +
+
+  # Log scale — keeps CI bars visually symmetric
+  scale_x_log10(
+    breaks = c(0.25, 0.5, 1, 2, 4, 8),
+    labels = c("0.25", "0.5", "1", "2", "4", "8")
+  ) +
+
+  # Colour by hypothesis
+  scale_colour_manual(values = hyp_colours, name = "Predictor domain") +
+
+  # Separate panels for each model
+  facet_wrap(~ model, scales = "free_x", ncol = 2) +
+
+  labs(
+    title    = "Predictors of TAD Persistence and Reemergence",
+    subtitle = "Odds Ratios (Model 1) and Hazard Ratios (Model 2) with 95% CI\nZ-scored predictors — all estimates on comparable scale",
+    x        = "Effect size (log scale)",
+    y        = NULL,
+    caption  = "Romania ASF 2018-2024 | Mixed effects logistic + Cox PH frailty | n=1,976 outbreaks"
+  ) +
+
+  theme_minimal(base_family = "Inter", base_size = 11) +
+  theme(
+    panel.grid.major.y = element_line(colour = "grey92"),
+    panel.grid.minor   = element_blank(),
+    strip.text         = element_text(face = "bold", size = 10),
+    legend.position    = "bottom",
+    legend.key.height  = unit(0.5, "lines"),
+    plot.title         = element_text(face = "bold", size = 13),
+    plot.subtitle      = element_text(colour = "grey50", size = 9),
+    plot.caption       = element_text(colour = "grey60", size = 8),
+    axis.text.y        = element_text(size = 8.5)
+  )
+
+ggsave("forest_plot_or_hr.pdf", forest_plot,
+       width = 12, height = 7, device = cairo_pdf)</code></pre>
+
+    <div class="callout callout-key">
+      <strong>Why facet by model type?</strong>
+      Persistence (OR) and reemergence (HR) have different reference scales and clinical interpretations. Faceting avoids conflating two different estimands on a single axis while still enabling visual comparison of direction and relative magnitude across predictors.
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Pitfall: exponentiate = FALSE then plotting raw coefficients</strong>
+      If you omit <code>exponentiate = TRUE</code> in <code>tidy()</code>, the x-axis shows log-ORs and your reference line must be at 0, not 1. The log scale on the x-axis (<code>scale_x_log10</code>) only makes sense after exponentiating. Always check which scale you are on before building the plot.
+    </div>
+
+  </div></div>
+</div>
+
+<!-- Card 2: Dot-Whisker -->
+<div class="step-card open" onclick="toggle(this)">
+  <div class="step-header">
+    <div class="step-badge b-blue">F2</div>
+    <div class="step-info">
+      <div class="step-title">Coefficient Dot-Whisker Plot</div>
+      <div class="step-subtitle">dotwhisker::dwplot() for rapid multi-model comparison side-by-side</div>
+    </div>
+    <div class="step-chevron">&#9660;</div>
+  </div>
+  <div class="step-content"><div class="step-body">
+
+    <div class="io-grid">
+      <div class="io-box io-in"><h4>Input</h4><p>List of model objects (or pre-tidied data frames). <code>dwplot()</code> accepts either directly.</p></div>
+      <div class="io-box io-out"><h4>Output</h4><p>Dot-whisker plot with persistence and reemergence coefficients plotted side-by-side for each predictor. One colour per model.</p></div>
+      <div class="io-box io-why"><h4>Why</h4><p>Faster than custom ggplot for multi-model comparison. Automatically aligns predictors, applies jitter between models, and returns a ggplot object for further customisation.</p></div>
+    </div>
+
+    <div class="pkg-row">
+      <span class="pkg pkg-blue">dotwhisker</span>
+      <span class="pkg pkg-blue">ggplot2</span>
+      <span class="pkg pkg-green">broom.mixed</span>
+    </div>
+
+    <div class="code-label">Complete dot-whisker plot — two-model comparison</div>
+    <pre><code>library(dotwhisker)
+library(ggplot2)
+library(broom.mixed)
+
+# Pre-tidy both models on log scale (dwplot expects log-scale estimates)
+tidy_p &lt;- broom.mixed::tidy(model_persist,
+            effects = "fixed", conf.int = TRUE) |&gt;
+  filter(term != "(Intercept)") |&gt;
+  mutate(model = "Persistence")
+
+tidy_r &lt;- broom.mixed::tidy(model_reemerg,
+            effects = "fixed", conf.int = TRUE) |&gt;
+  filter(term != "(Intercept)") |&gt;
+  mutate(model = "Reemergence")
+
+# Combine — dwplot uses the 'model' column for grouping
+coef_list &lt;- bind_rows(tidy_p, tidy_r)
+
+dw &lt;- dwplot(
+  coef_list,
+  vline     = geom_vline(xintercept = 0, linetype = "dashed",
+                          colour = "grey50", linewidth = 0.7),
+  dot_args  = list(size = 2.8),
+  whisker_args = list(linewidth = 0.6)
+) |&gt;
+
+# dwplot returns a ggplot — pipe into standard ggplot2 layers
+(\(p) p +
+  scale_colour_manual(
+    values = c("Persistence" = "#1976d2", "Reemergence" = "#6a1b9a"),
+    name   = "Model"
+  ) +
+  scale_x_continuous(
+    name = "Coefficient (log-OR / log-HR, z-scored predictors)"
+  ) +
+  labs(
+    title    = "Multi-Model Coefficient Comparison",
+    subtitle = "Predictors of TAD persistence (logistic MEM) vs. reemergence (Cox frailty)\nCoefficients on log scale — all predictors z-scored for comparability",
+    y        = NULL,
+    caption  = "Mixed effects models | Romania ASF 2018-2024 | 95% CI shown"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    legend.position  = "bottom",
+    panel.grid.minor = element_blank(),
+    plot.title       = element_text(face = "bold"),
+    plot.caption     = element_text(colour = "grey60", size = 8)
+  )
+)()
+
+ggsave("dwplot_multimodel.pdf", dw, width = 10, height = 6, device = cairo_pdf)</code></pre>
+
+    <div class="callout callout-good">
+      <strong>dwplot vs. custom ggplot2</strong>
+      <code>dwplot()</code> handles the fiddly details: reordering by magnitude, offsetting dots vertically when multiple models share a predictor, and returning a fully customisable ggplot object. Use it for quick drafts. Switch to the custom ggplot2 approach (Card F1) for publication figures that need facets or log x-axis.
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Pitfall: mixing exponentiated and log-scale estimates</strong>
+      <code>dwplot()</code> is designed for log-scale coefficients (reference line at 0). If you pass exponentiated ORs, the reference line must shift to 1 and the spacing looks compressed near zero. Keep estimates on the log scale for dwplot, or use the full custom ggplot approach with <code>scale_x_log10()</code>.
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ===================== PHASE 2 ===================== -->
+<div class="phase-label ph-green">Phase 2 &mdash; Discrimination and Calibration</div>
+
+<!-- Card 3: ROC Curve -->
+<div class="step-card open" onclick="toggle(this)">
+  <div class="step-header">
+    <div class="step-badge b-green">R3</div>
+    <div class="step-info">
+      <div class="step-title">ROC Curve and AUC</div>
+      <div class="step-subtitle">pROC + ggroc() with confidence band, AUC annotation, and conditional predictions</div>
+    </div>
+    <div class="step-chevron">&#9660;</div>
+  </div>
+  <div class="step-content"><div class="step-body">
+
+    <div class="io-grid">
+      <div class="io-box io-in"><h4>Input</h4><p>Binary outcome vector and conditional predicted probabilities from <code>predict(model, type="response")</code>. Must use <strong>conditional</strong> (not marginal) predictions for mixed models.</p></div>
+      <div class="io-box io-out"><h4>Output</h4><p>ROC curve plot with AUC text annotation, diagonal reference line (no discrimination), and 95% confidence band via bootstrapped sensitivity estimates.</p></div>
+      <div class="io-box io-why"><h4>Why pROC</h4><p>Handles censoring, CI computation via bootstrap or DeLong, produces ggplot-compatible output with <code>ggroc()</code>, and enables statistical comparison of two AUCs.</p></div>
+    </div>
+
+    <div class="pkg-row">
+      <span class="pkg pkg-green">pROC</span>
+      <span class="pkg pkg-blue">ggplot2</span>
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Critical: always use conditional predictions for mixed model AUC</strong>
+      <code>predict(model, type="response")</code> in lme4/glmer gives <em>conditional</em> predictions — incorporating the estimated random effects. <em>Marginal</em> predictions (averaging over random effects) underestimate discrimination and produce an artificially lower AUC. Conditional predictions are the correct metric for within-sample model performance. For out-of-sample AUC use held-out data with <code>newdata</code>.
+    </div>
+
+    <div class="code-label">Step 1 — Obtain conditional predictions and build ROC object</div>
+    <pre><code>library(pROC)
+
+# Conditional predicted probabilities (incorporates random effects)
+pred_prob &lt;- predict(model_persist, type = "response")
+
+# Build ROC object
+roc_obj &lt;- pROC::roc(
+  response  = dat$persistence,   # binary 0/1 outcome
+  predictor = pred_prob,
+  direction = "&lt;",               # higher prediction = higher risk
+  quiet     = TRUE
+)
+
+# Point estimate
+cat(sprintf("AUC = %.3f (95%% CI: %.3f-%.3f)\n",
+            pROC::auc(roc_obj),
+            pROC::ci.auc(roc_obj)[1],
+            pROC::ci.auc(roc_obj)[3]))
+
+# Bootstrap confidence band on sensitivity at fixed specificities
+ci_band &lt;- pROC::ci.se(
+  roc_obj,
+  specificities = seq(0, 1, by = 0.02),
+  boot.n        = 1000,
+  progress      = "none"
+)
+ci_df &lt;- as.data.frame(ci_band)
+ci_df$specificity &lt;- as.numeric(rownames(ci_df))
+names(ci_df) &lt;- c("sens_lo", "sens_mid", "sens_hi", "specificity")</code></pre>
+
+    <div class="code-label">Step 2 — Build ROC plot with ggroc() and ggplot2 layers</div>
+    <pre><code>library(ggplot2)
+
+# AUC label for annotation
+auc_val  &lt;- round(pROC::auc(roc_obj), 3)
+auc_ci   &lt;- pROC::ci.auc(roc_obj)
+auc_text &lt;- sprintf("AUC = %s\n(95%% CI: %s\u2013%s)",
+                     auc_val,
+                     round(auc_ci[1], 3),
+                     round(auc_ci[3], 3))
+
+roc_plot &lt;- pROC::ggroc(roc_obj, colour = "#1976d2",
+                         linewidth = 1.1, legacy.axes = TRUE) +
+
+  # 95% confidence band from bootstrapped ci.se
+  geom_ribbon(
+    data = ci_df,
+    aes(x = 1 - specificity, ymin = sens_lo, ymax = sens_hi),
+    fill = "#1976d2", alpha = 0.12, inherit.aes = FALSE
+  ) +
+
+  # Diagonal chance line
+  geom_abline(slope = 1, intercept = 0,
+              linetype = "dashed", colour = "grey50", linewidth = 0.7) +
+
+  # AUC annotation box
+  annotate("label",
+    x = 0.72, y = 0.22,
+    label    = auc_text,
+    size     = 3.5,
+    colour   = "#1565c0",
+    fill     = "#eff6ff",
+    label.size = 0.4,
+    fontface = "bold"
+  ) +
+
+  scale_x_continuous(
+    name   = "1 - Specificity (False Positive Rate)",
+    limits = c(0, 1), expand = c(0.01, 0.01)
+  ) +
+  scale_y_continuous(
+    name   = "Sensitivity (True Positive Rate)",
+    limits = c(0, 1), expand = c(0.01, 0.01)
+  ) +
+
+  labs(
+    title    = "ROC Curve — TAD Persistence Model",
+    subtitle = "Conditional predictions from mixed-effects logistic regression\nShaded band = 95% CI (bootstrap, 1000 iterations)",
+    caption  = "Romania ASF 2018-2024 | n=1,976 | pROC package"
+  ) +
+
+  theme_classic(base_size = 11) +
+  theme(
+    plot.title    = element_text(face = "bold"),
+    plot.subtitle = element_text(colour = "grey50", size = 9),
+    plot.caption  = element_text(colour = "grey60", size = 8)
+  )
+
+ggsave("roc_persistence.pdf", roc_plot,
+       width = 6, height = 6, device = cairo_pdf)</code></pre>
+
+    <div class="callout callout-key">
+      <strong>Interpreting AUC for mixed models</strong>
+      AUC &gt; 0.70 indicates acceptable discrimination; &gt; 0.80 is excellent. For mixed models the conditional AUC reflects how well the model distinguishes persistence within the observed group structure — a higher bar than marginal AUC. Report which type you used. For cross-validated AUC use predictions generated on held-out folds only.
+    </div>
+
+  </div></div>
+</div>
+
+<!-- Card 4: Calibration Plot -->
+<div class="step-card open" onclick="toggle(this)">
+  <div class="step-header">
+    <div class="step-badge b-green">C4</div>
+    <div class="step-info">
+      <div class="step-title">Calibration Plot</div>
+      <div class="step-subtitle">Decile grouping, mean predicted vs. mean observed, Hosmer-Lemeshow annotation</div>
+    </div>
+    <div class="step-chevron">&#9660;</div>
+  </div>
+  <div class="step-content"><div class="step-body">
+
+    <div class="io-grid">
+      <div class="io-box io-in"><h4>Input</h4><p>Conditional predicted probabilities + binary outcome. Grouped into 10 equal-frequency deciles of predicted probability.</p></div>
+      <div class="io-box io-out"><h4>Output</h4><p>Scatter plot: mean predicted probability (x) vs. mean observed proportion (y) per decile. Reference diagonal = perfect calibration. Hosmer-Lemeshow p-value annotated.</p></div>
+      <div class="io-box io-why"><h4>Why</h4><p>AUC measures discrimination (ranking), not calibration (accuracy of probabilities). A model can have AUC 0.85 but be severely miscalibrated. Both diagnostics are required.</p></div>
+    </div>
+
+    <div class="pkg-row">
+      <span class="pkg pkg-blue">ggplot2</span>
+      <span class="pkg pkg-green">dplyr</span>
+      <span class="pkg pkg-orange">ResourceSelection</span>
+    </div>
+
+    <div class="code-label">Step 1 — Compute decile calibration data frame</div>
+    <pre><code>library(dplyr)
+
+# Attach predictions to data
+calib_df &lt;- dat |&gt;
+  mutate(
+    pred_prob = predict(model_persist, type = "response"),
+    decile    = ntile(pred_prob, 10)   # 10 equal-frequency bins
+  ) |&gt;
+  group_by(decile) |&gt;
+  summarise(
+    mean_pred = mean(pred_prob),
+    mean_obs  = mean(persistence),
+    n         = n(),
+    .groups   = "drop"
+  )
+
+# Hosmer-Lemeshow goodness-of-fit test
+library(ResourceSelection)
+hl_test &lt;- hoslem.test(
+  x = dat$persistence,
+  y = predict(model_persist, type = "response"),
+  g = 10
+)
+hl_pval &lt;- sprintf("Hosmer-Lemeshow p = %.3f", hl_test$p.value)</code></pre>
+
+    <div class="code-label">Step 2 — Build calibration plot with ggplot2</div>
+    <pre><code>library(ggplot2)
+
+calib_plot &lt;- ggplot(calib_df, aes(x = mean_pred, y = mean_obs)) +
+
+  # Perfect calibration line
+  geom_abline(slope = 1, intercept = 0,
+              linetype = "dashed", colour = "grey50", linewidth = 0.7) +
+
+  # Calibration ribbon: acceptable zone (+-0.1)
+  geom_ribbon(
+    data = data.frame(x = c(0,1)),
+    aes(x = x, ymin = pmax(0, x - 0.1), ymax = pmin(1, x + 0.1)),
+    fill = "#bbf7d0", alpha = 0.3, inherit.aes = FALSE
+  ) +
+
+  # Calibration line connecting decile points
+  geom_line(colour = "#1976d2", linewidth = 0.8, alpha = 0.7) +
+
+  # Decile points; size proportional to n
+  geom_point(aes(size = n), colour = "#1976d2",
+             fill = "#eff6ff", shape = 21, stroke = 1.2) +
+
+  # Point labels
+  geom_text(aes(label = decile), colour = "white",
+            size = 2.5, fontface = "bold") +
+
+  # HL p-value annotation
+  annotate("label",
+    x = 0.75, y = 0.1,
+    label    = hl_pval,
+    size     = 3.2,
+    colour   = ifelse(hl_test$p.value &gt; 0.05, "#2e7d32", "#c62828"),
+    fill     = ifelse(hl_test$p.value &gt; 0.05, "#f0faf0", "#fde0dc"),
+    label.size = 0.35
+  ) +
+
+  scale_size_continuous(range = c(4, 10), guide = "none") +
+
+  scale_x_continuous(name = "Mean Predicted Probability",
+                     limits = c(0, 1), expand = c(0.02, 0.02)) +
+  scale_y_continuous(name = "Mean Observed Proportion",
+                     limits = c(0, 1), expand = c(0.02, 0.02)) +
+
+  labs(
+    title    = "Calibration Plot — TAD Persistence Model",
+    subtitle = "10 equal-frequency deciles of predicted probability\nGreen band = ±0.10 acceptable calibration zone",
+    caption  = "Romania ASF 2018-2024 | ResourceSelection::hoslem.test()"
+  ) +
+
+  theme_classic(base_size = 11) +
+  theme(
+    plot.title    = element_text(face = "bold"),
+    plot.subtitle = element_text(colour = "grey50", size = 9),
+    plot.caption  = element_text(colour = "grey60", size = 8)
+  )
+
+ggsave("calibration_plot.pdf", calib_plot,
+       width = 6, height = 6, device = cairo_pdf)</code></pre>
+
+    <div class="callout callout-key">
+      <strong>Alternative: CalibrationCurves package</strong>
+      <code>CalibrationCurves::val.prob.ci.2()</code> produces a calibration plot with LOESS smoothed curve, E50/E90 calibration error statistics, and integrated calibration index (ICI) in one call. Useful for supplementary material. The manual ggplot2 approach above gives more publication-quality control.
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Pitfall: Hosmer-Lemeshow p-value in large samples</strong>
+      With n &gt; 1,000 the HL test has very high power and will reject H0 (good calibration) even for clinically trivial deviations. Supplement with the E-statistic (mean absolute calibration error per decile) and visual inspection. A significant HL p-value does not automatically mean the model is poorly calibrated — inspect the plot first.
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ===================== PHASE 3 ===================== -->
+<div class="phase-label ph-orange">Phase 3 &mdash; Survival Analysis Plots</div>
+
+<!-- Card 5: Kaplan-Meier -->
+<div class="step-card open" onclick="toggle(this)">
+  <div class="step-header">
+    <div class="step-badge b-orange">KM5</div>
+    <div class="step-info">
+      <div class="step-title">Kaplan-Meier Survival Curves</div>
+      <div class="step-subtitle">survfit() + survminer::ggsurvplot() with risk table, CI bands, and log-rank p-value</div>
+    </div>
+    <div class="step-chevron">&#9660;</div>
+  </div>
+  <div class="step-content"><div class="step-body">
+
+    <div class="io-grid">
+      <div class="io-box io-in"><h4>Input</h4><p>Survival object <code>Surv(time, event)</code> where time = months to reemergence and event = 1 if observed. Stratified by disease group or country.</p></div>
+      <div class="io-box io-out"><h4>Output</h4><p>KM curves with step-function, 95% CI ribbon, at-risk table below plot, median survival lines, and log-rank test p-value.</p></div>
+      <div class="io-box io-why"><h4>Why survminer</h4><p>ggsurvplot() produces publication-ready KM plots with risk tables, p-values, and censoring marks in one call. Returns a ggplot object for further customisation.</p></div>
+    </div>
+
+    <div class="pkg-row">
+      <span class="pkg pkg-orange">survival</span>
+      <span class="pkg pkg-orange">survminer</span>
+      <span class="pkg pkg-blue">ggplot2</span>
+    </div>
+
+    <div class="code-label">Step 1 — Fit KM estimator by disease group</div>
+    <pre><code>library(survival)
+library(survminer)
+
+# Fit KM: stratify by disease group (TAD type)
+km_fit &lt;- survfit(
+  Surv(time_to_reemerg, reemerg_event) ~ disease_group,
+  data = dat_reemerg
+)
+
+# Quick summary: median survival per group
+print(km_fit)
+# Returns: median (months) + 95% CI per stratum</code></pre>
+
+    <div class="code-label">Step 2 — ggsurvplot with full customisation</div>
+    <pre><code># Custom palette for disease groups
+group_pal &lt;- c(
+  "ASF"  = "#c62828",
+  "FMD"  = "#1976d2",
+  "HPAI" = "#e65100",
+  "LSD"  = "#2e7d32",
+  "PPR"  = "#6a1b9a"
+)
+
+km_plot &lt;- ggsurvplot(
+  fit          = km_fit,
+  data         = dat_reemerg,
+
+  # Appearance
+  palette      = group_pal,
+  size         = 1.0,
+  linetype     = "solid",
+  alpha        = 0.85,
+
+  # Confidence intervals
+  conf.int     = TRUE,
+  conf.int.alpha = 0.10,
+
+  # Risk table below the survival curves
+  risk.table   = TRUE,
+  risk.table.height = 0.30,
+  risk.table.col    = "strata",
+  risk.table.title  = "Number at risk",
+  tables.theme      = theme_survminer(
+    font.main     = c(9, "bold"),
+    font.x        = c(8, "plain"),
+    font.y        = c(8, "plain"),
+    font.tickslab = c(7, "plain")
+  ),
+
+  # Log-rank test
+  pval         = TRUE,
+  pval.size    = 3.5,
+  pval.coord   = c(60, 0.85),
+  log.rank.weights = "1",   # standard log-rank (equal weights)
+
+  # Median survival indicator lines
+  surv.median.line = "hv",   # horizontal then vertical
+
+  # Censoring marks
+  censor       = TRUE,
+  censor.shape = "|",
+  censor.size  = 2.5,
+
+  # Axes
+  xlab         = "Time to Reemergence (months)",
+  ylab         = "Reemergence-free Probability",
+  xlim         = c(0, 120),
+  break.time.by = 12,
+  ylim         = c(0, 1),
+
+  # Legend
+  legend.title  = "Disease",
+  legend.labs   = names(group_pal),
+
+  # Title
+  title         = "Kaplan-Meier Curves: Time to TAD Reemergence by Disease Group",
+  subtitle      = "Admin-2 units with ≥2 consecutive disease-free years | Log-rank test",
+  ggtheme       = theme_minimal(base_size = 10) +
+    theme(
+      plot.title    = element_text(face = "bold", size = 11),
+      plot.subtitle = element_text(colour = "grey50", size = 8.5),
+      legend.position = "right"
+    )
+)
+
+# Export
+ggsave("km_curves_by_disease.pdf",
+       print(km_plot, newpage = FALSE),
+       width = 10, height = 8, device = cairo_pdf)</code></pre>
+
+    <div class="code-label">Optional: facet by country (small multiples)</div>
+    <pre><code># Faceted KM: one panel per country
+km_fit_country &lt;- survfit(
+  Surv(time_to_reemerg, reemerg_event) ~ disease_group,
+  data = dat_reemerg
+)
+
+km_facet &lt;- ggsurvplot_facet(
+  fit      = km_fit_country,
+  data     = dat_reemerg,
+  facet.by = "country",
+  palette  = group_pal,
+  conf.int = TRUE,
+  pval     = TRUE,
+  ncol     = 4,
+  short.panel.labs = TRUE,
+  ggtheme  = theme_bw(base_size = 9)
+)
+
+ggsave("km_facet_by_country.pdf", km_facet,
+       width = 14, height = 10, device = cairo_pdf)</code></pre>
+
+    <div class="callout callout-key">
+      <strong>Reading the KM plot</strong>
+      The y-axis is the estimated probability of remaining reemergence-free. A step downward = one or more events. Tick marks = censored observations (follow-up ended without reemergence). The log-rank p-value tests whether all groups have the same survival function (H0). The Cox model (Card CH6) gives adjusted HRs after accounting for covariates.
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Pitfall: interpreting KM curves as adjusted estimates</strong>
+      KM curves are unadjusted (marginal) estimates. They show the raw difference between groups without controlling for confounders. Never conclude causality from a KM curve alone. The purpose is visual exploration and hypothesis generation — the Cox model provides the adjusted analysis.
+    </div>
+
+  </div></div>
+</div>
+
+<!-- Card 6: Cumulative Hazard -->
+<div class="step-card open" onclick="toggle(this)">
+  <div class="step-header">
+    <div class="step-badge b-orange">CH6</div>
+    <div class="step-info">
+      <div class="step-title">Cumulative Hazard and Smooth Hazard Plots</div>
+      <div class="step-subtitle">Nelson-Aalen estimator, muhaz smoothed hazard, and Cox predicted survival by risk group</div>
+    </div>
+    <div class="step-chevron">&#9660;</div>
+  </div>
+  <div class="step-content"><div class="step-body">
+
+    <div class="io-grid">
+      <div class="io-box io-in"><h4>Input</h4><p>Fitted Cox PH frailty model. <code>basehaz()</code> extracts cumulative baseline hazard. Risk groups defined by tertile of linear predictor.</p></div>
+      <div class="io-box io-out"><h4>Output</h4><p>Three plots: (1) Nelson-Aalen cumulative hazard, (2) kernel-smoothed hazard rate over time, (3) predicted survival curves for high/medium/low risk groups.</p></div>
+      <div class="io-box io-why"><h4>Why</h4><p>Cumulative hazard is easier to estimate than the hazard function. Smoothed hazard reveals temporal patterns (e.g. seasonal peaks). Risk-group survival curves show clinical significance of the model.</p></div>
+    </div>
+
+    <div class="pkg-row">
+      <span class="pkg pkg-orange">survival</span>
+      <span class="pkg pkg-orange">muhaz</span>
+      <span class="pkg pkg-orange">bshazard</span>
+      <span class="pkg pkg-blue">ggplot2</span>
+    </div>
+
+    <div class="code-label">Plot 1 — Nelson-Aalen cumulative hazard from Cox model baseline</div>
+    <pre><code>library(survival)
+library(ggplot2)
+
+# Extract baseline cumulative hazard from Cox model
+bh &lt;- basehaz(model_reemerg_cox, centered = FALSE)
+# bh has columns: hazard (cumulative), time
+
+# Nelson-Aalen directly from survfit
+na_fit &lt;- survfit(Surv(time_to_reemerg, reemerg_event) ~ 1,
+                  data = dat_reemerg, type = "fh")  # Fleming-Harrington = NA
+
+na_df &lt;- data.frame(
+  time     = na_fit$time,
+  cumhaz   = -log(na_fit$surv),
+  cumhaz_lo = -log(na_fit$upper),
+  cumhaz_hi = -log(na_fit$lower)
+)
+
+cumhaz_plot &lt;- ggplot(na_df, aes(x = time)) +
+  geom_ribbon(aes(ymin = cumhaz_lo, ymax = cumhaz_hi),
+              fill = "#fdba74", alpha = 0.3) +
+  geom_line(aes(y = cumhaz), colour = "#e65100", linewidth = 1.0) +
+
+  # Overlay Cox model baseline cumulative hazard
+  geom_line(data = bh, aes(x = time, y = hazard),
+            colour = "#6a1b9a", linewidth = 0.8,
+            linetype = "dashed") +
+
+  annotate("text", x = max(na_df$time) * 0.7, y = max(na_df$cumhaz) * 0.2,
+           label = "Orange = Nelson-Aalen\nPurple dashed = Cox baseline",
+           size = 3, colour = "grey40", hjust = 0) +
+
+  scale_x_continuous(name = "Time (months)", breaks = seq(0, 120, 12)) +
+  scale_y_continuous(name = "Cumulative Hazard H(t)") +
+  labs(title = "Cumulative Hazard: TAD Reemergence",
+       subtitle = "Nelson-Aalen estimator (shaded = 95% CI) vs. Cox model baseline hazard") +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))</code></pre>
+
+    <div class="code-label">Plot 2 — Kernel-smoothed hazard function with muhaz</div>
+    <pre><code>library(muhaz)
+
+# Kernel-smoothed hazard estimate
+mh &lt;- muhaz(
+  times   = dat_reemerg$time_to_reemerg,
+  delta   = dat_reemerg$reemerg_event,
+  bw.method = "global",    # global bandwidth
+  b.cor     = "left"
+)
+
+mh_df &lt;- data.frame(time  = mh$est.grid,
+                     haz   = mh$haz.est)
+
+smooth_haz_plot &lt;- ggplot(mh_df, aes(x = time, y = haz)) +
+  geom_area(fill = "#fde8cc", alpha = 0.5) +
+  geom_line(colour = "#d4880a", linewidth = 1.1) +
+  scale_x_continuous(name = "Time (months)", breaks = seq(0, 120, 12)) +
+  scale_y_continuous(name = "Estimated Hazard Rate h(t)") +
+  labs(
+    title    = "Smoothed Hazard Function — TAD Reemergence",
+    subtitle = "Kernel density estimate (muhaz package, global bandwidth)",
+    caption  = "Peaks indicate periods of elevated reemergence risk"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))</code></pre>
+
+    <div class="code-label">Plot 3 — Predicted survival curves by risk tertile</div>
+    <pre><code># Assign risk groups based on linear predictor tertile
+dat_reemerg$lp    &lt;- predict(model_reemerg_cox, type = "lp")
+dat_reemerg$risk  &lt;- ntile(dat_reemerg$lp, 3)
+dat_reemerg$risk_f &lt;- factor(dat_reemerg$risk,
+                               labels = c("Low risk", "Medium risk", "High risk"))
+
+km_risk &lt;- survfit(
+  Surv(time_to_reemerg, reemerg_event) ~ risk_f,
+  data = dat_reemerg
+)
+
+risk_pal &lt;- c("Low risk" = "#388e3c", "Medium risk" = "#f57c00", "High risk" = "#c62828")
+
+ggsurvplot(
+  fit          = km_risk,
+  data         = dat_reemerg,
+  palette      = risk_pal,
+  conf.int     = TRUE,
+  risk.table   = TRUE,
+  pval         = TRUE,
+  surv.median.line = "h",
+  xlab         = "Months to Reemergence",
+  ylab         = "Reemergence-free Probability",
+  title        = "Predicted Survival by Risk Tertile",
+  subtitle     = "Based on Cox model linear predictor tertiles",
+  legend.title = "Risk group",
+  ggtheme      = theme_minimal(base_size = 10)
+)</code></pre>
+
+    <div class="callout callout-warn">
+      <strong>Pitfall: basehaz() centered vs. uncentered</strong>
+      <code>basehaz(model, centered = TRUE)</code> (default) returns the hazard at the mean predictor values. <code>centered = FALSE</code> returns the true baseline at all predictors = 0. For plotting the baseline hazard to overlay on Nelson-Aalen, use <code>centered = FALSE</code>. For predicting individual survival curves, center on the covariate pattern of interest.
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ===================== PHASE 4 ===================== -->
+<div class="phase-label ph-purple">Phase 4 &mdash; Spatial and Diagnostics</div>
+
+<!-- Card 7: Choropleth Risk Map -->
+<div class="step-card open" onclick="toggle(this)">
+  <div class="step-header">
+    <div class="step-badge b-purple">M7</div>
+    <div class="step-info">
+      <div class="step-title">Choropleth Risk Map</div>
+      <div class="step-subtitle">tmap and ggplot2+sf approaches: join predictions to admin-2 shapefile, YlOrRd palette</div>
+    </div>
+    <div class="step-chevron">&#9660;</div>
+  </div>
+  <div class="step-content"><div class="step-body">
+
+    <div class="io-grid">
+      <div class="io-box io-in"><h4>Input</h4><p>Admin-2 shapefile (sf object) + data frame of <code>admin2_id</code> and <code>predicted_risk</code>. Joined on the common ID field.</p></div>
+      <div class="io-box io-out"><h4>Output</h4><p>Choropleth map with YlOrRd fill scale, defined class breaks (0, 0.2, 0.4, 0.6, 0.8, 1), legend, and north arrow/scale bar.</p></div>
+      <div class="io-box io-why"><h4>Why two approaches</h4><p><code>tmap</code> is faster for exploration and handles projections automatically. <code>ggplot2 + sf</code> gives full ggplot2 customisation and integrates with facets for multi-TAD maps.</p></div>
+    </div>
+
+    <div class="pkg-row">
+      <span class="pkg pkg-purple">tmap</span>
+      <span class="pkg pkg-purple">sf</span>
+      <span class="pkg pkg-blue">ggplot2</span>
+      <span class="pkg pkg-green">dplyr</span>
+    </div>
+
+    <div class="code-label">Approach A — tmap (recommended for spatial exploration)</div>
+    <pre><code>library(sf)
+library(tmap)
+library(dplyr)
+
+# Load admin-2 shapefile (GADM level 2, Romania)
+admin2_sf &lt;- sf::st_read("data/gadm_romania_admin2.gpkg",
+                           quiet = TRUE) |&gt;
+  # Reproject to ETRS89 / UTM zone 35N for Romania
+  sf::st_transform(crs = 25835)
+
+# Attach predicted persistence probabilities
+risk_sf &lt;- admin2_sf |&gt;
+  left_join(
+    dat |&gt;
+      mutate(pred_risk = predict(model_persist, type = "response")) |&gt;
+      select(admin2_id, pred_risk),
+    by = "admin2_id"
+  )
+
+# Class breaks for 5 risk categories
+risk_breaks &lt;- c(0, 0.2, 0.4, 0.6, 0.8, 1.0)
+
+tmap_mode("plot")   # static output ("view" for interactive)
+
+risk_map_tmap &lt;- tm_shape(risk_sf) +
+  tm_polygons(
+    col       = "pred_risk",
+    palette   = "YlOrRd",
+    breaks    = risk_breaks,
+    title     = "Predicted\nPersistence\nProbability",
+    border.col = "white",
+    border.lwd = 0.3,
+    lwd        = 0.3
+  ) +
+  tm_layout(
+    main.title          = "TAD Persistence Risk — Admin-2 (Romania)",
+    main.title.size     = 0.9,
+    main.title.fontface = "bold",
+    legend.position     = c("right", "bottom"),
+    legend.text.size    = 0.7,
+    inner.margins       = c(0.02, 0.02, 0.06, 0.02),
+    frame               = FALSE
+  ) +
+  tm_compass(type = "arrow", position = c("left", "top"), size = 1.5) +
+  tm_scale_bar(position = c("left", "bottom"), text.size = 0.6) +
+  tm_credits("Romania ASF 2018-2024 | GADM admin-2",
+             position = c("right", "bottom"), size = 0.5)
+
+tmap::tmap_save(risk_map_tmap, "risk_map_tmap.pdf",
+                width = 10, height = 8)</code></pre>
+
+    <div class="code-label">Approach B — ggplot2 + sf (publication figures, multi-panel)</div>
+    <pre><code>library(ggplot2)
+library(sf)
+
+risk_map_gg &lt;- ggplot(risk_sf) +
+
+  # Choropleth fill
+  geom_sf(aes(fill = pred_risk),
+          colour = "white", linewidth = 0.15) +
+
+  # Viridis continuous scale (perceptually uniform, colourblind-safe)
+  scale_fill_viridis_c(
+    name   = "Predicted\nPersistence\nProbability",
+    option = "inferno",        # "YlOrRd"-like: yellow to red
+    breaks = risk_breaks,
+    labels = scales::percent_format(accuracy = 1),
+    limits = c(0, 1),
+    na.value = "grey80",
+    guide  = guide_colourbar(
+      barwidth = 0.8, barheight = 10,
+      title.position = "top", title.hjust = 0.5
+    )
+  ) +
+
+  # Coordinate system: ETRS89 laea for continental Africa / Europe
+  # For Romanian data, UTM 35N (EPSG:25835) is better:
+  coord_sf(crs = st_crs(25835)) +
+
+  labs(
+    title    = "TAD Persistence Risk Map — Romania Admin-2",
+    subtitle = "Conditional predicted probabilities from mixed-effects logistic regression\nAdmin-2 communes (n=537 affected)",
+    caption  = "Projection: ETRS89/UTM zone 35N (EPSG:25835) | GADM v4.1"
+  ) +
+
+  theme_void(base_size = 10) +
+  theme(
+    plot.title      = element_text(face = "bold", size = 12, hjust = 0.5),
+    plot.subtitle   = element_text(colour = "grey50", size = 8.5, hjust = 0.5),
+    plot.caption    = element_text(colour = "grey60", size = 7.5, hjust = 0.5),
+    legend.position = "right"
+  )
+
+ggsave("risk_map_ggplot.pdf", risk_map_gg,
+       width = 10, height = 8, device = cairo_pdf)</code></pre>
+
+    <div class="callout callout-key">
+      <strong>Projection note for African and European maps</strong>
+      For Romania: use ETRS89/UTM zone 35N (EPSG:25835) or WGS84/UTM 35N (EPSG:32635). For pooled African maps: use Africa Albers Equal Area Conic (ESRI:102022) or Africa Sinusoidal (ESRI:102011). Never use unprojected WGS84 (EPSG:4326) for area-based maps — distance and area distortions are severe. Always call <code>sf::st_transform(crs = XXXX)</code> before mapping.
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Pitfall: mapping marginal vs. conditional predicted probabilities</strong>
+      Marginal predictions (averaged over random effects) produce smoother spatial patterns that underestimate extreme local risk. Conditional predictions (incorporating random effects per admin-2) reflect actual model estimates and are more informative for risk mapping. Use <code>predict(model, type="response")</code> with the original data to get conditional predictions.
+    </div>
+
+  </div></div>
+</div>
+
+<!-- Card 8: DHARMa and Random Effects Diagnostics -->
+<div class="step-card open" onclick="toggle(this)">
+  <div class="step-header">
+    <div class="step-badge b-purple">D8</div>
+    <div class="step-info">
+      <div class="step-title">DHARMa and Random Effects Caterpillar Plots</div>
+      <div class="step-subtitle">Simulation-based residuals, QQ plots, and ordered dot-plot of BLUPs with CI bars</div>
+    </div>
+    <div class="step-chevron">&#9660;</div>
+  </div>
+  <div class="step-content"><div class="step-body">
+
+    <div class="io-grid">
+      <div class="io-box io-in"><h4>Input</h4><p>Fitted glmer/coxme model. DHARMa simulates from the fitted model to compute scaled residuals. Random effects extracted via <code>ranef()</code> or <code>broom.mixed::tidy(effects="ran_vals")</code>.</p></div>
+      <div class="io-box io-out"><h4>Output</h4><p>DHARMa: uniform QQ plot + residual vs. fitted plot. Caterpillar: ordered random effect estimates with 95% CI bars, faceted by grouping level.</p></div>
+      <div class="io-box io-why"><h4>Why DHARMa</h4><p>Standard Pearson/deviance residuals are invalid for GLMMs. DHARMa uses simulation to produce valid scaled residuals that follow U(0,1) under correct model specification — applicable to logistic, Poisson, and Cox models.</p></div>
+    </div>
+
+    <div class="pkg-row">
+      <span class="pkg pkg-purple">DHARMa</span>
+      <span class="pkg pkg-purple">lattice</span>
+      <span class="pkg pkg-green">broom.mixed</span>
+      <span class="pkg pkg-blue">ggplot2</span>
+    </div>
+
+    <div class="code-label">DHARMa residual diagnostics</div>
+    <pre><code>library(DHARMa)
+
+# Simulate residuals (default n=250 simulations)
+sim_resid &lt;- DHARMa::simulateResiduals(
+  fittedModel = model_persist,
+  n           = 1000,       # more simulations = smoother QQ
+  refit       = FALSE,
+  plot        = FALSE
+)
+
+# ---- Diagnostic Plot 1: QQ + residual vs. fitted (base graphics) ----
+# Produces two-panel figure: uniform QQ on left, fitted on right
+plot(sim_resid,
+     main = "DHARMa Scaled Residuals — Persistence Model")
+
+# ---- Diagnostic Plot 2: Residuals vs. individual predictors ----
+plotResiduals(sim_resid,
+  form      = dat$livestock_density_z,
+  main      = "Residuals vs. Livestock Density (z-scored)",
+  xlab      = "Livestock Density (z-score)",
+  ylab      = "DHARMa Scaled Residual"
+)
+
+# ---- Formal tests ----
+# Uniformity (KS test on scaled residuals)
+testUniformity(sim_resid)
+
+# Dispersion test (overdispersion for Poisson/NB; informational for binomial)
+testDispersion(sim_resid)
+
+# Temporal autocorrelation
+testTemporalAutocorrelation(sim_resid,
+  time = dat$year_numeric)
+
+# Spatial autocorrelation (Moran's I)
+testSpatialAutocorrelation(sim_resid,
+  x = dat$longitude,
+  y = dat$latitude)</code></pre>
+
+    <div class="code-label">Caterpillar plot — Approach A: lattice::dotplot (quick)</div>
+    <pre><code>library(lattice)
+library(lme4)
+
+# Extract random effects with conditional variance
+re &lt;- ranef(model_persist, condVar = TRUE)
+
+# lattice::dotplot creates caterpillar plots directly from ranef output
+# One panel per grouping factor (disease / country / admin2)
+dotplot(re,
+  scales = list(x = list(relation = "free"), y = list(cex = 0.5)),
+  strip  = strip.custom(bg = "#d6e6f5"),
+  main   = "Random Effects (BLUPs) with 95% Conditional CI"
+)</code></pre>
+
+    <div class="code-label">Caterpillar plot — Approach B: ggplot2 (publication quality)</div>
+    <pre><code>library(broom.mixed)
+library(ggplot2)
+library(dplyr)
+library(forcats)
+
+# Extract random effect values with SE / CI
+re_tidy &lt;- broom.mixed::tidy(
+  model_persist,
+  effects    = "ran_vals",
+  conf.int   = TRUE,
+  conf.level = 0.95
+)
+# Columns: group, level, term, estimate, std.error, conf.low, conf.high
+
+# Focus on random intercepts (term == "(Intercept)")
+re_intercept &lt;- re_tidy |&gt;
+  filter(term == "(Intercept)") |&gt;
+  mutate(
+    # Order within each facet by estimate size
+    level_f = fct_reorder(level, estimate)
+  )
+
+caterpillar_plot &lt;- ggplot(re_intercept,
+    aes(x = estimate, y = level_f)) +
+
+  # Reference line at 0 (no deviation from mean)
+  geom_vline(xintercept = 0, linetype = "dashed",
+             colour = "grey50", linewidth = 0.7) +
+
+  # 95% CI bars
+  geom_errorbarh(
+    aes(xmin = conf.low, xmax = conf.high),
+    height = 0.3, colour = "grey60", linewidth = 0.5
+  ) +
+
+  # Point estimates; colour significant (CI excludes 0) vs. not
+  geom_point(
+    aes(colour = (conf.low &gt; 0 | conf.high &lt; 0)),
+    size = 2.2
+  ) +
+
+  scale_colour_manual(
+    values = c("TRUE"  = "#c62828",   # CI excludes 0 = notable deviation
+               "FALSE" = "#78909c"),  # CI overlaps 0 = unremarkable
+    name   = "CI excludes 0",
+    labels = c("No", "Yes")
+  ) +
+
+  # Facet by grouping level: disease, country, admin2
+  facet_wrap(
+    ~ group,
+    scales = "free_y",   # independent y axes (different n per level)
+    ncol   = 1,
+    labeller = labeller(group = c(
+      "disease" = "Disease type",
+      "country" = "Country",
+      "admin2"  = "Admin-2 commune"
+    ))
+  ) +
+
+  labs(
+    title    = "Random Effects Caterpillar Plot — Persistence Model",
+    subtitle = "BLUPs ordered by estimate within each grouping level\nRed = 95% CI excludes zero (substantial deviation from mean)",
+    x        = "Random intercept (log-odds scale)",
+    y        = NULL,
+    caption  = "Extracted via broom.mixed::tidy(effects='ran_vals') | lme4 glmer"
+  ) +
+
+  theme_minimal(base_size = 10) +
+  theme(
+    strip.text         = element_text(face = "bold", size = 9.5),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.x = element_line(colour = "grey92"),
+    axis.text.y        = element_text(size = 6.5),
+    legend.position    = "bottom",
+    plot.title         = element_text(face = "bold"),
+    plot.subtitle      = element_text(colour = "grey50", size = 8.5),
+    plot.caption       = element_text(colour = "grey60", size = 7.5)
+  )
+
+# Height scales with number of admin-2 units — allow ~10px per level
+n_admin2 &lt;- re_intercept |&gt; filter(group == "admin2") |&gt; nrow()
+plot_height &lt;- max(8, 2 + n_admin2 * 0.12)
+
+ggsave("caterpillar_random_effects.pdf", caterpillar_plot,
+       width = 8, height = plot_height, device = cairo_pdf)</code></pre>
+
+    <div class="callout callout-key">
+      <strong>Reading the caterpillar plot</strong>
+      Each point is a Best Linear Unbiased Predictor (BLUP) — the estimated deviation of that group from the overall mean on the log-odds scale. Points with CI bars that exclude zero (shown in red) represent groups that systematically deviate from the mean. A wide spread of BLUPs indicates large between-group variation — the random effect is doing important work. A very tight cluster near zero suggests the random effect is not needed (check ICC).
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Pitfall: DHARMa refit = TRUE for boundary estimates</strong>
+      If the model is near a boundary (variance estimate = 0 for a random effect), DHARMa with <code>refit = FALSE</code> may show false patterns. In these cases use <code>refit = TRUE</code> (slower — refits model n times) for valid residuals. Also note: DHARMa works well for glmer and glmmTMB but requires special handling for coxme (use cox.zph and Schoenfeld residuals for Cox models instead).
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Pitfall: plotting all admin-2 BLUPs when n is large</strong>
+      With 537 communes, the y-axis becomes unreadable if you plot every unit. Options: (1) plot only the top/bottom 30 by estimate, (2) use a histogram of BLUPs instead, (3) bin by quantile. The <code>filter(rank(abs(estimate)) &gt; (n()-30))</code> idiom selects the 30 most extreme BLUPs for inspection.
+    </div>
+
+  </div></div>
+</div>
+
+</div><!-- end .container -->
+
+<footer>Mixed Effects Models Guide &mdash; Personal Reference &mdash; Not for public distribution</footer>
+
+<script>
+function toggle(card) { card.classList.toggle('open'); }
+</script>
+</body>
+</html>
