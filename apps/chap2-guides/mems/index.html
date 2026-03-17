@@ -554,7 +554,7 @@ footer {
         .hier-commune { background:#13131f; border-radius:5px; padding:.3rem .7rem; }
         .hier-commune-label { color:#a6e3a1; font-size:0.74rem; font-weight:600; font-family:'JetBrains Mono',monospace; }
         .hier-outbreaks { color:#6c7086; font-size:0.72rem; margin-top:.1rem; }
-        .hier-legend { display:flex; gap:1rem; flex-wrap:wrap; margin:.6rem 0 0; font-size:0.76rem; color:var(--muted); }
+        .hier-legend { display:flex; gap:1rem; flex-wrap:wrap; margin:.6rem 0 0; font-size:0.76rem; color:var(--text-muted); }
         .hier-legend span { display:flex; align-items:center; gap:.4rem; }
         .hier-legend .dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
       </style>
@@ -872,7 +872,7 @@ s<span class="op">$</span>conf.int</div>
         .ci-bar { position:absolute; top:50%; height:6px; border-radius:3px; transform:translateY(-50%); z-index:1; }
         .ci-point { position:absolute; top:50%; width:12px; height:12px; border-radius:50%; transform:translate(-50%,-50%); z-index:3; border:2px solid #1e1e2e; }
         .ci-tag { font-size:0.74rem; font-weight:700; padding:.2rem .55rem; border-radius:5px; flex-shrink:0; }
-        .ci-calc { font-size:0.77rem; color:var(--muted); margin-top:.2rem; }
+        .ci-calc { font-size:0.77rem; color:var(--text-muted); margin-top:.2rem; }
       </style>
       <div class="ci-diagram">
 
@@ -1145,7 +1145,7 @@ pct2    <span class="op">&lt;-</span> (HR_live <span class="op">-</span> <span c
 
       <h3>What each column actually is</h3>
       <div class="formula-breakdown">
-        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:140px 160px 1fr; gap:0;">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); display:grid; grid-template-columns:140px 160px 1fr; gap:0;">
           <div>Column</div><div>Mathematical name</div><div>What R is telling you</div>
         </div>
         <div class="fb-row">
@@ -1177,7 +1177,7 @@ pct2    <span class="op">&lt;-</span> (HR_live <span class="op">-</span> <span c
       <h3>How CI lower and CI upper are calculated</h3>
       <p>Confidence intervals are on the <strong>log-odds (\(\beta\)) scale first</strong>, then exponentiated to the OR scale.</p>
       <div class="formula-breakdown">
-        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:160px 1fr; gap:0;">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); display:grid; grid-template-columns:160px 1fr; gap:0;">
           <div>Stage</div><div>Formula and meaning</div>
         </div>
         <div class="fb-row" style="display:grid; grid-template-columns:160px 1fr; gap:0;">
@@ -1208,7 +1208,7 @@ pct2    <span class="op">&lt;-</span> (HR_live <span class="op">-</span> <span c
       <p>R output line: <code style="background:#1e1e2e; color:#cdd6f4; padding:2px 8px; border-radius:4px; font-size:0.85rem;">livestock_density &nbsp; 0.523 &nbsp; 0.182 &nbsp; 2.87 &nbsp; 0.004</code></p>
 
       <div class="formula-breakdown">
-        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); display:grid; grid-template-columns:90px 1fr; gap:0;">
+        <div class="fb-row" style="background:#1a1a2e; padding:0.6rem 1rem; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); display:grid; grid-template-columns:90px 1fr; gap:0;">
           <div>Step</div><div>Calculation</div>
         </div>
         <div class="fb-row" style="display:grid; grid-template-columns:90px 1fr; gap:0;">
@@ -1307,6 +1307,183 @@ pct          <span class="cm"># 68.7 %</span></pre></div>
     </div></div>
   </div>
 
+  <!-- Card I5: Hypothesis Mapping -->
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge badge-orange">I5</div>
+      <div class="step-info">
+        <div class="step-title">Mapping Results to Your Hypotheses</div>
+        <div class="step-subtitle">Which coefficients must be significant, in which direction, for H1–H5 to be supported</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <!-- H1 -->
+      <h3>H1 &nbsp;<span class="tag-risk" style="font-size:0.78rem;">Ecological &amp; Environmental</span></h3>
+      <p><strong>Prediction:</strong> High livestock density, wildlife proximity, tree cover, and water bodies increase persistence and accelerate reemergence.</p>
+      <table class="data-table">
+        <thead><tr><th>Predictor</th><th>Expected \(\beta\)</th><th>Threshold</th><th>Model</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">livestock_density</td><td><span class="tag-risk">&beta; &gt; 0</span></td><td>p &lt; 0.05</td><td>Both</td></tr>
+          <tr><td class="mono">wildlife_proximity</td><td><span class="tag-risk">&beta; &gt; 0</span></td><td>p &lt; 0.05</td><td>Both</td></tr>
+          <tr><td class="mono">tree_cover</td><td><span class="tag-risk">&beta; &gt; 0</span></td><td>p &lt; 0.05</td><td>Both</td></tr>
+          <tr><td class="mono">water_bodies / wetlands</td><td><span class="tag-risk">&beta; &gt; 0</span></td><td>p &lt; 0.05</td><td>Both</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-key">
+        <strong>H1 is SUPPORTED if:</strong> ALL four predictors are positive AND significant (p &lt; 0.05) in both the persistence and reemergence models.
+      </div>
+      <div class="code-explain">
+        <div class="ce-code"><span class="cm"># H1: check all ecological predictors</span>
+H1_vars <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="str">"livestock_density"</span>, <span class="str">"wildlife_proximity"</span>,
+              <span class="str">"tree_cover"</span>, <span class="str">"water_bodies"</span>)
+coef_p  <span class="op">&lt;-</span> <span class="fn">summary</span>(model_persist)<span class="op">$</span>coefficients
+H1_checks <span class="op">&lt;-</span> <span class="fn">sapply</span>(H1_vars, <span class="kw">function</span>(v)
+  coef_p[v,<span class="str">"Estimate"</span>] <span class="op">&gt;</span> <span class="num">0</span> <span class="op">&amp;</span> coef_p[v,<span class="str">"Pr(&gt;|z|)"</span>] <span class="op">&lt;</span> <span class="num">0.05</span>)
+H1_supported <span class="op">&lt;-</span> <span class="fn">all</span>(H1_checks)
+<span class="fn">cat</span>(<span class="str">"H1 Supported:"</span>, H1_supported, <span class="str">"\n"</span>)</div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>sapply() loops over each predictor and returns TRUE/FALSE</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>all() = H1 only supported if EVERY predictor passes. One failure = H1 not fully supported</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Run same check on model_reemerge for the Cox results</div>
+        </div>
+      </div>
+
+      <!-- H2 -->
+      <h3 style="margin-top:1.6rem;">H2 &nbsp;<span class="tag-risk" style="font-size:0.78rem;">Infrastructure &amp; Accessibility</span></h3>
+      <p><strong>Prediction:</strong> Dense road networks increase persistence and accelerate reemergence.</p>
+      <table class="data-table">
+        <thead><tr><th>Predictor</th><th>Expected \(\beta\)</th><th>Threshold</th><th>Model</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">road_density</td><td><span class="tag-risk">&beta; &gt; 0</span></td><td>p &lt; 0.05</td><td>Both</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-key">
+        <strong>H2 is SUPPORTED if:</strong> road_density has positive &beta; and p &lt; 0.05 in BOTH the persistence and reemergence models.
+      </div>
+      <div class="code-explain">
+        <div class="ce-code"><span class="cm"># H2: road density in both models</span>
+H2_persist   <span class="op">&lt;-</span> <span class="fn">coef</span>(model_persist)[<span class="str">"road_density"</span>] <span class="op">&gt;</span> <span class="num">0</span> <span class="op">&amp;</span>
+  <span class="fn">summary</span>(model_persist)<span class="op">$</span>coef[<span class="str">"road_density"</span>,<span class="str">"Pr(&gt;|z|)"</span>] <span class="op">&lt;</span> <span class="num">0.05</span>
+H2_reemerge  <span class="op">&lt;-</span> <span class="fn">coef</span>(model_reemerge)[<span class="str">"road_density"</span>] <span class="op">&gt;</span> <span class="num">0</span> <span class="op">&amp;</span>
+  <span class="fn">summary</span>(model_reemerge)<span class="op">$</span>coef[<span class="str">"road_density"</span>,<span class="str">"p"</span>] <span class="op">&lt;</span> <span class="num">0.05</span>
+H2_supported <span class="op">&lt;-</span> H2_persist <span class="op">&amp;</span> H2_reemerge</div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Cox summary uses "p" column; glmer summary uses "Pr(&gt;|z|)" — note the difference</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>Both models must agree for H2 to be supported</div>
+        </div>
+      </div>
+
+      <!-- H3 -->
+      <h3 style="margin-top:1.6rem;">H3 &nbsp;<span class="tag-prot" style="font-size:0.78rem;">Control Interventions</span></h3>
+      <p><strong>Prediction:</strong> Vaccination and culling reduce persistence and delay reemergence; effect stronger for persistence than reemergence.</p>
+      <table class="data-table">
+        <thead><tr><th>Predictor</th><th>Expected \(\beta\)</th><th>Threshold</th><th>Extra condition</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">vaccination_coverage</td><td><span class="tag-prot">&beta; &lt; 0</span></td><td>p &lt; 0.05</td><td>|&beta;<sub>persist</sub>| &gt; |&beta;<sub>reemerge</sub>|</td></tr>
+          <tr><td class="mono">culling_coverage</td><td><span class="tag-prot">&beta; &lt; 0</span></td><td>p &lt; 0.05</td><td>|&beta;<sub>persist</sub>| &gt; |&beta;<sub>reemerge</sub>|</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-key">
+        <strong>H3 is SUPPORTED if:</strong> both interventions are negative and significant in both models, AND the absolute magnitude of &beta; is larger in the persistence model than the reemergence model for both interventions.
+      </div>
+      <div class="code-explain">
+        <div class="ce-code"><span class="cm"># H3: protective effect + stronger for persistence</span>
+ivars <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="str">"vaccination_coverage"</span>, <span class="str">"culling_coverage"</span>)
+H3_neg <span class="op">&lt;-</span> <span class="fn">sapply</span>(ivars, <span class="kw">function</span>(v)
+  <span class="fn">coef</span>(model_persist)[v] <span class="op">&lt;</span> <span class="num">0</span> <span class="op">&amp;</span> <span class="fn">coef</span>(model_reemerge)[v] <span class="op">&lt;</span> <span class="num">0</span>)
+H3_mag <span class="op">&lt;-</span> <span class="fn">sapply</span>(ivars, <span class="kw">function</span>(v)
+  <span class="fn">abs</span>(<span class="fn">coef</span>(model_persist)[v]) <span class="op">&gt;</span> <span class="fn">abs</span>(<span class="fn">coef</span>(model_reemerge)[v]))
+H3_supported <span class="op">&lt;-</span> <span class="fn">all</span>(H3_neg) <span class="op">&amp;</span> <span class="fn">all</span>(H3_mag)</div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>H3_neg: both interventions must be negative (protective) in both models</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>H3_mag: the extra H3 condition — protection is stronger at stopping recurrence than delaying it</div>
+        </div>
+      </div>
+
+      <!-- H4 -->
+      <h3 style="margin-top:1.6rem;">H4 &nbsp;<span class="tag-risk" style="font-size:0.78rem;">Wildlife–Livestock Interface</span></h3>
+      <p><strong>Prediction:</strong> Wildlife-origin outbreaks, proximity to wildlife, and forest cover interactions increase persistence and accelerate reemergence.</p>
+      <table class="data-table">
+        <thead><tr><th>Predictor</th><th>Expected \(\beta\)</th><th>Threshold</th><th>Model</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">wildlife_origin</td><td><span class="tag-risk">&beta; &gt; 0</span></td><td>p &lt; 0.05</td><td>Both</td></tr>
+          <tr><td class="mono">distance_to_wildlife</td><td><span class="tag-prot">&beta; &lt; 0</span></td><td>p &lt; 0.05</td><td>Both</td></tr>
+          <tr><td class="mono">wildlife × tree_cover</td><td><span class="tag-risk">&beta; &gt; 0</span></td><td>p &lt; 0.05</td><td>Both</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-key">
+        <strong>H4 is SUPPORTED if:</strong> All three components have correct signs and p &lt; 0.05. Note: distance_to_wildlife should be <em>negative</em> — closer to wildlife = higher risk, so increasing distance should decrease risk.
+      </div>
+      <div class="code-explain">
+        <div class="ce-code"><span class="cm"># H4: correct sign + significance for 3 components</span>
+H4_vars  <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="str">"wildlife_origin"</span>, <span class="str">"distance_to_wildlife"</span>,
+               <span class="str">"wildlife_proximity:tree_cover"</span>)
+expected <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="num">1</span>, <span class="op">-</span><span class="num">1</span>, <span class="num">1</span>)  <span class="cm"># positive, negative, positive</span>
+coef_p   <span class="op">&lt;-</span> <span class="fn">summary</span>(model_persist)<span class="op">$</span>coefficients
+H4_checks <span class="op">&lt;-</span> <span class="fn">sapply</span>(<span class="fn">seq_along</span>(H4_vars), <span class="kw">function</span>(i) {
+  b <span class="op">&lt;-</span> coef_p[H4_vars[i], <span class="str">"Estimate"</span>]
+  p <span class="op">&lt;-</span> coef_p[H4_vars[i], <span class="str">"Pr(&gt;|z|)"</span>]
+  <span class="fn">sign</span>(b) <span class="op">==</span> expected[i] <span class="op">&amp;</span> p <span class="op">&lt;</span> <span class="num">0.05</span>
+})
+H4_supported <span class="op">&lt;-</span> <span class="fn">all</span>(H4_checks)</div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>expected[] stores the required sign: +1 = positive, −1 = negative</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>sign(b) == expected[i] checks direction. Both direction AND significance must hold.</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>The interaction term wildlife_proximity:tree_cover must be added to the glmer formula</div>
+        </div>
+      </div>
+
+      <!-- H5 -->
+      <h3 style="margin-top:1.6rem;">H5 &nbsp;<span class="tag-none" style="font-size:0.78rem;">Disease-Specific Profiles</span></h3>
+      <p><strong>Prediction:</strong> Risk factor profiles differ by transmission mode — vector-borne diseases show stronger wetland/climate effects; direct-transmission diseases show stronger livestock density and intervention effects.</p>
+      <table class="data-table">
+        <thead><tr><th>Test</th><th>Expected pattern</th><th>Method</th></tr></thead>
+        <tbody>
+          <tr><td>Wetlands effect</td><td>Stronger for vector-borne diseases</td><td>Meta-regression (metafor)</td></tr>
+          <tr><td>Livestock effect</td><td>Stronger for direct-transmission diseases</td><td>Meta-regression (metafor)</td></tr>
+          <tr><td>Heterogeneity</td><td>p &lt; 0.05 for transmission mode moderator</td><td><span class="mono">rma()</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-key">
+        <strong>H5 is SUPPORTED if:</strong> Meta-regression shows significant heterogeneity (QM p &lt; 0.05) with wetlands &beta; larger for vector-borne AND/OR livestock &beta; larger for direct transmission.
+      </div>
+      <div class="code-explain">
+        <div class="ce-code"><span class="cm"># H5: disease-specific models + meta-regression</span>
+<span class="kw">library</span>(metafor)
+<span class="cm"># 1. run glmer per disease, collect beta_wetlands, beta_livestock</span>
+<span class="cm"># 2. meta-regression: does transmission mode moderate effect?</span>
+meta_wet <span class="op">&lt;-</span> <span class="fn">rma</span>(<span class="kw">yi</span> = beta_wetlands, <span class="kw">sei</span> = se_wetlands,
+                <span class="kw">mods</span> = <span class="op">~</span> transmission, <span class="kw">data</span> = disease_results)
+meta_live <span class="op">&lt;-</span> <span class="fn">rma</span>(<span class="kw">yi</span> = beta_livestock, <span class="kw">sei</span> = se_livestock,
+                 <span class="kw">mods</span> = <span class="op">~</span> transmission, <span class="kw">data</span> = disease_results)
+<span class="cm"># H5 supported if either QMp &lt; 0.05 with correct direction</span>
+H5_supported <span class="op">&lt;-</span> (meta_wet<span class="op">$</span>QMp <span class="op">&lt;</span> <span class="num">0.05</span>) <span class="op">|</span> (meta_live<span class="op">$</span>QMp <span class="op">&lt;</span> <span class="num">0.05</span>)</div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Step 1: fit separate glmer per disease — collect coefficients into disease_results dataframe</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>rma() = random-effects meta-regression. mods = ~ transmission adds transmission mode as moderator</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>QMp = test of moderation: is the transmission type moderator significant?</div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>H5 uses | (OR): partial support counts — either wetlands OR livestock effect showing heterogeneity</div>
+        </div>
+      </div>
+
+      <!-- Decision summary table -->
+      <h3 style="margin-top:1.8rem;">Decision summary — all five hypotheses at a glance</h3>
+      <table class="data-table">
+        <thead><tr><th>H</th><th>Key predictors</th><th>Direction required</th><th>Supported if…</th></tr></thead>
+        <tbody>
+          <tr><td><strong>H1</strong></td><td>livestock, wildlife, tree_cover, water</td><td><span class="tag-risk">All &beta; &gt; 0</span></td><td>All 4 significant in both models</td></tr>
+          <tr><td><strong>H2</strong></td><td>road_density</td><td><span class="tag-risk">&beta; &gt; 0</span></td><td>Significant in both models</td></tr>
+          <tr><td><strong>H3</strong></td><td>vaccination, culling</td><td><span class="tag-prot">Both &beta; &lt; 0</span></td><td>Negative &amp; sig. in both; |&beta;<sub>persist</sub>| &gt; |&beta;<sub>reemerge</sub>|</td></tr>
+          <tr><td><strong>H4</strong></td><td>wildlife_origin, distance, interaction</td><td><span class="tag-risk">Mixed signs</span></td><td>All 3 correct direction &amp; significant</td></tr>
+          <tr><td><strong>H5</strong></td><td>Disease-specific models</td><td><span class="tag-none">Heterogeneity</span></td><td>QM p &lt; 0.05 in meta-regression</td></tr>
+        </tbody>
+      </table>
+
+    </div></div>
+  </div>
+
   <!-- WORKFLOW -->
   <div class="phase-label phase-workflow">Analysis Workflow</div>
 
@@ -1336,6 +1513,105 @@ pct          <span class="cm"># 68.7 %</span></pre></div>
           <tr><td><strong>10</strong></td><td>Write results — map each OR/HR to hypothesis</td><td>—</td></tr>
         </tbody>
       </table>
+    </div></div>
+  </div>
+
+  <!-- Card W2: Writing Results -->
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge badge-purple">W2</div>
+      <div class="step-info">
+        <div class="step-title">Writing Your Results Section</div>
+        <div class="step-subtitle">Ready-to-use paragraph templates — fill in the numbers and submit</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <h3>Methods paragraph template</h3>
+      <div class="callout callout-good">
+        We fitted mixed-effects logistic regression models to identify predictors of TAD persistence (n = 206 post-outbreak periods across 15 diseases and 8 countries) and Cox proportional hazards models to analyze time to reemergence (n = 143 disease-free periods). All continuous predictors were z-score standardized prior to analysis. Random intercepts for disease, country, and administrative unit accounted for hierarchical data structure.
+      </div>
+
+      <h3>Model performance template</h3>
+      <div class="callout callout-good">
+        The persistence model demonstrated good discrimination (AUC = 0.78, 95% CI: 0.74–0.82) and adequate calibration. The reemergence model achieved a C-index of 0.74 (95% CI: 0.69–0.79), indicating moderate predictive ability.
+      </div>
+
+      <h3>Random effects template</h3>
+      <div class="callout callout-good">
+        Random effects variance components indicated substantial heterogeneity in baseline risk across diseases (&sigma;<sup>2</sup> = 0.68), countries (&sigma;<sup>2</sup> = 0.41), and administrative units (&sigma;<sup>2</sup> = 0.23), justifying the multilevel modeling approach.
+      </div>
+
+      <h3>Predictor result template — use for every predictor</h3>
+      <p>Replace every item in <strong style="color:var(--blue-dark);">[brackets]</strong> with your actual values:</p>
+      <div class="callout callout-key" style="font-size:0.93rem; line-height:1.8;">
+        A 1-SD increase in <strong>[predictor]</strong> was associated with <strong>[X]</strong>% <strong>[higher/lower]</strong> odds of persistence (OR = <strong>[value]</strong>, 95% CI: <strong>[lower]</strong>–<strong>[upper]</strong>, p = <strong>[value]</strong>), [supporting/not supporting] Hypothesis <strong>[N]</strong>.
+      </div>
+
+      <h3>Worked example — H1 filled in</h3>
+      <div class="code-explain">
+        <div class="ce-code"><span class="cm"># Filled-in result for H1 ecological predictors:</span>
+&nbsp;
+<span class="cm"># "Consistent with Hypothesis 1, all ecological risk factors</span>
+<span class="cm">#  showed significant positive associations with persistence.</span>
+<span class="cm">#  Counties with high livestock density (1 SD above mean) had</span>
+<span class="cm">#  69% higher odds of persistence compared to average-density</span>
+<span class="cm">#  counties (OR = 1.69, 95% CI: 1.18–2.41, p = 0.004).</span>
+<span class="cm">#  Wildlife proximity (OR = 1.32, p = 0.035), tree cover</span>
+<span class="cm">#  (OR = 1.48, p = 0.008), and wetlands (OR = 1.25, p = 0.041)</span>
+<span class="cm">#  all independently increased persistence risk. These factors</span>
+<span class="cm">#  also accelerated reemergence (HR range: 1.28–1.54,</span>
+<span class="cm">#  all p &lt; 0.05), fully supporting H1."</span></div>
+        <div class="ce-exp">
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Start with the hypothesis direction: "Consistent with H1…" or "Contrary to H2…"</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Lead with the strongest predictor (largest OR/HR, smallest p)</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>% change = (OR − 1) × 100 → (1.69 − 1) × 100 = 69% higher odds</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>Always report: OR, 95% CI, and p-value — all three, every time</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>CI (1.18–2.41) does not cross 1.0 — confirms significance</div>
+          <div class="ce-exp-row blank"></div>
+          <div class="ce-exp-row highlight"><span class="arrow">&#9658;</span>Close with hypothesis verdict: "fully supporting H1" or "not supporting H2"</div>
+          <div class="ce-exp-row"><span class="arrow">&#9658;</span>Link both models when both are significant (OR for persistence + HR for reemergence)</div>
+        </div>
+      </div>
+
+    </div></div>
+  </div>
+
+  <!-- Card W3: Final Checklist -->
+  <div class="step-card" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge badge-purple">W3</div>
+      <div class="step-info">
+        <div class="step-title">Final Checklist Before Running Your Analysis</div>
+        <div class="step-subtitle">Go through every item before you submit</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <table class="data-table">
+        <thead><tr><th style="width:2.5rem;text-align:center;">&#9744;</th><th style="width:6rem;">Category</th><th>Item</th></tr></thead>
+        <tbody>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Data</strong></td><td>Data loaded and checked for missing values</td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Data</strong></td><td>All predictors standardized using <span class="mono">scale()</span> before fitting</td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Models</strong></td><td>Random effects structure specified correctly: <span class="mono">(1|disease/country/admin2)</span></td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Models</strong></td><td>Both models fitted without convergence warnings in the R console</td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Diagnostics</strong></td><td>VIF checked for collinearity — all values &lt; 5</td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Diagnostics</strong></td><td>Proportional hazards assumption tested with <span class="mono">cox.zph()</span></td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Results</strong></td><td>ORs, HRs, CIs, and p-values extracted and organised in tables</td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Results</strong></td><td>Four-step interpretation (Sign → Significance → Magnitude → Precision) applied to each predictor</td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Results</strong></td><td>Hypothesis testing code run for H1–H5 — support/non-support recorded</td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Results</strong></td><td>Visualizations created: forest plots (OR + HR), KM curves, interaction plots</td></tr>
+          <tr><td style="font-size:1.15rem;text-align:center;">&#9744;</td><td><strong>Writing</strong></td><td>Results section drafted using W2 templates, one paragraph per hypothesis</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-good" style="margin-top:18px;">
+        <strong>You have everything you need.</strong> Run the models, apply the four-step interpretation to each predictor, map to your hypotheses, and write it up.
+      </div>
+
     </div></div>
   </div>
 
