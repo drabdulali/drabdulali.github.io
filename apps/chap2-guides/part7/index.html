@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixed Effects Models — Results</title>
+<meta name="robots" content="noindex, nofollow">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','canvas'] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+:root {
+  --blue-light:#d6e6f5; --blue-mid:#7bafd4; --blue-dark:#2b7ab8;
+  --green-light:#d9edd9; --green-mid:#8cc98c; --green-dark:#3a9a3a;
+  --orange-light:#fde8cc; --orange-mid:#f5b85a; --orange-dark:#d4880a;
+  --purple-light:#e2d9f0; --purple-mid:#a98ad4; --purple-dark:#6b3fa0;
+  --red-light:#fde0dc; --red-dark:#c62828;
+  --bg:#f8f9fc; --text:#1a1a2e; --text-muted:#555570; --card-bg:#ffffff; --border:#e0e4ee;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+.tabs-bar{background:#0d1b2e;border-bottom:1px solid #1e3050;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:100;}
+.tabs-bar::-webkit-scrollbar{display:none;}
+.tabs-inner{max-width:1200px;margin:0 auto;display:flex;padding:0 1.5rem;}
+.tab{color:rgba(255,255,255,.55);text-decoration:none;padding:.8rem 1rem;font-size:.8rem;font-weight:500;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s;display:block;}
+.tab:hover{color:rgba(255,255,255,.85);}
+.tab.active{color:#64b5f6;border-bottom-color:#64b5f6;}
+.tab .num{font-size:.65rem;opacity:.5;display:block;margin-bottom:1px;font-family:'JetBrains Mono',monospace;}
+.hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:white;padding:60px 40px 50px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero h1{font-size:3rem;font-weight:900;letter-spacing:-1px;margin-bottom:10px;position:relative;}
+.hero h1 span{color:#64b5f6;}
+.hero .subtitle{font-size:1.1rem;font-weight:300;opacity:.85;max-width:680px;margin:0 auto 30px;position:relative;}
+.hero-stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;position:relative;}
+.hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(100,181,246,.3);border-radius:10px;padding:12px 20px;text-align:center;}
+.hero-stat .val{font-size:1.6rem;font-weight:800;color:#64b5f6;display:block;font-family:'JetBrains Mono',monospace;}
+.hero-stat .lbl{font-size:.72rem;opacity:.7;}
+.container{max-width:1000px;margin:0 auto;padding:50px 40px;}
+.phase-label{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border-radius:20px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;margin-top:44px;}
+.phase-label:first-child{margin-top:0;}
+.ph-blue{background:var(--blue-light);color:var(--blue-dark);}
+.ph-green{background:var(--green-light);color:var(--green-dark);}
+.ph-orange{background:var(--orange-light);color:var(--orange-dark);}
+.ph-purple{background:var(--purple-light);color:var(--purple-dark);}
+.ph-red{background:var(--red-light);color:var(--red-dark);}
+.step-card{background:var(--card-bg);border-radius:16px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;transition:box-shadow .3s,transform .2s;cursor:pointer;}
+.step-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-1px);}
+.step-card.open{box-shadow:0 6px 30px rgba(0,0,0,.1);}
+.step-header{display:flex;align-items:center;padding:20px 24px;gap:16px;}
+.step-badge{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;flex-shrink:0;color:white;font-family:'JetBrains Mono',monospace;position:relative;overflow:hidden;}
+.step-badge::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.15) 50%,transparent 60%);animation:shimmer 3s infinite;}
+@keyframes shimmer{0%{transform:translateX(-100%) translateY(-100%);}100%{transform:translateX(100%) translateY(100%);}}
+.b-blue{background:linear-gradient(135deg,#1565c0,#1976d2);}
+.b-green{background:linear-gradient(135deg,#2e7d32,#388e3c);}
+.b-orange{background:linear-gradient(135deg,#e65100,#f57c00);}
+.b-purple{background:linear-gradient(135deg,#4a148c,#6a1b9a);}
+.b-teal{background:linear-gradient(135deg,#004d40,#00695c);}
+.b-red{background:linear-gradient(135deg,#b71c1c,#c62828);}
+.step-info{flex:1;}
+.step-title{font-size:1.05rem;font-weight:700;margin-bottom:2px;}
+.step-subtitle{font-size:.82rem;color:var(--text-muted);}
+.step-chevron{font-size:.8rem;color:var(--text-muted);transition:transform .3s;flex-shrink:0;}
+.step-card.open .step-chevron{transform:rotate(180deg);}
+.step-content{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1);}
+.step-card.open .step-content{max-height:8000px;}
+.step-body{padding:0 24px 28px;border-top:1px solid var(--border);padding-top:22px;}
+.io-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:22px;}
+.io-box{padding:14px 16px;border-radius:10px;border:1px solid var(--border);}
+.io-box h4{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.io-box h4::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.io-in h4::before{background:var(--blue-dark);}.io-out h4::before{background:var(--green-dark);}.io-why h4::before{background:var(--orange-dark);}
+.io-box p{font-size:.85rem;color:var(--text-muted);line-height:1.5;}
+.io-in{background:#f0f7ff;}.io-in h4{color:var(--blue-dark);}
+.io-out{background:#f0faf0;}.io-out h4{color:var(--green-dark);}
+.io-why{background:#fff8f0;}.io-why h4{color:var(--orange-dark);}
+.step-body p{font-size:.9rem;color:var(--text-muted);line-height:1.7;margin-bottom:12px;}
+.step-body h3{font-size:.95rem;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.step-body ul,.step-body ol{padding-left:1.4rem;margin-bottom:12px;}
+.step-body li{font-size:.88rem;color:var(--text-muted);margin-bottom:5px;line-height:1.55;}
+.step-body li strong{color:var(--text);}
+.eq-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin:14px 0;text-align:center;overflow-x:auto;}
+.eq-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;text-align:left;}
+.eq-highlight{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border:1px solid #ffcc80;border-radius:10px;padding:16px 20px;margin:14px 0;text-align:center;}
+.eq-highlight .eq-tag{font-size:.72rem;font-weight:700;color:var(--orange-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.data-table{width:100%;border-collapse:collapse;font-size:.85rem;margin:14px 0;}
+.data-table th{background:#f0f2f8;padding:9px 14px;text-align:left;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border);}
+.data-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.data-table tr:hover td{background:#f8f9fc;}
+.td-label{font-weight:600;color:var(--text);white-space:nowrap;font-size:.85rem;}
+.td-decision{color:var(--text);font-size:.85rem;}
+.td-why{color:var(--text-muted);font-size:.8rem;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:.87rem;line-height:1.6;border-left:4px solid;}
+.callout strong{display:block;margin-bottom:4px;}
+.callout-key{background:#f0f7ff;border-color:var(--blue-dark);color:#1a3060;}
+.callout-warn{background:#fff8f0;border-color:var(--orange-dark);color:#4a2800;}
+.callout-good{background:#f0faf0;border-color:var(--green-dark);color:#1b3d1b;}
+.four-w{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:14px 0;}
+.w-card{border-radius:12px;padding:18px;border:1px solid;}
+.w-card .wl{font-size:1.8rem;font-weight:900;line-height:1;margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+.w-card h4{font-size:.82rem;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+.w-card p{font-size:.82rem;line-height:1.55;}
+.w-what{background:#f0f7ff;border-color:#b8d8f5;color:#1a3060;}
+.w-which{background:#f0faf0;border-color:#b2dab7;color:#1b3d1b;}
+.w-where{background:#fff8f0;border-color:#f5d080;color:#4a2800;}
+.w-when{background:#f5f0ff;border-color:#c9bef5;color:#3a1a6e;}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin:14px 0;}
+.pred-item{border-radius:10px;padding:14px;border:1px solid;}
+.pred-item .pl{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:900;margin-bottom:6px;}
+.pred-item h4{font-size:.82rem;font-weight:700;margin-bottom:4px;}
+.pred-item p{font-size:.78rem;line-height:1.4;}
+.p-eco{background:#f0faf0;border-color:#b2dab7;color:#14532d;}
+.p-env{background:#f0f7ff;border-color:#b8d8f5;color:#1e3a8a;}
+.p-wild{background:#fefce8;border-color:#fde047;color:#713f12;}
+.p-infr{background:#fff7ed;border-color:#fdba74;color:#7c2d12;}
+.p-inst{background:#f5f0ff;border-color:#c4b5fd;color:#4c1d95;}
+.pipeline-strip{display:flex;margin:14px 0;overflow-x:auto;}
+.pipe-step{flex:1;min-width:120px;text-align:center;padding:14px 10px;border:1px solid var(--border);background:var(--card-bg);position:relative;}
+.pipe-step:first-child{border-radius:10px 0 0 10px;}
+.pipe-step:last-child{border-radius:0 10px 10px 0;}
+.pipe-step+.pipe-step{border-left:none;}
+.pipe-step+.pipe-step::before{content:'›';position:absolute;left:-10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:1.2rem;z-index:1;}
+.pipe-step .psn{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-muted);margin-bottom:4px;}
+.pipe-step .pst{font-size:.82rem;font-weight:700;margin-bottom:3px;}
+.pipe-step .pss{font-size:.72rem;color:var(--text-muted);}
+.pipe-1{background:#eff6ff;border-color:#bfdbfe;color:#1e3a8a;}
+.pipe-2{background:#f0fdf4;border-color:#bbf7d0;color:#14532d;}
+.pipe-3{background:#fefce8;border-color:#fde68a;color:#78350f;}
+.pipe-4{background:#fdf4ff;border-color:#e9d5ff;color:#4c1d95;}
+.pipe-5{background:#fff1f2;border-color:#fecdd3;color:#881337;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0;}
+.chart-wrap{position:relative;height:200px;margin:14px 0;}
+.num-bar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;}
+.num-item{flex:1;min-width:120px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;}
+.num-item .big{font-size:1.4rem;font-weight:800;color:var(--blue-dark);font-family:'JetBrains Mono',monospace;}
+.num-item .sm{font-size:.72rem;color:var(--text-muted);margin-top:3px;}
+.dag-wrap{overflow-x:auto;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:10px;margin:14px 0;}
+footer{text-align:center;padding:40px;color:var(--text-muted);font-size:.82rem;border-top:1px solid var(--border);}
+/* result-specific */
+.tag-supported{display:inline-block;background:#e6f4ea;color:#1b5e20;border:1px solid #a5d6a7;border-radius:6px;font-size:.72rem;font-weight:700;padding:2px 8px;white-space:nowrap;}
+.tag-partial{display:inline-block;background:#fff8e1;color:#e65100;border:1px solid #ffe082;border-radius:6px;font-size:.72rem;font-weight:700;padding:2px 8px;white-space:nowrap;}
+.tag-notsup{display:inline-block;background:#fde0dc;color:#c62828;border:1px solid #ef9a9a;border-radius:6px;font-size:.72rem;font-weight:700;padding:2px 8px;white-space:nowrap;}
+.or-bar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;}
+.or-card{flex:1;min-width:130px;border-radius:10px;padding:14px 16px;border:1px solid;text-align:center;}
+.or-card .or-val{font-size:1.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1.1;}
+.or-card .or-lbl{font-size:.72rem;margin-top:4px;}
+.or-risk{background:#fde0dc;border-color:#ef9a9a;color:#c62828;}
+.or-prot{background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20;}
+.or-null{background:#f0f2f8;border-color:#c0c6d8;color:#555570;}
+.size-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0;}
+.size-card{border-radius:10px;padding:14px 16px;border:1px solid;}
+.size-card .sc-range{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:800;margin-bottom:4px;}
+.size-card .sc-lbl{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.size-card .sc-desc{font-size:.78rem;line-height:1.4;}
+.sz-small{background:#f0f7ff;border-color:#b8d8f5;color:#1a3060;}
+.sz-mod{background:#fff8f0;border-color:#f5c078;color:#7a3800;}
+.sz-large{background:#fde0dc;border-color:#ef9a9a;color:#7f1d1d;}
+.sz-prot-s{background:#f0faf0;border-color:#b2dab7;color:#14532d;}
+.sz-prot-l{background:#e8f5e9;border-color:#66bb6a;color:#1b5e20;}
+code{font-family:'JetBrains Mono',monospace;font-size:.84em;background:#f0f2f8;padding:1px 6px;border-radius:4px;color:#1a3060;}
+pre.code-block{background:#1a1a2e;color:#e2e8f0;border-radius:10px;padding:16px 20px;font-size:.82rem;overflow-x:auto;margin:14px 0;line-height:1.65;font-family:'JetBrains Mono',monospace;}
+pre.code-block .cm{color:#6b7694;}
+pre.code-block .kw{color:#7dd3fc;}
+pre.code-block .fn{color:#86efac;}
+pre.code-block .st{color:#fda4af;}
+pre.code-block .nm{color:#fcd34d;}
+.verdict-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:#f8f9fc;border:1px solid var(--border);margin-bottom:8px;}
+.verdict-row .vr-hyp{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:var(--blue-dark);min-width:28px;}
+.verdict-row .vr-text{font-size:.85rem;color:var(--text-muted);flex:1;}
+@media(max-width:768px){
+  .hero h1{font-size:2rem;}.io-grid{grid-template-columns:1fr;}.two-col{grid-template-columns:1fr;}
+  .container{padding:30px 20px;}.hero-stats{flex-direction:column;align-items:center;}
+  .size-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="tabs-bar">
+  <div class="tabs-inner">
+    <a class="tab" href="../mems"><span class="num">00</span>MEMs</a>
+    <a class="tab" href="../part1"><span class="num">01</span>Research Design</a>
+    <a class="tab" href="../part2"><span class="num">02</span>Raw Data</a>
+    <a class="tab" href="../part3"><span class="num">03</span>Data Processing</a>
+    <a class="tab" href="../part4"><span class="num">04</span>Statistical Models</a>
+    <a class="tab" href="../part5"><span class="num">05</span>Model Validation</a>
+    <a class="tab" href="../part6"><span class="num">06</span>Model Diagnostics</a>
+    <a class="tab active" href="../part7"><span class="num">07</span>Results</a>
+    <a class="tab" href="../part8"><span class="num">08</span>Visualizations</a>
+    <a class="tab" href="../part9"><span class="num">09</span>Exam Prep</a>
+    <a class="tab" href="../part10"><span class="num">10</span>Reemergence</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Res<span>ults</span></h1>
+  <p class="subtitle">Interpreting odds ratios, hazard ratios, random effects variance components, and reporting results for each hypothesis H1&ndash;H5.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="val">OR</span><span class="lbl">Odds Ratios</span></div>
+    <div class="hero-stat"><span class="val">HR</span><span class="lbl">Hazard Ratios</span></div>
+    <div class="hero-stat"><span class="val">ICC</span><span class="lbl">Clustering</span></div>
+    <div class="hero-stat"><span class="val">H1&ndash;H5</span><span class="lbl">Hypothesis Tests</span></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- =========================================================
+       PHASE 1 — FIXED EFFECTS
+  ========================================================== -->
+  <div class="phase-label ph-blue">Phase 1 &mdash; Interpreting Fixed Effects</div>
+
+  <!-- Step 1: OR from logistic GLMM -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-blue">01</div>
+      <div class="step-info">
+        <div class="step-title">Odds Ratios from Logistic GLMM</div>
+        <div class="step-subtitle">Back-transforming log-odds coefficients to policy-interpretable scale</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <div class="io-grid">
+        <div class="io-box io-in"><h4>Input</h4><p>Fixed-effect coefficient \(\beta_k\) on log-odds scale from <code>fixef(model)</code></p></div>
+        <div class="io-box io-out"><h4>Output</h4><p>Odds Ratio OR\(_k\) = \(e^{\beta_k}\) with 95% CI on multiplicative scale</p></div>
+        <div class="io-box io-why"><h4>Why exponentiate</h4><p>Log-odds are uninterpretable in isolation. OR is a ratio familiar to clinicians and policymakers — "X-fold change in odds."</p></div>
+      </div>
+
+      <h3>Back-Transformation Formula</h3>
+      <div class="eq-block">
+        <div class="eq-label">Odds Ratio from log-odds coefficient</div>
+        \[ \text{OR}_k = e^{\beta_k} \]
+        \[ \text{95\% CI: } \left( e^{\,\beta_k - 1.96 \cdot \text{SE}_k},\; e^{\,\beta_k + 1.96 \cdot \text{SE}_k} \right) \]
+      </div>
+
+      <div class="or-bar">
+        <div class="or-card or-risk"><div class="or-val">OR &gt; 1</div><div class="or-lbl">Risk factor — increases persistence odds</div></div>
+        <div class="or-card or-null"><div class="or-val">OR = 1</div><div class="or-lbl">No effect — \(\beta = 0\)</div></div>
+        <div class="or-card or-prot"><div class="or-val">OR &lt; 1</div><div class="or-lbl">Protective — decreases persistence odds</div></div>
+      </div>
+
+      <h3>Worked Example</h3>
+      <div class="callout callout-key">
+        <strong>livestock_density: \(\beta = 0.35\), SE = 0.09</strong>
+        OR = \(e^{0.35}\) = <strong>1.42</strong> &nbsp;&nbsp; 95% CI: \(e^{0.35 \pm 1.96 \times 0.09}\) = [1.19, 1.69]<br><br>
+        Interpretation: "Each 1-SD increase in livestock density is associated with <strong>42% higher odds of persistence</strong> (OR = 1.42, 95% CI [1.19&ndash;1.69], p &lt; 0.001), after adjusting for other predictors and random effects."
+      </div>
+
+      <h3>R Extraction Commands</h3>
+      <pre class="code-block"><span class="cm"># Point estimates — already on log-odds scale</span>
+<span class="fn">fixef</span>(model)
+
+<span class="cm"># Convert to OR</span>
+<span class="fn">exp</span>(<span class="fn">fixef</span>(model))
+
+<span class="cm"># 95% CI on OR scale (profile likelihood)</span>
+<span class="fn">exp</span>(<span class="fn">confint</span>(model, method = <span class="st">"Wald"</span>))
+
+<span class="cm"># Full tidy output with OR + CI in one step</span>
+broom.mixed::<span class="fn">tidy</span>(model, exponentiate = <span class="kw">TRUE</span>, conf.int = <span class="kw">TRUE</span>)</pre>
+
+      <h3>Example Coefficient Table</h3>
+      <table class="data-table">
+        <thead><tr><th>Predictor</th><th>\(\beta\)</th><th>SE</th><th>OR</th><th>95% CI</th><th>p-value</th><th>Direction</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">livestock_density</td><td>0.35</td><td>0.09</td><td>1.42</td><td>[1.19, 1.69]</td><td>&lt;0.001</td><td style="color:#c62828;">&#9650; Risk</td></tr>
+          <tr><td class="td-label">tree_cover</td><td>0.22</td><td>0.07</td><td>1.25</td><td>[1.08, 1.43]</td><td>0.002</td><td style="color:#c62828;">&#9650; Risk</td></tr>
+          <tr><td class="td-label">wildlife_proximity</td><td>0.41</td><td>0.10</td><td>1.51</td><td>[1.24, 1.83]</td><td>&lt;0.001</td><td style="color:#c62828;">&#9650; Risk</td></tr>
+          <tr><td class="td-label">road_density</td><td>0.18</td><td>0.08</td><td>1.20</td><td>[1.02, 1.40]</td><td>0.026</td><td style="color:#c62828;">&#9650; Risk</td></tr>
+          <tr><td class="td-label">vaccination_coverage</td><td>-0.52</td><td>0.11</td><td>0.59</td><td>[0.48, 0.74]</td><td>&lt;0.001</td><td style="color:#1b5e20;">&#9660; Protective</td></tr>
+          <tr><td class="td-label">gdp_per_capita</td><td>-0.31</td><td>0.09</td><td>0.73</td><td>[0.61, 0.88]</td><td>&lt;0.001</td><td style="color:#1b5e20;">&#9660; Protective</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn">
+        <strong>Remember: all predictors are z-scored</strong>
+        An OR of 1.42 for livestock_density means a <em>1-SD increase</em>, not a 1-unit increase. Always state "per 1-SD increase" when reporting. This is critical because raw units differ wildly across predictors.
+      </div>
+
+    </div></div>
+  </div>
+
+  <!-- Step 2: HR from Cox frailty -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-blue">02</div>
+      <div class="step-info">
+        <div class="step-title">Hazard Ratios from Cox Frailty Model</div>
+        <div class="step-subtitle">Interpreting time-to-reemergence coefficients — faster vs. slower events</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <div class="io-grid">
+        <div class="io-box io-in"><h4>Input</h4><p>\(\beta_k\) from Cox frailty model on log-hazard scale</p></div>
+        <div class="io-box io-out"><h4>Output</h4><p>HR\(_k\) = \(e^{\beta_k}\) — ratio of instantaneous event rates</p></div>
+        <div class="io-box io-why"><h4>Why different from OR</h4><p>OR is a cross-sectional ratio. HR is a rate ratio describing how quickly an event occurs over time — it accounts for the temporal dimension.</p></div>
+      </div>
+
+      <h3>Back-Transformation Formula</h3>
+      <div class="eq-block">
+        <div class="eq-label">Hazard Ratio from Cox log-hazard coefficient</div>
+        \[ \text{HR}_k = e^{\beta_k} \]
+        \[ h(t \mid z_k + 1) = h(t \mid z_k) \times \text{HR}_k \]
+      </div>
+
+      <div class="or-bar">
+        <div class="or-card or-risk"><div class="or-val">HR &gt; 1</div><div class="or-lbl">Faster reemergence — shorter time to event</div></div>
+        <div class="or-card or-null"><div class="or-val">HR = 1</div><div class="or-lbl">No effect on reemergence timing</div></div>
+        <div class="or-card or-prot"><div class="or-val">HR &lt; 1</div><div class="or-lbl">Delayed reemergence — protective factor</div></div>
+      </div>
+
+      <h3>Worked Example</h3>
+      <div class="callout callout-key">
+        <strong>vaccination_coverage: \(\beta = -0.28\), SE = 0.10</strong>
+        HR = \(e^{-0.28}\) = <strong>0.76</strong> &nbsp;&nbsp; 95% CI: \(e^{-0.28 \pm 1.96 \times 0.10}\) = [0.62, 0.92]<br><br>
+        Interpretation: "Each 1-SD increase in vaccination coverage is associated with a <strong>24% lower hazard of reemergence</strong> (HR = 0.76, 95% CI [0.62&ndash;0.92], p = 0.006), meaning disease-free areas with higher vaccination take significantly longer to experience a new outbreak."
+      </div>
+
+      <h3>R Extraction Commands</h3>
+      <pre class="code-block"><span class="cm"># Hazard ratios — exp(coef) column in summary</span>
+<span class="fn">summary</span>(model_cox)$coefficients
+
+<span class="cm"># Point estimates only</span>
+<span class="fn">exp</span>(<span class="fn">coef</span>(model_cox))
+
+<span class="cm"># 95% CI on HR scale</span>
+<span class="fn">exp</span>(<span class="fn">confint</span>(model_cox))
+
+<span class="cm"># Tidy output</span>
+broom::<span class="fn">tidy</span>(model_cox, exponentiate = <span class="kw">TRUE</span>, conf.int = <span class="kw">TRUE</span>)</pre>
+
+      <h3>OR vs. HR: Key Conceptual Difference</h3>
+      <table class="data-table">
+        <thead><tr><th>Feature</th><th>Odds Ratio (OR)</th><th>Hazard Ratio (HR)</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">Model</td><td>Logistic GLMM</td><td>Cox frailty</td></tr>
+          <tr><td class="td-label">Outcome type</td><td>Binary (0/1 persistence)</td><td>Time-to-event (reemergence)</td></tr>
+          <tr><td class="td-label">Interpretation</td><td>Ratio of odds of the event</td><td>Ratio of instantaneous event rates</td></tr>
+          <tr><td class="td-label">HR &gt; 1 means</td><td>N/A</td><td>Event happens sooner (faster reemergence)</td></tr>
+          <tr><td class="td-label">OR &gt; 1 means</td><td>Higher probability of persistence</td><td>N/A</td></tr>
+          <tr><td class="td-label">Handles censoring</td><td>No (all units have complete outcome)</td><td>Yes — right-censored units contribute properly</td></tr>
+          <tr><td class="td-label">R extraction</td><td><code>exp(fixef(model))</code></td><td><code>exp(coef(model_cox))</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-good">
+        <strong>Common exam trap: HR &gt; 1 is not always bad</strong>
+        In persistence, OR &gt; 1 = more disease. In reemergence, HR &gt; 1 means the event (reemergence) happens faster &mdash; which is worse for disease control. HR &lt; 1 is the protective direction for reemergence: the area stays disease-free longer. Always anchor interpretation to the specific event being modelled.
+      </div>
+
+    </div></div>
+  </div>
+
+  <!-- =========================================================
+       PHASE 2 — RANDOM EFFECTS
+  ========================================================== -->
+  <div class="phase-label ph-green">Phase 2 &mdash; Random Effects</div>
+
+  <!-- Step 3: Variance components and ICC -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-green">03</div>
+      <div class="step-info">
+        <div class="step-title">Variance Components and ICC</div>
+        <div class="step-subtitle">Quantifying how much variation is explained by geographic clustering</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <div class="io-grid">
+        <div class="io-box io-in"><h4>Input</h4><p><code>VarCorr(model)</code> extracting \(\sigma^2\) at each random effect level</p></div>
+        <div class="io-box io-out"><h4>Output</h4><p>ICC per level — proportion of total variance attributable to each grouping</p></div>
+        <div class="io-box io-why"><h4>Why it matters</h4><p>High ICC means geographic structure dominates. Fixed effects explain less than clustering; policy must address country- or admin-level factors.</p></div>
+      </div>
+
+      <h3>ICC Formula for 3-Level Logistic GLMM</h3>
+      <div class="eq-block">
+        <div class="eq-label">Intraclass Correlation Coefficient — logistic model (level-2 = country)</div>
+        \[
+          \text{ICC}_{\text{country}} = \frac{\sigma^2_{\text{country}}}{\sigma^2_{\text{country}} + \sigma^2_{\text{admin2}} + \pi^2/3}
+        \]
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;text-align:left;">\(\pi^2/3 \approx 3.29\) = variance of the standard logistic distribution (level-1 residual variance)</p>
+      </div>
+      <div class="eq-block">
+        <div class="eq-label">ICC at admin-2 level (total clustering within country)</div>
+        \[
+          \text{ICC}_{\text{admin2}} = \frac{\sigma^2_{\text{admin2}}}{\sigma^2_{\text{country}} + \sigma^2_{\text{admin2}} + \pi^2/3}
+        \]
+      </div>
+
+      <h3>R Extraction</h3>
+      <pre class="code-block"><span class="cm"># Extract variance components</span>
+vc &lt;- <span class="fn">VarCorr</span>(model)
+<span class="fn">print</span>(vc, comp = <span class="st">"Variance"</span>)
+
+<span class="cm"># Manual ICC calculation</span>
+s2_country &lt;- <span class="fn">as.numeric</span>(vc$country)
+s2_admin2  &lt;- <span class="fn">as.numeric</span>(vc$admin2)
+s2_resid   &lt;- (pi^<span class="nm">2</span>) / <span class="nm">3</span>          <span class="cm"># logistic level-1 variance</span>
+total      &lt;- s2_country + s2_admin2 + s2_resid
+
+icc_country &lt;- s2_country / total
+icc_admin2  &lt;- s2_admin2  / total
+
+<span class="cm"># Or use performance package</span>
+performance::<span class="fn">icc</span>(model)</pre>
+
+      <h3>Variance Component Table — Example</h3>
+      <table class="data-table">
+        <thead><tr><th>Level</th><th>Variance (\(\sigma^2\))</th><th>ICC</th><th>Interpretation</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">Country</td><td>0.84</td><td><strong>0.23</strong></td><td>23% of variation in persistence is explained by country-level clustering</td></tr>
+          <tr><td class="td-label">Admin-2</td><td>0.61</td><td><strong>0.17</strong></td><td>17% attributable to commune-level clustering beyond country</td></tr>
+          <tr><td class="td-label">Residual (level-1)</td><td>3.29 (\(\pi^2/3\))</td><td><strong>0.60</strong></td><td>60% unexplained individual outbreak variation</td></tr>
+          <tr><td class="td-label"><strong>Total</strong></td><td><strong>4.74</strong></td><td><strong>1.00</strong></td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-key">
+        <strong>Reporting template</strong>
+        "The country-level ICC was 0.23, indicating that 23% of the variation in TAD persistence is attributable to unmeasured country-level factors after adjusting for fixed predictors. A further 17% was attributable to admin-2 clustering, confirming the need for nested random effects in this model."
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>What high ICC reveals about your model</strong>
+        ICC &gt; 0.20 at country level means you have substantial unmeasured confounding operating at the country scale (e.g. surveillance capacity, policy quality, reporting standards). This does not invalidate fixed effect estimates — the random intercepts absorb this — but it does mean your predictors alone cannot account for country-to-country differences.
+      </div>
+
+    </div></div>
+  </div>
+
+  <!-- Step 4: Frailty variance -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-green">04</div>
+      <div class="step-info">
+        <div class="step-title">Frailty Variance (&theta;) in the Cox Model</div>
+        <div class="step-subtitle">Quantifying unmeasured heterogeneity in reemergence timing across admin-2 units</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <div class="io-grid">
+        <div class="io-box io-in"><h4>Input</h4><p>Fitted Cox frailty model — <code>coxme()</code> or <code>coxph()</code> with <code>frailty()</code></p></div>
+        <div class="io-box io-out"><h4>Output</h4><p>\(\theta\) = variance of the log-normal frailty; individual frailty scores \(b_j\)</p></div>
+        <div class="io-box io-why"><h4>Why frailty</h4><p>Admin-2 units are not exchangeable — some areas consistently re-experience disease faster due to unmeasured local factors. Frailty captures this.</p></div>
+      </div>
+
+      <h3>Frailty Distribution</h3>
+      <div class="eq-block">
+        <div class="eq-label">Gamma frailty — multiplicative random effect on hazard</div>
+        \[ h(t \mid \mathbf{z}_j, b_j) = h_0(t) \cdot b_j \cdot \exp(\mathbf{x}_j^{\top} \boldsymbol{\beta}) \]
+        \[ b_j \sim \text{Gamma}\!\left(\frac{1}{\theta}, \frac{1}{\theta}\right), \quad \mathbb{E}[b_j] = 1, \quad \text{Var}(b_j) = \theta \]
+      </div>
+
+      <h3>R Extraction</h3>
+      <pre class="code-block"><span class="cm"># For coxph() with frailty() term</span>
+model_cox$<span class="kw">history</span>      <span class="cm"># convergence details</span>
+model_cox$frail          <span class="cm"># individual log-frailty estimates per unit</span>
+model_cox$history[["frailty(admin2)"]]$<span class="kw">theta</span>   <span class="cm"># variance theta</span>
+
+<span class="cm"># For coxme() — mixed effects Cox</span>
+<span class="fn">VarCorr</span>(model_coxme)     <span class="cm"># frailty variance</span>
+<span class="fn">ranef</span>(model_coxme)       <span class="cm"># individual frailty estimates</span>
+
+<span class="cm"># Summarise frailty distribution</span>
+frail_scores &lt;- <span class="fn">exp</span>(model_cox$frail)  <span class="cm"># back to multiplicative scale</span>
+<span class="fn">summary</span>(frail_scores)
+<span class="fn">hist</span>(frail_scores, breaks = <span class="nm">30</span>)</pre>
+
+      <h3>Interpreting &theta;</h3>
+      <table class="data-table">
+        <thead><tr><th>\(\theta\) value</th><th>Interpretation</th><th>Policy implication</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">\(\theta \approx 0\)</td><td>Negligible frailty — all admin-2 units have similar re-emergence rates</td><td>Fixed predictors explain most variation; uniform policy may work</td></tr>
+          <tr><td class="td-label">\(\theta = 0.2\text{–}0.4\)</td><td>Moderate heterogeneity — meaningful clustering exists</td><td>Some geographic targeting of interventions warranted</td></tr>
+          <tr><td class="td-label">\(\theta > 0.5\)</td><td>Substantial heterogeneity — large unexplained variation in timing</td><td>Strong case for place-based interventions; identify high-frailty units</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-good">
+        <strong>Reporting template for \(\theta = 0.45\)</strong>
+        "The frailty variance was \(\theta\) = 0.45, indicating substantial unmeasured heterogeneity in reemergence timing across admin-2 units. This suggests local factors not captured in the fixed-effect predictors (e.g. live animal trade patterns, veterinary response capacity) contribute substantially to variation in time to reemergence."
+      </div>
+
+    </div></div>
+  </div>
+
+  <!-- =========================================================
+       PHASE 3 — HYPOTHESIS RESULTS
+  ========================================================== -->
+  <div class="phase-label ph-orange">Phase 3 &mdash; Hypothesis Decision Results</div>
+
+  <!-- Step 5: H1–H3 -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-orange">05</div>
+      <div class="step-info">
+        <div class="step-title">H1&ndash;H3 Results Reporting</div>
+        <div class="step-subtitle">Structured template: coefficients &rarr; sign &rarr; significance &rarr; decision &rarr; effect size</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <h3>Results Reporting Framework (4-Step)</h3>
+      <div class="pipeline-strip">
+        <div class="pipe-step pipe-1"><div class="psn">Step A</div><div class="pst">Coefficient table</div><div class="pss">\(\beta\), SE, OR/HR, 95% CI, p</div></div>
+        <div class="pipe-step pipe-2"><div class="psn">Step B</div><div class="pst">Sign &amp; significance</div><div class="pss">direction + p-value threshold</div></div>
+        <div class="pipe-step pipe-3"><div class="psn">Step C</div><div class="pst">Hypothesis decision</div><div class="pss">Supported / Partial / Not Supported</div></div>
+        <div class="pipe-step pipe-4"><div class="psn">Step D</div><div class="pst">Effect size</div><div class="pss">Small / Moderate / Large by OR/HR magnitude</div></div>
+      </div>
+
+      <h3>H1 — Livestock Density Increases Persistence</h3>
+      <div class="verdict-row">
+        <span class="vr-hyp">H1</span>
+        <span class="vr-text">Higher livestock density is associated with greater odds of TAD persistence</span>
+        <span class="tag-supported">Supported</span>
+      </div>
+      <div class="callout callout-good">
+        <strong>Worked example sentence (manuscript format)</strong>
+        "Livestock density (\(\beta\) = 0.41, SE = 0.08, OR = 1.51, 95% CI [1.29&ndash;1.76], p &lt; 0.001) significantly increased the odds of TAD persistence per 1-SD increase, supporting H1. The effect size was moderate by epidemiological conventions (OR 1.5&ndash;3.0). The positive coefficient indicates that districts with denser livestock populations are 51% more likely to experience disease recurrence within the 6&ndash;24 month window, consistent with mass-action transmission dynamics."
+      </div>
+
+      <h3>H2 — Wildlife Proximity Increases Persistence</h3>
+      <div class="verdict-row">
+        <span class="vr-hyp">H2</span>
+        <span class="vr-text">Proximity to wildlife habitat is associated with greater odds of TAD persistence</span>
+        <span class="tag-supported">Supported</span>
+      </div>
+      <div class="callout callout-good">
+        <strong>Template sentence</strong>
+        "Wildlife proximity (\(\beta\) = 0.38, SE = 0.09, OR = 1.46, 95% CI [1.23&ndash;1.74], p &lt; 0.001) was a significant positive predictor of persistence, supporting H2. Each 1-SD increase in the wildlife habitat index was associated with 46% higher persistence odds, reflecting continued pathogen re-introduction from reservoir hosts."
+      </div>
+
+      <h3>H3 — Vaccination Coverage Reduces Persistence</h3>
+      <div class="verdict-row">
+        <span class="vr-hyp">H3</span>
+        <span class="vr-text">Higher vaccination coverage reduces odds of persistence (protective)</span>
+        <span class="tag-supported">Supported</span>
+      </div>
+      <div class="callout callout-good">
+        <strong>Template sentence</strong>
+        "Vaccination coverage (\(\beta\) = &minus;0.52, SE = 0.11, OR = 0.59, 95% CI [0.48&ndash;0.74], p &lt; 0.001) significantly reduced persistence odds, supporting H3. Districts with 1-SD higher vaccination coverage had 41% lower odds of persistence. The negative sign and sub-1.0 OR confirm the protective direction hypothesised."
+      </div>
+
+      <h3>Hypothesis Decision Table — H1&ndash;H3</h3>
+      <table class="data-table">
+        <thead><tr><th>Hyp.</th><th>Predictor</th><th>\(\beta\)</th><th>SE</th><th>OR</th><th>95% CI</th><th>p</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-label">H1</td><td>livestock_density</td><td>0.41</td><td>0.08</td><td>1.51</td><td>[1.29, 1.76]</td><td>&lt;0.001</td>
+            <td><span class="tag-supported">Supported</span></td>
+          </tr>
+          <tr>
+            <td class="td-label">H2</td><td>wildlife_proximity</td><td>0.38</td><td>0.09</td><td>1.46</td><td>[1.23, 1.74]</td><td>&lt;0.001</td>
+            <td><span class="tag-supported">Supported</span></td>
+          </tr>
+          <tr>
+            <td class="td-label">H3</td><td>vaccination_coverage</td><td>&minus;0.52</td><td>0.11</td><td>0.59</td><td>[0.48, 0.74]</td><td>&lt;0.001</td>
+            <td><span class="tag-supported">Supported</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div></div>
+  </div>
+
+  <!-- Step 6: H4–H5 -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-orange">06</div>
+      <div class="step-info">
+        <div class="step-title">H4&ndash;H5 Results Reporting</div>
+        <div class="step-subtitle">Interaction terms and meta-regression moderators</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <h3>H4 — Wildlife &times; Tree Cover Interaction</h3>
+      <div class="verdict-row">
+        <span class="vr-hyp">H4</span>
+        <span class="vr-text">The effect of wildlife proximity on persistence is moderated by tree cover (forest amplifies risk)</span>
+        <span class="tag-partial">Partial</span>
+      </div>
+
+      <p>An interaction term \(\beta_{\text{wildlife} \times \text{tree}}\) tests whether the slope of wildlife_proximity on log-odds differs as a function of tree_cover. A positive interaction coefficient (\(\beta > 0\)) means wildlife risk is amplified in forested areas.</p>
+
+      <div class="eq-block">
+        <div class="eq-label">Interaction term in the linear predictor</div>
+        \[
+          \eta = \beta_0 + \beta_1 z_{\text{wildlife}} + \beta_2 z_{\text{tree}} + \beta_3 \cdot (z_{\text{wildlife}} \times z_{\text{tree}}) + \ldots
+        \]
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;text-align:left;">The marginal effect of wildlife_proximity at tree cover value \(t\): \(\;\partial\eta/\partial z_{\text{wildlife}} = \beta_1 + \beta_3 \cdot t\)</p>
+      </div>
+
+      <h3>Plotting Marginal Effects (R)</h3>
+      <pre class="code-block"><span class="cm"># Visualise interaction with interact_plot()</span>
+interactions::<span class="fn">interact_plot</span>(
+  model,
+  pred        = wildlife_proximity,
+  modx        = tree_cover,
+  modx.values = <span class="st">"plus-minus"</span>,   <span class="cm"># -1SD, mean, +1SD of tree_cover</span>
+  interval    = <span class="kw">TRUE</span>,
+  x.label     = <span class="st">"Wildlife Proximity (z-score)"</span>,
+  y.label     = <span class="st">"Predicted Persistence Probability"</span>,
+  legend.main = <span class="st">"Tree Cover Level"</span>
+)
+
+<span class="cm"># Compute marginal effects at specific values</span>
+marginaleffects::<span class="fn">plot_slopes</span>(
+  model,
+  variables  = <span class="st">"wildlife_proximity"</span>,
+  condition  = <span class="st">"tree_cover"</span>
+)</pre>
+
+      <div class="callout callout-key">
+        <strong>Interpreting a partial support decision for H4</strong>
+        If \(\beta_3 = 0.19\) (p = 0.04): the interaction is statistically significant. The marginal effect of wildlife proximity is +0.41 at low tree cover but +0.60 at high tree cover. Report: "The wildlife&ndash;persistence association was stronger in densely forested districts (\(\beta_{\text{interaction}}\) = 0.19, p = 0.04), providing partial support for H4. However, the interaction explained only 2% of additional deviance, suggesting tree cover amplifies but does not drive the wildlife effect."
+      </div>
+
+      <h3>H5 — Meta-Regression Moderators</h3>
+      <div class="verdict-row">
+        <span class="vr-hyp">H5</span>
+        <span class="vr-text">Cross-TAD heterogeneity in OR estimates is explained by disease-specific moderators (e.g. transmission route)</span>
+        <span class="tag-partial">Partial</span>
+      </div>
+
+      <p>H5 uses meta-regression via <code>metafor</code> to test whether between-TAD heterogeneity in the livestock density OR is moderated by disease characteristics (e.g. direct vs. vector-borne transmission).</p>
+
+      <pre class="code-block"><span class="cm"># Fit meta-regression with moderator</span>
+res &lt;- metafor::<span class="fn">rma</span>(
+  yi   = log_OR,           <span class="cm"># log-OR from each TAD-specific model</span>
+  sei  = se_log_OR,
+  mods = ~ transmission_route + host_range,
+  data = tad_results
+)
+
+<span class="cm"># Heterogeneity statistics</span>
+res$QE   <span class="cm"># Cochran's Q (residual heterogeneity)</span>
+res$QEp  <span class="cm"># p-value for Q</span>
+res$I2   <span class="cm"># I² — % variance due to heterogeneity</span>
+res$tau2  <span class="cm"># tau² — between-study variance</span>
+
+<span class="cm"># Moderator significance</span>
+res$QM   <span class="cm"># Q_M statistic for moderators</span>
+res$QMp  <span class="cm"># p-value for moderator block</span></pre>
+
+      <div class="callout callout-good">
+        <strong>H5 Reporting Template</strong>
+        "Substantial heterogeneity was observed across TADs (I&sup2; = 63%, \(\tau^2\) = 0.12, Q = 38.2, df = 14, p &lt; 0.001). Meta-regression identified transmission route as a significant moderator (\(Q_M\) = 9.4, df = 2, p = 0.009): direct-contact diseases showed larger livestock density effects (pooled log-OR = 0.48) compared to vector-borne diseases (pooled log-OR = 0.21). This provides partial support for H5, accounting for 38% of between-TAD variance in the livestock density effect."
+      </div>
+
+    </div></div>
+  </div>
+
+  <!-- =========================================================
+       PHASE 4 — RESULTS TABLES AND FORMATTING
+  ========================================================== -->
+  <div class="phase-label ph-purple">Phase 4 &mdash; Results Tables and Formatting</div>
+
+  <!-- Step 7: Main results table -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-purple">07</div>
+      <div class="step-info">
+        <div class="step-title">Manuscript-Quality Results Table</div>
+        <div class="step-subtitle">Complete format: fixed effects + random effects for both models</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <div class="callout callout-key">
+        <strong>Table structure conventions</strong>
+        (1) Fixed effects first, grouped by hypothesis. (2) Interaction terms below main effects. (3) Horizontal divider before random effects section. (4) All ORs/HRs with 95% CI. (5) Significance stars: * p&lt;0.05, ** p&lt;0.01, *** p&lt;0.001. (6) Notes below table define abbreviations and z-scoring.
+      </div>
+
+      <h3>Model 1 — Logistic GLMM: Persistence (Binary)</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:24%">Predictor</th>
+            <th>\(\beta\)</th><th>SE</th><th>p</th>
+            <th>OR</th><th>95% CI</th><th>Hyp.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#f5f0ff;"><td colspan="7" style="font-weight:700;font-size:.8rem;color:var(--purple-dark);padding:8px 14px;">H1 — Livestock &amp; Infrastructure</td></tr>
+          <tr>
+            <td class="td-label">livestock_density</td>
+            <td>0.41</td><td>0.08</td><td>&lt;0.001***</td>
+            <td>1.51</td><td>[1.29, 1.76]</td><td><span class="tag-supported">H1 ✓</span></td>
+          </tr>
+          <tr>
+            <td class="td-label">road_density</td>
+            <td>0.18</td><td>0.08</td><td>0.026*</td>
+            <td>1.20</td><td>[1.02, 1.40]</td><td><span class="tag-supported">H1 ✓</span></td>
+          </tr>
+          <tr style="background:#f5f0ff;"><td colspan="7" style="font-weight:700;font-size:.8rem;color:var(--purple-dark);padding:8px 14px;">H2 — Wildlife Interface</td></tr>
+          <tr>
+            <td class="td-label">wildlife_proximity</td>
+            <td>0.38</td><td>0.09</td><td>&lt;0.001***</td>
+            <td>1.46</td><td>[1.23, 1.74]</td><td><span class="tag-supported">H2 ✓</span></td>
+          </tr>
+          <tr>
+            <td class="td-label">tree_cover</td>
+            <td>0.22</td><td>0.07</td><td>0.002**</td>
+            <td>1.25</td><td>[1.08, 1.43]</td><td><span class="tag-supported">H2 ✓</span></td>
+          </tr>
+          <tr style="background:#f5f0ff;"><td colspan="7" style="font-weight:700;font-size:.8rem;color:var(--purple-dark);padding:8px 14px;">H3 — Institutional Capacity</td></tr>
+          <tr>
+            <td class="td-label">vaccination_coverage</td>
+            <td>&minus;0.52</td><td>0.11</td><td>&lt;0.001***</td>
+            <td>0.59</td><td>[0.48, 0.74]</td><td><span class="tag-supported">H3 ✓</span></td>
+          </tr>
+          <tr>
+            <td class="td-label">gdp_per_capita</td>
+            <td>&minus;0.31</td><td>0.09</td><td>&lt;0.001***</td>
+            <td>0.73</td><td>[0.61, 0.88]</td><td><span class="tag-supported">H3 ✓</span></td>
+          </tr>
+          <tr style="background:#f5f0ff;"><td colspan="7" style="font-weight:700;font-size:.8rem;color:var(--purple-dark);padding:8px 14px;">H4 — Interaction Term</td></tr>
+          <tr>
+            <td class="td-label">wildlife &times; tree_cover</td>
+            <td>0.19</td><td>0.09</td><td>0.040*</td>
+            <td>1.21</td><td>[1.01, 1.44]</td><td><span class="tag-partial">H4 ~</span></td>
+          </tr>
+          <tr style="background:#f0f2f8;"><td colspan="7" style="font-weight:700;font-size:.8rem;color:var(--text-muted);padding:8px 14px;">Random Effects</td></tr>
+          <tr>
+            <td class="td-label">Country RE (\(\sigma^2\))</td>
+            <td colspan="2">0.84</td><td>&mdash;</td>
+            <td colspan="2">ICC = 0.23</td><td>&mdash;</td>
+          </tr>
+          <tr>
+            <td class="td-label">Admin-2 RE (\(\sigma^2\))</td>
+            <td colspan="2">0.61</td><td>&mdash;</td>
+            <td colspan="2">ICC = 0.17</td><td>&mdash;</td>
+          </tr>
+          <tr>
+            <td class="td-label">Observations</td>
+            <td colspan="6">1,976 outbreaks | 537 admin-2 units | 15 TADs</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">* p&lt;0.05 &nbsp; ** p&lt;0.01 &nbsp; *** p&lt;0.001. All predictors z-scored (mean = 0, SD = 1). OR = odds ratio. CI = 95% confidence interval.</p>
+
+      <h3>Model 2 — Cox Frailty: Reemergence (Time-to-Event)</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:24%">Predictor</th>
+            <th>\(\beta\)</th><th>SE</th><th>p</th>
+            <th>HR</th><th>95% CI</th><th>Hyp.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-label">livestock_density</td>
+            <td>0.29</td><td>0.09</td><td>0.001**</td>
+            <td>1.34</td><td>[1.12, 1.60]</td><td><span class="tag-supported">H1 ✓</span></td>
+          </tr>
+          <tr>
+            <td class="td-label">wildlife_proximity</td>
+            <td>0.34</td><td>0.10</td><td>0.001**</td>
+            <td>1.40</td><td>[1.15, 1.71]</td><td><span class="tag-supported">H2 ✓</span></td>
+          </tr>
+          <tr>
+            <td class="td-label">vaccination_coverage</td>
+            <td>&minus;0.28</td><td>0.10</td><td>0.006**</td>
+            <td>0.76</td><td>[0.62, 0.92]</td><td><span class="tag-supported">H3 ✓</span></td>
+          </tr>
+          <tr>
+            <td class="td-label">gdp_per_capita</td>
+            <td>&minus;0.22</td><td>0.09</td><td>0.017*</td>
+            <td>0.80</td><td>[0.67, 0.96]</td><td><span class="tag-supported">H3 ✓</span></td>
+          </tr>
+          <tr style="background:#f0f2f8;"><td colspan="7" style="font-weight:700;font-size:.8rem;color:var(--text-muted);padding:8px 14px;">Frailty Component</td></tr>
+          <tr>
+            <td class="td-label">Frailty variance (\(\theta\))</td>
+            <td colspan="2">0.45</td><td>&mdash;</td>
+            <td colspan="3">Substantial heterogeneity across admin-2 units</td>
+          </tr>
+          <tr>
+            <td class="td-label">Observations</td>
+            <td colspan="6">537 admin-2 units | 312 events (reemergence) | 225 censored</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">* p&lt;0.05 &nbsp; ** p&lt;0.01 &nbsp; *** p&lt;0.001. HR &gt; 1 = faster reemergence; HR &lt; 1 = delayed reemergence (protective). All predictors z-scored.</p>
+
+    </div></div>
+  </div>
+
+  <!-- Step 8: Effect size guide -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-purple">08</div>
+      <div class="step-info">
+        <div class="step-title">Effect Size Interpretation Guide</div>
+        <div class="step-subtitle">Standardised thresholds for OR and HR in epidemiology, with Cohen's d equivalents</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content"><div class="step-body">
+
+      <div class="io-grid">
+        <div class="io-box io-in"><h4>Context</h4><p>OR and HR are dimensionless ratios. "How big is big?" depends on the literature and outcome rarity. Use these thresholds as a starting point.</p></div>
+        <div class="io-box io-out"><h4>For risk factors (OR/HR &gt; 1)</h4><p>1.0–1.5 = small &nbsp; 1.5–3.0 = moderate &nbsp; &gt;3.0 = large</p></div>
+        <div class="io-box io-why"><h4>For protective factors (OR/HR &lt; 1)</h4><p>0.5–1.0 = small protective &nbsp; &lt;0.5 = large protective effect</p></div>
+      </div>
+
+      <h3>Risk-Factor Thresholds (OR or HR &gt; 1)</h3>
+      <div class="size-grid">
+        <div class="size-card sz-small">
+          <div class="sc-range">1.0–1.5</div>
+          <div class="sc-lbl">Small</div>
+          <div class="sc-desc">Modest elevation in odds or hazard. May be epidemiologically meaningful if exposure is widespread. Cohen's d &asymp; 0.20.</div>
+        </div>
+        <div class="size-card sz-mod">
+          <div class="sc-range">1.5–3.0</div>
+          <div class="sc-lbl">Moderate</div>
+          <div class="sc-desc">Clear substantive effect. Likely to influence policy decisions. Comparable to Cohen's d &asymp; 0.50–0.80.</div>
+        </div>
+        <div class="size-card sz-large">
+          <div class="sc-range">&gt; 3.0</div>
+          <div class="sc-lbl">Large</div>
+          <div class="sc-desc">Strong risk factor. Comparable to Cohen's d &gt; 1.0. Often seen for direct transmission pathways or very low baseline rates.</div>
+        </div>
+      </div>
+
+      <h3>Protective-Factor Thresholds (OR or HR &lt; 1)</h3>
+      <div class="size-grid">
+        <div class="size-card sz-prot-s">
+          <div class="sc-range">0.5–1.0</div>
+          <div class="sc-lbl">Small Protective</div>
+          <div class="sc-desc">Meaningful but modest protection. Vaccination at standard coverage levels often falls here (OR ≈ 0.6–0.8).</div>
+        </div>
+        <div class="size-card sz-prot-l">
+          <div class="sc-range">&lt; 0.5</div>
+          <div class="sc-lbl">Large Protective</div>
+          <div class="sc-desc">Halving (or more) of risk. Rare in observational studies due to residual confounding. Corresponds to Cohen's d &gt; 0.80.</div>
+        </div>
+      </div>
+
+      <h3>Cohen's d to OR Conversion</h3>
+      <div class="eq-block">
+        <div class="eq-label">Approximate conversion (assuming logistic distribution)</div>
+        \[
+          d \approx \frac{\ln(\text{OR})}{\pi / \sqrt{3}} = \frac{\ln(\text{OR})}{1.814}
+        \]
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;text-align:left;">
+          d = 0.2 &rArr; OR &asymp; 1.44 &nbsp;&nbsp; d = 0.5 &rArr; OR &asymp; 2.48 &nbsp;&nbsp; d = 0.8 &rArr; OR &asymp; 4.13
+        </p>
+      </div>
+
+      <table class="data-table">
+        <thead><tr><th>Cohen's d</th><th>Conventional label</th><th>Approx. OR (risk)</th><th>Approx. OR (protective)</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">0.20</td><td>Small</td><td>1.44</td><td>0.69</td></tr>
+          <tr><td class="td-label">0.50</td><td>Medium</td><td>2.48</td><td>0.40</td></tr>
+          <tr><td class="td-label">0.80</td><td>Large</td><td>4.13</td><td>0.24</td></tr>
+          <tr><td class="td-label">1.00</td><td>Very large</td><td>6.03</td><td>0.17</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn">
+        <strong>OR approximates RR only for rare outcomes</strong>
+        When outcome prevalence &gt; 10%, OR overestimates the relative risk. For TAD persistence (common in high-burden regions), the OR may substantially exceed the true risk ratio. Use the formula \(\text{RR} \approx \text{OR} / [(1 - P_0) + P_0 \times \text{OR}]\) to convert, where \(P_0\) is baseline prevalence in unexposed group. Always report OR (the model's native output) and note this limitation.
+      </div>
+
+      <div class="callout callout-good">
+        <strong>Context is king — benchmarks for TAD persistence studies</strong>
+        In animal disease epidemiology, ORs of 1.5–2.5 for ecological predictors are typical. ORs &gt; 3.0 often indicate either a very specific mechanistic pathway (e.g. direct wildlife-livestock contact) or potential residual confounding. Always compare effect sizes to the biological plausibility of the underlying mechanism.
+      </div>
+
+    </div></div>
+  </div>
+
+</div><!-- .container -->
+
+<footer>Mixed Effects Models Guide &mdash; Personal Reference &mdash; Not for public distribution</footer>
+
+<script>
+function toggle(card){card.classList.toggle('open');}
+</script>
+</body>
+</html>
