@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixed Effects Models — Data Processing</title>
+<meta name="robots" content="noindex, nofollow">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','canvas'] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+:root {
+  --blue-light:#d6e6f5; --blue-mid:#7bafd4; --blue-dark:#2b7ab8;
+  --green-light:#d9edd9; --green-mid:#8cc98c; --green-dark:#3a9a3a;
+  --orange-light:#fde8cc; --orange-mid:#f5b85a; --orange-dark:#d4880a;
+  --purple-light:#e2d9f0; --purple-mid:#a98ad4; --purple-dark:#6b3fa0;
+  --red-light:#fde0dc; --red-dark:#c62828;
+  --bg:#f8f9fc; --text:#1a1a2e; --text-muted:#555570; --card-bg:#ffffff; --border:#e0e4ee;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+.tabs-bar{background:#0d1b2e;border-bottom:1px solid #1e3050;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:100;}
+.tabs-bar::-webkit-scrollbar{display:none;}
+.tabs-inner{max-width:1200px;margin:0 auto;display:flex;padding:0 1.5rem;}
+.tab{color:rgba(255,255,255,.55);text-decoration:none;padding:.8rem 1rem;font-size:.8rem;font-weight:500;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s;display:block;}
+.tab:hover{color:rgba(255,255,255,.85);}
+.tab.active{color:#64b5f6;border-bottom-color:#64b5f6;}
+.tab .num{font-size:.65rem;opacity:.5;display:block;margin-bottom:1px;font-family:'JetBrains Mono',monospace;}
+.hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:white;padding:60px 40px 50px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero h1{font-size:3rem;font-weight:900;letter-spacing:-1px;margin-bottom:10px;position:relative;}
+.hero h1 span{color:#64b5f6;}
+.hero .subtitle{font-size:1.1rem;font-weight:300;opacity:.85;max-width:680px;margin:0 auto 30px;position:relative;}
+.hero-stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;position:relative;}
+.hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(100,181,246,.3);border-radius:10px;padding:12px 20px;text-align:center;}
+.hero-stat .val{font-size:1.6rem;font-weight:800;color:#64b5f6;display:block;font-family:'JetBrains Mono',monospace;}
+.hero-stat .lbl{font-size:.72rem;opacity:.7;}
+.container{max-width:1000px;margin:0 auto;padding:50px 40px;}
+.phase-label{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border-radius:20px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;margin-top:44px;}
+.phase-label:first-child{margin-top:0;}
+.ph-blue{background:var(--blue-light);color:var(--blue-dark);}
+.ph-green{background:var(--green-light);color:var(--green-dark);}
+.ph-orange{background:var(--orange-light);color:var(--orange-dark);}
+.ph-purple{background:var(--purple-light);color:var(--purple-dark);}
+.ph-red{background:var(--red-light);color:var(--red-dark);}
+.step-card{background:var(--card-bg);border-radius:16px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;transition:box-shadow .3s,transform .2s;cursor:pointer;}
+.step-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-1px);}
+.step-card.open{box-shadow:0 6px 30px rgba(0,0,0,.1);}
+.step-header{display:flex;align-items:center;padding:20px 24px;gap:16px;}
+.step-badge{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;flex-shrink:0;color:white;font-family:'JetBrains Mono',monospace;position:relative;overflow:hidden;}
+.step-badge::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.15) 50%,transparent 60%);animation:shimmer 3s infinite;}
+@keyframes shimmer{0%{transform:translateX(-100%) translateY(-100%);}100%{transform:translateX(100%) translateY(100%);}}
+.b-blue{background:linear-gradient(135deg,#1565c0,#1976d2);}
+.b-green{background:linear-gradient(135deg,#2e7d32,#388e3c);}
+.b-orange{background:linear-gradient(135deg,#e65100,#f57c00);}
+.b-purple{background:linear-gradient(135deg,#4a148c,#6a1b9a);}
+.b-teal{background:linear-gradient(135deg,#004d40,#00695c);}
+.b-red{background:linear-gradient(135deg,#b71c1c,#c62828);}
+.step-info{flex:1;}
+.step-title{font-size:1.05rem;font-weight:700;margin-bottom:2px;}
+.step-subtitle{font-size:.82rem;color:var(--text-muted);}
+.step-chevron{font-size:.8rem;color:var(--text-muted);transition:transform .3s;flex-shrink:0;}
+.step-card.open .step-chevron{transform:rotate(180deg);}
+.step-content{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1);}
+.step-card.open .step-content{max-height:5000px;}
+.step-body{padding:0 24px 28px;border-top:1px solid var(--border);padding-top:22px;}
+.io-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:22px;}
+.io-box{padding:14px 16px;border-radius:10px;border:1px solid var(--border);}
+.io-box h4{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.io-box h4::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.io-in h4::before{background:var(--blue-dark);}.io-out h4::before{background:var(--green-dark);}.io-why h4::before{background:var(--orange-dark);}
+.io-box p{font-size:.85rem;color:var(--text-muted);line-height:1.5;}
+.io-in{background:#f0f7ff;}.io-in h4{color:var(--blue-dark);}
+.io-out{background:#f0faf0;}.io-out h4{color:var(--green-dark);}
+.io-why{background:#fff8f0;}.io-why h4{color:var(--orange-dark);}
+.step-body p{font-size:.9rem;color:var(--text-muted);line-height:1.7;margin-bottom:12px;}
+.step-body h3{font-size:.95rem;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.step-body ul,.step-body ol{padding-left:1.4rem;margin-bottom:12px;}
+.step-body li{font-size:.88rem;color:var(--text-muted);margin-bottom:5px;line-height:1.55;}
+.step-body li strong{color:var(--text);}
+.eq-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin:14px 0;text-align:center;overflow-x:auto;}
+.eq-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;text-align:left;}
+.eq-highlight{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border:1px solid #ffcc80;border-radius:10px;padding:16px 20px;margin:14px 0;text-align:center;}
+.eq-highlight .eq-tag{font-size:.72rem;font-weight:700;color:var(--orange-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.data-table{width:100%;border-collapse:collapse;font-size:.85rem;margin:14px 0;}
+.data-table th{background:#f0f2f8;padding:9px 14px;text-align:left;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border);}
+.data-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.data-table tr:hover td{background:#f8f9fc;}
+.td-label{font-weight:600;color:var(--text);white-space:nowrap;font-size:.85rem;}
+.td-decision{color:var(--text);font-size:.85rem;}
+.td-why{color:var(--text-muted);font-size:.8rem;}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:.87rem;line-height:1.6;border-left:4px solid;}
+.callout strong{display:block;margin-bottom:4px;}
+.callout-key{background:#f0f7ff;border-color:var(--blue-dark);color:#1a3060;}
+.callout-warn{background:#fff8f0;border-color:var(--orange-dark);color:#4a2800;}
+.callout-good{background:#f0faf0;border-color:var(--green-dark);color:#1b3d1b;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0;}
+footer{text-align:center;padding:40px;color:var(--text-muted);font-size:.82rem;border-top:1px solid var(--border);}
+pre{background:#0d1b2e;color:#e2e8f0;border-radius:10px;padding:16px 18px;font-size:.8rem;overflow-x:auto;margin:12px 0;line-height:1.65;font-family:'JetBrains Mono',monospace;}
+pre code{background:none;padding:0;color:inherit;font-size:inherit;}
+code{background:#f0f2f8;color:#c62828;padding:2px 6px;border-radius:4px;font-size:.82rem;font-family:'JetBrains Mono',monospace;}
+.tag-pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.5px;margin:1px;}
+.tag-r{background:#d6e6f5;color:#1565c0;}
+.tag-key{background:#e2d9f0;color:#4a148c;}
+.tag-warn{background:#fde8cc;color:#d4880a;}
+@media(max-width:768px){
+  .hero h1{font-size:2rem;}.io-grid{grid-template-columns:1fr;}.two-col{grid-template-columns:1fr;}
+  .container{padding:30px 20px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="tabs-bar">
+  <div class="tabs-inner">
+    <a class="tab" href="../mems"><span class="num">00</span>MEMs</a>
+    <a class="tab" href="../part1"><span class="num">01</span>Research Design</a>
+    <a class="tab" href="../part2"><span class="num">02</span>Raw Data</a>
+    <a class="tab active" href="../part3"><span class="num">03</span>Data Processing</a>
+    <a class="tab" href="../part4"><span class="num">04</span>Statistical Models</a>
+    <a class="tab" href="../part5"><span class="num">05</span>Model Validation</a>
+    <a class="tab" href="../part6"><span class="num">06</span>Model Diagnostics</a>
+    <a class="tab" href="../part7"><span class="num">07</span>Results</a>
+    <a class="tab" href="../part8"><span class="num">08</span>Visualizations</a>
+    <a class="tab" href="../part9"><span class="num">09</span>Exam Prep</a>
+    <a class="tab" href="../part10"><span class="num">10</span>Reemergence</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Data <span>Processing</span></h1>
+  <p class="subtitle">Spatial joins, standardization, outcome construction, and assembling the final analysis dataset for the GLMM and Cox frailty models.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="val">Z-score</span><span class="lbl">Standardization</span></div>
+    <div class="hero-stat"><span class="val">Admin-2</span><span class="lbl">Spatial Unit</span></div>
+    <div class="hero-stat"><span class="val">Binary</span><span class="lbl">Persistence Outcome</span></div>
+    <div class="hero-stat"><span class="val">TTE</span><span class="lbl">Time-to-Event</span></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ==================== PHASE 1 ==================== -->
+  <div class="phase-label ph-blue">&#9632; Phase 1 &mdash; Spatial Integration</div>
+
+  <!-- Step 1: Admin-2 Spatial Join -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-blue">01</div>
+      <div class="step-info">
+        <div class="step-title">Admin-2 Spatial Join</div>
+        <div class="step-subtitle">Merging raster &amp; point data onto district-level polygons using <code>sf</code> + <code>exactextractr</code></div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content">
+      <div class="step-body">
+        <div class="io-grid">
+          <div class="io-box io-in"><h4>Input</h4><p>Admin-2 shapefile (GADM/geoBoundaries), raster predictors (NDVI, livestock density), point-level outbreak records with lat/lon</p></div>
+          <div class="io-box io-out"><h4>Output</h4><p>Single <code>sf</code> data frame: one row per Admin-2 polygon with spatially summarised predictor columns appended</p></div>
+          <div class="io-box io-why"><h4>Why Admin-2?</h4><p>District level aligns with WAHIS/OIE reporting granularity and provides enough within-country variation for random effects</p></div>
+        </div>
+
+        <p>The core workflow couples <strong>polygon-based extraction</strong> (rasters → Admin-2 zonal statistics) with <strong>spatial point-in-polygon join</strong> (outbreak points → district). All layers must share a common CRS before any join operation.</p>
+
+        <h3>CRS Alignment</h3>
+        <p>All datasets are projected to <strong>WGS84 (EPSG:4326)</strong> for global coverage. Where area-weighted operations are needed (e.g., total livestock count), an equal-area projection (e.g., ESRI:54009 Mollweide) is used before extraction, then the result is stored in the WGS84 master table.</p>
+
+        <pre><code>library(sf)
+library(exactextractr)
+library(terra)
+library(dplyr)
+
+# Load Admin-2 boundaries
+adm2 &lt;- st_read("data/gadm_adm2.gpkg") |&gt;
+  st_transform(4326)           # ensure WGS84
+
+# Load raster predictors
+ndvi_r   &lt;- rast("data/modis_ndvi_annual.tif")
+lstk_r   &lt;- rast("data/glw_cattle_density.tif")
+
+# Align raster CRS to match polygons
+ndvi_r  &lt;- project(ndvi_r,  "EPSG:4326")
+lstk_r  &lt;- project(lstk_r,  "EPSG:4326")
+
+# Zonal statistics: mean NDVI, sum livestock count, max elevation
+ndvi_stats &lt;- exact_extract(ndvi_r, adm2,
+                fun = c("mean", "stdev"),
+                append_cols = "GID_2")
+
+lstk_stats &lt;- exact_extract(lstk_r, adm2,
+                fun = "sum",
+                append_cols = "GID_2")
+
+# Merge back to polygon table
+adm2 &lt;- adm2 |&gt;
+  left_join(ndvi_stats, by = "GID_2") |&gt;
+  left_join(lstk_stats, by = "GID_2") |&gt;
+  rename(ndvi_mean = mean, ndvi_sd = stdev,
+         livestock_sum = sum)</code></pre>
+
+        <h3>Zonal Statistic Selection</h3>
+        <table class="data-table">
+          <thead><tr><th>Predictor</th><th>Statistic</th><th>Justification</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">NDVI</td><td class="td-decision">Mean</td><td class="td-why">Captures average vegetation cover; max would reflect outlier pixels (clouds, water bodies)</td></tr>
+            <tr><td class="td-label">Livestock density (GLW)</td><td class="td-decision">Sum (after equal-area reproject)</td><td class="td-why">Total head count needed for exposure-based risk; density × area = count</td></tr>
+            <tr><td class="td-label">Elevation (SRTM)</td><td class="td-decision">Mean + SD</td><td class="td-why">Mean captures altitude gradient; SD measures terrain ruggedness relevant to movement barriers</td></tr>
+            <tr><td class="td-label">Human population (GPW)</td><td class="td-decision">Sum</td><td class="td-why">Absolute population size drives total contact events, not density per se</td></tr>
+            <tr><td class="td-label">Precipitation (CHIRPS)</td><td class="td-decision">Mean</td><td class="td-why">Average annual rainfall summarises climate suitability for vector/soil survival</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Spatial Point Join (Outbreak Records)</h3>
+        <pre><code># Outbreak records with coordinates
+outbreaks &lt;- read_csv("data/wahis_outbreaks.csv") |&gt;
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+# Spatial join: assign each outbreak to its Admin-2 polygon
+outbreaks_adm2 &lt;- st_join(outbreaks, adm2["GID_2"],
+                           join = st_within,
+                           left  = TRUE)   # keep unmatched for audit
+
+# Identify border-edge cases (points within 0.01 deg of polygon boundary)
+boundary_buffer &lt;- st_buffer(st_boundary(adm2), dist = 0.01)
+edge_cases &lt;- outbreaks |&gt;
+  filter(lengths(st_intersects(geometry, boundary_buffer)) &gt; 0)
+
+nrow(edge_cases)   # inspect — assign to nearest centroid if ambiguous</code></pre>
+
+        <div class="callout callout-warn">
+          <strong>Border / Edge-Effect Protocol</strong>
+          When an outbreak point falls within 0.01° of an Admin-2 boundary (approximately 1.1 km), it is assigned to the district whose centroid is nearest using <code>st_nearest_feature()</code>. This policy must be documented and sensitivity-tested: reassigning all edge cases to the alternative polygon should not change primary results by more than 2%.
+        </div>
+
+        <div class="callout callout-key">
+          <strong>Coordinate Reference System Checklist</strong>
+          Before every join: (1) confirm all layers share the same EPSG with <code>st_crs(layer)$epsg</code>; (2) use <code>st_transform()</code> not <code>st_set_crs()</code> — the former reprojects, the latter only relabels; (3) raster operations must use <code>terra::project()</code> rather than the deprecated <code>raster::projectRaster()</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Temporal Alignment -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-blue">02</div>
+      <div class="step-info">
+        <div class="step-title">Temporal Alignment</div>
+        <div class="step-subtitle">Matching annual predictor tiles to outbreak year, lagged variables, and multi-year outbreak handling</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content">
+      <div class="step-body">
+        <div class="io-grid">
+          <div class="io-box io-in"><h4>Input</h4><p>Spatially-joined Admin-2 table; MODIS annual composites (yearly GeoTIFF stack); GLW livestock layers (2005, 2010, 2015); vaccination coverage time series</p></div>
+          <div class="io-box io-out"><h4>Output</h4><p>Panel dataset where each row's predictor values correspond to the correct calendar year (or lagged year) matching the outbreak start date</p></div>
+          <div class="io-box io-why"><h4>Why temporal matching?</h4><p>Using the wrong year introduces information leakage (future predictors) or staleness bias; lagging vaccination by 1 year reflects immunological build-up delay</p></div>
+        </div>
+
+        <p>Predictors vary in temporal resolution. MODIS NDVI is available annually; GLW livestock density is released in ~5-year epochs; vaccination coverage comes from country-year records. The strategy below assigns each outbreak row the predictor value from the appropriate year.</p>
+
+        <h3>MODIS Annual Tile Matching</h3>
+        <pre><code># MODIS stack: layer names encode year (e.g., "ndvi_2005", "ndvi_2006", ...)
+modis_stack &lt;- rast("data/modis_ndvi_2000_2022.tif")
+
+# For each outbreak, extract NDVI from the layer matching outbreak_year
+extract_year_matched &lt;- function(sf_obj, rast_stack, year_col) {
+  years &lt;- unique(sf_obj[[year_col]])
+  results &lt;- lapply(years, function(yr) {
+    lyr_name &lt;- paste0("ndvi_", yr)
+    if (!lyr_name %in% names(rast_stack)) return(NULL)
+    sub &lt;- sf_obj[sf_obj[[year_col]] == yr, ]
+    vals &lt;- exact_extract(rast_stack[[lyr_name]], sub, fun = "mean",
+                          append_cols = "GID_2")
+    vals$year &lt;- yr
+    vals
+  })
+  bind_rows(Filter(Negate(is.null), results))
+}
+
+ndvi_yr &lt;- extract_year_matched(adm2_outbreak, modis_stack, "outbreak_year")</code></pre>
+
+        <h3>GLW Epoch Matching (Nearest-Epoch Rule)</h3>
+        <pre><code># GLW available for: 2005, 2010, 2015
+# Assign each outbreak year to nearest available epoch
+assign_glw_epoch &lt;- function(year) {
+  epochs &lt;- c(2005, 2010, 2015)
+  epochs[which.min(abs(epochs - year))]
+}
+
+outbreaks &lt;- outbreaks |&gt;
+  mutate(glw_epoch = sapply(outbreak_year, assign_glw_epoch))
+
+# Load epoch-specific livestock density and join
+glw_list &lt;- list(
+  "2005" = rast("data/glw_cattle_2005.tif"),
+  "2010" = rast("data/glw_cattle_2010.tif"),
+  "2015" = rast("data/glw_cattle_2015.tif")
+)
+# extract per epoch then bind rows (same pattern as MODIS above)</code></pre>
+
+        <h3>Lagged Variables: Vaccination Coverage</h3>
+        <pre><code># Vaccination coverage: country-year CSV (WOAH/FAO annual reports)
+vacc &lt;- read_csv("data/vaccination_coverage.csv")  # cols: iso3, year, vacc_pct
+
+# Create 1-year lag: outbreak in year Y uses coverage from year Y-1
+outbreaks &lt;- outbreaks |&gt;
+  mutate(vacc_lag_year = outbreak_year - 1) |&gt;
+  left_join(vacc, by = c("iso3" = "iso3", "vacc_lag_year" = "year")) |&gt;
+  rename(vacc_coverage_lag1 = vacc_pct)</code></pre>
+
+        <h3>Multi-Year Outbreak Handling</h3>
+        <table class="data-table">
+          <thead><tr><th>Scenario</th><th>Decision</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">Outbreak spans 2 calendar years</td><td class="td-decision">Use predictors from the year of <em>onset</em> (start date)</td><td class="td-why">Onset conditions drive initial persistence; year-end conditions are endogenous to outbreak trajectory</td></tr>
+            <tr><td class="td-label">Outbreak spans 3+ years</td><td class="td-decision">Split into annual episodes; each gets its own predictor row</td><td class="td-why">Treats as repeated events; requires random effect to account for within-unit correlation</td></tr>
+            <tr><td class="td-label">Onset month = December</td><td class="td-decision">Assign to onset year, flag <code>cross_year = TRUE</code></td><td class="td-why">Allows sensitivity analysis excluding cross-year events</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-good">
+          <strong>No-Leakage Rule</strong>
+          Predictors must never come from a period <em>after</em> the outbreak onset date. For predictors updated more frequently than annually (e.g., monthly precipitation), aggregate only the months up to and including the onset month within the onset year.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PHASE 2 ==================== -->
+  <div class="phase-label ph-green">&#9632; Phase 2 &mdash; Outcome Construction</div>
+
+  <!-- Step 3: Binary Persistence Outcome -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-green">03</div>
+      <div class="step-info">
+        <div class="step-title">Binary Persistence Outcome</div>
+        <div class="step-subtitle">Defining outbreak persistence (duration &gt; 28 days) and encoding as a binary response variable</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content">
+      <div class="step-body">
+        <div class="io-grid">
+          <div class="io-box io-in"><h4>Input</h4><p>Outbreak records with <code>start_date</code> and <code>end_date</code> fields from WAHIS/EMPRES-i; audit log of date-imputation decisions</p></div>
+          <div class="io-box io-out"><h4>Output</h4><p>Binary column <code>persist</code> (0/1) appended to each outbreak row; class-balance summary; excluded row audit table</p></div>
+          <div class="io-box io-why"><h4>Why 28 days?</h4><p>Threshold = maximum incubation period (~14 days for most TADs) + expected reporting lag (~14 days), ensuring reported duration reflects true biological persistence</p></div>
+        </div>
+
+        <h3>Threshold Justification</h3>
+        <p>The 28-day threshold is grounded in two independent delays:</p>
+        <ul>
+          <li><strong>Incubation period:</strong> FMD 2–14 days; HPAI 1–7 days; ASFV 4–19 days. Using the upper-bound maximum (14 days) covers all major TAD pathogens.</li>
+          <li><strong>Reporting lag:</strong> WAHIS notification requirement is 24 hours for "immediate" events, but field confirmation + national reporting averages ~7–14 days. An additional 14-day buffer is conservative.</li>
+          <li><strong>Epidemiological meaning:</strong> Outbreaks lasting longer than 28 days imply the pathogen has circulated beyond the index herd/location, indicating local amplification rather than a single-point introduction.</li>
+        </ul>
+
+        <div class="eq-highlight">
+          <div class="eq-tag">Persistence Definition</div>
+          \[ \text{persist}_i = \mathbf{1}\!\left[\,d_i > 28\,\right], \quad d_i = \text{end\_date}_i - \text{start\_date}_i \text{ (days)} \]
+        </div>
+
+        <pre><code>library(dplyr)
+library(lubridate)
+
+outbreaks &lt;- outbreaks |&gt;
+  mutate(
+    start_date = ymd(start_date),
+    end_date   = ymd(end_date),
+    duration   = as.integer(end_date - start_date),  # days
+    persist    = as.integer(duration &gt; 28)
+  )
+
+# Class balance check
+table(outbreaks$persist)
+prop.table(table(outbreaks$persist)) |&gt; round(3)</code></pre>
+
+        <h3>Edge Cases: Missing End Dates</h3>
+        <table class="data-table">
+          <thead><tr><th>Scenario</th><th>Action</th><th>Flag Column</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label"><code>end_date</code> is NA, last follow-up &lt; 28 days</td><td class="td-decision">Exclude from persistence model; include as censored in TTE model</td><td class="td-why"><code>end_date_flag = "excluded_persist"</code></td></tr>
+            <tr><td class="td-label"><code>end_date</code> is NA, last follow-up ≥ 28 days</td><td class="td-decision">Impute <code>end_date</code> as last national report date; set <code>persist = 1</code></td><td class="td-why"><code>end_date_flag = "imputed_report"</code></td></tr>
+            <tr><td class="td-label"><code>end_date</code> before <code>start_date</code></td><td class="td-decision">Exclude — data entry error; log in error report</td><td class="td-why"><code>end_date_flag = "data_error"</code></td></tr>
+            <tr><td class="td-label">Duration = 0 days (same-day reports)</td><td class="td-decision">Retain as <code>persist = 0</code>; check for batch reporting artefacts</td><td class="td-why"><code>end_date_flag = "same_day"</code></td></tr>
+          </tbody>
+        </table>
+
+        <pre><code># Handle missing end dates
+outbreaks &lt;- outbreaks |&gt;
+  mutate(
+    end_date_flag = case_when(
+      !is.na(end_date) &amp; end_date &gt;= start_date ~ "valid",
+      !is.na(end_date) &amp; end_date &lt;  start_date ~ "data_error",
+      is.na(end_date) &amp; (last_report_date - start_date) &gt;= 28 ~ "imputed_report",
+      is.na(end_date)                             ~ "excluded_persist",
+      TRUE ~ "unknown"
+    ),
+    end_date = case_when(
+      end_date_flag == "imputed_report" ~ last_report_date,
+      TRUE ~ end_date
+    ),
+    duration = as.integer(end_date - start_date),
+    persist  = if_else(end_date_flag %in% c("data_error","excluded_persist"),
+                       NA_integer_,
+                       as.integer(duration &gt; 28))
+  )</code></pre>
+
+        <h3>Class Imbalance Assessment</h3>
+        <p>Logistic GLMM performance can degrade severely when one class dominates. If <code>prop(persist=1) &lt; 0.15</code> or <code>&gt; 0.85</code>, the following mitigations are considered:</p>
+
+        <div class="two-col">
+          <div class="callout callout-warn" style="margin:0;">
+            <strong>Imbalanced (&lt;15% minority)</strong>
+            Use weighted logistic regression (<code>weights</code> argument in <code>glmer</code>) or report sensitivity/specificity alongside AUC. Avoid accuracy as sole metric.
+          </div>
+          <div class="callout callout-good" style="margin:0;">
+            <strong>Acceptable balance (15–85%)</strong>
+            Standard GLMM is appropriate. Report both classes in confusion matrix at the threshold that maximises Youden's J index.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: TTE Variable -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-green">04</div>
+      <div class="step-info">
+        <div class="step-title">Time-to-Reemergence (TTE) Variable</div>
+        <div class="step-subtitle">Computing inter-outbreak intervals, left-truncation, and right-censoring for Cox frailty models</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content">
+      <div class="step-body">
+        <div class="io-grid">
+          <div class="io-box io-in"><h4>Input</h4><p>Ordered outbreak records per Admin-2 × disease combination; study start date (t₀) and study end date (t_end) for censoring</p></div>
+          <div class="io-box io-out"><h4>Output</h4><p>TTE dataset with columns: <code>admin2_id</code>, <code>disease</code>, <code>t_start</code>, <code>t_stop</code>, <code>event</code> (1=reemergence, 0=censored)</p></div>
+          <div class="io-box io-why"><h4>Why inter-event gap?</h4><p>Reemergence is defined as a new confirmed outbreak in the same Admin-2 after the previous outbreak officially closed — requires chronological ordering within unit</p></div>
+        </div>
+
+        <p>The Cox frailty model requires a <strong>counting process (start, stop] format</strong>. For each Admin-2 × disease pair, we construct one row per inter-outbreak interval. The event indicator is 1 if a subsequent outbreak began within the study window, and 0 if the unit was censored (no reemergence observed by study end).</p>
+
+        <div class="eq-block">
+          <div class="eq-label">Inter-outbreak interval</div>
+          \[ \Delta t_k = t^{\text{start}}_{k+1} - t^{\text{end}}_k \quad \text{(days between outbreak } k \text{ end and outbreak } k+1 \text{ start)} \]
+        </div>
+
+        <pre><code>library(dplyr)
+library(lubridate)
+
+STUDY_END &lt;- ymd("2022-12-31")
+
+tte_data &lt;- outbreaks |&gt;
+  # Work within each Admin-2 × disease stratum
+  arrange(admin2_id, disease, start_date) |&gt;
+  group_by(admin2_id, disease) |&gt;
+  mutate(
+    # End date of previous outbreak (lag by 1 row)
+    prev_end   = lag(end_date),
+    # Start of current outbreak = end of waiting time
+    tte_stop   = start_date,
+    # Waiting time origin = end of previous outbreak
+    tte_start  = prev_end,
+    # Event: 1 = reemergence occurred (non-NA prev_end means prior outbreak exists)
+    event      = as.integer(!is.na(prev_end))
+  ) |&gt;
+  # Drop first outbreak per unit (no prior outbreak = no interval to model)
+  filter(!is.na(prev_end)) |&gt;
+  mutate(
+    # Days at risk
+    tte_days = as.integer(tte_stop - tte_start),
+    # Right-censor units still at risk at study end
+    event = if_else(tte_stop &gt; STUDY_END, 0L, event),
+    tte_stop = if_else(tte_stop &gt; STUDY_END, STUDY_END, tte_stop),
+    tte_days = as.integer(tte_stop - tte_start)
+  ) |&gt;
+  filter(tte_days &gt; 0) |&gt;   # remove zero-length intervals (data artefacts)
+  ungroup()</code></pre>
+
+        <h3>Left-Truncation and Right-Censoring Definitions</h3>
+        <table class="data-table">
+          <thead><tr><th>Mechanism</th><th>Definition in This Study</th><th>Handled By</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">Left-truncation</td><td class="td-decision">Admin-2 unit had its <em>first ever</em> outbreak after study start — the unit was not under observation for reemergence before that event</td><td class="td-why">Counting-process format (start, stop] naturally handles entry after t₀; first outbreak row dropped</td></tr>
+            <tr><td class="td-label">Right-censoring</td><td class="td-decision">Admin-2 had no further outbreak by study end date (2022-12-31); exact reemergence time unknown</td><td class="td-why"><code>event = 0</code>; <code>tte_stop</code> set to <code>STUDY_END</code></td></tr>
+            <tr><td class="td-label">Administrative censoring</td><td class="td-decision">Country withdrew from reporting (e.g., conflict zone); end of observation known but not end of risk</td><td class="td-why">Flag with <code>cens_reason = "admin"</code>; sensitivity analysis excludes these units</td></tr>
+            <tr><td class="td-label">Competing events</td><td class="td-decision">Disease officially eradicated from country before study end</td><td class="td-why">Flag <code>cens_reason = "eradicated"</code>; excluded from primary analysis, discussed as limitation</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-key">
+          <strong>Frailty Term and Within-Unit Correlation</strong>
+          Because the same Admin-2 unit contributes multiple intervals (if it had 3+ outbreaks), observations are not independent. The Cox frailty model addresses this with a unit-level random effect (frailty term) \(\theta_i \sim \text{Gamma}(1/\kappa, 1/\kappa)\), where \(\kappa\) is the variance parameter. In R: <code>coxme(Surv(tte_days, event) ~ predictors + (1|admin2_id), data = tte_data)</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PHASE 3 ==================== -->
+  <div class="phase-label ph-orange">&#9632; Phase 3 &mdash; Predictor Engineering</div>
+
+  <!-- Step 5: Z-score Standardization -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-orange">05</div>
+      <div class="step-info">
+        <div class="step-title">Z-score Standardization</div>
+        <div class="step-subtitle">Scaling continuous predictors to unit-variance for model comparability and convergence</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content">
+      <div class="step-body">
+        <div class="io-grid">
+          <div class="io-box io-in"><h4>Input</h4><p>Raw continuous predictors on heterogeneous scales: NDVI (0–1), livestock count (0–10⁶), precipitation (mm/yr 0–4000), distance to market (km)</p></div>
+          <div class="io-box io-out"><h4>Output</h4><p>Z-scored columns (suffix <code>_z</code>): mean = 0, SD = 1 across training set; scaler parameters (μ, σ) stored for test-set application</p></div>
+          <div class="io-box io-why"><h4>Why standardize?</h4><p>Enables direct comparison of fixed-effect coefficients as "SD-unit change"; improves GLMM optimiser convergence; prevents numerical overflow in link function</p></div>
+        </div>
+
+        <h3>The Formula</h3>
+        <div class="eq-highlight">
+          <div class="eq-tag">Z-score Standardization</div>
+          \[z_i = \frac{x_i - \bar{x}}{s_x}\]
+          <p style="font-size:.82rem;color:#4a2800;margin-top:8px;">where \(\bar{x}\) is the training-set mean and \(s_x\) is the training-set standard deviation. After standardisation, a one-unit change in \(z_i\) corresponds to a one-SD change in the original predictor \(x_i\).</p>
+        </div>
+
+        <h3>Why Standardize? — Three Arguments</h3>
+        <ul>
+          <li><strong>Coefficient comparability:</strong> With predictors on the same scale, the magnitude of fixed-effect estimates directly reflects relative importance. A coefficient of 0.8 for NDVI_z and 0.2 for precipitation_z implies NDVI has 4× stronger association per SD shift.</li>
+          <li><strong>Optimiser convergence:</strong> Mixed-effects models (fitted via BOBYQA, L-BFGS-B, or Nelder-Mead) converge faster and with fewer warnings when the design matrix is well-conditioned. Large-scale disparities inflate condition numbers and cause gradient instability.</li>
+          <li><strong>Link-function stability:</strong> In logistic GLMM, extreme covariate values push fitted values to 0 or 1, saturating the logit link and producing near-infinite log-likelihood gradients. Standardisation keeps predictors in a numerically safe range.</li>
+        </ul>
+
+        <pre><code># ---- Training / test split (e.g., 80/20 temporal split) ----
+train_df &lt;- outbreaks |&gt; filter(outbreak_year &lt;= 2018)
+test_df  &lt;- outbreaks |&gt; filter(outbreak_year &gt;  2018)
+
+# Continuous predictors to standardise
+cont_vars &lt;- c("ndvi_mean", "livestock_sum", "precip_mean",
+               "elevation_mean", "dist_market_km", "pop_sum")
+
+# Compute scaler parameters from TRAINING SET ONLY
+scaler_params &lt;- train_df |&gt;
+  summarise(across(all_of(cont_vars),
+                   list(mu = mean, sigma = sd),
+                   .names = "{.col}__{.fn}",
+                   na.rm = TRUE))
+
+# Apply scaler to both sets (no leakage)
+apply_zscore &lt;- function(df, params, vars) {
+  for (v in vars) {
+    mu    &lt;- params[[paste0(v, "__mu")]]
+    sigma &lt;- params[[paste0(v, "__sigma")]]
+    df[[paste0(v, "_z")]] &lt;- (df[[v]] - mu) / sigma
+  }
+  df
+}
+
+train_df &lt;- apply_zscore(train_df, scaler_params, cont_vars)
+test_df  &lt;- apply_zscore(test_df,  scaler_params, cont_vars)
+
+# Quick check: training set z-scores should have mean≈0, sd≈1
+train_df |&gt; summarise(across(ends_with("_z"), list(mean=mean, sd=sd), na.rm=TRUE))</code></pre>
+
+        <div class="callout callout-warn">
+          <strong>Test-Set Leakage Prevention</strong>
+          The scaler parameters \(\bar{x}\) and \(s_x\) must be computed exclusively on the training set and then applied to the test/validation set. Fitting the scaler on the full dataset contaminates the test set with information from the future, inflating apparent predictive performance. Store <code>scaler_params</code> as a named list and save to disk for reproducibility.
+        </div>
+
+        <h3>Zero-Variance and Near-Zero-Variance Checks</h3>
+        <pre><code># Detect constant or near-constant columns (sigma ≈ 0)
+low_var &lt;- scaler_params |&gt;
+  pivot_longer(everything(), names_to = "param") |&gt;
+  filter(grepl("__sigma", param), value &lt; 1e-6)
+
+if (nrow(low_var) &gt; 0) {
+  warning("Near-zero variance detected: ", paste(low_var$param, collapse=", "))
+  # Either drop variable or use robust scaler (IQR-based)
+}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6: Categorical and Binary Encodings -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-orange">06</div>
+      <div class="step-info">
+        <div class="step-title">Categorical and Binary Encodings</div>
+        <div class="step-subtitle">Disease type factors, wildlife origin binary, transmission mode, and reference level setting</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content">
+      <div class="step-body">
+        <div class="io-grid">
+          <div class="io-box io-in"><h4>Input</h4><p>Raw character columns: <code>disease</code>, <code>wildlife_involvement</code> (free text), <code>transmission_mode</code> (text); outcome and predictor data frame</p></div>
+          <div class="io-box io-out"><h4>Output</h4><p>Properly typed R factor columns with deliberate reference levels; binary integer <code>wildlife_origin</code>; documented contrast matrix</p></div>
+          <div class="io-box io-why"><h4>Why reference levels matter?</h4><p>The reference level determines which contrast is omitted; an interpretable reference (e.g., "direct" transmission) makes coefficients easier to communicate and avoids misleading odds-ratio signs</p></div>
+        </div>
+
+        <h3>Disease Type Factor</h3>
+        <pre><code># Disease type: FMD is reference (most prevalent TAD globally)
+outbreaks &lt;- outbreaks |&gt;
+  mutate(
+    disease_f = factor(disease,
+                       levels = c("FMD", "HPAI", "ASFV", "PPR", "LSD", "RVF")),
+    disease_f = relevel(disease_f, ref = "FMD")
+  )
+
+# Verify contrast encoding
+contrasts(outbreaks$disease_f)
+# Expected: 5 dummy columns, FMD absorbed into intercept</code></pre>
+
+        <h3>Wildlife Origin Binary</h3>
+        <pre><code># wildlife_involvement: free-text field — standardise to binary
+outbreaks &lt;- outbreaks |&gt;
+  mutate(
+    wildlife_origin = as.integer(
+      grepl("wildlife|wild|reservoir|sylvatic",
+            tolower(wildlife_involvement))
+    )
+  )
+
+# Frequency check
+prop.table(table(outbreaks$wildlife_origin)) |&gt; round(3)
+# wildlife_origin = 1: ~23% of outbreaks (illustrative)</code></pre>
+
+        <h3>Transmission Mode Factor</h3>
+        <pre><code># Transmission mode: direct contact is biological reference
+outbreaks &lt;- outbreaks |&gt;
+  mutate(
+    trans_mode = factor(transmission_mode,
+                        levels = c("direct", "vector", "fomite", "unknown")),
+    trans_mode = relevel(trans_mode, ref = "direct")
+  )
+
+# Summary
+table(outbreaks$trans_mode)</code></pre>
+
+        <h3>Encoding Decision Table</h3>
+        <table class="data-table">
+          <thead><tr><th>Variable</th><th>Raw Type</th><th>Encoded As</th><th>Reference Level</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">disease</td><td>Character</td><td>Factor (6 levels)</td><td>FMD</td><td class="td-why">Most common TAD; global baseline comparator</td></tr>
+            <tr><td class="td-label">wildlife_origin</td><td>Free text</td><td>Binary integer (0/1)</td><td>0 = domestic-only</td><td class="td-why">Regex-coded; 1 = any wildlife reservoir link reported</td></tr>
+            <tr><td class="td-label">transmission_mode</td><td>Character</td><td>Factor (4 levels)</td><td>direct</td><td class="td-why">Direct contact is default transmission; vector/fomite are deviations</td></tr>
+            <tr><td class="td-label">agroecological_zone</td><td>Integer code</td><td>Factor (5 levels)</td><td>Temperate cropland</td><td class="td-why">Most data-rich zone; stable reference for agro-climate contrasts</td></tr>
+            <tr><td class="td-label">season_onset</td><td>Month integer</td><td>Factor (4 levels: DJF/MAM/JJA/SON)</td><td>DJF (dry season)</td><td class="td-why">Dry season minimises vector activity; wet-season coefficient = excess risk</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-key">
+          <strong>Model Matrix Inspection</strong>
+          Before fitting, run <code>model.matrix(~ disease_f + trans_mode + wildlife_origin, data = outbreaks) |&gt; head()</code> to confirm dummy variables are generated correctly and no inadvertent full-rank violation exists (e.g., perfect collinearity between wildlife_origin and disease type).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PHASE 4 ==================== -->
+  <div class="phase-label ph-purple">&#9632; Phase 4 &mdash; Data Quality</div>
+
+  <!-- Step 7: Missing Data Assessment -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-purple">07</div>
+      <div class="step-info">
+        <div class="step-title">Missing Data Assessment</div>
+        <div class="step-subtitle">MCAR/MAR/MNAR taxonomy, <code>naniar</code> visualisation, and <code>mice</code> multiple imputation</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content">
+      <div class="step-body">
+        <div class="io-grid">
+          <div class="io-box io-in"><h4>Input</h4><p>Merged analysis dataset with potential missingness in vaccination coverage, wildlife classification, remote-sensing derived predictors, and administrative data</p></div>
+          <div class="io-box io-out"><h4>Output</h4><p>Missingness report; imputed complete-case dataset (for MAR variables); exclusion log for MNAR variables; <code>aggr()</code> and <code>gg_miss_var()</code> plots</p></div>
+          <div class="io-box io-why"><h4>Why classify mechanism?</h4><p>Imputation is only valid under MAR (or MCAR). MNAR requires structural corrections or sensitivity analyses; misclassification leads to biased estimates</p></div>
+        </div>
+
+        <h3>MCAR / MAR / MNAR Taxonomy</h3>
+        <table class="data-table">
+          <thead><tr><th>Mechanism</th><th>Definition</th><th>TAD Example</th><th>Remedy</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">MCAR</td><td class="td-decision">Missingness is completely random; unrelated to any observed or unobserved variable</td><td class="td-why">Random satellite tile failure (cloud cover ~2% pixels)</td><td>Complete-case analysis valid; listwise deletion unbiased</td></tr>
+            <tr><td class="td-label">MAR</td><td class="td-decision">Missingness depends on <em>observed</em> variables but not the missing value itself</td><td class="td-why">Vaccination coverage missing more often in low-income countries (GDP is observed)</td><td>Multiple imputation (<code>mice</code>) using complete predictors</td></tr>
+            <tr><td class="td-label">MNAR</td><td class="td-decision">Missingness depends on the <em>unobserved</em> (missing) value itself</td><td class="td-why">Wildlife involvement not reported precisely when it implicates cross-border movement (politically sensitive)</td><td>Sensitivity analysis; pattern-mixture models; expert elicitation</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Visualising Missingness with <code>naniar</code></h3>
+        <pre><code>library(naniar)
+library(VIM)
+
+# Summary of missingness by variable
+miss_summary &lt;- miss_var_summary(outbreaks)
+print(miss_summary, n = 20)
+
+# Visualise: percentage missing per variable
+gg_miss_var(outbreaks, show_pct = TRUE) +
+  labs(title = "Missingness by Predictor Variable",
+       y = "% Missing") +
+  theme_minimal()
+
+# Missingness pattern matrix (which variables co-occur as missing)
+gg_miss_upset(outbreaks, nsets = 10)
+
+# VIM aggregation plot (pattern co-occurrence)
+aggr(outbreaks[, cont_vars],
+     col   = c("steelblue", "firebrick"),
+     numbers = TRUE, sortVars = TRUE,
+     labels  = cont_vars,
+     cex.axis = .7, gap = 3,
+     ylab = c("Missing data", "Pattern"))</code></pre>
+
+        <h3>Little's MCAR Test</h3>
+        <pre><code>library(naniar)
+
+# Formal test: H0 = data are MCAR
+mcar_result &lt;- mcar_test(outbreaks[, cont_vars])
+print(mcar_result)
+# p &lt; 0.05 rejects MCAR → assume MAR or MNAR; proceed to imputation</code></pre>
+
+        <h3>Multiple Imputation with <code>mice</code></h3>
+        <pre><code>library(mice)
+
+# Variables to impute (MAR assumption justified by covariate analysis)
+impute_vars &lt;- c("vacc_coverage_lag1", "ndvi_mean",
+                 "wildlife_origin", "precip_mean")
+
+# Imputation model: predictive mean matching for continuous;
+# logistic for binary; polyreg for unordered categorical
+imp &lt;- mice(outbreaks[, c(impute_vars, "persist", cont_vars,
+                            "disease_f", "trans_mode",
+                            "admin2_id", "outbreak_year")],
+            m       = 20,      # 20 imputed datasets (Rubin's rule)
+            maxit   = 10,      # iterations per dataset
+            method  = c(vacc_coverage_lag1 = "pmm",
+                        ndvi_mean          = "pmm",
+                        wildlife_origin    = "logreg",
+                        precip_mean        = "pmm"),
+            seed    = 42,
+            printFlag = FALSE)
+
+# Inspect convergence (trace plots should show no trend)
+plot(imp)
+
+# Pool across imputed datasets after model fitting:
+# fit_list &lt;- with(imp, glmer(...))
+# pool(fit_list) |&gt; summary()</code></pre>
+
+        <h3>Decision Rule: When to Use Complete-Case Analysis</h3>
+        <div class="callout callout-good">
+          <strong>Complete-Case Threshold: &lt; 5% Missing</strong>
+          If a variable has fewer than 5% missing values AND Little's test does not reject MCAR, listwise deletion is acceptable — the loss in statistical power is minimal (&lt;0.5% efficiency loss for typical sample sizes &gt;500) and the analysis is simpler to audit. Document this decision explicitly in the methods section.
+        </div>
+
+        <div class="callout callout-warn">
+          <strong>Imputation Exclusions</strong>
+          Never impute the outcome variable (<code>persist</code>, <code>event</code>, <code>tte_days</code>). Rows with missing outcomes must be excluded and logged. Imputing outcomes biases the event rate and frailty variance estimates.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 8: Final Dataset Assembly -->
+  <div class="step-card open" onclick="toggle(this)">
+    <div class="step-header">
+      <div class="step-badge b-purple">08</div>
+      <div class="step-info">
+        <div class="step-title">Final Dataset Assembly</div>
+        <div class="step-subtitle">One-row-per-outbreak-unit format, duplicate checks, variable manifest, and summary statistics</div>
+      </div>
+      <div class="step-chevron">&#9660;</div>
+    </div>
+    <div class="step-content">
+      <div class="step-body">
+        <div class="io-grid">
+          <div class="io-box io-in"><h4>Input</h4><p>Spatially-joined predictor table; binary persistence outcome; TTE dataset; imputed/complete predictor columns; factor-encoded categorical variables</p></div>
+          <div class="io-box io-out"><h4>Output</h4><p>Two model-ready datasets: <code>glmm_df</code> (one row per outbreak × Admin-2, binary outcome) and <code>cox_df</code> (one row per inter-outbreak interval, TTE outcome)</p></div>
+          <div class="io-box io-why"><h4>Why separate tables?</h4><p>GLMM and Cox frailty have different unit-of-analysis requirements; sharing a single table would require awkward pivoting and increases error risk during model specification</p></div>
+        </div>
+
+        <h3>Final Join and Deduplication</h3>
+        <pre><code># GLMM dataset: one row per outbreak record with all predictors
+glmm_df &lt;- outbreaks |&gt;
+  # Join spatial predictors (already zscored)
+  left_join(adm2 |&gt; st_drop_geometry() |&gt;
+              select(GID_2, ndvi_mean_z, livestock_sum_z,
+                     elevation_mean_z, pop_sum_z),
+            by = c("admin2_id" = "GID_2")) |&gt;
+  # Join temporal predictors (year-matched, zscored)
+  left_join(clim_yr_z, by = c("admin2_id", "outbreak_year")) |&gt;
+  # Join lagged vaccination (already computed earlier)
+  left_join(vacc |&gt; select(iso3, year, vacc_coverage_lag1),
+            by = c("iso3", "vacc_lag_year" = "year")) |&gt;
+  # Keep only rows with valid persist outcome
+  filter(!is.na(persist)) |&gt;
+  # Check for duplicates on natural key
+  distinct(admin2_id, disease, outbreak_year, start_date, .keep_all = TRUE)
+
+# Duplicate audit
+dupes &lt;- glmm_df |&gt;
+  group_by(admin2_id, disease, outbreak_year, start_date) |&gt;
+  filter(n() &gt; 1)
+
+if (nrow(dupes) &gt; 0) stop("Duplicate rows detected: ", nrow(dupes))</code></pre>
+
+        <h3>Final Variable Manifest</h3>
+        <table class="data-table">
+          <thead><tr><th>Variable</th><th>Type</th><th>Role</th><th>Model</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">persist</td><td>Integer (0/1)</td><td>Outcome</td><td>GLMM</td><td class="td-why">Binomial response; duration &gt; 28 days</td></tr>
+            <tr><td class="td-label">tte_days</td><td>Integer</td><td>Outcome</td><td>Cox frailty</td><td class="td-why">Days between outbreak end and reemergence</td></tr>
+            <tr><td class="td-label">event</td><td>Integer (0/1)</td><td>Censoring indicator</td><td>Cox frailty</td><td class="td-why">1 = reemergence observed</td></tr>
+            <tr><td class="td-label">ndvi_mean_z</td><td>Numeric</td><td>Fixed effect</td><td>Both</td><td class="td-why">Z-scored NDVI, year-matched</td></tr>
+            <tr><td class="td-label">livestock_sum_z</td><td>Numeric</td><td>Fixed effect</td><td>Both</td><td class="td-why">Z-scored total cattle count (GLW epoch)</td></tr>
+            <tr><td class="td-label">vacc_coverage_lag1</td><td>Numeric (0–100)</td><td>Fixed effect</td><td>Both</td><td class="td-why">1-year lagged vaccination %; not z-scored (natural unit interpretable)</td></tr>
+            <tr><td class="td-label">wildlife_origin</td><td>Integer (0/1)</td><td>Fixed effect</td><td>Both</td><td class="td-why">Binary; 1 = wildlife reservoir involvement reported</td></tr>
+            <tr><td class="td-label">disease_f</td><td>Factor (6 levels)</td><td>Fixed effect</td><td>Both</td><td class="td-why">Reference = FMD; 5 dummy contrasts</td></tr>
+            <tr><td class="td-label">trans_mode</td><td>Factor (4 levels)</td><td>Fixed effect</td><td>Both</td><td class="td-why">Reference = direct; 3 dummy contrasts</td></tr>
+            <tr><td class="td-label">admin2_id</td><td>Character</td><td>Random effect (grouping)</td><td>Both</td><td class="td-why">GADM GID_2 code; unit for intercept random effect / frailty</td></tr>
+            <tr><td class="td-label">country_iso3</td><td>Character</td><td>Random effect (nested)</td><td>GLMM</td><td class="td-why">Country-level nesting; (1|iso3/admin2_id) in lme4</td></tr>
+            <tr><td class="td-label">outbreak_year</td><td>Integer</td><td>Control / temporal trend</td><td>Both</td><td class="td-why">Included as linear trend or factor to absorb temporal confounding</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Summary Statistics</h3>
+        <pre><code">library(gtsummary)
+
+# GLMM dataset summary table
+glmm_df |&gt;
+  select(persist, ndvi_mean_z, livestock_sum_z,
+         vacc_coverage_lag1, wildlife_origin,
+         disease_f, trans_mode) |&gt;
+  tbl_summary(
+    by = persist,
+    statistic = list(
+      all_continuous()  ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    digits = all_continuous() ~ 2,
+    label = list(
+      ndvi_mean_z        ~ "NDVI (z-score)",
+      livestock_sum_z    ~ "Livestock sum (z-score)",
+      vacc_coverage_lag1 ~ "Vaccination coverage, lagged 1yr (%)",
+      wildlife_origin    ~ "Wildlife origin (binary)",
+      disease_f          ~ "Disease type",
+      trans_mode         ~ "Transmission mode"
+    )
+  ) |&gt;
+  add_p() |&gt;
+  add_overall() |&gt;
+  bold_labels()</code></pre>
+
+        <h3>Dataset Dimension Checks</h3>
+        <pre><code"># Final sanity checks before modelling
+cat("GLMM dataset:\n")
+cat("  Rows      :", nrow(glmm_df), "\n")
+cat("  Admin-2   :", n_distinct(glmm_df$admin2_id), "\n")
+cat("  Countries :", n_distinct(glmm_df$iso3), "\n")
+cat("  Persist=1 :", sum(glmm_df$persist), "(", round(mean(glmm_df$persist)*100,1), "%)\n")
+cat("  NA in predictors:\n")
+print(colSums(is.na(glmm_df[, cont_vars])))
+
+cat("\nCox TTE dataset:\n")
+cat("  Rows      :", nrow(cox_df), "\n")
+cat("  Events    :", sum(cox_df$event), "(", round(mean(cox_df$event)*100,1), "% event rate)\n")
+cat("  Median TTE:", median(cox_df$tte_days[cox_df$event == 1]), "days\n")</code></pre>
+
+        <div class="callout callout-good">
+          <strong>Long-Format Principle</strong>
+          Both <code>glmm_df</code> and <code>cox_df</code> follow a strict <strong>one-row-per-observational-unit</strong> structure. For the GLMM, each row is one outbreak event at one Admin-2 district. For the Cox model, each row is one inter-outbreak interval. This "long format" is the correct input for <code>lme4::glmer()</code> and <code>coxme::coxme()</code> respectively, and prevents the silent row-duplication bugs that arise when pivoting wide tables.
+        </div>
+
+        <div class="callout callout-key">
+          <strong>Reproducibility Checklist Before Modelling</strong>
+          (1) Set global seed: <code>set.seed(42)</code> before any stochastic step (imputation, cross-validation splits). (2) Save <code>glmm_df</code> and <code>cox_df</code> as <code>.rds</code> files with timestamp. (3) Record session info: <code>sessionInfo()</code> or <code>renv::snapshot()</code>. (4) Hash the raw data files: <code>tools::md5sum("data/wahis_outbreaks.csv")</code>. (5) Document all exclusions in a structured exclusion log table appended to the supplementary material.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Study guide · Mixed Effects Models for TAD Analysis · For exam preparation only</footer>
+</body>
+<script>function toggle(c){c.classList.toggle('open');}</script>
+</html>
