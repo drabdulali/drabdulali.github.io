@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIR Model — Figures & Scenarios | Abdul Ali</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    tags: 'none',
+    macros: {
+      R: '\\mathcal{R}',
+      d: '\\mathrm{d}'
+    }
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
+  startup: { ready() { MathJax.startup.defaultReady(); } }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<style>
+/* ── Base ─────────────────────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fafaf7;
+  --bg2:#f3f2ed;
+  --bg3:#ece9e0;
+  --ink:#1a1a16;
+  --ink2:#3d3c35;
+  --ink3:#6b6a60;
+  --blue:#0a5c96;
+  --blue-light:#e8f2fb;
+  --blue-mid:#3b82c4;
+  --orange:#c9620a;
+  --orange-light:#fdf0e6;
+  --teal:#0a7a6a;
+  --teal-light:#e6f5f2;
+  --red:#b03030;
+  --red-light:#fbeaea;
+  --amber:#a06a00;
+  --amber-light:#fef7e6;
+  --purple:#6038a0;
+  --purple-light:#f0ebf8;
+  --green:#2a7a2a;
+  --green-light:#eaf6ea;
+  --rule:#d8d5c8;
+  --radius:10px;
+  --shadow:0 2px 16px rgba(0,0,0,.08);
+  --shadow-lg:0 6px 32px rgba(0,0,0,.12);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:15px}
+
+/* ── Nav (matches main site) ─────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:.9rem 2rem;background:rgba(250,250,247,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;background:linear-gradient(135deg,#0a5c96,#0a7a6a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none}
+.nav-links{display:flex;gap:1.75rem;list-style:none}
+.nav-links a{color:var(--ink3);text-decoration:none;font-size:.88rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+
+/* ── Page hero ───────────────────────────────────────────────────── */
+.page-hero{padding:100px 2rem 3rem;text-align:center;border-bottom:1px solid var(--rule)}
+.hero-label{display:inline-block;padding:.3rem .9rem;background:var(--blue-light);border:1px solid rgba(10,92,150,.2);border-radius:20px;font-size:.75rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:1rem}
+.page-hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,4vw,3rem);font-weight:800;line-height:1.15;color:var(--ink);margin-bottom:.75rem}
+.page-hero p{color:var(--ink3);font-size:1rem;max-width:620px;margin:0 auto 1.75rem;line-height:1.7}
+
+/* Table of contents pills */
+.toc{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.toc a{padding:.38rem .9rem;background:white;border:1px solid var(--rule);border-radius:20px;font-size:.78rem;color:var(--ink3);text-decoration:none;transition:all .2s}
+.toc a:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+.wrapper{max-width:1080px;margin:0 auto;padding:0 2rem 6rem}
+
+/* ── Section headers ─────────────────────────────────────────────── */
+.sec-head{padding:3.5rem 0 1.5rem;border-top:2px solid var(--rule);margin-top:3rem}
+.sec-head:first-child{border-top:none;margin-top:0;padding-top:3rem}
+.sec-num{display:inline-block;width:28px;height:28px;border-radius:50%;background:var(--ink);color:white;font-size:.72rem;font-weight:700;text-align:center;line-height:28px;margin-bottom:.75rem}
+.sec-head h2{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:var(--ink);margin-bottom:.5rem}
+.sec-head p{color:var(--ink3);font-size:.95rem;max-width:700px;line-height:1.7}
+
+/* ── Figure cards ────────────────────────────────────────────────── */
+.fig-card{background:white;border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin-bottom:2rem;box-shadow:var(--shadow)}
+.fig-title-bar{padding:1.1rem 1.5rem;border-bottom:1px solid var(--rule);display:flex;align-items:baseline;gap:.75rem}
+.fig-title-bar h3{font-size:.95rem;font-weight:700;color:var(--ink)}
+.fig-title-bar span{font-size:.78rem;color:var(--ink3);font-style:italic}
+.fig-body{padding:1.75rem 1.5rem}
+.fig-caption{padding:.9rem 1.5rem;background:var(--bg2);border-top:1px solid var(--rule);font-size:.8rem;color:var(--ink3);line-height:1.6}
+
+/* ── SVG figures ─────────────────────────────────────────────────── */
+.fig-svg-wrap{width:100%;overflow-x:auto}
+.fig-svg-wrap svg{display:block;margin:0 auto;max-width:100%}
+
+/* ── Two-col grid ────────────────────────────────────────────────── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem}
+@media(max-width:760px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* ── Explanation panels ─────────────────────────────────────────── */
+.expl-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+@media(max-width:680px){.expl-grid{grid-template-columns:1fr}}
+.expl-box{border-radius:var(--radius);padding:1.1rem 1.25rem}
+.expl-box.blue{background:var(--blue-light);border:1px solid rgba(10,92,150,.18)}
+.expl-box.orange{background:var(--orange-light);border:1px solid rgba(201,98,10,.18)}
+.expl-box.teal{background:var(--teal-light);border:1px solid rgba(10,122,106,.18)}
+.expl-box.red{background:var(--red-light);border:1px solid rgba(176,48,48,.18)}
+.expl-box.amber{background:var(--amber-light);border:1px solid rgba(160,106,0,.18)}
+.expl-box.purple{background:var(--purple-light);border:1px solid rgba(96,56,160,.18)}
+.expl-box.green{background:var(--green-light);border:1px solid rgba(42,122,42,.18)}
+.expl-box h4{font-size:.82rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px}
+.expl-box.blue h4{color:var(--blue)}
+.expl-box.orange h4{color:var(--orange)}
+.expl-box.teal h4{color:var(--teal)}
+.expl-box.red h4{color:var(--red)}
+.expl-box.amber h4{color:var(--amber)}
+.expl-box.purple h4{color:var(--purple)}
+.expl-box.green h4{color:var(--green)}
+.expl-box p,.expl-box ul{font-size:.85rem;color:var(--ink2);line-height:1.65}
+.expl-box ul{padding-left:1rem}
+.expl-box li{margin-bottom:.25rem}
+
+/* ── Math display ────────────────────────────────────────────────── */
+.math-block{background:var(--bg2);border:1px solid var(--rule);border-left:3.5px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.4rem;margin:.9rem 0;overflow-x:auto}
+.math-block .math-label{font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
+.math-block .math-bio{font-size:.82rem;color:var(--ink3);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--rule);font-style:italic;line-height:1.6}
+
+/* ── Notation table ──────────────────────────────────────────────── */
+.ntable{width:100%;border-collapse:collapse;font-size:.85rem}
+.ntable thead th{background:var(--ink);color:white;padding:.7rem 1rem;text-align:left;font-size:.78rem;font-weight:600;letter-spacing:.3px}
+.ntable thead th:first-child{border-radius:6px 0 0 0}
+.ntable thead th:last-child{border-radius:0 6px 0 0}
+.ntable tbody tr{border-bottom:1px solid var(--rule)}
+.ntable tbody tr:hover{background:var(--bg2)}
+.ntable td{padding:.7rem 1rem;vertical-align:top;line-height:1.6}
+.ntable td:first-child{font-weight:700;color:var(--blue);font-size:.92rem;white-space:nowrap}
+.ntable td:nth-child(2){font-weight:600;color:var(--ink);font-size:.83rem}
+.ntable td:last-child{color:var(--ink3);font-size:.82rem}
+.ntable-wrap{border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+
+/* ── Scenario tabs ───────────────────────────────────────────────── */
+.tab-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.25rem;border-bottom:2px solid var(--rule);padding-bottom:.1rem}
+.tbtn{padding:.5rem 1rem;font-size:.8rem;font-weight:600;background:none;border:none;cursor:pointer;color:var(--ink3);border-radius:6px 6px 0 0;position:relative;transition:color .2s}
+.tbtn.active{color:var(--blue)}
+.tbtn.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--teal))}
+.tbtn:hover:not(.active){color:var(--ink);background:var(--bg2)}
+.tpanel{display:none}
+.tpanel.active{display:block}
+
+/* ── Chart containers ────────────────────────────────────────────── */
+.chart-area{position:relative;width:100%;padding:0}
+.chart-controls{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;padding:1rem 1.5rem;background:var(--bg2);border-bottom:1px solid var(--rule)}
+.ctrl-row{display:flex;align-items:center;gap:.75rem}
+.ctrl-label{font-size:.78rem;font-weight:600;color:var(--ink3);min-width:140px}
+.ctrl-label code{background:rgba(10,92,150,.1);color:var(--blue);padding:.1rem .3rem;border-radius:4px;font-size:.78rem;font-weight:700}
+input[type=range]{accent-color:var(--blue);width:160px;cursor:pointer}
+.ctrl-val{font-size:.82rem;font-weight:700;color:var(--ink);min-width:42px;font-family:'Courier New',monospace}
+.stat-strip{display:flex;gap:1px;background:var(--rule);border-bottom:1px solid var(--rule)}
+.stat-cell{flex:1;background:white;padding:.7rem 1rem;text-align:center}
+.stat-cell .sc-label{font-size:.7rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.2rem}
+.stat-cell .sc-val{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700}
+.stat-cell.sc-blue .sc-val{color:var(--blue)}
+.stat-cell.sc-orange .sc-val{color:var(--orange)}
+.stat-cell.sc-teal .sc-val{color:var(--teal)}
+.stat-cell.sc-red .sc-val{color:var(--red)}
+.chart-inner{padding:1.25rem 1.5rem}
+.legend-row{display:flex;flex-wrap:wrap;gap:1rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--rule)}
+.leg-item{display:flex;align-items:center;gap:.4rem;font-size:.76rem;color:var(--ink3)}
+.leg-swatch{width:28px;height:3px;border-radius:2px;flex-shrink:0}
+.leg-swatch.dash{background:repeating-linear-gradient(90deg,var(--color,#888) 0,var(--color,#888) 5px,transparent 5px,transparent 9px)}
+
+/* ── Scenario callout strip ─────────────────────────────────────── */
+.scenario-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin-top:1rem}
+.sc-item{background:white;padding:1rem 1.1rem;text-align:center}
+.sc-item .sc-head{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem}
+.sc-item.sc-grow .sc-head{color:var(--teal)}
+.sc-item.sc-peak .sc-head{color:var(--blue)}
+.sc-item.sc-fall .sc-head{color:var(--red)}
+.sc-item .sc-cond{font-size:.85rem;font-weight:700;margin-bottom:.3rem;font-family:'Courier New',monospace}
+.sc-item.sc-grow .sc-cond{color:var(--teal)}
+.sc-item.sc-peak .sc-cond{color:var(--blue)}
+.sc-item.sc-fall .sc-cond{color:var(--red)}
+.sc-item p{font-size:.78rem;color:var(--ink3);line-height:1.55}
+
+/* ── Collapsible detail ─────────────────────────────────────────── */
+.det-btn{width:100%;text-align:left;background:var(--bg2);border:1px solid var(--rule);border-radius:var(--radius);padding:.8rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;transition:background .2s}
+.det-btn:hover{background:var(--bg3)}
+.det-btn .di{transition:transform .25s;color:var(--blue);font-size:1rem}
+.det-btn.open .di{transform:rotate(90deg)}
+.det-body{display:none;padding:1rem 1.25rem;background:white;border:1px solid var(--rule);border-radius:var(--radius);margin-bottom:1rem;font-size:.85rem;color:var(--ink3);line-height:1.7;animation:fi .2s ease}
+.det-body.open{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Scenario labels ─────────────────────────────────────────────── */
+.scenario-label{display:inline-block;padding:.22rem .65rem;border-radius:12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.6rem}
+.sl-blue{background:var(--blue-light);color:var(--blue)}
+.sl-orange{background:var(--orange-light);color:var(--orange)}
+.sl-red{background:var(--red-light);color:var(--red)}
+.sl-teal{background:var(--teal-light);color:var(--teal)}
+.sl-purple{background:var(--purple-light);color:var(--purple)}
+
+/* ── HIT table ───────────────────────────────────────────────────── */
+.hit-bar{display:flex;align-items:center;gap:.75rem;margin:.35rem 0}
+.hit-bar-label{min-width:130px;font-size:.78rem;color:var(--ink2);font-weight:500}
+.hit-bar-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.hit-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s}
+.hit-bar-val{min-width:50px;text-align:right;font-size:.78rem;font-weight:700;color:var(--ink);font-family:'Courier New',monospace}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+footer{padding:2.5rem 2rem;border-top:1px solid var(--rule);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-size:.82rem;color:var(--ink3)}
+footer a{color:var(--ink3);text-decoration:none;font-size:.82rem;transition:color .2s}
+footer a:hover{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="../../index.html" class="nav-logo">Abdul Ali</a>
+  <ul class="nav-links">
+    <li><a href="../../index.html#hero">Home</a></li>
+    <li><a href="../../index.html#courses">Courses</a></li>
+    <li><a href="../../index.html#research">Research</a></li>
+    <li><a href="../../index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="hero-label">Mathematical Epidemiology</div>
+  <h1>SIR Model — Figures &amp; Scenarios</h1>
+  <p>Every diagram from the theory, recreated with precision. All mathematical notation rendered with MathJax. Every symbol explained biologically — from the epidemic curve to endemic equilibrium.</p>
+  <nav class="toc">
+    <a href="#sec-curves">Epidemic Curve</a>
+    <a href="#sec-threshold">S&nbsp;=&nbsp;1/R&#8320; Threshold</a>
+    <a href="#sec-re">R&#8337;(t) Over Time</a>
+    <a href="#sec-endemic">Epidemic vs Endemic</a>
+    <a href="#sec-istar">I* and S*</a>
+    <a href="#sec-control">Control Strategies</a>
+    <a href="#sec-scenarios">All Scenarios</a>
+    <a href="#sec-reference">Notation Reference</a>
+  </nav>
+</div>
+
+<div class="wrapper">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 1 — EPIDEMIC CURVE
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="sec-head" id="sec-curves">
+  <div class="sec-num">1</div>
+  <h2>The Epidemic Curve: Why It Rises, Peaks, and Falls</h2>
+  <p>The bell-shaped I(t) curve is entirely determined by the balance between new infections \(\beta S I / N\) and recoveries \(\gamma I\). The S(t) curve is the key — when it crosses below \(1/\mathcal{R}_0\), the epidemic turns.</p>
+</div>
+
+<!-- Figure 1a — Static SVG matching image 1 exactly -->
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 1a — Epidemic curve: why it rises, peaks, and falls</h3>
+    <span>Replication of notebook diagram</span>
+  </div>
+  <div class="fig-body">
+    <div class="fig-svg-wrap">
+      <svg viewBox="0 0 820 380" width="820" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+        <!-- Background -->
+        <rect width="820" height="380" fill="#fafaf7"/>
+        <!-- Title -->
+        <text x="410" y="30" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1a16">Epidemic curve: why it rises, peaks, and falls</text>
+        <!-- Axes -->
+        <line x1="80" y1="290" x2="740" y2="290" stroke="#1a1a16" stroke-width="1.5"/>
+        <line x1="80" y1="60" x2="80" y2="295" stroke="#1a1a16" stroke-width="1.5"/>
+        <!-- Axis arrow heads -->
+        <polygon points="740,285 748,290 740,295" fill="#1a1a16"/>
+        <polygon points="75,60 80,52 85,60" fill="#1a1a16"/>
+        <!-- Axis labels -->
+        <text x="54" y="82" font-size="11" fill="#3d3c35" text-anchor="middle">cases /</text>
+        <text x="54" y="96" font-size="11" fill="#3d3c35" text-anchor="middle">S(t)</text>
+        <text x="756" y="294" font-size="11" fill="#3d3c35">time</text>
+
+        <!-- S(t) — dashed blue, starts high, decreases monotonically -->
+        <path d="M82,95 C130,98 180,108 230,124 C280,142 320,164 360,192 C395,216 420,240 455,265 C490,284 530,291 590,291 C640,291 690,291 735,291"
+              fill="none" stroke="#1e6bb0" stroke-width="2.2" stroke-dasharray="8,5"/>
+
+        <!-- I(t) — solid orange bell curve -->
+        <path d="M82,289 C100,285 130,270 165,248 C200,224 230,192 265,160 C300,128 330,104 360,90 C385,78 400,74 420,76 C440,78 458,84 480,100 C505,118 530,148 560,180 C590,212 615,248 645,270 C668,285 700,291 735,291"
+              fill="rgba(201,98,10,.15)" stroke="#c9620a" stroke-width="2.5"/>
+
+        <!-- Threshold line S = 1/R0 -->
+        <line x1="80" y1="192" x2="735" y2="192" stroke="#b03030" stroke-width="1.4" stroke-dasharray="6,4"/>
+        <text x="742" y="188" font-size="10" fill="#b03030" font-weight="600">S = 1/R&#8320;</text>
+        <text x="742" y="200" font-size="10" fill="#b03030">(threshold)</text>
+
+        <!-- Peak vertical dashed line -->
+        <line x1="418" y1="74" x2="418" y2="292" stroke="#666" stroke-width="1" stroke-dasharray="4,4"/>
+
+        <!-- Red dot at threshold crossing -->
+        <circle cx="418" cy="192" r="6" fill="#b03030"/>
+        <!-- Annotation -->
+        <text x="426" y="186" font-size="10" fill="#b03030" font-weight="700">S hits 1/R&#8320;</text>
+        <text x="426" y="202" font-size="11" fill="#b03030" font-weight="700">&#8592; PEAK</text>
+
+        <!-- Phase label: GROWS -->
+        <line x1="180" y1="320" x2="340" y2="320" stroke="#0a7a6a" stroke-width="1.2" marker-end="url(#arrowGreen)"/>
+        <text x="245" y="314" text-anchor="middle" font-size="10.5" fill="#0a7a6a" font-weight="700">S &gt; 1/R&#8320;</text>
+        <text x="245" y="330" text-anchor="middle" font-size="10.5" fill="#0a7a6a">epidemic GROWS</text>
+
+        <!-- Phase label: DECLINES -->
+        <line x1="490" y1="320" x2="650" y2="320" stroke="#b03030" stroke-width="1.2" marker-end="url(#arrowRed)"/>
+        <text x="565" y="314" text-anchor="middle" font-size="10.5" fill="#b03030" font-weight="700">S &lt; 1/R&#8320;</text>
+        <text x="565" y="330" text-anchor="middle" font-size="10.5" fill="#b03030">epidemic DECLINES</text>
+
+        <!-- Legend -->
+        <line x1="120" y1="355" x2="155" y2="355" stroke="#c9620a" stroke-width="2.5"/>
+        <rect x="112" y="348" width="43" height="12" fill="rgba(201,98,10,.13)" stroke="none"/>
+        <text x="162" y="359" font-size="10.5" fill="#3d3c35">I(t) — infectious cases (epidemic curve)</text>
+        <line x1="440" y1="355" x2="475" y2="355" stroke="#1e6bb0" stroke-width="2" stroke-dasharray="6,4"/>
+        <text x="482" y="359" font-size="10.5" fill="#3d3c35">S(t) — susceptible fraction (declining)</text>
+
+        <!-- Arrow markers -->
+        <defs>
+          <marker id="arrowGreen" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M1,1 L7,4 L1,7" fill="none" stroke="#0a7a6a" stroke-width="1.5"/>
+          </marker>
+          <marker id="arrowRed" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M1,1 L7,4 L1,7" fill="none" stroke="#b03030" stroke-width="1.5"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Math annotations -->
+    <div class="expl-grid">
+      <div class="expl-box blue">
+        <h4>S(t) — the fuel curve</h4>
+        <p>The dashed blue line shows the susceptible fraction falling monotonically. It starts near 1 (almost everyone susceptible) and declines as people are infected. The epidemic peak occurs exactly when S(t) reaches the threshold \( S^* = N/\mathcal{R}_0 \).</p>
+      </div>
+      <div class="expl-box orange">
+        <h4>I(t) — the epidemic curve</h4>
+        <p>The orange bell. It rises while \(\mathcal{R}_e > 1\), peaks when \(\mathcal{R}_e = 1\), then falls. The area under the entire curve equals total person-days of infectiousness. The peak height is determined by \(\mathcal{R}_0\) and the initial susceptible fraction.</p>
+      </div>
+    </div>
+    <div class="math-block" style="margin-top:.75rem">
+      <div class="math-label">The peak condition — derived from dI/dt = 0</div>
+      \[ \frac{\mathrm{d}I}{\mathrm{d}t} = \beta \frac{SI}{N} - \gamma I = 0 \implies \frac{\beta S}{N} = \gamma \implies S^* = \frac{N\gamma}{\beta} = \frac{N}{\mathcal{R}_0} \]
+      <div class="math-bio">The epidemic peaks when the susceptible pool has been depleted to exactly N/R&#8320;. Neither before nor after — this is a mathematically exact consequence of the SIR equations, not an approximation.</div>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 1a.</strong> The epidemic curve I(t) (orange) rises while S(t) &gt; 1/R&#8320;, peaks at the exact moment S = 1/R&#8320; (red dot), then declines. The epidemic ends not because everyone is infected but because S falls below the threshold.</div>
+</div>
+
+<!-- Figure 1b — Interactive epidemic curve -->
+<div class="fig-card" id="sec-threshold">
+  <div class="fig-title-bar">
+    <h3>Figure 1b — Interactive: S = 1/R&#8320; threshold in action</h3>
+    <span>Adjust parameters to see how R&#8320; shifts the threshold line and peak</span>
+  </div>
+  <div class="chart-controls">
+    <div class="ctrl-row">
+      <span class="ctrl-label"><code>&#946;</code> transmission</span>
+      <input type="range" id="f1b-beta" min="5" max="95" value="50" oninput="drawF1b()">
+      <span class="ctrl-val" id="f1b-bv">0.50</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label"><code>&#947;</code> recovery</span>
+      <input type="range" id="f1b-gamma" min="5" max="60" value="10" oninput="drawF1b()">
+      <span class="ctrl-val" id="f1b-gv">0.10</span>
+    </div>
+  </div>
+  <div class="stat-strip">
+    <div class="stat-cell sc-blue"><div class="sc-label">R&#8320; = &#946;/&#947;</div><div class="sc-val" id="f1b-r0">5.00</div></div>
+    <div class="stat-cell sc-orange"><div class="sc-label">Peak I(t)</div><div class="sc-val" id="f1b-peak">—</div></div>
+    <div class="stat-cell sc-teal"><div class="sc-label">Threshold S=1/R&#8320;</div><div class="sc-val" id="f1b-thresh">20%</div></div>
+    <div class="stat-cell sc-red"><div class="sc-label">Final attack rate</div><div class="sc-val" id="f1b-far">—</div></div>
+  </div>
+  <div class="chart-inner">
+    <div class="chart-area" style="height:300px;position:relative"><canvas id="f1b-canvas"></canvas></div>
+    <div class="legend-row">
+      <span class="leg-item"><span class="leg-swatch" style="background:#c9620a"></span> I(t) — infectious (epidemic curve)</span>
+      <span class="leg-item"><span class="leg-swatch" style="background:#1e6bb0;height:2px;border-top:2px dashed #1e6bb0;background:none;width:28px;border-bottom:none;border-left:none;border-right:none"></span> S(t) — susceptible fraction</span>
+      <span class="leg-item"><span class="leg-swatch dash" style="--color:#b03030"></span> S = 1/R&#8320; threshold</span>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 1b.</strong> Live simulation. The red dashed line is S = 1/R&#8320; — move the sliders to change where it sits. The peak of I(t) always touches this line from above at exactly the same moment S(t) crosses it from below.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 2 — Re OVER TIME
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="sec-head" id="sec-re">
+  <div class="sec-num">2</div>
+  <h2>R&#8337;(t) — The Effective Reproduction Number Over Time</h2>
+  <p>\(\mathcal{R}_e(t) = \mathcal{R}_0 \times S(t)/N\). It starts at \(\mathcal{R}_0\), crosses 1 at the epidemic peak, and falls toward 0 as susceptibles are depleted. This is the real-time metric used by public health agencies.</p>
+</div>
+
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 2a — R&#8337;(t) throughout the epidemic lifecycle</h3>
+    <span>Static SVG — all key phases annotated</span>
+  </div>
+  <div class="fig-body">
+    <div class="fig-svg-wrap">
+      <svg viewBox="0 0 820 340" width="820" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+        <rect width="820" height="340" fill="#fafaf7"/>
+        <text x="410" y="28" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1a1a16">R&#8337;(t) — effective reproduction number over time</text>
+        <!-- Axes -->
+        <line x1="80" y1="260" x2="740" y2="260" stroke="#1a1a16" stroke-width="1.5"/>
+        <line x1="80" y1="48" x2="80" y2="265" stroke="#1a1a16" stroke-width="1.5"/>
+        <polygon points="740,255 748,260 740,265" fill="#1a1a16"/>
+        <polygon points="75,48 80,40 85,48" fill="#1a1a16"/>
+        <text x="756" y="264" font-size="11" fill="#3d3c35">time</text>
+        <text x="54" y="56" font-size="11" fill="#3d3c35" text-anchor="middle">R&#8337;(t)</text>
+        <!-- R0 label on y axis -->
+        <text x="64" y="64" font-size="9.5" fill="#6b6a60" text-anchor="end">R&#8320;</text>
+        <line x1="77" y1="62" x2="82" y2="62" stroke="#6b6a60" stroke-width="1"/>
+        <!-- Re=1 label -->
+        <text x="64" y="176" font-size="9.5" fill="#b03030" text-anchor="end">1</text>
+        <line x1="77" y1="174" x2="82" y2="174" stroke="#b03030" stroke-width="1"/>
+
+        <!-- Shade: Re>1 zone -->
+        <path d="M82,62 C160,64 200,72 260,100 C320,128 350,148 400,174 L400,174 L82,174 Z" fill="rgba(176,48,48,.06)"/>
+        <!-- Shade: Re<1 zone -->
+        <path d="M400,174 C430,200 460,220 510,238 C560,252 620,258 700,260 L700,260 L400,174 Z" fill="rgba(10,122,106,.06)"/>
+
+        <!-- Re=1 horizontal threshold -->
+        <line x1="80" y1="174" x2="735" y2="174" stroke="#b03030" stroke-width="1.3" stroke-dasharray="6,4"/>
+        <text x="742" y="171" font-size="9.5" fill="#b03030" font-weight="700">R&#8337;=1</text>
+
+        <!-- Re(t) curve — starts at top, curves down, crosses 1, approaches 0 -->
+        <path d="M82,62 C120,64 160,68 210,82 C260,98 300,118 340,140 C370,156 390,166 418,174 C450,183 490,200 540,220 C590,238 640,252 700,258 C715,259 728,260 735,260"
+              fill="none" stroke="#6038a0" stroke-width="2.5"/>
+
+        <!-- Vertical at peak crossing Re=1 -->
+        <line x1="418" y1="48" x2="418" y2="262" stroke="#888" stroke-width="1" stroke-dasharray="3,4"/>
+        <circle cx="418" cy="174" r="5.5" fill="#b03030"/>
+
+        <!-- Phase annotations -->
+        <!-- Growing phase -->
+        <text x="230" y="148" text-anchor="middle" font-size="10" fill="#b03030" font-weight="700">R&#8337; &gt; 1</text>
+        <text x="230" y="161" text-anchor="middle" font-size="9.5" fill="#b03030">epidemic growing</text>
+
+        <!-- Peak annotation -->
+        <line x1="418" y1="174" x2="470" y2="148" stroke="#b03030" stroke-width="1" marker-end="url(#arrowRed2)"/>
+        <text x="474" y="145" font-size="10" fill="#b03030" font-weight="700">R&#8337; = 1</text>
+        <text x="474" y="157" font-size="9.5" fill="#b03030">epidemic peak</text>
+
+        <!-- Declining phase -->
+        <text x="590" y="210" text-anchor="middle" font-size="10" fill="#0a7a6a" font-weight="700">R&#8337; &lt; 1</text>
+        <text x="590" y="222" text-anchor="middle" font-size="9.5" fill="#0a7a6a">epidemic declining</text>
+
+        <!-- Start annotation -->
+        <line x1="82" y1="62" x2="120" y2="44" stroke="#6038a0" stroke-width="1"/>
+        <text x="125" y="42" font-size="9.5" fill="#6038a0">R&#8337; starts at R&#8320;</text>
+        <text x="125" y="53" font-size="9" fill="#6038a0">(fully susceptible)</text>
+
+        <defs>
+          <marker id="arrowRed2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M1,1 L7,4 L1,7" fill="none" stroke="#b03030" stroke-width="1.5"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="math-block">
+      <div class="math-label">Effective reproduction number</div>
+      \[ \mathcal{R}_e(t) = \mathcal{R}_0 \cdot \frac{S(t)}{N} \]
+      <div class="math-bio">R&#8320; is fixed (a property of pathogen + population). As S(t) falls during the epidemic, R&#8337;(t) falls proportionally. At t=0, S&#8776;N so R&#8337;&#8776;R&#8320;. When S = N/R&#8320;, R&#8337; = 1. This is the peak. After that, R&#8337; &lt; 1 and cases decline every generation.</div>
+    </div>
+
+    <div class="scenario-strip">
+      <div class="sc-item sc-grow">
+        <div class="sc-head">Phase 1 — Growth</div>
+        <div class="sc-cond">R&#8337; &gt; 1</div>
+        <p>S(t) &gt; N/R&#8320;. Each case infects more than one person. Exponential growth. Every generation of cases is larger than the last.</p>
+      </div>
+      <div class="sc-item sc-peak">
+        <div class="sc-head">Phase 2 — Peak</div>
+        <div class="sc-cond">R&#8337; = 1</div>
+        <p>S(t) = N/R&#8320; exactly. Each case produces exactly one new case. Maximum daily incidence. dI/dt = 0. Turning point of the outbreak.</p>
+      </div>
+      <div class="sc-item sc-fall">
+        <div class="sc-head">Phase 3 — Decline</div>
+        <div class="sc-cond">R&#8337; &lt; 1</div>
+        <p>S(t) &lt; N/R&#8320;. Each case produces fewer than one new case. Cases shrink each generation. Epidemic is self-extinguishing.</p>
+      </div>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 2a.</strong> R&#8337;(t) begins at R&#8320;, crosses 1 at the epidemic peak (red dot), and asymptotes toward 0 as susceptibles are depleted. The red-shaded zone (R&#8337; &gt; 1) is when the epidemic grows; the teal zone (R&#8337; &lt; 1) is when it declines.</div>
+</div>
+
+<!-- Figure 2b — Interactive Re chart -->
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 2b — Interactive: R&#8337;(t) with epidemic curve overlaid</h3>
+    <span>Both R&#8337;(t) and I(t) on the same time axis</span>
+  </div>
+  <div class="chart-controls">
+    <div class="ctrl-row">
+      <span class="ctrl-label"><code>R&#8320;</code> baseline</span>
+      <input type="range" id="f2b-r0" min="11" max="150" value="50" oninput="drawF2b()">
+      <span class="ctrl-val" id="f2b-r0v">5.0</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label"><code>&#947;</code> recovery</span>
+      <input type="range" id="f2b-gamma" min="5" max="50" value="10" oninput="drawF2b()">
+      <span class="ctrl-val" id="f2b-gv">0.10</span>
+    </div>
+  </div>
+  <div class="chart-inner" style="padding-top:.75rem">
+    <div class="chart-area" style="height:260px"><canvas id="f2b-canvas"></canvas></div>
+    <div class="legend-row">
+      <span class="leg-item"><span class="leg-swatch" style="background:#6038a0"></span> R&#8337;(t) = R&#8320; × S(t)/N</span>
+      <span class="leg-item"><span class="leg-swatch" style="background:#c9620a"></span> I(t) — infectious (scaled)</span>
+      <span class="leg-item"><span class="leg-swatch dash" style="--color:#b03030"></span> R&#8337; = 1 threshold</span>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 2b.</strong> R&#8337;(t) (purple) and I(t) (orange, right axis) share a time axis. Notice R&#8337; crosses 1 at precisely the moment I(t) peaks — this is not coincidence, it is a consequence of the SIR equations.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 3 — EPIDEMIC vs ENDEMIC
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="sec-head" id="sec-endemic">
+  <div class="sec-num">3</div>
+  <h2>Epidemic vs Endemic — Side by Side</h2>
+  <p>The only structural difference is \(\mu N\) (births) replenishing S. Without it, S depletes to zero and the epidemic self-extinguishes. With it, S stabilises at \(S^* = 1/\mathcal{R}_0\) forever.</p>
+</div>
+
+<!-- Figure 3a — Static SVG matching image 2 left panel -->
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 3a — Epidemic vs Endemic: the two regimes side by side</h3>
+    <span>Replication of notebook diagram — static SVG</span>
+  </div>
+  <div class="fig-body">
+    <div class="fig-svg-wrap">
+      <svg viewBox="0 0 860 360" width="860" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+        <rect width="860" height="360" fill="#fafaf7"/>
+
+        <!-- LEFT — Epidemic (no demography) -->
+        <text x="215" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a16">Epidemic (no demography)</text>
+        <text x="215" y="44" text-anchor="middle" font-size="10.5" fill="#6b6a60">S depletes, no refilling — dies out</text>
+        <!-- Axes L -->
+        <line x1="60" y1="268" x2="380" y2="268" stroke="#1a1a16" stroke-width="1.3"/>
+        <line x1="60" y1="72" x2="60" y2="272" stroke="#1a1a16" stroke-width="1.3"/>
+        <polygon points="380,263 387,268 380,273" fill="#1a1a16"/>
+        <text x="392" y="272" font-size="10" fill="#3d3c35">t</text>
+        <text x="42" y="80" font-size="10" fill="#3d3c35">cases</text>
+        <!-- S(t) epidemic — falls to near zero -->
+        <path d="M62,88 C90,91 120,100 155,118 C185,134 210,158 235,186 C255,208 270,232 290,256 C305,265 340,269 375,269"
+              fill="none" stroke="#1e6bb0" stroke-width="1.8" stroke-dasharray="7,5"/>
+        <!-- I(t) epidemic — bell, dies out -->
+        <path d="M62,267 C75,264 95,252 120,232 C145,210 170,182 195,158 C215,138 232,124 248,116 C260,110 268,110 278,116 C292,126 308,148 328,178 C345,202 360,232 372,258 C376,265 378,268 380,268"
+              fill="rgba(201,98,10,.14)" stroke="#c9620a" stroke-width="2.2"/>
+        <!-- Annotation -->
+        <text x="215" y="296" text-anchor="middle" font-size="10" fill="#3d3c35">S &#8594; 0, epidemic ends</text>
+        <text x="215" y="309" text-anchor="middle" font-size="10" fill="#3d3c35">no herd immunity refill</text>
+
+        <!-- Divider -->
+        <line x1="430" y1="40" x2="430" y2="320" stroke="#d8d5c8" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+        <!-- RIGHT — Endemic (with demography) -->
+        <text x="645" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a16">Endemic (with demography)</text>
+        <text x="645" y="44" text-anchor="middle" font-size="10.5" fill="#6b6a60">Births refill S — disease persists</text>
+        <!-- Axes R -->
+        <line x1="460" y1="268" x2="810" y2="268" stroke="#1a1a16" stroke-width="1.3"/>
+        <line x1="460" y1="72" x2="460" y2="272" stroke="#1a1a16" stroke-width="1.3"/>
+        <polygon points="810,263 817,268 810,273" fill="#1a1a16"/>
+        <text x="822" y="272" font-size="10" fill="#3d3c35">t</text>
+        <text x="442" y="80" font-size="10" fill="#3d3c35">cases</text>
+        <!-- S(t) endemic — starts high, dips, stabilises at S* -->
+        <path d="M462,88 C490,91 520,102 555,120 C585,136 608,155 630,170 C650,183 665,190 682,194 C700,198 720,196 740,197 C760,198 780,198 805,198"
+              fill="none" stroke="#1e6bb0" stroke-width="1.8" stroke-dasharray="7,5"/>
+        <!-- S* line -->
+        <line x1="460" y1="198" x2="808" y2="198" stroke="#1e6bb0" stroke-width="1" stroke-dasharray="3,4" opacity="0.5"/>
+        <!-- I(t) endemic — initial wave then damped oscillation settling at I* -->
+        <path d="M462,267 C475,264 492,252 515,232 C540,208 558,182 575,162 C590,145 600,138 612,138 C622,138 630,142 640,152 C655,168 665,188 680,208 C692,224 702,240 716,250 C728,256 740,256 750,254 C758,252 765,248 772,244 C780,240 787,238 795,237 C802,236 808,236 808,236"
+              fill="rgba(201,98,10,.12)" stroke="#c9620a" stroke-width="2.2"/>
+        <!-- I* and S* labels -->
+        <line x1="460" y1="236" x2="808" y2="236" stroke="#c9620a" stroke-width="1" stroke-dasharray="3,4" opacity="0.6"/>
+        <text x="816" y="239" font-size="10" fill="#c9620a" font-weight="700">I*</text>
+        <text x="816" y="202" font-size="10" fill="#1e6bb0" font-weight="700">S*=1/R&#8320;</text>
+        <!-- Annotation -->
+        <text x="645" y="296" text-anchor="middle" font-size="10" fill="#3d3c35">S stabilises at 1/R&#8320;</text>
+        <text x="645" y="309" text-anchor="middle" font-size="10" fill="#3d3c35">I stabilises at endemic equilibrium I*</text>
+
+        <!-- Legend bottom center -->
+        <line x1="320" y1="340" x2="348" y2="340" stroke="#c9620a" stroke-width="2.2"/>
+        <text x="354" y="344" font-size="10" fill="#3d3c35">I(t) — infectious</text>
+        <line x1="480" y1="340" x2="508" y2="340" stroke="#1e6bb0" stroke-width="1.8" stroke-dasharray="6,4"/>
+        <text x="514" y="344" font-size="10" fill="#3d3c35">S(t) — susceptible</text>
+        <text x="430" y="358" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1a1a16">The only difference: births (&#956;N) replenishing S</text>
+      </svg>
+    </div>
+
+    <div class="expl-grid">
+      <div>
+        <div class="math-block">
+          <div class="math-label">Epidemic SIR (no demography)</div>
+          \[\frac{\mathrm{d}S}{\mathrm{d}t} = -\frac{\beta SI}{N}, \quad \frac{\mathrm{d}I}{\mathrm{d}t} = \frac{\beta SI}{N} - \gamma I\]
+          <div class="math-bio">S only decreases. No source of new susceptibles. Epidemic burns through S and self-extinguishes when S &lt; N/R&#8320;.</div>
+        </div>
+        <div class="expl-box blue">
+          <h4>Why the epidemic ends</h4>
+          <p>S falls below N/R&#8320; — not because everyone is infected, but because the susceptible pool is too small to sustain chains of transmission. Some susceptibles survive even after the epidemic ends. The final attack rate is determined implicitly by R&#8320;.</p>
+        </div>
+      </div>
+      <div>
+        <div class="math-block">
+          <div class="math-label">Endemic SIR (with demography, &#956; = birth = death rate)</div>
+          \[\frac{\mathrm{d}S}{\mathrm{d}t} = \mu N - \frac{\beta SI}{N} - \mu S\]
+          <div class="math-bio">&#956;N adds new susceptibles (births) every day, exactly balancing &#956;S removed by mortality. S is continuously replenished — the disease never runs out of fuel.</div>
+        </div>
+        <div class="expl-box orange">
+          <h4>Why the disease persists</h4>
+          <p>Births produce new susceptible individuals (unvaccinated newborns) at rate &#956;N per day. These refill S back to the threshold 1/R&#8320;. The disease circulates at equilibrium I* — never exploding (not enough fuel) and never dying (always enough fuel).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 3a.</strong> Left: epidemic SIR — S depletes, epidemic dies out, I&#8594;0. Right: endemic SIR with demography — S stabilises at S*=1/R&#8320;, I stabilises at I* (damped oscillations settling to equilibrium). The sole structural difference is the &#956;N birth term.</div>
+</div>
+
+<!-- Figure 3b — Interactive epidemic vs endemic -->
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 3b — Interactive: epidemic vs endemic comparison</h3>
+    <span>Toggle demography on/off — same R&#8320;, different long-term outcome</span>
+  </div>
+  <div class="chart-controls">
+    <div class="ctrl-row">
+      <span class="ctrl-label"><code>R&#8320;</code></span>
+      <input type="range" id="f3b-r0" min="15" max="120" value="50" oninput="drawF3b()">
+      <span class="ctrl-val" id="f3b-r0v">5.0</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label"><code>&#956;</code> birth/death rate</span>
+      <input type="range" id="f3b-mu" min="1" max="15" value="3" oninput="drawF3b()">
+      <span class="ctrl-val" id="f3b-muv">0.003</span>
+    </div>
+  </div>
+  <div class="stat-strip">
+    <div class="stat-cell sc-blue"><div class="sc-label">R&#8320;</div><div class="sc-val" id="f3b-r0stat">5.0</div></div>
+    <div class="stat-cell sc-teal"><div class="sc-label">S* = 1/R&#8320;</div><div class="sc-val" id="f3b-sstar">20%</div></div>
+    <div class="stat-cell sc-orange"><div class="sc-label">I* endemic level</div><div class="sc-val" id="f3b-istar">—</div></div>
+    <div class="stat-cell sc-red"><div class="sc-label">Epidemic final AR</div><div class="sc-val" id="f3b-ar">—</div></div>
+  </div>
+  <div class="chart-inner">
+    <div class="tab-row" id="f3b-tab-row">
+      <button class="tbtn active" data-tab="si" onclick="f3bTab('si')">S(t) and I(t)</button>
+      <button class="tbtn" data-tab="phase" onclick="f3bTab('phase')">Phase portrait (S vs I)</button>
+    </div>
+    <div id="f3b-tab-si" class="tpanel active" style="height:260px;position:relative"><canvas id="f3b-canvas-si"></canvas></div>
+    <div id="f3b-tab-phase" class="tpanel" style="height:260px;position:relative"><canvas id="f3b-canvas-phase"></canvas></div>
+    <div class="legend-row">
+      <span class="leg-item"><span class="leg-swatch" style="background:#c9620a"></span> I(t) epidemic (no &#956;)</span>
+      <span class="leg-item"><span class="leg-swatch" style="background:#6038a0"></span> I(t) endemic (with &#956;)</span>
+      <span class="leg-item"><span class="leg-swatch dash" style="--color:#c9620a"></span> S(t) epidemic</span>
+      <span class="leg-item"><span class="leg-swatch dash" style="--color:#6038a0"></span> S(t) endemic</span>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 3b.</strong> Same R&#8320;, two different outcomes. Without demography (orange/dashed): epidemic peak then extinction. With demography (purple): initial wave followed by damped oscillations that settle at (S*, I*). Phase portrait shows the spiral convergence to the endemic fixed point.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 4 — I* AND S*
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="sec-head" id="sec-istar">
+  <div class="sec-num">4</div>
+  <h2>I* and S* — The Endemic Equilibrium Explained</h2>
+  <p>At equilibrium, births exactly replenish what infections consume, and recoveries exactly match new infections. These balance conditions uniquely determine \(S^*\) and \(I^*\).</p>
+</div>
+
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 4 — Endemic equilibrium: I* and S* with biological derivation</h3>
+  </div>
+  <div class="fig-body">
+    <div class="fig-svg-wrap">
+      <svg viewBox="0 0 840 300" width="840" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+        <rect width="840" height="300" fill="#fafaf7"/>
+        <text x="420" y="26" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1a1a16">Endemic equilibrium — where I* and S* come from</text>
+
+        <!-- LEFT: S vs time settling to S* -->
+        <line x1="60" y1="240" x2="360" y2="240" stroke="#1a1a16" stroke-width="1.2"/>
+        <line x1="60" y1="50" x2="60" y2="244" stroke="#1a1a16" stroke-width="1.2"/>
+        <polygon points="360,235 367,240 360,245" fill="#1a1a16"/>
+        <text x="372" y="244" font-size="10" fill="#3d3c35">time</text>
+        <text x="42" y="58" font-size="9.5" fill="#3d3c35" text-anchor="middle">S(t)</text>
+        <!-- S path settles to S* -->
+        <path d="M62,68 C90,72 120,86 150,106 C175,122 195,138 215,152 C235,165 252,172 268,178 C284,183 300,183 320,183 C340,183 355,183 360,183"
+              fill="none" stroke="#1e6bb0" stroke-width="2" stroke-dasharray="6,4"/>
+        <!-- S* equilibrium line -->
+        <line x1="60" y1="183" x2="358" y2="183" stroke="#1e6bb0" stroke-width="1.2" stroke-dasharray="3,5" opacity="0.7"/>
+        <text x="364" y="187" font-size="9.5" fill="#1e6bb0" font-weight="700">S*</text>
+        <text x="60" y="257" font-size="9" fill="#6b6a60">S stabilises at S* = 1/R&#8320; = N(&#947;+&#956;)/&#946;</text>
+
+        <!-- Births arrow into S box -->
+        <rect x="88" y="262" width="56" height="26" rx="6" fill="#e8f2fb" stroke="#1e6bb0" stroke-width="1"/>
+        <text x="116" y="279" text-anchor="middle" font-size="9" fill="#0a5c96" font-weight="700">&#956;N births</text>
+        <line x1="116" y1="262" x2="116" y2="244" stroke="#1e6bb0" stroke-width="1.2" marker-end="url(#arrowBlue)"/>
+        <text x="126" y="254" font-size="8.5" fill="#0a5c96">replenish S</text>
+
+        <!-- RIGHT: I vs time settling to I* -->
+        <line x1="460" y1="240" x2="780" y2="240" stroke="#1a1a16" stroke-width="1.2"/>
+        <line x1="460" y1="50" x2="460" y2="244" stroke="#1a1a16" stroke-width="1.2"/>
+        <polygon points="780,235 787,240 780,245" fill="#1a1a16"/>
+        <text x="792" y="244" font-size="10" fill="#3d3c35">time</text>
+        <text x="442" y="58" font-size="9.5" fill="#3d3c35" text-anchor="middle">I(t)</text>
+        <!-- I(t) with initial wave then damp to I* -->
+        <path d="M462,238 C472,234 483,220 498,198 C513,175 528,155 545,143 C558,133 566,130 576,132 C586,135 594,144 608,162 C620,176 632,196 645,212 C655,222 665,226 676,224 C687,222 694,217 702,214 C710,211 718,210 728,210 C738,210 755,210 775,210"
+              fill="rgba(201,98,10,.12)" stroke="#c9620a" stroke-width="2.2"/>
+        <!-- I* line -->
+        <line x1="460" y1="210" x2="778" y2="210" stroke="#c9620a" stroke-width="1.2" stroke-dasharray="3,5" opacity="0.7"/>
+        <text x="784" y="214" font-size="9.5" fill="#c9620a" font-weight="700">I*</text>
+        <text x="460" y="257" font-size="9" fill="#6b6a60">I stabilises at I* = &#956;(R&#8320;&#8722;1)/&#946;</text>
+
+        <!-- Why I*>0 box -->
+        <rect x="475" y="262" width="118" height="26" rx="6" fill="#fdf0e6" stroke="#c9620a" stroke-width="1"/>
+        <text x="534" y="279" text-anchor="middle" font-size="9" fill="#c9620a" font-weight="700">R&#8320;&gt;1 &#8658; I* &gt; 0</text>
+
+        <defs>
+          <marker id="arrowBlue" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M1,1 L7,4 L1,7" fill="none" stroke="#1e6bb0" stroke-width="1.5"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="math-block">
+          <div class="math-label">Solving for S* — set dS/dt = 0 at equilibrium</div>
+          \[ \mu N - \frac{\beta S^* I^*}{N} - \mu S^* = 0 \]
+          \[ \text{and } \frac{\mathrm{d}I}{\mathrm{d}t} = 0: \quad \frac{\beta S^*}{N} = \gamma + \mu \]
+          \[ \therefore \quad S^* = \frac{N(\gamma + \mu)}{\beta} = \frac{N}{\mathcal{R}_0} \]
+          <div class="math-bio">S* is the susceptible fraction at which R&#8337; = 1 permanently. Births replenish exactly what infections consume. The same threshold that marks the epidemic peak becomes a fixed point in the endemic model.</div>
+        </div>
+      </div>
+      <div>
+        <div class="math-block">
+          <div class="math-label">Solving for I* — substitute S* into dS/dt = 0</div>
+          \[ I^* = \frac{\mu N (N - S^*)}{N \beta S^* / N} = \frac{\mu(\mathcal{R}_0 - 1)}{\beta} \]
+          <div class="math-bio">I* is the number of infectious individuals that "burns through" exactly as many susceptibles as births create each day. Exists only when R&#8320; &gt; 1. When R&#8320; = 1, I* = 0 — the borderline case. Larger R&#8320; means higher I* and more circulating disease year-round.</div>
+        </div>
+        <div class="expl-box orange" style="margin-top:.75rem">
+          <h4>What I* means physically</h4>
+          <ul>
+            <li>I* is the "maintenance level" — constant background infection</li>
+            <li>Think: measles in unvaccinated populations before eradication efforts</li>
+            <li>I* depends on &#956; (birth rate) — faster population turnover means higher I*</li>
+            <li>Vaccination reduces effective R&#8320;, lowering I* toward zero</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <button class="det-btn" onclick="det('spiral')">Why does the endemic system spiral to (S*, I*) rather than going straight there? <span class="di">&#9658;</span></button>
+    <div class="det-body" id="spiral">
+      <p>Plot S(t) on the x-axis and I(t) on the y-axis, ignoring time — the "phase portrait." The solution traces a clockwise spiral toward (S*, I*). This happens because of the time lag between infection and recovery. When I is large, S depletes rapidly below S* — then the disease decelerates and I falls below I* — then births rebuild S above S* — then the disease accelerates again. Each oscillation is smaller than the last (with &#956; &gt; 0 providing damping) until the system settles at the fixed point. Without demography (&#956; = 0), the spiral is undamped — neutral orbits that never converge. This is why endemic diseases show regular cyclical epidemic waves (measles every 2–3 years, whooping cough every 3–5 years) even in steady state.</p>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 4.</strong> S(t) settles at S* = N/R&#8320; (blue) and I(t) settles at I* = &#956;(R&#8320;&#8722;1)/&#946; (orange). Both equilibria are derived by setting the time derivatives to zero simultaneously. I* exists only when R&#8320; &gt; 1.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 5 — CONTROL STRATEGIES
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="sec-head" id="sec-control">
+  <div class="sec-num">5</div>
+  <h2>Control Strategies — All Roads Lead to R&#8337; &lt; 1</h2>
+  <p>Every intervention maps onto exactly one of three parameters: reducing \(\beta\), increasing \(\gamma\), or reducing \(S/N\). The goal is always \(\mathcal{R}_e = \mathcal{R}_0 \times S/N < 1\).</p>
+</div>
+
+<!-- Figure 5a — Static SVG matching image 3 exactly -->
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 5a — Control strategies: all roads lead to R&#8337; &lt; 1</h3>
+    <span>Replication of notebook diagram</span>
+  </div>
+  <div class="fig-body">
+    <div class="fig-svg-wrap">
+      <svg viewBox="0 0 820 440" width="820" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+        <rect width="820" height="440" fill="#fafaf7"/>
+        <text x="410" y="28" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1a1a16">Control strategies — all roads lead to R&#8337; &lt; 1</text>
+
+        <!-- Central goal box -->
+        <rect x="310" y="170" width="200" height="70" rx="12" fill="#e6f5f2" stroke="#0a7a6a" stroke-width="1.8"/>
+        <text x="410" y="196" text-anchor="middle" font-size="12" font-weight="700" fill="#0a7a6a">Goal: R&#8337; &lt; 1</text>
+        <text x="410" y="212" text-anchor="middle" font-size="10" fill="#0a7a6a">each case causes &lt;1 new case</text>
+        <text x="410" y="226" text-anchor="middle" font-size="9.5" fill="#0a7a6a">epidemic declines and ends</text>
+
+        <!-- Vaccination (top left) -->
+        <rect x="60" y="60" width="185" height="65" rx="10" fill="#e8f2fb" stroke="#0a5c96" stroke-width="1.5"/>
+        <text x="152" y="85" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0a5c96">Vaccination</text>
+        <text x="152" y="101" text-anchor="middle" font-size="9.5" fill="#0a5c96">S &#8594; R directly (bypass I)</text>
+        <text x="152" y="115" text-anchor="middle" font-size="9" fill="#3b82c4">reduces S/N</text>
+        <!-- Arrow vaccination -> center -->
+        <path d="M200,125 L310,190" fill="none" stroke="#0a5c96" stroke-width="1.4" marker-end="url(#arrowBlue2)"/>
+        <text x="248" y="155" font-size="9" fill="#0a5c96" transform="rotate(-28,248,155)">&#8595; S/N</text>
+
+        <!-- Masks/distancing (top right) -->
+        <rect x="575" y="60" width="185" height="65" rx="10" fill="#f0ebf8" stroke="#6038a0" stroke-width="1.5"/>
+        <text x="667" y="85" text-anchor="middle" font-size="11.5" font-weight="700" fill="#6038a0">Masks / distancing</text>
+        <text x="667" y="101" text-anchor="middle" font-size="9.5" fill="#6038a0">fewer effective contacts</text>
+        <text x="667" y="115" text-anchor="middle" font-size="9" fill="#6038a0">reduces &#946;</text>
+        <!-- Arrow masks -> center -->
+        <path d="M620,125 L510,190" fill="none" stroke="#6038a0" stroke-width="1.4" marker-end="url(#arrowPurple)"/>
+        <text x="570" y="153" font-size="9" fill="#6038a0" transform="rotate(28,570,153)">&#8595; &#946;</text>
+
+        <!-- Isolation (left middle) -->
+        <rect x="40" y="215" width="185" height="65" rx="10" fill="#fef7e6" stroke="#a06a00" stroke-width="1.5"/>
+        <text x="132" y="240" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a06a00">Isolation / quarantine</text>
+        <text x="132" y="256" text-anchor="middle" font-size="9.5" fill="#a06a00">removes I from contacts</text>
+        <text x="132" y="270" text-anchor="middle" font-size="9" fill="#a06a00">reduces &#946;</text>
+        <!-- Arrow isolation -> center -->
+        <path d="M225,248 L310,210" fill="none" stroke="#a06a00" stroke-width="1.4" marker-end="url(#arrowAmber)"/>
+        <text x="262" y="236" font-size="9" fill="#a06a00">&#8595; &#946;</text>
+
+        <!-- Treatment (bottom left) -->
+        <rect x="60" y="340" width="185" height="65" rx="10" fill="#eaf6ea" stroke="#2a7a2a" stroke-width="1.5"/>
+        <text x="152" y="365" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2a7a2a">Treatment</text>
+        <text x="152" y="381" text-anchor="middle" font-size="9.5" fill="#2a7a2a">faster recovery, shorter I</text>
+        <text x="152" y="395" text-anchor="middle" font-size="9" fill="#2a7a2a">increases &#947;</text>
+        <!-- Arrow treatment -> center -->
+        <path d="M200,340 L340,240" fill="none" stroke="#2a7a2a" stroke-width="1.4" marker-end="url(#arrowGreen2)"/>
+        <text x="258" y="302" font-size="9" fill="#2a7a2a" transform="rotate(-42,258,302)">&#8593; &#947;</text>
+
+        <!-- Surveillance (bottom right) -->
+        <rect x="575" y="340" width="185" height="65" rx="10" fill="#fbeaea" stroke="#b03030" stroke-width="1.5"/>
+        <text x="667" y="365" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b03030">Surveillance</text>
+        <text x="667" y="381" text-anchor="middle" font-size="9.5" fill="#b03030">detect early, act faster</text>
+        <text x="667" y="395" text-anchor="middle" font-size="9" fill="#b03030">enables &#8595; &#946;, &#8593; &#947;</text>
+        <!-- Arrow surveillance -> center -->
+        <path d="M620,340 L480,240" fill="none" stroke="#b03030" stroke-width="1.4" marker-end="url(#arrowRed3)"/>
+        <text x="555" y="298" font-size="9" fill="#b03030" transform="rotate(42,555,298)">&#8595; &#946;, &#8593; &#947;</text>
+
+        <!-- Central formula below goal box -->
+        <text x="410" y="262" text-anchor="middle" font-size="9.5" fill="#3d3c35">R&#8337; = R&#8320; &#215; (S/N) &#8594; reduce R&#8320; or reduce S/N</text>
+
+        <!-- Herd immunity note at bottom -->
+        <rect x="260" y="416" width="300" height="20" rx="5" fill="none" stroke="#d8d5c8" stroke-width="1"/>
+        <text x="410" y="430" text-anchor="middle" font-size="9.5" fill="#6b6a60">Herd immunity threshold = 1 &#8722; 1/R&#8320;&nbsp;&nbsp;e.g. R&#8320; = 4 &#8594; need 75% immune to stop spread</text>
+
+        <defs>
+          <marker id="arrowBlue2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="#0a5c96" stroke-width="1.5"/></marker>
+          <marker id="arrowPurple" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="#6038a0" stroke-width="1.5"/></marker>
+          <marker id="arrowAmber" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="#a06a00" stroke-width="1.5"/></marker>
+          <marker id="arrowGreen2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="#2a7a2a" stroke-width="1.5"/></marker>
+          <marker id="arrowRed3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="#b03030" stroke-width="1.5"/></marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="math-block">
+      <div class="math-label">The unified control equation</div>
+      \[ \mathcal{R}_e = \underbrace{\frac{\beta}{\gamma}}_{\mathcal{R}_0} \times \frac{S}{N} < 1 \]
+      \[ \text{Herd immunity threshold: } \quad v^* = 1 - \frac{1}{\mathcal{R}_0} \]
+      <div class="math-bio">Every intervention targets one of these three quantities: &#946; (transmission rate), &#947; (recovery rate), or S/N (susceptible fraction). Vaccination reduces S/N directly. Masks reduce &#946;. Treatment increases &#947;. Surveillance enables faster implementation of all three.</div>
+    </div>
+
+    <!-- HIT bars -->
+    <h4 style="font-size:.85rem;font-weight:700;color:var(--ink);margin:1.25rem 0 .75rem">Herd immunity thresholds for real diseases</h4>
+    <div id="hit-bars"></div>
+  </div>
+  <div class="fig-caption"><strong>Figure 5a.</strong> Five interventions, one goal: R&#8337; &lt; 1. Vaccination and isolation work by reducing S/N or effective &#946;; treatment works by increasing &#947;; masks/distancing reduce &#946;; surveillance amplifies all of the above by enabling faster response.</div>
+</div>
+
+<!-- Figure 5b — Interactive control scenarios -->
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 5b — Interactive: intervention scenarios applied at day 40</h3>
+    <span>Combine strategies — watch epidemic curve respond</span>
+  </div>
+  <div class="chart-controls">
+    <div class="ctrl-row">
+      <span class="ctrl-label">&#946; reduction (masks/isolation) %</span>
+      <input type="range" id="f5b-mask" min="0" max="80" value="0" oninput="drawF5b()">
+      <span class="ctrl-val" id="f5b-mv">0%</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">&#947; increase (treatment) %</span>
+      <input type="range" id="f5b-treat" min="0" max="100" value="0" oninput="drawF5b()">
+      <span class="ctrl-val" id="f5b-tv">0%</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Vaccination coverage %</span>
+      <input type="range" id="f5b-vacc" min="0" max="90" value="0" oninput="drawF5b()">
+      <span class="ctrl-val" id="f5b-vv">0%</span>
+    </div>
+  </div>
+  <div class="stat-strip">
+    <div class="stat-cell sc-blue"><div class="sc-label">R&#8320; baseline</div><div class="sc-val">5.00</div></div>
+    <div class="stat-cell sc-teal"><div class="sc-label">R&#8337; post-intervention</div><div class="sc-val" id="f5b-re">5.00</div></div>
+    <div class="stat-cell sc-orange"><div class="sc-label">Peak reduction</div><div class="sc-val" id="f5b-pred">0%</div></div>
+    <div class="stat-cell sc-red"><div class="sc-label">Status</div><div class="sc-val" id="f5b-status" style="font-size:1rem">Spreading</div></div>
+  </div>
+  <div class="chart-inner">
+    <div class="chart-area" style="height:280px"><canvas id="f5b-canvas"></canvas></div>
+    <div class="legend-row">
+      <span class="leg-item"><span class="leg-swatch" style="background:#aaa;opacity:.6"></span> No intervention (baseline)</span>
+      <span class="leg-item"><span class="leg-swatch" style="background:#0a5c96"></span> With intervention (from day 40)</span>
+      <span class="leg-item"><span class="leg-swatch" style="background:#b03030"></span> Intervention starts (day 40)</span>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 5b.</strong> Gray = no intervention baseline. Blue = combined interventions applied from day 40. The vertical red line marks the start of intervention. Combine all three sliders to see compound effects.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 6 — ALL SCENARIOS
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="sec-head" id="sec-scenarios">
+  <div class="sec-num">6</div>
+  <h2>All Possible Scenarios — Systematic Overview</h2>
+  <p>Every qualitatively distinct behaviour of the SIR model, with the parameter regime that produces it, the biological meaning, and an illustrative simulation.</p>
+</div>
+
+<div class="fig-card">
+  <div class="fig-title-bar">
+    <h3>Figure 6 — Scenario gallery: all SIR regimes</h3>
+    <span>Select a scenario to load its parameters and see the simulation</span>
+  </div>
+  <div class="fig-body">
+    <div class="tab-row" id="sc-tab-row">
+      <button class="tbtn active" data-key="no_epidemic" onclick="loadScenario('no_epidemic',this)">No epidemic</button>
+      <button class="tbtn" data-key="mild" onclick="loadScenario('mild',this)">Mild epidemic</button>
+      <button class="tbtn" data-key="severe" onclick="loadScenario('severe',this)">Severe epidemic</button>
+      <button class="tbtn" data-key="herd" onclick="loadScenario('herd',this)">Herd immunity</button>
+      <button class="tbtn" data-key="endemic" onclick="loadScenario('endemic',this)">Endemic</button>
+      <button class="tbtn" data-key="eradication" onclick="loadScenario('eradication',this)">Eradication</button>
+      <button class="tbtn" data-key="reemergence" onclick="loadScenario('reemergence',this)">Re-emergence</button>
+    </div>
+
+    <div id="scenario-desc" style="padding:.9rem 1.1rem;background:var(--bg2);border:1px solid var(--rule);border-radius:var(--radius);margin-bottom:1rem;font-size:.85rem;color:var(--ink2);line-height:1.7"></div>
+
+    <div id="scenario-math" style="margin-bottom:.75rem"></div>
+
+    <div class="stat-strip" style="border:1px solid var(--rule);border-radius:var(--radius) var(--radius) 0 0">
+      <div class="stat-cell sc-blue"><div class="sc-label">R&#8320;</div><div class="sc-val" id="sc-r0">—</div></div>
+      <div class="stat-cell sc-orange"><div class="sc-label">Peak I(t)</div><div class="sc-val" id="sc-peak">—</div></div>
+      <div class="stat-cell sc-teal"><div class="sc-label">Final attack rate</div><div class="sc-val" id="sc-far">—</div></div>
+      <div class="stat-cell sc-red"><div class="sc-label">Outcome</div><div class="sc-val" id="sc-outcome" style="font-size:.9rem">—</div></div>
+    </div>
+    <div class="chart-area" style="height:270px;border:1px solid var(--rule);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:.75rem"><canvas id="sc-canvas"></canvas></div>
+    <div class="legend-row">
+      <span class="leg-item"><span class="leg-swatch" style="background:#0a5c96"></span> S(t)</span>
+      <span class="leg-item"><span class="leg-swatch" style="background:#c9620a"></span> I(t)</span>
+      <span class="leg-item"><span class="leg-swatch" style="background:#0a7a6a"></span> R(t)</span>
+      <span class="leg-item"><span class="leg-swatch dash" style="--color:#b03030"></span> S = 1/R&#8320; threshold</span>
+    </div>
+  </div>
+  <div class="fig-caption"><strong>Figure 6.</strong> Seven qualitatively distinct SIR scenarios. Each demonstrates a different biological regime. Use the tabs to explore how the system behaves under different parameter combinations and initial conditions.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 7 — NOTATION REFERENCE
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="sec-head" id="sec-reference">
+  <div class="sec-num">7</div>
+  <h2>Complete Notation Reference</h2>
+  <p>Every symbol, with its mathematical definition, biological meaning, and the interventions that change it.</p>
+</div>
+
+<div class="fig-card">
+  <div class="fig-body" style="padding:1.25rem">
+    <div class="ntable-wrap">
+      <table class="ntable">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Definition</th>
+            <th>Biological meaning, context, and what changes it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>S(t)</td>
+            <td>Susceptibles at time t</td>
+            <td>Individuals with no immunity. The "fuel" of the epidemic. Falls as the epidemic progresses; replenished by births (&#956;N) in endemic models. Large S means rapid epidemic growth.</td>
+          </tr>
+          <tr>
+            <td>I(t)</td>
+            <td>Infectious at time t</td>
+            <td>Currently infected AND transmitting. The epidemic curve is I(t). The area under I(t) = total person-days of infectiousness. Peak of I(t) coincides with S = N/R&#8320;.</td>
+          </tr>
+          <tr>
+            <td>R(t)</td>
+            <td>Recovered at time t</td>
+            <td>Permanently immune (in SIR). R only increases. R(&#8734;) = total epidemic size. Includes both recovered-immune and disease-induced deaths in the basic SIR formulation.</td>
+          </tr>
+          <tr>
+            <td>N</td>
+            <td>S + I + R</td>
+            <td>Total population, constant in basic SIR. The /N term in &#946;SI/N scales transmission so that doubling population size does not double R&#8320;.</td>
+          </tr>
+          <tr>
+            <td>&#946;</td>
+            <td>Transmission rate (day&#8315;&#185;)</td>
+            <td>Contact rate &#215; probability of transmission per contact. Reduced by: masks (&#8595; probability), distancing (&#8595; contacts), isolation (&#8595; contacts of infectious people), quarantine (&#8595; contacts of exposed). Increased by: crowding, indoor settings, high-risk behaviours.</td>
+          </tr>
+          <tr>
+            <td>&#947;</td>
+            <td>Recovery rate (day&#8315;&#185;)</td>
+            <td>Fraction of I recovering per day. 1/&#947; = mean infectious period in days. Increased by: antiviral treatment, supportive care that shortens illness. Flu: &#947;&#8776;0.2&#8211;0.33. COVID-19: &#947;&#8776;0.1. Measles: &#947;&#8776;0.125.</td>
+          </tr>
+          <tr>
+            <td>&#956;</td>
+            <td>Birth/death rate (day&#8315;&#185;)</td>
+            <td>Rate of demographic turnover. &#956;N new susceptibles born per day; everyone dies at rate &#956;. For humans: &#956; &#8776; 0.000039/day (life expectancy 70 yr). Critical for endemic modelling; negligible for short outbreaks.</td>
+          </tr>
+          <tr>
+            <td>\(\mathcal{R}_0\)</td>
+            <td>&#946;/&#947;</td>
+            <td>Average secondary cases from one case in a fully susceptible population. R&#8320; &lt; 1: no epidemic. R&#8320; &gt; 1: epidemic possible. Not a fixed property of the pathogen — context-dependent (crowding, contact patterns, host immunity).</td>
+          </tr>
+          <tr>
+            <td>\(\mathcal{R}_e(t)\)</td>
+            <td>R&#8320; &#215; S(t)/N</td>
+            <td>Actual secondary cases per case right now. Starts at R&#8320;, falls as S depletes. R&#8337; = 1 at epidemic peak. R&#8337; &lt; 1 means epidemic is declining. Used by public health agencies for real-time outbreak assessment.</td>
+          </tr>
+          <tr>
+            <td>1/R&#8320;</td>
+            <td>&#947;/&#946;</td>
+            <td>Critical susceptible threshold. Epidemic peaks when S/N = 1/R&#8320;. Endemic S* = 1/R&#8320; permanently. The higher R&#8320;, the lower this threshold — more immunity is needed to stop transmission.</td>
+          </tr>
+          <tr>
+            <td>S*</td>
+            <td>(&#947;+&#956;)/&#946; = 1/R&#8320;</td>
+            <td>Susceptible fraction at endemic equilibrium. Identical to 1/R&#8320;. Maintained by births topping up what infections consume. Same value as the epidemic threshold — the system is balanced here.</td>
+          </tr>
+          <tr>
+            <td>I*</td>
+            <td>&#956;(R&#8320;&#8722;1)/&#946;</td>
+            <td>Infectious fraction at endemic equilibrium. The "maintenance level" of disease. Exists only when R&#8320; &gt; 1. Higher R&#8320; and higher &#956; (faster demographic turnover) both increase I*. Vaccination reduces effective R&#8320; and drives I* toward zero.</td>
+          </tr>
+          <tr>
+            <td>v*</td>
+            <td>1 &#8722; 1/R&#8320;</td>
+            <td>Herd immunity threshold — minimum vaccination coverage to prevent epidemic. Measles (R&#8320;&#8776;15): v* = 93%. COVID-19 original (R&#8320;&#8776;3): v* = 67%. Flu (R&#8320;&#8776;1.3): v* = 23%. Omicron (R&#8320;&#8776;10): v* = 90%.</td>
+          </tr>
+          <tr>
+            <td>dX/dt</td>
+            <td>Rate of change of X</td>
+            <td>How fast compartment X is changing this instant. dI/dt &gt; 0: epidemic growing. dI/dt = 0: peak. dI/dt &lt; 0: epidemic declining. The sign of dI/dt is entirely determined by whether S &gt; or &lt; N/R&#8320;.</td>
+          </tr>
+          <tr>
+            <td>R(&#8734;)</td>
+            <td>Final epidemic size</td>
+            <td>Total fraction of population ever infected, at end of epidemic. Implicitly determined by R&#8320;. For R&#8320;=2: R(&#8734;)&#8776;80%. For R&#8320;=5: R(&#8734;)&#8776;99.9%. Always less than 100% (some S survive the epidemic).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrapper -->
+
+<footer>
+  <p>Abdul Ali — PhD Student in Infectious Disease Ecology &nbsp;&#183;&nbsp; SIR Model Figures &amp; Scenarios</p>
+  <a href="../../index.html#courses">&#8592; Back to Tools</a>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═════════════════════════════════════════════════════════════════════ -->
+<script>
+// ── SIR Solver ─────────────────────────────────────────────────────
+function sir(beta, gamma, mu, days, I0frac, S0override) {
+  const dt = 0.25, steps = Math.round(days/dt);
+  let s = S0override !== undefined ? S0override : 1 - I0frac;
+  let i = I0frac, r = 1 - s - i;
+  const ts=[], ss=[], ii=[], rr=[];
+  for(let k=0; k<steps; k++){
+    if(k%4===0){ts.push(k*dt); ss.push(s); ii.push(i); rr.push(r);}
+    const inf = beta*s*i;
+    const rec = gamma*i;
+    s += (mu*(s+i+r) - inf - mu*s)*dt;
+    i += (inf - rec - mu*i)*dt;
+    r += (rec - mu*r)*dt;
+    s=Math.max(0,s); i=Math.max(0,i); r=Math.max(0,Math.min(1,r));
+  }
+  return {t:ts,s:ss,i:ii,r:rr};
+}
+
+// ── Chart factory ──────────────────────────────────────────────────
+function makeChart(id, datasets, opts={}) {
+  const el = document.getElementById(id);
+  if(!el) return null;
+  const ctx = el.getContext('2d');
+  return new Chart(ctx, {
+    type:'line',
+    data:{labels:[], datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{title:{display:true,text:'Days',font:{size:10}},ticks:{maxTicksLimit:10,font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{min:0,title:{display:true,text:opts.yLabel||'Fraction of population',font:{size:10}},ticks:{callback:v=>(v*100).toFixed(1)+'%',font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}},
+        ...(opts.y2 ? {y2:{type:'linear',position:'right',min:0,title:{display:true,text:opts.y2Label||'',font:{size:9}},ticks:{font:{size:9}},grid:{drawOnChartArea:false}}} : {})
+      },
+      ...opts.extra
+    }
+  });
+}
+
+// ── FIGURE 1b ─────────────────────────────────────────────────────
+let c1b;
+function initF1b(){
+  c1b = makeChart('f1b-canvas',[
+    {label:'S(t)',data:[],borderColor:'#1e6bb0',borderWidth:2,borderDash:[7,5],pointRadius:0,tension:.3,fill:false},
+    {label:'I(t)',data:[],borderColor:'#c9620a',backgroundColor:'rgba(201,98,10,.12)',borderWidth:2.5,pointRadius:0,tension:.3,fill:true},
+    {label:'S=1/R0',data:[],borderColor:'#b03030',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false}
+  ],{yLabel:'Fraction of population'});
+}
+function drawF1b(){
+  const beta=parseInt(document.getElementById('f1b-beta').value)/100;
+  const gamma=parseInt(document.getElementById('f1b-gamma').value)/100;
+  document.getElementById('f1b-bv').textContent=beta.toFixed(2);
+  document.getElementById('f1b-gv').textContent=gamma.toFixed(2);
+  const r0=beta/gamma;
+  document.getElementById('f1b-r0').textContent=r0.toFixed(2);
+  document.getElementById('f1b-thresh').textContent=(100/r0).toFixed(1)+'%';
+  const res=sir(beta,gamma,0,200,0.001);
+  const peak=Math.max(...res.i);
+  const far=res.r[res.r.length-1];
+  document.getElementById('f1b-peak').textContent=(peak*100).toFixed(1)+'%';
+  document.getElementById('f1b-far').textContent=(far*100).toFixed(1)+'%';
+  const thr=res.t.map(()=>1/r0);
+  if(c1b){
+    c1b.data.labels=res.t.map(Math.round);
+    c1b.data.datasets[0].data=res.s;
+    c1b.data.datasets[1].data=res.i;
+    c1b.data.datasets[2].data=thr;
+    c1b.update('none');
+  }
+}
+
+// ── FIGURE 2b ─────────────────────────────────────────────────────
+let c2b;
+function initF2b(){
+  c2b = new Chart(document.getElementById('f2b-canvas').getContext('2d'),{
+    type:'line',
+    data:{labels:[],datasets:[
+      {label:'Re(t)',data:[],borderColor:'#6038a0',backgroundColor:'rgba(96,56,160,.08)',borderWidth:2.5,pointRadius:0,tension:.3,fill:true,yAxisID:'yRe'},
+      {label:'I(t)',data:[],borderColor:'#c9620a',borderWidth:2,pointRadius:0,tension:.3,fill:false,yAxisID:'yI'},
+      {label:'Re=1',data:[],borderColor:'#b03030',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false,yAxisID:'yRe'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{maxTicksLimit:10,font:{size:9}},grid:{color:'rgba(0,0,0,.04)'},title:{display:true,text:'Days',font:{size:10}}},
+        yRe:{min:0,position:'left',title:{display:true,text:'Re(t)',font:{size:10}},ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}},
+        yI:{min:0,position:'right',title:{display:true,text:'I(t)',font:{size:9}},ticks:{callback:v=>(v*100).toFixed(1)+'%',font:{size:9}},grid:{drawOnChartArea:false}}
+      }}
+  });
+}
+function drawF2b(){
+  const r0=parseInt(document.getElementById('f2b-r0').value)/10;
+  const gamma=parseInt(document.getElementById('f2b-gamma').value)/100;
+  const beta=r0*gamma;
+  document.getElementById('f2b-r0v').textContent=r0.toFixed(1);
+  document.getElementById('f2b-gv').textContent=gamma.toFixed(2);
+  const res=sir(beta,gamma,0,200,0.001);
+  const re=res.s.map(s=>r0*s);
+  const ones=res.t.map(()=>1);
+  if(c2b){
+    c2b.data.labels=res.t.map(Math.round);
+    c2b.data.datasets[0].data=re;
+    c2b.data.datasets[1].data=res.i;
+    c2b.data.datasets[2].data=ones;
+    c2b.options.scales.yRe.max=r0*1.1+.5;
+    c2b.update('none');
+  }
+}
+
+// ── FIGURE 3b ─────────────────────────────────────────────────────
+let c3bSI, c3bPh;
+let f3bState='si';
+function f3bTab(t){
+  f3bState=t;
+  // Show/hide panels
+  document.getElementById('f3b-tab-si').style.display    = t==='si'    ? 'block' : 'none';
+  document.getElementById('f3b-tab-phase').style.display = t==='phase' ? 'block' : 'none';
+  // Update button active state using data-tab attribute
+  document.querySelectorAll('#f3b-tab-row .tbtn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===t);
+  });
+  drawF3b();
+}
+function initF3b(){
+  // Ensure correct initial visibility
+  document.getElementById('f3b-tab-si').style.display    = 'block';
+  document.getElementById('f3b-tab-phase').style.display = 'none';
+  c3bSI=makeChart('f3b-canvas-si',[
+    {label:'I epi',data:[],borderColor:'#c9620a',borderWidth:2,pointRadius:0,tension:.3,fill:false},
+    {label:'I end',data:[],borderColor:'#6038a0',borderWidth:2,pointRadius:0,tension:.3,fill:false},
+    {label:'S epi',data:[],borderColor:'#c9620a',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:.3,fill:false},
+    {label:'S end',data:[],borderColor:'#6038a0',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:.3,fill:false}
+  ]);
+  c3bPh=new Chart(document.getElementById('f3b-canvas-phase').getContext('2d'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Epidemic',data:[],borderColor:'#c9620a',backgroundColor:'rgba(201,98,10,.5)',pointRadius:1.5,showLine:true,tension:0},
+      {label:'Endemic',data:[],borderColor:'#6038a0',backgroundColor:'rgba(96,56,160,.5)',pointRadius:1.5,showLine:true,tension:0},
+      {label:'(S*,I*)',data:[],borderColor:'#b03030',backgroundColor:'#b03030',pointRadius:7,showLine:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{title:{display:true,text:'S(t)',font:{size:10}},ticks:{callback:v=>(v*100).toFixed(0)+'%',font:{size:9}},min:0,max:1},
+              y:{title:{display:true,text:'I(t)',font:{size:10}},ticks:{callback:v=>(v*100).toFixed(2)+'%',font:{size:9}},min:0}}}
+  });
+  drawF3b();
+}
+function drawF3b(){
+  const r0=parseInt(document.getElementById('f3b-r0').value)/10;
+  const mu=parseInt(document.getElementById('f3b-mu').value)/1000;
+  const gamma=0.1, beta=r0*(gamma+mu);
+  document.getElementById('f3b-r0v').textContent=r0.toFixed(1);
+  document.getElementById('f3b-muv').textContent=mu.toFixed(3);
+  document.getElementById('f3b-r0stat').textContent=r0.toFixed(1);
+  document.getElementById('f3b-sstar').textContent=(100/r0).toFixed(1)+'%';
+  const istar=mu*(r0-1)/beta;
+  document.getElementById('f3b-istar').textContent=(istar*100).toFixed(3)+'%';
+  const epi=sir(beta,gamma,0,350,0.001);
+  const end=sir(beta,gamma,mu,600,0.001);
+  document.getElementById('f3b-ar').textContent=(epi.r[epi.r.length-1]*100).toFixed(1)+'%';
+  if(c3bSI){
+    c3bSI.data.labels=end.t.map(Math.round);
+    const maxL=Math.min(epi.i.length,end.i.length);
+    // Pad epidemic arrays with null for remaining endemic time
+    const padI=epi.i.slice(0,maxL).concat(Array(end.i.length-maxL).fill(null));
+    const padS=epi.s.slice(0,maxL).concat(Array(end.s.length-maxL).fill(null));
+    c3bSI.data.datasets[0].data=padI;
+    c3bSI.data.datasets[1].data=end.i;
+    c3bSI.data.datasets[2].data=padS;
+    c3bSI.data.datasets[3].data=end.s;
+    c3bSI.update('none');
+  }
+  if(c3bPh){
+    const phEpi=epi.s.map((s,j)=>({x:s,y:epi.i[j]}));
+    const phEnd=end.s.map((s,j)=>({x:s,y:end.i[j]}));
+    const sstar=(gamma+mu)/beta;
+    c3bPh.data.datasets[0].data=phEpi;
+    c3bPh.data.datasets[1].data=phEnd;
+    c3bPh.data.datasets[2].data=[{x:sstar,y:istar}];
+    c3bPh.update('none');
+  }
+}
+
+// ── FIGURE 5b ─────────────────────────────────────────────────────
+let c5b;
+function initF5b(){
+  c5b=makeChart('f5b-canvas',[
+    {label:'No intervention',data:[],borderColor:'rgba(130,130,130,.6)',borderWidth:1.8,borderDash:[5,3],pointRadius:0,tension:.3,fill:false},
+    {label:'With intervention',data:[],borderColor:'#0a5c96',backgroundColor:'rgba(10,92,150,.1)',borderWidth:2.5,pointRadius:0,tension:.3,fill:true},
+    {label:'Intervention day',data:[],borderColor:'#b03030',borderWidth:1.2,borderDash:[3,3],pointRadius:0,fill:false}
+  ],{yLabel:'I(t) — infectious fraction'});
+  drawF5b();
+}
+function drawF5b(){
+  const maskR=parseInt(document.getElementById('f5b-mask').value)/100;
+  const treatR=parseInt(document.getElementById('f5b-treat').value)/100;
+  const vaccC=parseInt(document.getElementById('f5b-vacc').value)/100;
+  document.getElementById('f5b-mv').textContent=(maskR*100).toFixed(0)+'%';
+  document.getElementById('f5b-tv').textContent=(treatR*100).toFixed(0)+'%';
+  document.getElementById('f5b-vv').textContent=(vaccC*100).toFixed(0)+'%';
+  const b0=0.5,g0=0.1,days=280;
+  const base=sir(b0,g0,0,days,0.001);
+  const pre=sir(b0,g0,0,40,0.001);
+  const s40=pre.s[pre.s.length-1]; const i40=pre.i[pre.i.length-1];
+  const sAfter=Math.max(0,s40*(1-vaccC));
+  const bNew=b0*(1-maskR); const gNew=g0*(1+treatR);
+  const post=sir(bNew,gNew,0,days-40,i40,sAfter);
+  const tFull=[...pre.t,...post.t.map(x=>x+40)];
+  const iFull=[...pre.i,...post.i];
+  const baseI=base.i.slice(0,tFull.length);
+  const peakBase=Math.max(...base.i)*100;
+  const peakInt=Math.max(...iFull)*100;
+  const rePost=(bNew/gNew)*sAfter;
+  document.getElementById('f5b-re').textContent=rePost.toFixed(2);
+  const pred=((peakBase-peakInt)/peakBase*100);
+  document.getElementById('f5b-pred').textContent=pred>0?'-'+pred.toFixed(0)+'%':'0%';
+  const st=document.getElementById('f5b-status');
+  if(rePost<1){st.textContent='Controlled';st.style.color='#0a7a6a';}
+  else if(rePost<2){st.textContent='Slowing';st.style.color='#a06a00';}
+  else{st.textContent='Spreading';st.style.color='#b03030';}
+  const mkr=tFull.map((t,j)=>(Math.round(t)===40||(j>0&&tFull[j-1]<40&&t>=40))?Math.max(...baseI)*1.15:null);
+  if(c5b){
+    c5b.data.labels=tFull.map(Math.round);
+    c5b.data.datasets[0].data=baseI;
+    c5b.data.datasets[1].data=iFull;
+    c5b.data.datasets[2].data=mkr;
+    c5b.update('none');
+  }
+}
+
+// ── FIGURE 6 — Scenarios ──────────────────────────────────────────
+let cSc;
+const SCENARIOS = {
+  no_epidemic:{
+    label:'No Epidemic (R&#8320; &lt; 1)',
+    color:'sl-teal',
+    desc:'When R&#8320; &lt; 1, a single introduced case does not produce sustained transmission. Each case infects fewer than one other person on average. The chain of transmission dies out. No outbreak occurs. This is the target state after successful control.',
+    params:{beta:0.05,gamma:0.1,mu:0,days:150,I0:0.001},
+    outcome:'Dies out',
+    math:'\\( \\mathcal{R}_0 = \\beta/\\gamma = 0.05/0.10 = 0.5 < 1 \\implies \\text{no epidemic} \\)'
+  },
+  mild:{
+    label:'Mild Epidemic (R&#8320; ≈ 1.5)',
+    color:'sl-blue',
+    desc:'R&#8320; between 1 and 2 produces a slow, wide epidemic. The peak is low but the final attack rate can still be substantial. This is typical of influenza-like illnesses in partially immune populations.',
+    params:{beta:0.15,gamma:0.1,mu:0,days:400,I0:0.001},
+    outcome:'Mild wave',
+    math:'\\( \\mathcal{R}_0 = 1.5,\\quad v^* = 1 - 1/1.5 = 33\\% \\text{ vaccination needed} \\)'
+  },
+  severe:{
+    label:'Severe Epidemic (R&#8320; = 5)',
+    color:'sl-orange',
+    desc:'R&#8320; = 5 produces a sharp, tall epidemic peak followed by rapid decline. The epidemic burns through the susceptible population quickly. High peak incidence can overwhelm healthcare systems. This is representative of measles or COVID-19 Alpha variant.',
+    params:{beta:0.5,gamma:0.1,mu:0,days:200,I0:0.001},
+    outcome:'Major epidemic',
+    math:'\\( \\mathcal{R}_0 = 5,\\quad \\text{Peak at } S = N/5 = 20\\%,\\quad v^* = 80\\% \\)'
+  },
+  herd:{
+    label:'Herd immunity — epidemic prevented',
+    color:'sl-teal',
+    desc:'Vaccination has reduced S/N below 1/R&#8320; before the epidemic starts. Even when cases are introduced, R&#8337; = R&#8320; &#215; S/N &lt; 1. No outbreak occurs. The susceptible population is too small to sustain chains of transmission.',
+    params:{beta:0.5,gamma:0.1,mu:0,days:200,I0:0.001,vaccPre:0.82},
+    outcome:'Epidemic prevented',
+    math:'\\( S_0/N = 1 - v = 0.18 < 1/\\mathcal{R}_0 = 0.2 \\implies \\mathcal{R}_e = 5 \\times 0.18 = 0.9 < 1 \\)'
+  },
+  endemic:{
+    label:'Endemic equilibrium (with demography)',
+    color:'sl-blue',
+    desc:'With demographic turnover (births and deaths), the system reaches a stable endemic equilibrium. S stabilises at S* = 1/R&#8320;, and I stabilises at I* = &#956;(R&#8320;&#8722;1)/&#946;. The disease circulates indefinitely at a low, constant level. This is the situation for measles in unvaccinated populations.',
+    params:{beta:0.5,gamma:0.1,mu:0.003,days:800,I0:0.001},
+    outcome:'Endemic equilibrium',
+    math:'\\( S^* = 1/\\mathcal{R}_0,\\quad I^* = \\mu(\\mathcal{R}_0-1)/\\beta \\)'
+  },
+  eradication:{
+    label:'Eradication by vaccination',
+    color:'sl-teal',
+    desc:'Starting from endemic equilibrium (I* &gt; 0), a mass vaccination campaign reduces S below S*. R&#8337; drops below 1. I* is driven to zero — the disease is eradicated. This is what happened with smallpox globally and polio in most regions.',
+    params:{beta:0.5,gamma:0.1,mu:0.002,days:600,I0:0.005,vaccMid:300,vaccLevel:0.85},
+    outcome:'Eradication',
+    math:'\\( \\text{Vaccination at day 300: } S/N \\to 0.15 < S^* = 0.2 \\implies I \\to 0 \\)'
+  },
+  reemergence:{
+    label:'Re-emergence after immunity wanes',
+    color:'sl-red',
+    desc:'After an epidemic, R is high and S is low. If immunity wanes over time (SIRS dynamics — modelled here by slow return to S), susceptibles accumulate again until S exceeds 1/R&#8320;. A second wave occurs. This represents measles outbreaks every few years when enough unvaccinated children have accumulated.',
+    params:{beta:0.5,gamma:0.1,mu:0.005,days:900,I0:0.001},
+    outcome:'Recurrent waves',
+    math:'\\( \\text{Damped oscillations spiral toward } (S^*, I^*) \\text{ — each wave smaller than the last} \\)'
+  }
+};
+let scChart;
+function initSc(){
+  scChart=makeChart('sc-canvas',[
+    {label:'S(t)',data:[],borderColor:'#0a5c96',backgroundColor:'rgba(10,92,150,.06)',borderWidth:2,pointRadius:0,tension:.3,fill:true},
+    {label:'I(t)',data:[],borderColor:'#c9620a',backgroundColor:'rgba(201,98,10,.12)',borderWidth:2.5,pointRadius:0,tension:.3,fill:true},
+    {label:'R(t)',data:[],borderColor:'#0a7a6a',backgroundColor:'rgba(10,122,106,.04)',borderWidth:1.5,pointRadius:0,tension:.3,fill:true},
+    {label:'Threshold',data:[],borderColor:'#b03030',borderWidth:1.2,borderDash:[5,4],pointRadius:0,fill:false}
+  ]);
+  loadScenario('no_epidemic');
+}
+function loadScenario(key, callerBtn){
+  // Update tab buttons safely — callerBtn may be undefined on programmatic calls
+  document.querySelectorAll('#sc-tab-row .tbtn').forEach(b=>b.classList.remove('active'));
+  if(callerBtn){
+    callerBtn.classList.add('active');
+  } else {
+    const match=document.querySelector(`#sc-tab-row [data-key="${key}"]`);
+    if(match) match.classList.add('active');
+  }
+  const sc=SCENARIOS[key];
+  document.getElementById('scenario-desc').textContent=sc.desc.replace(/&#8320;/g,'₀').replace(/&#8722;/g,'−').replace(/&#215;/g,'×').replace(/&#8242;/g,"'").replace(/&#8734;/g,'∞').replace(/&#956;/g,'μ').replace(/&#946;/g,'β').replace(/&#947;/g,'γ');
+  document.getElementById('scenario-math').innerHTML=`<div class="math-block"><div class="math-label">Key equation for this scenario</div>${sc.math}</div>`;
+  MathJax.typesetPromise([document.getElementById('scenario-math')]);
+  const p=sc.params;
+  let s0=p.vaccPre!==undefined ? 1-p.vaccPre-p.I0 : 1-p.I0;
+  const res=sir(p.beta,p.gamma,p.mu||0,p.days,p.I0,s0);
+  // special: eradication — apply vaccination mid-simulation
+  let finalRes=res;
+  if(p.vaccMid!==undefined){
+    const midIdx=Math.round(p.vaccMid/1)*4; // approx
+    // Apply: reduce S by vaccLevel at midpoint
+    if(midIdx<res.s.length){
+      const sAtMid=res.s[midIdx];
+      const newS=Math.max(0,sAtMid*(1-p.vaccLevel));
+      const iAtMid=res.i[midIdx];
+      const post=sir(p.beta,p.gamma,p.mu||0,p.days-p.vaccMid,iAtMid,newS);
+      const preS=res.s.slice(0,midIdx); const preI=res.i.slice(0,midIdx); const preR=res.r.slice(0,midIdx); const preT=res.t.slice(0,midIdx);
+      finalRes={
+        t:[...preT,...post.t.map(x=>x+p.vaccMid)],
+        s:[...preS,...post.s],i:[...preI,...post.i],r:[...preR,...post.r]
+      };
+    }
+  }
+  const r0=p.beta/p.gamma;
+  const peak=Math.max(...finalRes.i);
+  const far=finalRes.r[finalRes.r.length-1];
+  document.getElementById('sc-r0').textContent=r0.toFixed(2);
+  document.getElementById('sc-peak').textContent=(peak*100).toFixed(1)+'%';
+  document.getElementById('sc-far').textContent=(far*100).toFixed(1)+'%';
+  document.getElementById('sc-outcome').textContent=sc.outcome;
+  const thr=finalRes.t.map(()=>Math.min(1/r0,0.999));
+  if(scChart){
+    scChart.data.labels=finalRes.t.map(Math.round);
+    scChart.data.datasets[0].data=finalRes.s;
+    scChart.data.datasets[1].data=finalRes.i;
+    scChart.data.datasets[2].data=finalRes.r;
+    scChart.data.datasets[3].data=thr;
+    scChart.update('none');
+  }
+}
+
+// ── HIT bars ─────────────────────────────────────────────────────
+function buildHIT(){
+  const diseases=[
+    ['Seasonal flu',1.3],['Ebola',2.0],['COVID-19 (original)',3.5],
+    ['COVID-19 (Omicron)',10],['Polio',5.0],['Smallpox',6.0],
+    ['Mumps',7.0],['Chickenpox',10.0],['Measles',15.0]
+  ];
+  const wrap=document.getElementById('hit-bars');
+  if(!wrap)return;
+  wrap.innerHTML=diseases.map(([name,r0])=>{
+    const hit=(1-1/r0)*100;
+    return `<div class="hit-bar">
+      <span class="hit-bar-label">${name} (R&#8320;=${r0})</span>
+      <div class="hit-bar-track"><div class="hit-bar-fill" style="width:${hit}%"></div></div>
+      <span class="hit-bar-val">${hit.toFixed(0)}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Collapsible details ───────────────────────────────────────────
+function det(id){
+  const body=document.getElementById(id);
+  const btn=body.previousElementSibling;
+  const open=body.classList.toggle('open');
+  btn.classList.toggle('open',open);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  initF1b(); drawF1b();
+  initF2b(); drawF2b();
+  initF3b();
+  initF5b();
+  initSc();
+  buildHIT();
+});
+</script>
+</body>
+</html>
