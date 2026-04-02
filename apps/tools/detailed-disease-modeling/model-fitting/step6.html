@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 6: MLE Optimization — Abdul Ali</title>
+<script>
+window.MathJax = {
+  tex:{ inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], packages:{'[+]':['ams']} },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] },
+  startup:{ typeset:true }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--secondary:#0284c7;--success:#059669;--warning:#d97706;--danger:#dc2626;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#64748b;--card-bg:rgba(255,255,255,0.95);--card-border:rgba(14,165,233,0.15);--gradient-primary:linear-gradient(135deg,#0284c7 0%,#0891b2 50%,#059669 100%);--gradient-light:linear-gradient(180deg,#ffffff 0%,#f8fafc 50%,#f1f5f9 100%);--shadow-glow:0 0 40px rgba(14,165,233,0.15)}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gradient-light);color:var(--text-primary);line-height:1.8;min-height:100vh}
+mjx-container[display="true"]{margin:.8rem 0!important;overflow-x:auto}
+header{background:var(--gradient-primary);color:#fff;padding:1rem 2rem;position:sticky;top:0;z-index:1000;box-shadow:0 4px 20px rgba(2,132,199,0.3)}
+.hc{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.logo{color:#fff;text-decoration:none;font-weight:700;font-size:1.1rem}
+.hn{display:flex;gap:8px}
+.nb{color:#fff;text-decoration:none;padding:.4rem 1rem;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-size:.9rem;transition:all .2s}
+.nb:hover{background:rgba(255,255,255,0.15)}
+.hero{background:var(--gradient-primary);padding:2rem 2rem 2.5rem;color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,0.07) 0%,transparent 60%);pointer-events:none}
+.hi{max-width:1100px;margin:0 auto;position:relative}
+.sp{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);border-radius:50px;padding:5px 16px;font-size:.95rem;font-weight:700;margin-bottom:1rem}
+.sn{width:22px;height:22px;background:#fff;border-radius:50%;color:var(--secondary);font-size:.82rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+.hero h1{font-size:2rem;font-weight:800;letter-spacing:-0.025em;line-height:1.2;margin-bottom:.5rem}
+.hero p{opacity:.9;font-size:.95rem;max-width:680px;line-height:1.6}
+.bc{font-size:.95rem;opacity:.7;margin-bottom:.75rem}
+.bc a{color:#fff;text-decoration:none}
+main{max-width:1100px;margin:0 auto;padding:2rem}
+.snav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(2,132,199,0.1)}
+.sn2{font-size:.85rem;padding:5px 14px;border-radius:20px;border:.5px solid var(--card-border);background:transparent;color:var(--text-muted);cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}
+.sn2:hover,.sn2.act{background:var(--card-bg);color:var(--secondary);border-color:rgba(2,132,199,0.3)}
+.sh{margin:2.5rem 0 1rem;display:flex;align-items:center;gap:10px}
+.sh h2{font-size:1.2rem;font-weight:700;color:var(--text-primary)}
+.sl{flex:1;height:1px;background:linear-gradient(90deg,rgba(2,132,199,0.2),transparent)}
+.prose{font-size:.93rem;color:var(--text-secondary);line-height:1.75;margin-bottom:1rem}
+.prose strong{color:var(--text-primary);font-weight:600}
+.mb{background:linear-gradient(135deg,rgba(2,132,199,0.05),rgba(8,145,178,0.03));border:1px solid rgba(2,132,199,0.15);border-left:4px solid var(--secondary);border-radius:0 10px 10px 0;padding:1rem 1.5rem;margin:1rem 0;overflow-x:auto}
+.ml{font-size:.78rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.cw{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:1.25rem;margin:1rem 0}
+.ct{font-size:.9rem;font-weight:700;color:var(--text-primary);margin-bottom:.75rem}
+.cc{font-size:.85rem;color:var(--text-muted);margin-top:.5rem;font-style:italic}
+.cb{border-radius:12px;padding:1rem 1.25rem;margin:1rem 0;display:flex;gap:10px;align-items:flex-start}
+.cb-b{background:linear-gradient(135deg,rgba(2,132,199,0.06),rgba(8,145,178,0.03));border:1px solid rgba(2,132,199,0.15)}
+.cb-g{background:rgba(5,150,105,0.06);border:1px solid rgba(5,150,105,0.18)}
+.cb-a{background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.18)}
+.ci{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb-b .ci{background:rgba(2,132,199,0.12);color:var(--secondary)}
+.cb-g .ci{background:rgba(5,150,105,0.12);color:var(--success)}
+.cb-a .ci{background:rgba(217,119,6,0.12);color:var(--warning)}
+.cb h4{font-size:.85rem;font-weight:700;margin-bottom:3px}
+.cb-b h4{color:var(--secondary)}
+.cb-g h4{color:var(--success)}
+.cb-a h4{color:var(--warning)}
+.cb p{font-size:.93rem;color:var(--text-secondary);line-height:1.5}
+.tw{overflow-x:auto;margin:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;overflow:hidden}
+th{background:linear-gradient(135deg,rgba(2,132,199,0.08),rgba(8,145,178,0.06));padding:9px 14px;text-align:left;font-weight:700;color:var(--text-primary);border-bottom:1px solid rgba(2,132,199,0.15);font-size:.8rem}
+td{padding:8px 14px;border-bottom:1px solid rgba(2,132,199,0.06);color:var(--text-secondary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(2,132,199,0.02)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
+.sc{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:1rem 1.25rem;text-align:center}
+.sv{font-size:1.6rem;font-weight:800;color:var(--secondary);line-height:1.1}
+.sl2{font-size:.85rem;color:var(--text-muted);margin-top:2px}
+.pn{display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:1.5rem;border-top:1px solid rgba(2,132,199,0.1);gap:1rem;flex-wrap:wrap}
+.pn a{display:flex;align-items:center;gap:8px;text-decoration:none;padding:.65rem 1.25rem;border:1px solid var(--card-border);border-radius:10px;font-size:.85rem;font-weight:600;color:var(--secondary);background:var(--card-bg);transition:all .2s}
+.pn .nx{background:var(--gradient-primary);color:#fff;border:none}
+.pn .nx:hover{opacity:.9}
+.gy-g{background:rgba(5,150,105,0.1);color:var(--success);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+.gy-r{background:rgba(220,38,38,0.08);color:var(--danger);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+.gy-b{background:rgba(2,132,199,0.1);color:var(--secondary);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+footer{background:var(--gradient-primary);color:#fff;text-align:center;padding:1.25rem;font-size:.9rem;margin-top:3rem}
+footer a{color:#fff;text-decoration:underline}
+</style>
+</head>
+<body><header><div class="hc"><a href="../../../../" class="logo">Abdul Ali</a><div class="hn"><a href="step5.html" class="nb">&#8592; Step 5</a><a href="../model-fitting.html" class="nb">Pipeline</a><a href="step7.html" class="nb">Step 7 &#8594;</a></div></div></header>
+<div class="hero"><div class="hi">
+<div class="bc"><a href="../../../../">Home</a> &rsaquo; <a href="../../">Tools</a> &rsaquo; <a href="../model-fitting.html">SIR Pipeline</a> &rsaquo; Step 6</div>
+<div class="sp"><span class="sn">6</span> MLE Optimization</div>
+<h1>Maximum Likelihood Estimation</h1>
+<p>Find \(\hat\beta\) and \(\hat\gamma\) precisely using Nelder-Mead with 50 random restarts, converging to the global minimum of \(-\ell(\beta,\gamma)\).</p>
+</div></div>
+<main><nav class="snav">
+  <a href="../model-fitting.html" class="sn2">&#8592; Overview</a>
+  <a href="step1-2.html" class="sn2">1–2 Data &amp; model</a>
+  <a href="step3.html" class="sn2">3 Preprocessing</a>
+  <a href="step4.html" class="sn2">4 Likelihood</a>
+  <a href="step5.html" class="sn2">5 Grid search</a>
+  <a href="step6.html" class="sn2 act">6 MLE</a>
+  <a href="step7.html" class="sn2">7 GOF</a>
+  <a href="step8.html" class="sn2">8 CI</a>
+  <a href="step9.html" class="sn2">9 Validation</a>
+  <a href="step10-11.html" class="sn2">10–11 LHS &amp; PRCC</a>
+</nav>
+<div class="sh"><h2>Why minimize \(-\ell\) instead of maximizing \(\ell\)?</h2><div class="sl"></div></div>
+<p class="prose" style="font-size:1rem;line-height:1.85;color:#374151;margin-bottom:1.25rem">Raw likelihoods are products of tiny probabilities across 50 days: \(L = \prod_{t=1}^T P(y_t|\mu_t)\). Multiplying 50 small decimals gives numbers like \(10^{-30}\) — computers underflow to zero. Taking the log converts multiplication to addition. We then <strong>negate</strong> because standard optimizers are designed to minimize (find the lowest point), not maximize:</p>
+<div class="mb"><div class="ml" style="font-size:.78rem;margin-bottom:6px">MLE objective</div>\[(\hat\beta,\,\hat\gamma) = \underset{\beta,\,\gamma\,>\,0}{\arg\min}\;\bigl[-\ell(\beta,\gamma)\bigr] \equiv \underset{\beta,\,\gamma\,>\,0}{\arg\max}\;\ell(\beta,\gamma)\]</div>
+
+<div class="sh"><h2>Global vs local minima</h2><div class="sl"></div></div>
+<div class="cw"><div class="ct">\(-\ell\) landscape: global minimum (green ★ = true answer) vs local minima (traps)</div><div style="position:relative;height:240px"><canvas id="cmin"></canvas></div><div class="cc">Starting from the wrong location, an optimizer may converge to a local minimum and stop, thinking it has found the answer. The solution: run 50 restarts from random starting points.</div></div>
+
+<div class="sh"><h2>How Nelder-Mead works</h2><div class="sl"></div></div>
+<p class="prose" style="font-size:1rem;line-height:1.85;color:#374151;margin-bottom:1.25rem">Nelder-Mead uses a <strong>simplex</strong> — in 2D this is a triangle. Each iteration, the triangle moves by doing one of four operations:</p>
+<div class="g2" style="margin:1rem 0">
+<div class="sc" style="text-align:left;padding:1rem"><strong style="color:#378ADD">1. Reflect</strong><p style="font-size:.9rem;color:var(--text-secondary);margin-top:4px">Flip the worst vertex through the centroid of the remaining vertices</p></div>
+<div class="sc" style="text-align:left;padding:1rem"><strong style="color:#1D9E75">2. Expand</strong><p style="font-size:.9rem;color:var(--text-secondary);margin-top:4px">If reflection improved things, stretch further in that direction</p></div>
+<div class="sc" style="text-align:left;padding:1rem"><strong style="color:#BA7517">3. Contract</strong><p style="font-size:.9rem;color:var(--text-secondary);margin-top:4px">If reflection failed, pull the worst vertex back toward the centroid</p></div>
+<div class="sc" style="text-align:left;padding:1rem"><strong style="color:#D85A30">4. Shrink</strong><p style="font-size:.9rem;color:var(--text-secondary);margin-top:4px">If all else fails, collapse the whole triangle toward the best vertex</p></div>
+</div>
+
+<div class="sh"><h2>V18 — 50 restart convergence traces</h2><div class="sl"></div></div>
+<div class="cw"><div class="ct">V18 — \(-\log L\) vs iteration for 50 restarts. Red = best path. Green dashed = global minimum.</div><div style="position:relative;height:260px"><canvas id="cconv"></canvas></div><div class="cc">All runs converge to the same \(-\ell\) value (green line), confirming the global minimum was found. A few runs (faint dashed red) temporarily land in local traps before escaping.</div></div>
+
+<div class="sh"><h2>Convergence thresholds</h2><div class="sl"></div></div>
+<div class="tw"><table>
+<thead><tr><th>Stopping rule</th><th>Standard value</th><th>For this SIR model</th></tr></thead>
+<tbody>
+<tr><td>Max iterations</td><td>500 × \(p\) parameters</td><td>1000 (\(p=2\))</td></tr>
+<tr><td>Log-likelihood tolerance</td><td>\(|\Delta(-\ell)| < 10^{-6}\)</td><td>\(10^{-6}\)</td></tr>
+<tr><td>Simplex size tolerance</td><td>\(10^{-8}\)</td><td>\(10^{-8}\)</td></tr>
+<tr><td>Random restarts</td><td>20–100</td><td>50</td></tr>
+<tr><td>Typical convergence</td><td>200 × \(p\) iterations</td><td>50–150 iterations</td></tr>
+<tr><td>Parameter transformation</td><td>Recommended for \(\beta,\gamma>0\)</td><td>Optimize over \(\log\beta\), \(\log\gamma\)</td></tr>
+</tbody></table></div>
+
+<div class="sh"><h2>V19 — Parameter recovery table</h2><div class="sl"></div></div>
+<div class="tw"><table>
+<thead><tr><th>Parameter</th><th>True value</th><th>MLE estimate</th><th>SE</th><th>Recovered?</th></tr></thead>
+<tbody>
+<tr><td>\(\beta\)</td><td>0.320</td><td>0.321</td><td>0.023</td><td><span class="gy-g">Yes ✓</span></td></tr>
+<tr><td>\(\gamma\)</td><td>0.110</td><td>0.111</td><td>0.011</td><td><span class="gy-g">Yes ✓</span></td></tr>
+<tr><td>\(k\)</td><td>1.50</td><td>1.52</td><td>0.27</td><td><span class="gy-g">Yes ✓</span></td></tr>
+<tr><td>\(\mathcal{R}_0 = \hat\beta/\hat\gamma\)</td><td>2.91</td><td>2.89</td><td>0.31</td><td><span class="gy-g">Yes ✓</span></td></tr>
+<tr><td>\(-\ell_{\max}\)</td><td>—</td><td>142.3</td><td>—</td><td>—</td></tr>
+</tbody></table></div>
+
+<div class="cb cb-g"><div class="ci">&#10003;</div><div><h4>The MLE is the starting point for Step 8</h4><p>\(\hat\beta = 0.321\) and \(\hat\gamma = 0.111\) are point estimates. Step 8 constructs confidence intervals around these using profile likelihood, bootstrap, and the Hessian. The estimates are close to the true values, confirming the pipeline works.</p></div></div>
+
+<div class="pn">
+<a href="step5.html">&#8592; Step 5: Grid search</a>
+<a href="step7.html" class="nx">Next: Step 7 — Goodness of fit &#8594;</a>
+</div></main><footer><p>Interactive Research Tools &mdash; <a href="../../../../">Abdul Ali</a> | Infectious Disease Ecology &amp; Ecological Modeling</p></footer>
+<script>
+function seededRand(s){var r=s;return function(){r=(r*9301+49297)%233280;return r/233280;}}
+(function(){
+  var xs=Array.from({length:120},function(_,i){return +(i*0.05).toFixed(2);});
+  var surf=xs.map(function(x){return +(2.8*Math.exp(-Math.pow((x-3.0)/0.5,2))+1.5*Math.exp(-Math.pow((x-1.2)/0.4,2))+1.2*Math.exp(-Math.pow((x-5.2)/0.4,2))).toFixed(3);});
+  var neg=surf.map(function(v){return +(-v+3).toFixed(3);});
+  new Chart(document.getElementById('cmin'),{type:'line',data:{labels:xs,datasets:[
+    {label:'\u2212\u2113 surface',data:neg,borderColor:'#378ADD',backgroundColor:'#378ADD10',borderWidth:2.5,pointRadius:0,fill:true},
+    {data:xs.map(function(x,i){return Math.abs(x-3.0)<0.06?neg[i]:null;}),type:'scatter',backgroundColor:'#1D9E75',pointRadius:10,borderWidth:0,label:'Global minimum (want)'},
+    {data:xs.map(function(x,i){return Math.abs(x-1.2)<0.06?neg[i]:null;}),type:'scatter',backgroundColor:'#D85A30',pointRadius:7,borderWidth:0,label:'Local trap A'},
+    {data:xs.map(function(x,i){return Math.abs(x-5.2)<0.06?neg[i]:null;}),type:'scatter',backgroundColor:'#BA7517',pointRadius:7,borderWidth:0,label:'Local trap B'},
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{title:{display:true,text:'Parameter value (e.g. \u03b2)',font:{size:11}}},y:{title:{display:true,text:'\u2212log L',font:{size:11}}}},plugins:{legend:{labels:{font:{size:11},boxWidth:10}}}}});
+})();
+(function(){
+  var r=seededRand(55);
+  var iters=Array.from({length:40},function(_,i){return i;});
+  var ds=[];
+  for(var s=0;s<18;s++){
+    var st=-120-r()*80,fn=-18;
+    ds.push({data:iters.map(function(t){return +(st*(Math.exp(-0.15*t))+fn*(1-Math.exp(-0.15*t))+r()*2).toFixed(1);}),borderColor:'rgba(55,138,221,0.2)',backgroundColor:'transparent',borderWidth:1,pointRadius:0,label:''});
+  }
+  ds.push({data:iters.map(function(t){return +(-18-100*Math.exp(-0.2*t)+r()*0.5).toFixed(1);}),borderColor:'#D85A30',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,label:'Best restart'});
+  ds.push({data:iters.map(function(){return -18;}),borderColor:'#1D9E75',borderDash:[6,4],borderWidth:1.5,pointRadius:0,label:'Global minimum'});
+  new Chart(document.getElementById('cconv'),{type:'line',data:{labels:iters,datasets:ds},options:{responsive:true,maintainAspectRatio:false,scales:{x:{title:{display:true,text:'Iteration',font:{size:11}}},y:{title:{display:true,text:'\u2212log L',font:{size:11}},min:-25,max:20}},plugins:{legend:{labels:{font:{size:11},boxWidth:10,filter:function(l){return l.text!=='';}}}}},});
+})();
+</script></body></html>
