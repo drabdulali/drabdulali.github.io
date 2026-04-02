@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 7: Goodness of Fit — Abdul Ali</title>
+<script>
+window.MathJax = {
+  tex:{ inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], packages:{'[+]':['ams']} },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] },
+  startup:{ typeset:true }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--secondary:#0284c7;--success:#059669;--warning:#d97706;--danger:#dc2626;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#64748b;--card-bg:rgba(255,255,255,0.95);--card-border:rgba(14,165,233,0.15);--gradient-primary:linear-gradient(135deg,#0284c7 0%,#0891b2 50%,#059669 100%);--gradient-light:linear-gradient(180deg,#ffffff 0%,#f8fafc 50%,#f1f5f9 100%);--shadow-glow:0 0 40px rgba(14,165,233,0.15)}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gradient-light);color:var(--text-primary);line-height:1.8;min-height:100vh}
+mjx-container[display="true"]{margin:.8rem 0!important;overflow-x:auto}
+header{background:var(--gradient-primary);color:#fff;padding:1rem 2rem;position:sticky;top:0;z-index:1000;box-shadow:0 4px 20px rgba(2,132,199,0.3)}
+.hc{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.logo{color:#fff;text-decoration:none;font-weight:700;font-size:1.1rem}
+.hn{display:flex;gap:8px}
+.nb{color:#fff;text-decoration:none;padding:.4rem 1rem;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-size:.9rem;transition:all .2s}
+.nb:hover{background:rgba(255,255,255,0.15)}
+.hero{background:var(--gradient-primary);padding:2rem 2rem 2.5rem;color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,0.07) 0%,transparent 60%);pointer-events:none}
+.hi{max-width:1100px;margin:0 auto;position:relative}
+.sp{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);border-radius:50px;padding:5px 16px;font-size:.95rem;font-weight:700;margin-bottom:1rem}
+.sn{width:22px;height:22px;background:#fff;border-radius:50%;color:var(--secondary);font-size:.82rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+.hero h1{font-size:2rem;font-weight:800;letter-spacing:-0.025em;line-height:1.2;margin-bottom:.5rem}
+.hero p{opacity:.9;font-size:.95rem;max-width:680px;line-height:1.6}
+.bc{font-size:.95rem;opacity:.7;margin-bottom:.75rem}
+.bc a{color:#fff;text-decoration:none}
+main{max-width:1100px;margin:0 auto;padding:2rem}
+.snav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(2,132,199,0.1)}
+.sn2{font-size:.85rem;padding:5px 14px;border-radius:20px;border:.5px solid var(--card-border);background:transparent;color:var(--text-muted);cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}
+.sn2:hover,.sn2.act{background:var(--card-bg);color:var(--secondary);border-color:rgba(2,132,199,0.3)}
+.sh{margin:2.5rem 0 1rem;display:flex;align-items:center;gap:10px}
+.sh h2{font-size:1.2rem;font-weight:700;color:var(--text-primary)}
+.sl{flex:1;height:1px;background:linear-gradient(90deg,rgba(2,132,199,0.2),transparent)}
+.prose{font-size:.93rem;color:var(--text-secondary);line-height:1.75;margin-bottom:1rem}
+.prose strong{color:var(--text-primary);font-weight:600}
+.mb{background:linear-gradient(135deg,rgba(2,132,199,0.05),rgba(8,145,178,0.03));border:1px solid rgba(2,132,199,0.15);border-left:4px solid var(--secondary);border-radius:0 10px 10px 0;padding:1rem 1.5rem;margin:1rem 0;overflow-x:auto}
+.ml{font-size:.78rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.cw{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:1.25rem;margin:1rem 0}
+.ct{font-size:.9rem;font-weight:700;color:var(--text-primary);margin-bottom:.75rem}
+.cc{font-size:.85rem;color:var(--text-muted);margin-top:.5rem;font-style:italic}
+.cb{border-radius:12px;padding:1rem 1.25rem;margin:1rem 0;display:flex;gap:10px;align-items:flex-start}
+.cb-b{background:linear-gradient(135deg,rgba(2,132,199,0.06),rgba(8,145,178,0.03));border:1px solid rgba(2,132,199,0.15)}
+.cb-g{background:rgba(5,150,105,0.06);border:1px solid rgba(5,150,105,0.18)}
+.cb-a{background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.18)}
+.ci{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb-b .ci{background:rgba(2,132,199,0.12);color:var(--secondary)}
+.cb-g .ci{background:rgba(5,150,105,0.12);color:var(--success)}
+.cb-a .ci{background:rgba(217,119,6,0.12);color:var(--warning)}
+.cb h4{font-size:.85rem;font-weight:700;margin-bottom:3px}
+.cb-b h4{color:var(--secondary)}
+.cb-g h4{color:var(--success)}
+.cb-a h4{color:var(--warning)}
+.cb p{font-size:.93rem;color:var(--text-secondary);line-height:1.5}
+.tw{overflow-x:auto;margin:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;overflow:hidden}
+th{background:linear-gradient(135deg,rgba(2,132,199,0.08),rgba(8,145,178,0.06));padding:9px 14px;text-align:left;font-weight:700;color:var(--text-primary);border-bottom:1px solid rgba(2,132,199,0.15);font-size:.8rem}
+td{padding:8px 14px;border-bottom:1px solid rgba(2,132,199,0.06);color:var(--text-secondary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(2,132,199,0.02)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
+.sc{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:1rem 1.25rem;text-align:center}
+.sv{font-size:1.6rem;font-weight:800;color:var(--secondary);line-height:1.1}
+.sl2{font-size:.85rem;color:var(--text-muted);margin-top:2px}
+.pn{display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:1.5rem;border-top:1px solid rgba(2,132,199,0.1);gap:1rem;flex-wrap:wrap}
+.pn a{display:flex;align-items:center;gap:8px;text-decoration:none;padding:.65rem 1.25rem;border:1px solid var(--card-border);border-radius:10px;font-size:.85rem;font-weight:600;color:var(--secondary);background:var(--card-bg);transition:all .2s}
+.pn .nx{background:var(--gradient-primary);color:#fff;border:none}
+.pn .nx:hover{opacity:.9}
+.gy-g{background:rgba(5,150,105,0.1);color:var(--success);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+.gy-r{background:rgba(220,38,38,0.08);color:var(--danger);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+.gy-b{background:rgba(2,132,199,0.1);color:var(--secondary);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+footer{background:var(--gradient-primary);color:#fff;text-align:center;padding:1.25rem;font-size:.9rem;margin-top:3rem}
+footer a{color:#fff;text-decoration:underline}
+</style>
+</head>
+<body><header><div class="hc"><a href="../../../../" class="logo">Abdul Ali</a><div class="hn"><a href="step6.html" class="nb">&#8592; Step 6</a><a href="../model-fitting.html" class="nb">Pipeline</a><a href="step8.html" class="nb">Step 8 &#8594;</a></div></div></header>
+<div class="hero"><div class="hi">
+<div class="bc"><a href="../../../../">Home</a> &rsaquo; <a href="../../">Tools</a> &rsaquo; <a href="../model-fitting.html">SIR Pipeline</a> &rsaquo; Step 7</div>
+<div class="sp"><span class="sn">7</span> Goodness of Fit</div>
+<h1>Goodness of Fit</h1>
+<p>Check whether the fitted model actually captures the data well — using residuals, Q-Q plots, ACF, and histogram diagnostics. Side-by-side good vs bad for each.</p>
+</div></div>
+<main><nav class="snav">
+  <a href="../model-fitting.html" class="sn2">&#8592; Overview</a>
+  <a href="step1-2.html" class="sn2">1–2 Data &amp; model</a>
+  <a href="step3.html" class="sn2">3 Preprocessing</a>
+  <a href="step4.html" class="sn2">4 Likelihood</a>
+  <a href="step5.html" class="sn2">5 Grid search</a>
+  <a href="step6.html" class="sn2">6 MLE</a>
+  <a href="step7.html" class="sn2 act">7 GOF</a>
+  <a href="step8.html" class="sn2">8 CI</a>
+  <a href="step9.html" class="sn2">9 Validation</a>
+  <a href="step10-11.html" class="sn2">10–11 LHS &amp; PRCC</a>
+</nav>
+<div class="sh"><h2>What are observed, predicted, and residuals?</h2><div class="sl"></div></div>
+<p class="prose" style="font-size:1rem;line-height:1.85;color:#374151;margin-bottom:1.25rem"><strong>Observed \(y_t\)</strong> = real daily farm case counts from the data. These never change.<br>
+<strong>Predicted \(\hat\mu_t\)</strong> = what the SIR ODE outputs using \(\hat\beta\) and \(\hat\gamma\). These are case counts, <em>not</em> \(\beta\) or \(\gamma\) themselves.<br>
+<strong>Residual \(e_t\)</strong> = the gap between them.</p>
+<div class="mb"><div class="ml" style="font-size:.78rem;margin-bottom:6px">Pearson residual (NegBin)</div>\[e_t = \frac{y_t - \hat\mu_t}{\sqrt{\hat\mu_t\!\left(1 + \dfrac{\hat\mu_t}{k}\right)}}\]</div>
+<p class="prose" style="font-size:1rem;line-height:1.85;color:#374151;margin-bottom:1.25rem">If the model fits well, residuals should be approximately normal with mean 0, constant variance, and no autocorrelation.</p>
+
+<div class="sh"><h2>V20 — Observed vs fitted epidemic curve</h2><div class="sl"></div></div>
+<div class="g2">
+<div class="cw"><div class="ct" style="color:#059669">GOOD — line hugs the dots</div><div style="position:relative;height:190px"><canvas id="cgof_g"></canvas></div><div class="cc">Predicted curve passes through the observed dots — small random gaps only. Model captures timing, peak height, and decline.</div></div>
+<div class="cw"><div class="ct" style="color:#dc2626">BAD — line misses the peak</div><div style="position:relative;height:190px"><canvas id="cgof_b"></canvas></div><div class="cc">Predicted curve peaks too late and too low. Suggests \(\hat\beta\) is underestimated or \(\hat\gamma\) is overestimated.</div></div>
+</div>
+
+<div class="sh"><h2>V20b — Residuals vs fitted values</h2><div class="sl"></div></div>
+<div class="g2">
+<div class="cw"><div class="ct" style="color:#059669">GOOD — random scatter around zero</div><div style="position:relative;height:180px"><canvas id="cres_g"></canvas></div><div class="cc">No pattern — model captures all structure in the data.</div></div>
+<div class="cw"><div class="ct" style="color:#dc2626">BAD — arch pattern (systematic bias)</div><div style="position:relative;height:180px"><canvas id="cres_b"></canvas></div><div class="cc">Arch = model misses nonlinearity (e.g. spatial heterogeneity or missing exposed class).</div></div>
+</div>
+
+<div class="sh"><h2>V22 — Q-Q plot of residuals</h2><div class="sl"></div></div>
+<div class="g2">
+<div class="cw"><div class="ct" style="color:#059669">GOOD — points near diagonal</div><div style="position:relative;height:180px"><canvas id="cqq_g"></canvas></div><div class="cc">Residuals are approximately normally distributed.</div></div>
+<div class="cw"><div class="ct" style="color:#dc2626">BAD — heavy tails curve away</div><div style="position:relative;height:180px"><canvas id="cqq_b"></canvas></div><div class="cc">Residuals are skewed — try Negative Binomial or log-transform.</div></div>
+</div>
+
+<div class="sh"><h2>V21 — ACF of residuals</h2><div class="sl"></div></div>
+<div class="g2">
+<div class="cw"><div class="ct" style="color:#059669">GOOD — all bars within blue bands</div><div style="position:relative;height:180px"><canvas id="cacf_g"></canvas></div><div class="cc">No temporal autocorrelation remains — model captured all time structure.</div></div>
+<div class="cw"><div class="ct" style="color:#dc2626">BAD — bars outside bands</div><div style="position:relative;height:180px"><canvas id="cacf_b"></canvas></div><div class="cc">High ACF at lag 7 = weekly reporting cycle not modelled. High ACF at lag 1 = model too slow to respond.</div></div>
+</div>
+<div class="mb"><div class="ml" style="font-size:.78rem;margin-bottom:6px">95% significance bands for ACF</div>\[\text{Band} = \pm\frac{1.96}{\sqrt{T}} \approx \pm 0.277 \text{ (for } T=50\text{)}\]</div>
+
+<div class="sh"><h2>Diagnosis table</h2><div class="sl"></div></div>
+<div class="tw"><table>
+<thead><tr><th>Bad pattern</th><th>Diagnosis</th><th>Fix</th></tr></thead>
+<tbody>
+<tr><td>Arch in residuals vs fitted</td><td>Missing nonlinearity (spatial structure, SEIR)</td><td>Add exposed class or spatial kernel</td></tr>
+<tr><td>Funnel (variance grows)</td><td>Overdispersion not modelled</td><td>Switch from Poisson to NegBin</td></tr>
+<tr><td>Trend upward</td><td>Model underestimates late epidemic</td><td>Check \(\hat\beta\), inspect truncated data</td></tr>
+<tr><td>Q-Q heavy tails</td><td>Residuals not normal</td><td>NegBin, log-transform, or robust SE</td></tr>
+<tr><td>ACF spike at lag 7</td><td>Weekly reporting cycle</td><td>7-day smoothing before fitting</td></tr>
+<tr><td>Histogram shifted right</td><td>Model systematically underestimates</td><td>Check \(\hat\beta\), reporting delay correction</td></tr>
+<tr><td>Bimodal histogram</td><td>Two sub-populations in data</td><td>Stratify by farm type or region</td></tr>
+</tbody></table></div>
+
+<div class="pn">
+<a href="step6.html">&#8592; Step 6: MLE</a>
+<a href="step8.html" class="nx">Next: Step 8 — Confidence intervals &#8594;</a>
+</div></main><footer><p>Interactive Research Tools &mdash; <a href="../../../../">Abdul Ali</a> | Infectious Disease Ecology &amp; Ecological Modeling</p></footer>
+<script>
+function seededRand(s){var r=s;return function(){r=(r*9301+49297)%233280;return r/233280;}}
+var days=Array.from({length:40},function(_,i){return i+1;});
+var trueCurve=days.map(function(t){return Math.max(0,45*Math.exp(-0.5*Math.pow((t-18)/9,2)));});
+var badCurve=days.map(function(t){return Math.max(0,30*Math.exp(-0.5*Math.pow((t-26)/7,2)));});
+var r1=seededRand(11),r2=seededRand(22);
+var obs=trueCurve.map(function(v){return Math.max(0,Math.round(v+(r1()-0.5)*v*0.25));});
+new Chart(document.getElementById('cgof_g'),{type:'line',data:{labels:days,datasets:[{label:'Fitted',data:trueCurve.map(function(v){return +v.toFixed(1);}),borderColor:'#1D9E75',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0},{label:'Observed',data:obs,type:'scatter',backgroundColor:'#378ADD',pointRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{maxTicksLimit:8}},y:{min:0,title:{display:true,text:'Cases',font:{size:10}}}},plugins:{legend:{labels:{font:{size:10},boxWidth:8}}}}});
+new Chart(document.getElementById('cgof_b'),{type:'line',data:{labels:days,datasets:[{label:'Fitted (wrong)',data:badCurve.map(function(v){return +v.toFixed(1);}),borderColor:'#D85A30',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0},{label:'Observed',data:obs,type:'scatter',backgroundColor:'#378ADD',pointRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{maxTicksLimit:8}},y:{min:0,title:{display:true,text:'Cases',font:{size:10}}}},plugins:{legend:{labels:{font:{size:10},boxWidth:8}}}}});
+var fit=trueCurve.slice(0,35);
+var rg=fit.map(function(){return +((r1()-0.5)*7).toFixed(2);});
+var rb=fit.map(function(v,i){return +(12*Math.sin(i*Math.PI/34)-2+(r2()-0.5)*3).toFixed(1);});
+var zero=[{x:0,y:0},{x:50,y:0}];
+new Chart(document.getElementById('cres_g'),{type:'scatter',data:{datasets:[{label:'Residuals',data:fit.map(function(f,i){return {x:+f.toFixed(1),y:rg[i]};}),backgroundColor:'#1D9E7588',pointRadius:5,borderWidth:0},{label:'Zero',data:zero,type:'line',borderColor:'#888780',borderDash:[4,4],borderWidth:1.5,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:6},scales:{x:{title:{display:true,text:'Fitted',font:{size:10}}},y:{title:{display:true,text:'Residual',font:{size:10}},min:-12,max:12}},plugins:{legend:{display:false}}}});
+new Chart(document.getElementById('cres_b'),{type:'scatter',data:{datasets:[{label:'Residuals',data:fit.map(function(f,i){return {x:+f.toFixed(1),y:rb[i]};}),backgroundColor:'#D85A3088',pointRadius:5,borderWidth:0},{label:'Zero',data:zero,type:'line',borderColor:'#888780',borderDash:[4,4],borderWidth:1.5,pointRadius:0},{label:'Pattern',data:[{x:2,y:-12},{x:15,y:8},{x:30,y:10},{x:45,y:-8}],type:'line',borderColor:'#D85A30',borderDash:[4,3],borderWidth:1.5,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:6},scales:{x:{title:{display:true,text:'Fitted',font:{size:10}}},y:{title:{display:true,text:'Residual',font:{size:10}},min:-16,max:16}},plugins:{legend:{display:false}}}});
+(function(){
+  var n=30;
+  function nf(p){var x=p-0.5;return x*(2.515517+0.802853*Math.abs(x))/(1+1.432788*Math.abs(x))*(p<0.5?-1:1)*2.8;}
+  var gR=Array.from({length:n},function(){return +(r1()-0.5)*8;}).sort(function(a,b){return a-b;});
+  var bR=Array.from({length:n},function(){return Math.pow(r2()*3,1.8)-2;}).sort(function(a,b){return a-b;});
+  var theo=Array.from({length:n},function(_,i){return nf((i+0.5)/n);});
+  var diag=[{x:-2.5,y:Math.min.apply(null,gR)},{x:2.5,y:Math.max.apply(null,gR)}];
+  new Chart(document.getElementById('cqq_g'),{type:'scatter',data:{datasets:[{data:theo.map(function(t,i){return {x:+t.toFixed(2),y:+gR[i].toFixed(2)};}),backgroundColor:'#1D9E7588',pointRadius:4,borderWidth:0,label:'Q-Q'},{data:diag,type:'line',borderColor:'#888780',borderDash:[4,4],borderWidth:1.5,pointRadius:0,label:'Diagonal'}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:6},scales:{x:{title:{display:true,text:'Theoretical',font:{size:10}}},y:{title:{display:true,text:'Sample',font:{size:10}}}},plugins:{legend:{display:false}}}});
+  var diag2=[{x:-2.5,y:Math.min.apply(null,bR)},{x:2.5,y:Math.max.apply(null,bR)}];
+  new Chart(document.getElementById('cqq_b'),{type:'scatter',data:{datasets:[{data:theo.map(function(t,i){return {x:+t.toFixed(2),y:+bR[i].toFixed(2)};}),backgroundColor:'#D85A3088',pointRadius:4,borderWidth:0,label:'Q-Q'},{data:diag2,type:'line',borderColor:'#888780',borderDash:[4,4],borderWidth:1.5,pointRadius:0,label:'Diagonal'}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:6},scales:{x:{title:{display:true,text:'Theoretical',font:{size:10}}},y:{title:{display:true,text:'Sample',font:{size:10}}}},plugins:{legend:{display:false}}}});
+})();
+(function(){
+  var lags=Array.from({length:15},function(_,i){return i+1;});
+  var bd=1.96/Math.sqrt(40);
+  var ag=lags.map(function(){return +(r1()*0.18-0.09).toFixed(3);});
+  var ab=[0.72,0.58,0.44,0.31,0.19,0.09,-0.02,-0.11,-0.18,-0.22,-0.24,-0.21,-0.15,-0.08,-0.02];
+  function acfChart(id,data,col){
+    new Chart(document.getElementById(id),{type:'bar',data:{labels:lags,datasets:[
+      {data:data,backgroundColor:data.map(function(v){return Math.abs(v)>bd?col+'cc':col+'55';}),borderColor:data.map(function(v){return Math.abs(v)>bd?col:col+'88';}),borderWidth:1,borderRadius:2,label:'ACF'},
+      {data:lags.map(function(){return bd;}),type:'line',borderColor:'#378ADD',borderDash:[4,3],borderWidth:1.5,pointRadius:0,label:'+95%'},
+      {data:lags.map(function(){return -bd;}),type:'line',borderColor:'#378ADD',borderDash:[4,3],borderWidth:1.5,pointRadius:0,label:'-95%'},
+    ]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:4},scales:{x:{title:{display:true,text:'Lag (days)',font:{size:10}}},y:{title:{display:true,text:'ACF',font:{size:10}},min:-0.9,max:0.9}},plugins:{legend:{display:false}}}});
+  }
+  acfChart('cacf_g',ag,'#1D9E75');
+  acfChart('cacf_b',ab,'#D85A30');
+})();
+</script></body></html>
