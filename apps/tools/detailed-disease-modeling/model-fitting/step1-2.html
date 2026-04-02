@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steps 1–2: Data Generation & SIR Model — Abdul Ali</title>
+<script>
+window.MathJax = {
+  tex:{ inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], packages:{'[+]':['ams']} },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] },
+  startup:{ typeset:true }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ── Reset & root ── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#0284c7;--green:#059669;--amber:#d97706;--red:#dc2626;
+  --text:#0f172a;--text2:#374151;--text3:#6b7280;
+  --bg:#f8fafc;--card:#ffffff;--border:rgba(14,165,233,0.18);
+  --grad:linear-gradient(135deg,#0284c7 0%,#0891b2 50%,#059669 100%);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  line-height:1.8;min-height:100vh;font-size:16px;
+}
+
+/* MathJax */
+mjx-container{overflow-x:auto}
+mjx-container[display="true"]{
+  margin:1.25rem 0!important;padding:.75rem 0;
+  overflow-x:auto;
+}
+
+/* ── Header ── */
+header{
+  background:var(--grad);color:#fff;
+  padding:1rem 2rem;position:sticky;top:0;z-index:1000;
+  box-shadow:0 4px 20px rgba(2,132,199,0.3);
+}
+.hdr{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem}
+.logo{color:#fff;text-decoration:none;font-weight:700;font-size:1.1rem}
+.hdr-nav{display:flex;gap:8px;flex-wrap:wrap}
+.hbtn{color:#fff;text-decoration:none;padding:.45rem 1.1rem;border:1px solid rgba(255,255,255,0.35);border-radius:8px;font-size:.85rem;transition:background .2s}
+.hbtn:hover{background:rgba(255,255,255,0.18)}
+
+/* ── Hero ── */
+.hero{
+  background:var(--grad);padding:2.5rem 2rem 3rem;
+  color:#fff;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 80% 50%,rgba(255,255,255,0.07) 0%,transparent 60%);
+  pointer-events:none;
+}
+.hero-inner{max-width:1100px;margin:0 auto;position:relative}
+.breadcrumb{font-size:.82rem;opacity:.72;margin-bottom:.85rem}
+.breadcrumb a{color:#fff;text-decoration:none}
+.breadcrumb a:hover{text-decoration:underline}
+.step-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.38);
+  border-radius:50px;padding:5px 18px;font-size:.8rem;font-weight:700;
+  letter-spacing:.04em;margin-bottom:1rem;
+}
+.step-badge-num{
+  width:24px;height:24px;background:#fff;border-radius:50%;
+  color:var(--blue);font-size:.75rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+.hero h1{font-size:2.1rem;font-weight:800;letter-spacing:-0.025em;line-height:1.2;margin-bottom:.65rem}
+.hero .hero-desc{opacity:.92;font-size:1rem;max-width:700px;line-height:1.7}
+
+/* ── Main ── */
+main{max-width:1100px;margin:0 auto;padding:2rem 2rem 4rem}
+
+/* ── Step navigator ── */
+.step-nav{
+  display:flex;gap:6px;flex-wrap:wrap;
+  margin-bottom:2.5rem;padding-bottom:1.25rem;
+  border-bottom:1px solid rgba(2,132,199,0.12);
+}
+.snav-item{
+  font-size:.78rem;padding:6px 14px;border-radius:20px;
+  border:.5px solid var(--border);background:transparent;
+  color:var(--text3);text-decoration:none;transition:all .15s;white-space:nowrap;
+}
+.snav-item:hover,.snav-item.active{
+  background:var(--card);color:var(--blue);
+  border-color:rgba(2,132,199,0.35);
+  box-shadow:0 2px 8px rgba(2,132,199,0.08);
+}
+
+/* ── Section headers ── */
+.sec{margin:3rem 0 1.25rem;display:flex;align-items:center;gap:12px}
+.sec h2{font-size:1.25rem;font-weight:700;color:var(--text)}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(2,132,199,0.2),transparent)}
+
+/* ── Prose ── */
+.prose{
+  font-size:1rem;color:var(--text2);line-height:1.85;
+  margin-bottom:1.25rem;max-width:820px;
+}
+.prose strong{color:var(--text);font-weight:600}
+.prose em{color:var(--blue);font-style:normal;font-weight:500}
+
+/* ── Plain-english box (before every equation) ── */
+.plain-box{
+  background:#f0f9ff;border:1px solid #bae6fd;
+  border-left:4px solid #0284c7;border-radius:0 10px 10px 0;
+  padding:1rem 1.4rem;margin:1.25rem 0 .5rem;
+  font-size:.97rem;color:#0c4a6e;line-height:1.7;
+}
+.plain-box strong{color:#0369a1}
+
+/* ── Math block ── */
+.math-block{
+  background:linear-gradient(135deg,rgba(2,132,199,0.05),rgba(8,145,178,0.03));
+  border:1px solid rgba(2,132,199,0.18);
+  border-left:4px solid var(--blue);
+  border-radius:0 10px 10px 0;
+  padding:1.1rem 1.6rem;margin:.25rem 0 .5rem;
+  overflow-x:auto;
+}
+.math-label{
+  font-size:.72rem;font-weight:700;color:var(--blue);
+  text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;
+}
+
+/* ── Math explanation (after equation) ── */
+.math-explain{
+  background:#fafafa;border:1px solid #e5e7eb;
+  border-radius:10px;padding:.9rem 1.3rem;
+  margin:.5rem 0 1.5rem;font-size:.93rem;
+  color:var(--text2);line-height:1.75;
+}
+.math-explain ul{margin-left:1.25rem;margin-top:.5rem}
+.math-explain li{margin-bottom:.35rem}
+.math-explain strong{color:var(--text)}
+
+/* ── Callout boxes ── */
+.callout{
+  border-radius:12px;padding:1.1rem 1.4rem;
+  margin:1.25rem 0;display:flex;gap:12px;
+}
+.callout-icon{
+  width:32px;height:32px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1rem;margin-top:1px;
+}
+.callout-body h4{font-size:.95rem;font-weight:700;margin-bottom:5px}
+.callout-body p{font-size:.93rem;line-height:1.7;margin:0}
+.callout-blue{background:#eff6ff;border:1px solid #bfdbfe}
+.callout-blue .callout-icon{background:#dbeafe;color:#1d4ed8}
+.callout-blue h4{color:#1e40af}
+.callout-blue p{color:#1e3a5f}
+.callout-green{background:#f0fdf4;border:1px solid #bbf7d0}
+.callout-green .callout-icon{background:#dcfce7;color:#16a34a}
+.callout-green h4{color:#15803d}
+.callout-green p{color:#14532d}
+.callout-amber{background:#fffbeb;border:1px solid #fde68a}
+.callout-amber .callout-icon{background:#fef3c7;color:#d97706}
+.callout-amber h4{color:#92400e}
+.callout-amber p{color:#78350f}
+
+/* ── Chart wrapper ── */
+.chart-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:1.5rem;margin:1.5rem 0;
+}
+.chart-title{
+  font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:.4rem;
+}
+.chart-subtitle{
+  font-size:.88rem;color:var(--text3);margin-bottom:1rem;line-height:1.5;
+}
+.chart-canvas{position:relative;width:100%}
+.chart-note{
+  font-size:.85rem;color:var(--text3);margin-top:.85rem;
+  line-height:1.6;border-top:1px solid #f3f4f6;padding-top:.75rem;
+}
+
+/* ── Stat cards ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1.5rem 0}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:1.1rem 1.25rem;text-align:center;
+}
+.stat-val{font-size:1.9rem;font-weight:800;color:var(--blue);line-height:1.1}
+.stat-label{font-size:.82rem;color:var(--text3);margin-top:4px;line-height:1.4}
+
+/* ── Tables ── */
+.tbl-wrap{overflow-x:auto;margin:1.25rem 0}
+table{
+  width:100%;border-collapse:collapse;font-size:.9rem;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+}
+th{
+  background:linear-gradient(135deg,rgba(2,132,199,0.08),rgba(8,145,178,0.05));
+  padding:10px 16px;text-align:left;font-weight:700;
+  color:var(--text);border-bottom:1px solid var(--border);font-size:.85rem;
+}
+td{padding:10px 16px;border-bottom:1px solid rgba(2,132,199,0.07);color:var(--text2);vertical-align:middle;line-height:1.5}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(2,132,199,0.02)}
+td.math-cell{color:var(--text);font-weight:500}
+
+/* ── Grids ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem}
+@media(max-width:720px){.g2,.g3{grid-template-columns:1fr}}
+
+/* ── Inline concept cards ── */
+.concept-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:1.1rem 1.3rem;
+}
+.concept-card h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.5rem}
+.concept-card p{font-size:.92rem;color:var(--text2);line-height:1.7}
+
+/* ── Good/bad labels ── */
+.good-label{color:#15803d;font-weight:700;font-size:.9rem}
+.bad-label{color:#b91c1c;font-weight:700;font-size:.9rem}
+
+/* ── Badges ── */
+.badge-g{background:#dcfce7;color:#15803d;padding:3px 10px;border-radius:50px;font-size:.78rem;font-weight:700}
+.badge-r{background:#fee2e2;color:#b91c1c;padding:3px 10px;border-radius:50px;font-size:.78rem;font-weight:700}
+.badge-b{background:#dbeafe;color:#1d4ed8;padding:3px 10px;border-radius:50px;font-size:.78rem;font-weight:700}
+
+/* ── Page nav ── */
+.page-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:3.5rem;padding-top:1.75rem;
+  border-top:1px solid rgba(2,132,199,0.12);
+  gap:1rem;flex-wrap:wrap;
+}
+.page-nav a{
+  display:flex;align-items:center;gap:8px;text-decoration:none;
+  padding:.7rem 1.4rem;border:1px solid var(--border);border-radius:10px;
+  font-size:.9rem;font-weight:600;color:var(--blue);
+  background:var(--card);transition:all .2s;
+}
+.page-nav a:hover{border-color:rgba(2,132,199,0.4);box-shadow:0 2px 12px rgba(2,132,199,0.12)}
+.page-nav .next{background:var(--grad);color:#fff;border:none}
+.page-nav .next:hover{opacity:.9}
+
+/* ── Checklist ── */
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin:1.25rem 0}
+.checklist li{
+  display:flex;gap:12px;align-items:flex-start;
+  font-size:.95rem;color:var(--text2);background:var(--card);
+  border:1px solid var(--border);border-radius:10px;padding:.75rem 1.1rem;
+  line-height:1.6;
+}
+.checklist li::before{
+  content:'✓';width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  background:var(--grad);color:#fff;font-size:.75rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-top:2px;
+}
+.checklist strong{color:var(--text);font-weight:600}
+
+footer{background:var(--grad);color:#fff;text-align:center;padding:1.4rem;font-size:.88rem;margin-top:4rem}
+footer a{color:#fff;text-decoration:underline}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <a href="../../../../" class="logo">Abdul Ali</a>
+    <nav class="hdr-nav">
+      <a href="../model-fitting.html" class="hbtn">&#8592; Pipeline overview</a>
+      <a href="step3.html" class="hbtn">Next: Step 3 &#8594;</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="breadcrumb">
+      <a href="../../../../">Home</a> &rsaquo; <a href="../../">Tools</a> &rsaquo; <a href="../model-fitting.html">SIR Pipeline</a> &rsaquo; Steps 1–2
+    </div>
+    <div class="step-badge"><span class="step-badge-num">1</span><span class="step-badge-num" style="margin-left:-5px">2</span>&nbsp;Data Generation &amp; Model Formulation</div>
+    <h1>Data Generation &amp; the SIR Model</h1>
+    <p class="hero-desc">Before fitting a model to real data, we practice on simulated data where the truth is already known. We also introduce the SIR model — the mathematical engine that the rest of the pipeline is built around.</p>
+  </div>
+</div>
+
+<main>
+
+<nav class="step-nav">
+  <a href="../model-fitting.html" class="snav-item">&#8592; Overview</a>
+  <a href="step1-2.html" class="snav-item active">1–2 Data &amp; model</a>
+  <a href="step3.html" class="snav-item">3 Preprocessing</a>
+  <a href="step4.html" class="snav-item">4 Likelihood</a>
+  <a href="step5.html" class="snav-item">5 Grid search</a>
+  <a href="step6.html" class="snav-item">6 MLE</a>
+  <a href="step7.html" class="snav-item">7 Goodness of fit</a>
+  <a href="step8.html" class="snav-item">8 Confidence intervals</a>
+  <a href="step9.html" class="snav-item">9 Validation</a>
+  <a href="step10-11.html" class="snav-item">10–11 LHS &amp; sensitivity</a>
+</nav>
+
+<!-- ════════════ STEP 1 ════════════ -->
+<div class="sec"><h2>Step 1 — Why simulate data first?</h2><div class="sec-line"></div></div>
+
+<p class="prose">
+  Imagine you are a detective. Before investigating a real crime scene, you practice on a staged one where <em>you already know what happened</em>. If your methods correctly reconstruct the staged crime, you gain confidence they will work on the real one.
+</p>
+<p class="prose">
+  Data simulation works exactly the same way. We create a fake outbreak where we control the true values of every parameter — transmission rate, recovery rate, farm locations, herd sizes — and then run the entire pipeline to see whether it recovers those true values. If it does, we trust it on real data. If it does not, we fix the method before touching any real data.
+</p>
+
+<div class="callout callout-blue">
+  <div class="callout-icon">&#9432;</div>
+  <div class="callout-body">
+    <h4>What "simulation-based validation" means</h4>
+    <p>Running the full 11-step pipeline on data where you know the truth, and checking whether your estimates come close to those true values. This is also what Step 9 (validation) does formally — but here we use it to build confidence before any real fitting begins.</p>
+  </div>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card"><div class="stat-val">200</div><div class="stat-label">Farms simulated across a 100 × 100 km region</div></div>
+  <div class="stat-card"><div class="stat-val">0.32</div><div class="stat-label">True transmission rate \(\beta\) (per day) — what we try to recover</div></div>
+  <div class="stat-card"><div class="stat-val">0.11</div><div class="stat-label">True recovery rate \(\gamma\) (per day) — what we try to recover</div></div>
+  <div class="stat-card"><div class="stat-val">2.91</div><div class="stat-label">True \(\mathcal{R}_0 = \beta/\gamma\) — each farm infects about 3 others</div></div>
+</div>
+
+<div class="sec"><h2>How the farms and outbreak are simulated</h2><div class="sec-line"></div></div>
+
+<p class="prose">
+  Farm sizes vary greatly in the real world — most farms are small but a few are very large. We capture this with a log-normal distribution, which produces exactly this kind of skewed pattern.
+</p>
+
+<div class="plain-box">
+  <strong>In plain English:</strong> If you took the log of every farm's herd size, the result would look like a bell curve. This means a few farms are 10 or 20 times bigger than the average — just like in real agriculture.
+</div>
+
+<div class="math-block">
+  <div class="math-label">Farm herd size distribution</div>
+  \[H_i \sim \text{LogNormal}(\mu_H,\, \sigma_H^2), \quad i = 1, \ldots, 200\]
+</div>
+
+<div class="math-explain">
+  <strong>Reading this equation:</strong>
+  <ul>
+    <li>\(H_i\) = the herd size of farm number \(i\)</li>
+    <li>\(\sim\) means "is drawn from" (sampled from that distribution)</li>
+    <li>\(\mu_H\) and \(\sigma_H^2\) control the average and spread of log-farm-sizes</li>
+  </ul>
+</div>
+
+<p class="prose">
+  <strong>How disease spreads between farms:</strong> farms that are closer together are more likely to infect each other. We model this with a Gaussian kernel — a mathematical function that starts at 1 when two farms are on top of each other and drops smoothly toward 0 as they get further apart.
+</p>
+
+<div class="plain-box">
+  <strong>In plain English:</strong> Think of each infected farm as casting a "cloud" of infection risk around itself. The cloud is dense nearby and fades with distance. Neighbouring farms are almost certain to be exposed; distant farms are barely at risk at all.
+</div>
+
+<div class="math-block">
+  <div class="math-label">Distance-dependent transmission kernel</div>
+  \[K(d_{ij}) = \exp\!\left(-\frac{d_{ij}^2}{2\sigma_K^2}\right)\]
+</div>
+
+<div class="math-explain">
+  <strong>Reading this equation:</strong>
+  <ul>
+    <li>\(d_{ij}\) = the distance between farm \(i\) and farm \(j\)</li>
+    <li>\(\sigma_K\) = how quickly risk fades with distance (the "reach" of the infection cloud)</li>
+    <li>When \(d_{ij} = 0\) (farms are adjacent), \(K = 1\) (maximum risk)</li>
+    <li>When distance is large, the exponential drives \(K\) close to zero (minimal risk)</li>
+  </ul>
+</div>
+
+<p class="prose">
+  Finally, a <strong>realistic observation layer</strong> is applied: not every case is reported immediately. Each true new infection is detected with probability 0.75 and recorded with a random delay of 0–3 days. This creates the noisy, slightly-delayed epidemic curve that the pipeline actually sees — mimicking what a real surveillance system would produce.
+</p>
+
+<div class="chart-card">
+  <div class="chart-title">V1 — Spatial farm map</div>
+  <div class="chart-subtitle">Each bubble is one farm. Bubble size = herd size. Colour = disease status at day 20 of the outbreak. Notice that infected farms (red) cluster spatially — disease is spreading outward from initial seed farms, not appearing randomly.</div>
+  <div class="chart-canvas" style="height:280px"><canvas id="cFarmMap"></canvas></div>
+  <div class="chart-note">
+    <strong>What to look for:</strong> Red clusters surrounded by blue farms — this spatial structure is the fingerprint of distance-dependent transmission. A random spread model would show red dots scattered uniformly, not in geographic clusters.
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">V2 — Farm herd size distribution</div>
+  <div class="chart-subtitle">Right-skewed: most farms are small, but a handful are very large. Large farms have higher infectious contact — they matter disproportionately for disease spread.</div>
+  <div class="chart-canvas" style="height:200px"><canvas id="cHerd"></canvas></div>
+</div>
+
+<!-- ════════════ STEP 2 ════════════ -->
+<div class="sec"><h2>Step 2 — The SIR model: three boxes and two arrows</h2><div class="sec-line"></div></div>
+
+<p class="prose">
+  The SIR model divides every farm in the population into one of three groups — or "compartments" — at any point in time. Think of it as sorting every farm into one of three boxes:
+</p>
+
+<div class="g3" style="margin:1.5rem 0">
+  <div class="concept-card" style="border-left:4px solid #2563eb">
+    <h3 style="color:#1e40af">S — Susceptible</h3>
+    <p>Healthy farms that could catch the disease. They have never been infected and have no immunity. This is where the epidemic "fuel" comes from.</p>
+  </div>
+  <div class="concept-card" style="border-left:4px solid #dc2626">
+    <h3 style="color:#b91c1c">I — Infected</h3>
+    <p>Farms currently infected and spreading disease to susceptible neighbours. The size of this group determines how fast the epidemic grows.</p>
+  </div>
+  <div class="concept-card" style="border-left:4px solid #16a34a">
+    <h3 style="color:#15803d">R — Recovered</h3>
+    <p>Farms that cleared the infection. They are now immune and cannot be reinfected. As this group grows, the epidemic slows and eventually stops.</p>
+  </div>
+</div>
+
+<p class="prose">
+  At any moment, <em>every</em> farm is in exactly one box. Farms can only move in one direction: S → I → R. They cannot go backwards. And the total number of farms \(S + I + R = N = 200\) never changes.
+</p>
+
+<div class="sec"><h2>The SIR equations — what they say in plain English</h2><div class="sec-line"></div></div>
+
+<p class="prose">
+  The SIR model is written as three differential equations. Each equation says how fast one compartment is changing at any instant. Do not be intimidated — each equation has a simple meaning.
+</p>
+
+<div class="plain-box">
+  <strong>Before the equations — what \(\beta\) and \(\gamma\) mean physically:</strong><br><br>
+  <strong>\(\beta\) (transmission rate)</strong> = how fast an infected farm infects others per day. High \(\beta\) = fast spread. Low \(\beta\) = slow spread.<br><br>
+  <strong>\(\gamma\) (recovery rate)</strong> = the fraction of infected farms that recover each day. If \(\gamma = 0.11\), then about 11% of infected farms recover every day, meaning the average farm stays infectious for about 9 days (\(1/0.11 \approx 9\)).
+</div>
+
+<div class="math-block">
+  <div class="math-label">SIR differential equations</div>
+  \[\frac{dS}{dt} = -\frac{\beta\, S\, I}{N}\]
+  \[\frac{dI}{dt} = +\frac{\beta\, S\, I}{N} - \gamma\, I\]
+  \[\frac{dR}{dt} = +\gamma\, I\]
+</div>
+
+<div class="math-explain">
+  <strong>Reading each equation line by line:</strong>
+  <ul>
+    <li><strong>\(dS/dt\)</strong> = how fast S is changing (negative = S is shrinking as farms get infected)</li>
+    <li><strong>\(dI/dt\)</strong> = how fast I is changing (gains from new infections, loses to recoveries)</li>
+    <li><strong>\(dR/dt\)</strong> = how fast R is changing (only gains, as farms recover)</li>
+    <li><strong>\(\beta S I / N\)</strong> = the "force of infection" — how many new infections happen per day. It depends on how many susceptible farms exist (\(S\)), how many infectious farms exist (\(I\)), and is divided by \(N\) to make it "per farm" (frequency-dependent)</li>
+    <li><strong>\(\gamma I\)</strong> = how many infected farms recover per day</li>
+  </ul>
+</div>
+
+<div class="callout callout-blue">
+  <div class="callout-icon">&#9432;</div>
+  <div class="callout-body">
+    <h4>Why divide by N? — Frequency-dependent transmission explained</h4>
+    <p>Dividing by N means risk depends on the <em>fraction</em> of farms that are infected, not the absolute number. This is realistic for farm networks: if you are an isolated farm in a remote corner, your risk does not increase just because the total farm population doubled somewhere else. Your risk depends on what fraction of farms near you are infected — not how many farms exist nationally.</p>
+  </div>
+</div>
+
+<div class="sec"><h2>The basic reproduction number \(\mathcal{R}_0\)</h2><div class="sec-line"></div></div>
+
+<p class="prose">
+  \(\mathcal{R}_0\) (pronounced "R-naught") is the single most important number in epidemic modelling. It answers one question: <strong>if one farm gets infected in a fully susceptible population, how many other farms will it infect on average before recovering?</strong>
+</p>
+
+<div class="plain-box">
+  <strong>In plain English:</strong> \(\mathcal{R}_0\) is the "branching factor" of the outbreak. If \(\mathcal{R}_0 = 2.91\), every infected farm infects about 3 others before it recovers. Those 3 each infect 3 more, and so on — the outbreak explodes. If \(\mathcal{R}_0 = 0.5\), each farm infects only half a farm on average, so the chain of transmission quickly dies out.
+</div>
+
+<div class="math-block">
+  <div class="math-label">Basic reproduction number</div>
+  \[\mathcal{R}_0 = \frac{\beta}{\gamma}\]
+</div>
+
+<div class="math-explain">
+  <strong>Where does this formula come from?</strong>
+  <ul>
+    <li>An infected farm is infectious for \(1/\gamma\) days on average (the mean infectious period)</li>
+    <li>Each day it infects new farms at rate \(\beta\) (when surrounded by fully susceptible farms)</li>
+    <li>So total infections caused = \(\beta \times (1/\gamma) = \beta/\gamma\)</li>
+    <li>With our true values: \(\mathcal{R}_0 = 0.32 / 0.11 = 2.91\)</li>
+  </ul>
+</div>
+
+<div class="math-block">
+  <div class="math-label">Epidemic threshold and herd immunity</div>
+  \[\mathcal{R}_0 > 1 \Rightarrow \text{epidemic grows} \qquad \mathcal{R}_0 < 1 \Rightarrow \text{epidemic fades out}\]
+  \[p_c = 1 - \frac{1}{\mathcal{R}_0} = 1 - \frac{1}{2.91} \approx 65.7\%\]
+</div>
+
+<div class="math-explain">
+  <strong>\(p_c\) = the herd immunity threshold:</strong> the fraction of farms that need to be immune (through vaccination or prior infection) to prevent an outbreak. With \(\mathcal{R}_0 = 2.91\), about 66% of farms must be immune before a new introduction cannot spread. Below this threshold, the outbreak grows. Above it, each infected farm infects less than one new farm on average and the chain breaks.
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">V5 — SIR epidemic curves: \(S(t)\), \(I(t)\), \(R(t)\) over 80 days</div>
+  <div class="chart-subtitle">The three compartments over time using the true parameters \(\beta = 0.32\), \(\gamma = 0.11\). Watch how they trade off: as S falls, I rises then falls, and R accumulates.</div>
+  <div class="chart-canvas" style="height:280px"><canvas id="cSIR"></canvas></div>
+  <div class="chart-note">
+    <strong>Key observations:</strong> I (red) peaks around day 18–20 when roughly half the susceptible population has been infected. After the peak, there are fewer S farms for I farms to infect — the epidemic runs out of "fuel" and declines. R (green) accumulates throughout and never decreases. The final size \(R(\infty) \approx 166\) farms = 83% of all farms eventually infected.
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">V3 — True new infections vs what surveillance actually sees</div>
+  <div class="chart-subtitle">The true epidemic (red dashed) vs the noisy reported counts (blue bars) after applying the observation layer: 75% detection probability + 0–3 day reporting delay.</div>
+  <div class="chart-canvas" style="height:220px"><canvas id="cObs"></canvas></div>
+  <div class="chart-note">
+    <strong>Why this gap matters:</strong> The pipeline never sees the true red curve. It only ever works with the blue bars — incomplete, delayed, and noisy. The entire job of the likelihood function (Step 4) is to account for this observation uncertainty when estimating \(\beta\) and \(\gamma\).
+  </div>
+</div>
+
+<div class="sec"><h2>Model assumptions — what the SIR model does and does not capture</h2><div class="sec-line"></div></div>
+
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Assumption</th><th>Does our model make this assumption?</th><th>What it means in practice</th></tr></thead>
+  <tbody>
+    <tr><td>Homogeneous mixing (all farms equally likely to meet)</td><td><span class="badge-r">No</span></td><td>We use a distance kernel — close farms interact more than distant ones</td></tr>
+    <tr><td>Frequency-dependent transmission (\(\beta I/N\))</td><td><span class="badge-g">Yes</span></td><td>Risk scales with the fraction infected, not the absolute number</td></tr>
+    <tr><td>Permanent immunity after recovery</td><td><span class="badge-g">Yes</span></td><td>No reinfection — once R, always R. No waning immunity.</td></tr>
+    <tr><td>Fixed population (no births/deaths/restocking)</td><td><span class="badge-g">Yes</span></td><td>N = 200 throughout the outbreak</td></tr>
+    <tr><td>No latent period (farms infectious immediately)</td><td><span class="badge-g">Yes</span></td><td>SIR not SEIR — no "exposed but not yet infectious" stage</td></tr>
+    <tr><td>Exponentially distributed infectious period</td><td><span class="badge-g">Yes</span></td><td>Recovery rate \(\gamma\) is constant each day — memoryless</td></tr>
+    <tr><td>Perfect case detection</td><td><span class="badge-r">No</span></td><td>75% detection probability + reporting delay applied</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout callout-green">
+  <div class="callout-icon">&#10003;</div>
+  <div class="callout-body">
+    <h4>What Steps 1–2 give the rest of the pipeline</h4>
+    <p>Two things only: (1) a noisy observed epidemic curve — the blue bars in V3 — which every subsequent step treats as the "data", and (2) a clear target — the true values \(\beta = 0.32\), \(\gamma = 0.11\), \(\mathcal{R}_0 = 2.91\). The pipeline's job is to recover these values from the noisy data alone, without ever peeking at the true curve.</p>
+  </div>
+</div>
+
+<div class="page-nav">
+  <a href="../model-fitting.html">&#8592; Pipeline overview</a>
+  <a href="step3.html" class="next">Next: Step 3 — Data preprocessing &#8594;</a>
+</div>
+
+</main>
+
+<footer>
+  <p>Interactive Research Tools &mdash; <a href="../../../../">Abdul Ali</a> | Infectious Disease Ecology &amp; Ecological Modeling</p>
+</footer>
+
+<script>
+function seededRand(s){var r=s;return function(){r=(r*9301+49297)%233280;return r/233280;}}
+
+// V1 Farm map
+(function(){
+  var r=seededRand(42);
+  var sus=[],inf=[],rec=[];
+  for(var i=0;i<200;i++){
+    var x=r()*94+3,y=r()*94+3,sz=Math.max(3,Math.min(14,Math.exp(r()*1.4+1.2)/8));
+    var v=r();
+    if(v<0.52)sus.push({x:x,y:y,r:sz});
+    else if(v<0.76)inf.push({x:x,y:y,r:sz});
+    else rec.push({x:x,y:y,r:sz});
+  }
+  new Chart(document.getElementById('cFarmMap'),{
+    type:'bubble',
+    data:{datasets:[
+      {label:'Susceptible',data:sus,backgroundColor:'rgba(59,130,246,0.45)',borderColor:'#2563eb',borderWidth:.5},
+      {label:'Infected',data:inf,backgroundColor:'rgba(220,38,38,0.5)',borderColor:'#dc2626',borderWidth:.5},
+      {label:'Recovered',data:rec,backgroundColor:'rgba(22,163,74,0.4)',borderColor:'#16a34a',borderWidth:.5},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:10},
+      scales:{x:{display:false,min:0,max:100},y:{display:false,min:0,max:100}},
+      plugins:{legend:{labels:{font:{size:12},padding:16,boxWidth:12}}}}
+  });
+})();
+
+// V2 Herd histogram
+(function(){
+  var r=seededRand(77);
+  var labels=['< 50','50–150','150–300','300–600','600–1200','> 1200'];
+  var counts=[0,0,0,0,0,0];
+  for(var i=0;i<200;i++){
+    var h=Math.round(Math.exp(r()*1.8+3.5));
+    if(h<50)counts[0]++;
+    else if(h<150)counts[1]++;
+    else if(h<300)counts[2]++;
+    else if(h<600)counts[3]++;
+    else if(h<1200)counts[4]++;
+    else counts[5]++;
+  }
+  new Chart(document.getElementById('cHerd'),{
+    type:'bar',
+    data:{labels:labels,datasets:[{label:'Number of farms',data:counts,backgroundColor:'rgba(2,132,199,0.55)',borderColor:'#0284c7',borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{title:{display:true,text:'Herd size (animals)',font:{size:12}}},y:{title:{display:true,text:'Number of farms',font:{size:12}}}},
+      plugins:{legend:{display:false}}}
+  });
+})();
+
+// SIR ODE solver
+function runSIR(b,g,N,days){
+  var S=N-5,I=5,R=0,Sv=[S],Iv=[I],Rv=[R];
+  for(var t=1;t<days;t++){
+    var dI=b*S*I/N,dR=g*I;
+    S=Math.max(0,S-dI);I=Math.max(0,I+dI-dR);R=Math.min(N,R+dR);
+    Sv.push(+S.toFixed(1));Iv.push(+I.toFixed(1));Rv.push(+R.toFixed(1));
+  }
+  return{S:Sv,I:Iv,R:Rv};
+}
+
+// V5 SIR curves
+(function(){
+  var days=Array.from({length:80},function(_,i){return i+1;});
+  var sir=runSIR(0.32,0.11,200,80);
+  new Chart(document.getElementById('cSIR'),{
+    type:'line',
+    data:{labels:days,datasets:[
+      {label:'S — Susceptible',data:sir.S,borderColor:'#2563eb',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0},
+      {label:'I — Infected',data:sir.I,borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.08)',borderWidth:2.5,pointRadius:0,fill:true},
+      {label:'R — Recovered',data:sir.R,borderColor:'#16a34a',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{title:{display:true,text:'Day',font:{size:12}},ticks:{maxTicksLimit:10}},y:{title:{display:true,text:'Number of farms',font:{size:12}},min:0}},
+      plugins:{legend:{labels:{font:{size:12},boxWidth:12,padding:14}}}}
+  });
+})();
+
+// V3 True vs observed
+(function(){
+  var r=seededRand(33);
+  var sir=runSIR(0.32,0.11,200,50);
+  var trueNew=sir.I.map(function(v,i){
+    if(i===0)return 5;
+    return Math.max(0,+(sir.I[i]-sir.I[i-1]+0.11*sir.I[i-1]).toFixed(1));
+  });
+  var days=Array.from({length:50},function(_,i){return i+1;});
+  var observed=trueNew.map(function(v){return Math.max(0,Math.round(v*(0.6+r()*0.3)+(r()-0.5)*1.5));});
+  new Chart(document.getElementById('cObs'),{
+    type:'line',
+    data:{labels:days,datasets:[
+      {label:'True new infections (hidden from analyst)',data:trueNew,borderColor:'#dc2626',backgroundColor:'transparent',borderWidth:2,pointRadius:0,borderDash:[6,4]},
+      {label:'Observed reported cases (what the pipeline sees)',data:observed,type:'bar',backgroundColor:'rgba(37,99,235,0.45)',borderColor:'#2563eb',borderWidth:1},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{title:{display:true,text:'Day',font:{size:12}},ticks:{maxTicksLimit:10}},y:{title:{display:true,text:'New cases',font:{size:12}},min:0}},
+      plugins:{legend:{labels:{font:{size:12},boxWidth:12,padding:14}}}}
+  });
+})();
+</script>
+</body>
+</html>
