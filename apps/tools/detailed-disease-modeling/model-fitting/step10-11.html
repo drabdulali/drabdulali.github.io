@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steps 10-11: LHS, Sensitivity & MCMC — Abdul Ali</title>
+<script>
+window.MathJax = {
+  tex:{ inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], packages:{'[+]':['ams']} },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] },
+  startup:{ typeset:true }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--secondary:#0284c7;--success:#059669;--warning:#d97706;--danger:#dc2626;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#64748b;--card-bg:rgba(255,255,255,0.95);--card-border:rgba(14,165,233,0.15);--gradient-primary:linear-gradient(135deg,#0284c7 0%,#0891b2 50%,#059669 100%);--gradient-light:linear-gradient(180deg,#ffffff 0%,#f8fafc 50%,#f1f5f9 100%);--shadow-glow:0 0 40px rgba(14,165,233,0.15)}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gradient-light);color:var(--text-primary);line-height:1.8;min-height:100vh}
+mjx-container[display="true"]{margin:.8rem 0!important;overflow-x:auto}
+header{background:var(--gradient-primary);color:#fff;padding:1rem 2rem;position:sticky;top:0;z-index:1000;box-shadow:0 4px 20px rgba(2,132,199,0.3)}
+.hc{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.logo{color:#fff;text-decoration:none;font-weight:700;font-size:1.1rem}
+.hn{display:flex;gap:8px}
+.nb{color:#fff;text-decoration:none;padding:.4rem 1rem;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-size:.9rem;transition:all .2s}
+.nb:hover{background:rgba(255,255,255,0.15)}
+.hero{background:var(--gradient-primary);padding:2rem 2rem 2.5rem;color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,0.07) 0%,transparent 60%);pointer-events:none}
+.hi{max-width:1100px;margin:0 auto;position:relative}
+.sp{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);border-radius:50px;padding:5px 16px;font-size:.95rem;font-weight:700;margin-bottom:1rem}
+.sn{width:22px;height:22px;background:#fff;border-radius:50%;color:var(--secondary);font-size:.82rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+.hero h1{font-size:2rem;font-weight:800;letter-spacing:-0.025em;line-height:1.2;margin-bottom:.5rem}
+.hero p{opacity:.9;font-size:.95rem;max-width:680px;line-height:1.6}
+.bc{font-size:.95rem;opacity:.7;margin-bottom:.75rem}
+.bc a{color:#fff;text-decoration:none}
+main{max-width:1100px;margin:0 auto;padding:2rem}
+.snav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(2,132,199,0.1)}
+.sn2{font-size:.85rem;padding:5px 14px;border-radius:20px;border:.5px solid var(--card-border);background:transparent;color:var(--text-muted);cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}
+.sn2:hover,.sn2.act{background:var(--card-bg);color:var(--secondary);border-color:rgba(2,132,199,0.3)}
+.sh{margin:2.5rem 0 1rem;display:flex;align-items:center;gap:10px}
+.sh h2{font-size:1.2rem;font-weight:700;color:var(--text-primary)}
+.sl{flex:1;height:1px;background:linear-gradient(90deg,rgba(2,132,199,0.2),transparent)}
+.prose{font-size:.93rem;color:var(--text-secondary);line-height:1.75;margin-bottom:1rem}
+.prose strong{color:var(--text-primary);font-weight:600}
+.mb{background:linear-gradient(135deg,rgba(2,132,199,0.05),rgba(8,145,178,0.03));border:1px solid rgba(2,132,199,0.15);border-left:4px solid var(--secondary);border-radius:0 10px 10px 0;padding:1rem 1.5rem;margin:1rem 0;overflow-x:auto}
+.ml{font-size:.78rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.cw{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:1.25rem;margin:1rem 0}
+.ct{font-size:.9rem;font-weight:700;color:var(--text-primary);margin-bottom:.75rem}
+.cc{font-size:.85rem;color:var(--text-muted);margin-top:.5rem;font-style:italic}
+.cb{border-radius:12px;padding:1rem 1.25rem;margin:1rem 0;display:flex;gap:10px;align-items:flex-start}
+.cb-b{background:linear-gradient(135deg,rgba(2,132,199,0.06),rgba(8,145,178,0.03));border:1px solid rgba(2,132,199,0.15)}
+.cb-g{background:rgba(5,150,105,0.06);border:1px solid rgba(5,150,105,0.18)}
+.cb-a{background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.18)}
+.ci{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb-b .ci{background:rgba(2,132,199,0.12);color:var(--secondary)}
+.cb-g .ci{background:rgba(5,150,105,0.12);color:var(--success)}
+.cb-a .ci{background:rgba(217,119,6,0.12);color:var(--warning)}
+.cb h4{font-size:.85rem;font-weight:700;margin-bottom:3px}
+.cb-b h4{color:var(--secondary)}
+.cb-g h4{color:var(--success)}
+.cb-a h4{color:var(--warning)}
+.cb p{font-size:.93rem;color:var(--text-secondary);line-height:1.5}
+.tw{overflow-x:auto;margin:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;overflow:hidden}
+th{background:linear-gradient(135deg,rgba(2,132,199,0.08),rgba(8,145,178,0.06));padding:9px 14px;text-align:left;font-weight:700;color:var(--text-primary);border-bottom:1px solid rgba(2,132,199,0.15);font-size:.8rem}
+td{padding:8px 14px;border-bottom:1px solid rgba(2,132,199,0.06);color:var(--text-secondary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(2,132,199,0.02)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
+.sc{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:1rem 1.25rem;text-align:center}
+.sv{font-size:1.6rem;font-weight:800;color:var(--secondary);line-height:1.1}
+.sl2{font-size:.85rem;color:var(--text-muted);margin-top:2px}
+.pn{display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:1.5rem;border-top:1px solid rgba(2,132,199,0.1);gap:1rem;flex-wrap:wrap}
+.pn a{display:flex;align-items:center;gap:8px;text-decoration:none;padding:.65rem 1.25rem;border:1px solid var(--card-border);border-radius:10px;font-size:.85rem;font-weight:600;color:var(--secondary);background:var(--card-bg);transition:all .2s}
+.pn .nx{background:var(--gradient-primary);color:#fff;border:none}
+.pn .nx:hover{opacity:.9}
+.gy-g{background:rgba(5,150,105,0.1);color:var(--success);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+.gy-r{background:rgba(220,38,38,0.08);color:var(--danger);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+.gy-b{background:rgba(2,132,199,0.1);color:var(--secondary);padding:2px 8px;border-radius:50px;font-size:.82rem;font-weight:700}
+footer{background:var(--gradient-primary);color:#fff;text-align:center;padding:1.25rem;font-size:.9rem;margin-top:3rem}
+footer a{color:#fff;text-decoration:underline}
+</style>
+</head>
+<body><header><div class="hc"><a href="../../../../" class="logo">Abdul Ali</a><div class="hn"><a href="step9.html" class="nb">&#8592; Step 9</a><a href="../model-fitting.html" class="nb">Pipeline</a><a href="../model-fitting.html" class="nb">Pipeline overview &#8594;</a></div></div></header>
+<div class="hero"><div class="hi">
+<div class="bc"><a href="../../../../">Home</a> &rsaquo; <a href="../../">Tools</a> &rsaquo; <a href="../model-fitting.html">SIR Pipeline</a> &rsaquo; Steps 10–11</div>
+<div class="sp"><span class="sn">10</span><span class="sn" style="margin-left:-6px">11</span> LHS, Sensitivity &amp; MCMC</div>
+<h1>Uncertainty, Sensitivity &amp; MCMC</h1>
+<p>Map full parameter uncertainty with Latin Hypercube Sampling, rank parameter importance with PRCC, and explore the posterior distribution with Metropolis-Hastings MCMC.</p>
+</div></div>
+<main><nav class="snav">
+  <a href="../model-fitting.html" class="sn2">&#8592; Overview</a>
+  <a href="step1-2.html" class="sn2">1–2 Data &amp; model</a>
+  <a href="step3.html" class="sn2">3 Preprocessing</a>
+  <a href="step4.html" class="sn2">4 Likelihood</a>
+  <a href="step5.html" class="sn2">5 Grid search</a>
+  <a href="step6.html" class="sn2">6 MLE</a>
+  <a href="step7.html" class="sn2">7 GOF</a>
+  <a href="step8.html" class="sn2">8 CI</a>
+  <a href="step9.html" class="sn2">9 Validation</a>
+  <a href="step10-11.html" class="sn2 act">10–11 LHS &amp; PRCC</a>
+</nav>
+<div class="sh"><h2>Step 10 — Latin Hypercube Sampling (LHS)</h2><div class="sl"></div></div>
+<p class="prose" style="font-size:1rem;line-height:1.85;color:#374151;margin-bottom:1.25rem">LHS does not fit the model — it <strong>maps uncertainty</strong>. After obtaining the MLE estimates with CIs, LHS asks: across the entire plausible range of all parameters simultaneously, what is the full range of possible epidemic outcomes?</p>
+<div class="mb"><div class="ml" style="font-size:.78rem;margin-bottom:6px">LHS sample size rule of thumb</div>\[n \geq \frac{4}{3}k^2 \quad (k = \text{number of parameters})\quad \text{For } k=5: n \geq 33. \text{ Standard: } n=500.\]</div>
+
+<div class="sh"><h2>V29 — LHS vs random vs Sobol sampling</h2><div class="sl"></div></div>
+<div class="g3">
+<div class="cw"><div class="ct">LHS — even coverage</div><div style="position:relative;height:180px"><canvas id="clhs"></canvas></div><div class="cc">One sample per bin — no gaps, no clusters.</div></div>
+<div class="cw"><div class="ct">Random — uneven clusters</div><div style="position:relative;height:180px"><canvas id="crand"></canvas></div><div class="cc">Random clustering wastes samples in dense regions.</div></div>
+<div class="cw"><div class="ct">Sobol — ultra-even</div><div style="position:relative;height:180px"><canvas id="csobol"></canvas></div><div class="cc">Quasi-random sequence fills space most efficiently.</div></div>
+</div>
+
+<div class="sh"><h2>V30 — Spaghetti plot: 500 LHS trajectories</h2><div class="sl"></div></div>
+<div class="cw"><div class="ct">V30 — 500 epidemic trajectories from LHS \((\beta,\gamma)\) samples. Orange = MLE best fit.</div><div style="position:relative;height:260px"><canvas id="cspag"></canvas></div><div class="cc">The spread of gray lines shows full uncertainty in the epidemic's possible futures. The orange line (MLE) passes through the dense centre. Wide spread = high parameter uncertainty.</div></div>
+
+<div class="sh"><h2>Step 11 — PRCC sensitivity analysis</h2><div class="sl"></div></div>
+<p class="prose" style="font-size:1rem;line-height:1.85;color:#374151;margin-bottom:1.25rem">PRCC (Partial Rank Correlation Coefficient) measures how strongly each input parameter drives the output (e.g. final epidemic size), <strong>after removing the influence of all other parameters</strong>.</p>
+<div class="mb"><div class="ml" style="font-size:.78rem;margin-bottom:6px">PRCC calculation (5 steps)</div>\[\text{PRCC}(x_i, y \mid x_{-i}) = \text{Pearson}\!\left(\operatorname{rank}(x_i)_{\text{resid}},\; \operatorname{rank}(y)_{\text{resid}}\right)\]</div>
+<div class="tw"><table>
+<thead><tr><th>|PRCC|</th><th>Strength</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>&gt; 0.5</td><td><span class="gy-r">Strong</span></td><td>Estimate this parameter very precisely — top priority</td></tr>
+<tr><td>0.2–0.5</td><td><span class="gy-b">Moderate</span></td><td>Worth collecting better data, but not critical</td></tr>
+<tr><td>&lt; 0.2</td><td><span class="gy-g">Negligible</span></td><td>Rough estimate sufficient — low priority</td></tr>
+</tbody></table></div>
+
+<div class="sh"><h2>V33 — PRCC tornado chart</h2><div class="sl"></div></div>
+<div class="cw"><div class="ct">V33 — PRCC coefficients for final epidemic size. Red = positive driver, blue = negative driver.</div><div style="position:relative;height:280px"><canvas id="ctornado"></canvas></div><div class="cc">\(\beta\) dominates (strong positive: higher transmission → larger outbreak). \(\gamma\) is the strongest negative driver (faster recovery → smaller outbreak). Detection delay is negligible — no need to measure it precisely.</div></div>
+
+<div class="sh"><h2>MCMC — Metropolis-Hastings</h2><div class="sl"></div></div>
+<p class="prose" style="font-size:1rem;line-height:1.85;color:#374151;margin-bottom:1.25rem">Unlike LHS (which ignores the likelihood), MCMC <strong>samples proportional to the posterior</strong>. It spends more time in high-likelihood regions and produces a full posterior distribution for each parameter.</p>
+<div class="mb"><div class="ml" style="font-size:.78rem;margin-bottom:6px">Acceptance probability</div>\[\alpha = \min\!\left(1,\; \frac{\pi(\theta^*\mid y)}{\pi(\theta_t\mid y)}\right)\]</div>
+<p class="prose" style="font-size:1rem;line-height:1.85;color:#374151;margin-bottom:1.25rem">If the proposed \(\theta^*\) has higher posterior than the current \(\theta_t\), always accept. If lower, accept with probability \(\alpha < 1\). This occasionally moves to worse regions — preventing the chain from getting stuck.</p>
+
+<div class="sh"><h2>MCMC posterior distributions</h2><div class="sl"></div></div>
+<div class="g2">
+<div class="cw"><div class="ct">Posterior for \(\beta\) — red = MLE, amber = 95% credible interval</div><div style="position:relative;height:190px"><canvas id="cpostb"></canvas></div></div>
+<div class="cw"><div class="ct">Joint posterior \((\beta, \gamma)\) — dense cloud near MLE ★</div><div style="position:relative;height:190px"><canvas id="cjoint"></canvas></div></div>
+</div>
+<div class="g2">
+<div class="cw"><div class="ct">Trace plot — good chain: fuzzy caterpillar</div><div style="position:relative;height:160px"><canvas id="ctrace"></canvas></div><div class="cc">Rapid oscillation = good mixing. Flat or trending = poor mixing — increase iterations or adjust step size.</div></div>
+<div class="cw"><div class="ct">ACF of chain — should drop to zero quickly</div><div style="position:relative;height:160px"><canvas id="cacfm"></canvas></div><div class="cc">High ACF at lag 1 = slow mixing. Thin the chain or use adaptive MCMC.</div></div>
+</div>
+<div class="tw" style="margin-top:1rem"><table>
+<thead><tr><th>MCMC diagnostic</th><th>Value</th><th>Threshold</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Acceptance rate</td><td>31%</td><td>23–44%</td><td><span class="gy-g">Pass ✓</span></td></tr>
+<tr><td>Gelman-Rubin \(\hat{R}\) for \(\beta\)</td><td>1.003</td><td>&lt; 1.1</td><td><span class="gy-g">Converged ✓</span></td></tr>
+<tr><td>Gelman-Rubin \(\hat{R}\) for \(\gamma\)</td><td>1.007</td><td>&lt; 1.1</td><td><span class="gy-g">Converged ✓</span></td></tr>
+<tr><td>Effective sample size (ESS) \(\beta\)</td><td>3,840 / 10,000</td><td>&gt; 1,000</td><td><span class="gy-g">Pass ✓</span></td></tr>
+<tr><td>Burn-in discarded</td><td>2,000 (20%)</td><td>10–50%</td><td><span class="gy-g">Pass ✓</span></td></tr>
+</tbody></table></div>
+
+<div class="pn">
+<a href="step9.html">&#8592; Step 9: Validation</a>
+<a href="../model-fitting.html" class="nx">&#8592; Back to pipeline overview</a>
+</div></main><footer><p>Interactive Research Tools &mdash; <a href="../../../../">Abdul Ali</a> | Infectious Disease Ecology &amp; Ecological Modeling</p></footer>
+<script>
+function seededRand(s){var r=s;return function(){r=(r*9301+49297)%233280;return r/233280;}}
+(function(){
+  var n=80,r=seededRand(42),r2=seededRand(77),r3=seededRand(13);
+  var lhsB=[],lhsG=[],randB=[],randG=[],sobB=[],sobG=[];
+  for(var i=0;i<n;i++){
+    lhsB.push(+(0.1+(0.5-0.1)*(i+r())/n).toFixed(3));
+    lhsG.push(+(0.04+(0.22-0.04)*(i+r())/n).toFixed(3));
+    randB.push(+(0.1+r2()*0.4).toFixed(3));
+    randG.push(+(0.04+r2()*0.18).toFixed(3));
+    var b2=i/n,g2=0,dj=i,f=0.5;
+    while(dj>0){g2+=f*(dj%2);dj=Math.floor(dj/2);f*=0.5;}
+    sobB.push(+(0.1+b2*0.4).toFixed(3));
+    sobG.push(+(0.04+g2*0.18).toFixed(3));
+  }
+  lhsB.sort(function(){return r()-0.5;});
+  function scatter(id,bArr,gArr,col){
+    new Chart(document.getElementById(id),{type:'scatter',data:{datasets:[{data:bArr.map(function(b,i){return {x:b,y:gArr[i]};}),backgroundColor:col+'77',pointRadius:3,borderWidth:0,label:''}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:6},scales:{x:{title:{display:true,text:'\u03b2',font:{size:10}},min:0.08,max:0.52},y:{title:{display:true,text:'\u03b3',font:{size:10}},min:0.03,max:0.23}},plugins:{legend:{display:false}}}});
+  }
+  scatter('clhs',lhsB,lhsG,'#1D9E75');
+  scatter('crand',randB,randG,'#D85A30');
+  scatter('csobol',sobB,sobG,'#378ADD');
+})();
+(function(){
+  var r=seededRand(21);
+  var days=Array.from({length:60},function(_,i){return i+1;});
+  var ds=[];
+  for(var s=0;s<90;s++){
+    var pk=15+r()*22,wd=7+r()*9,ht=20+r()*35;
+    ds.push({data:days.map(function(t){return +Math.max(0,ht*Math.exp(-0.5*Math.pow((t-pk)/wd,2))+(r()-0.5)*1.5).toFixed(1);}),borderColor:'rgba(136,135,128,0.2)',backgroundColor:'transparent',borderWidth:0.8,pointRadius:0,label:''});
+  }
+  ds.push({data:days.map(function(t){return +Math.max(0,42*Math.exp(-0.5*Math.pow((t-22)/11,2))).toFixed(1);}),borderColor:'#BA7517',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,label:'MLE best fit'});
+  new Chart(document.getElementById('cspag'),{type:'line',data:{labels:days,datasets:ds},options:{responsive:true,maintainAspectRatio:false,scales:{x:{title:{display:true,text:'Day',font:{size:11}}},y:{title:{display:true,text:'Infected farms',font:{size:11}},min:0}},plugins:{legend:{labels:{font:{size:11},boxWidth:10,filter:function(l){return l.text!=='';}}}}},animation:{duration:0}});
+})();
+(function(){
+  var params=['\u03b2 (transmission)','\u03b3 (recovery)','Initial I\u2080','Farm density','Herd size','Reporting rate','Detection delay'];
+  var prcc=[0.87,-0.74,0.52,-0.38,0.29,-0.18,0.11];
+  var cols=prcc.map(function(v){return v>0?'#D85A30':'#378ADD';});
+  new Chart(document.getElementById('ctornado'),{type:'bar',data:{labels:params,datasets:[{label:'PRCC',data:prcc,backgroundColor:cols.map(function(c){return c+'99';}),borderColor:cols,borderWidth:1,borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{min:-1,max:1,title:{display:true,text:'PRCC coefficient',font:{size:11}},grid:{color:'rgba(128,128,128,0.1)'},ticks:{callback:function(v){return v.toFixed(1);}}},y:{ticks:{font:{size:11}}}},plugins:{legend:{display:false}}}});
+})();
+(function(){
+  var r=seededRand(33);
+  var n=200;
+  var samples=Array.from({length:n},function(){return +(0.321+(r()-0.5)*0.048).toFixed(3);});
+  var mle=0.321,lo=0.278,hi=0.368;
+  var mn=0.24,mx=0.40,bins=18,step=(mx-mn)/bins;
+  var edges=Array.from({length:bins},function(_,i){return +(mn+i*step).toFixed(3);});
+  var counts=edges.map(function(e){return samples.filter(function(v){return v>=e&&v<e+step;}).length;});
+  var loI=edges.reduce(function(b,v,i){return Math.abs(v-lo)<Math.abs(edges[b]-lo)?i:b;},0);
+  var hiI=edges.reduce(function(b,v,i){return Math.abs(v-hi)<Math.abs(edges[b]-hi)?i:b;},0);
+  var mI=edges.reduce(function(b,v,i){return Math.abs(v-mle)<Math.abs(edges[b]-mle)?i:b;},0);
+  var bgC=edges.map(function(_,i){return i>=loI&&i<=hiI?'#378ADD88':'#378ADD33';});
+  new Chart(document.getElementById('cpostb'),{type:'bar',data:{labels:edges.map(function(e){return e.toFixed(3);}),datasets:[{data:counts,backgroundColor:bgC,borderColor:'#378ADD44',borderWidth:0.5,borderRadius:2,label:'Posterior samples'}]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:20,right:8}},scales:{x:{title:{display:true,text:'\u03b2 value',font:{size:10}},ticks:{maxTicksLimit:6}},y:{title:{display:true,text:'Frequency',font:{size:10}}}},plugins:{legend:{display:false}}},
+    plugins:[{id:'vl',afterDraw:function(chart){var ctx=chart.ctx,xs=chart.scales.x,ys=chart.scales.y;
+      var mx2=xs.getPixelForValue(mI),lx=xs.getPixelForValue(loI),hx=xs.getPixelForValue(hiI);
+      ctx.save();ctx.strokeStyle='#D85A30';ctx.lineWidth=2.5;ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(mx2,ys.top);ctx.lineTo(mx2,ys.bottom);ctx.stroke();
+      ctx.strokeStyle='#BA7517';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(lx,ys.top+2);ctx.lineTo(lx,ys.bottom);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(hx,ys.top+2);ctx.lineTo(hx,ys.bottom);ctx.stroke();
+      ctx.setLineDash([]);ctx.font='500 10px sans-serif';ctx.fillStyle='#D85A30';ctx.textAlign='center';
+      ctx.fillText('MLE',mx2,ys.top+10);ctx.restore();
+    }}]});
+  var pts=Array.from({length:200},function(){return {x:+(0.321+(r()-0.5)*0.048).toFixed(3),y:+(0.111+(r()-0.5)*0.022).toFixed(3)};});
+  new Chart(document.getElementById('cjoint'),{type:'scatter',data:{datasets:[{label:'MCMC samples',data:pts,backgroundColor:'#378ADD55',pointRadius:3,borderWidth:0},{label:'MLE \u2605',data:[{x:0.321,y:0.111}],backgroundColor:'#D85A30',pointRadius:9,borderWidth:0,pointStyle:'triangle'}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:8},scales:{x:{title:{display:true,text:'\u03b2',font:{size:10}},min:0.18,max:0.46},y:{title:{display:true,text:'\u03b3',font:{size:10}},min:0.06,max:0.17}},plugins:{legend:{labels:{font:{size:10},boxWidth:8}}}}});
+  var iters=Array.from({length:400},function(_,i){return i;});
+  var chain=[],cur=0.32;
+  iters.forEach(function(){cur=0.32+(r()-0.5)*0.05;chain.push(+cur.toFixed(3));});
+  new Chart(document.getElementById('ctrace'),{type:'line',data:{labels:iters,datasets:[{data:chain,borderColor:'#378ADD',backgroundColor:'transparent',borderWidth:1,pointRadius:0,label:'\u03b2 trace'}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{title:{display:true,text:'Iteration',font:{size:10}},ticks:{maxTicksLimit:6}},y:{title:{display:true,text:'\u03b2',font:{size:10}},min:0.18,max:0.46}},plugins:{legend:{labels:{font:{size:10},boxWidth:8}}}}});
+  var lags=Array.from({length:15},function(_,i){return i+1;});
+  var acfV=lags.map(function(_,i){return +(Math.exp(-i*0.8)+(r()-0.5)*0.04).toFixed(3);});
+  var bd=1.96/Math.sqrt(400);
+  new Chart(document.getElementById('cacfm'),{type:'bar',data:{labels:lags,datasets:[{data:acfV,backgroundColor:acfV.map(function(v){return Math.abs(v)>bd?'#378ADDcc':'#378ADD55';}),borderWidth:0,borderRadius:2,label:'ACF'},{data:lags.map(function(){return bd;}),type:'line',borderColor:'#D85A30',borderDash:[4,3],borderWidth:1.5,pointRadius:0,label:'+95%'},{data:lags.map(function(){return -bd;}),type:'line',borderColor:'#D85A30',borderDash:[4,3],borderWidth:1.5,pointRadius:0,label:'-95%'}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{title:{display:true,text:'Lag',font:{size:10}}},y:{title:{display:true,text:'ACF',font:{size:10}},min:-0.5,max:1.1}},plugins:{legend:{display:false}}}});
+})();
+</script></body></html>
