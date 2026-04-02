@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIR Model Fitting Pipeline — Interactive Study Guide - Abdul Ali</title>
+    <meta name="description" content="Interactive 11-step guide to fitting a stochastic SIR model to outbreak data. MLE, profile likelihood, MCMC, LHS, PRCC, Nelder-Mead, and more.">
+    <meta name="keywords" content="SIR model fitting, MLE, likelihood, MCMC, PRCC, sensitivity analysis, epidemic modeling, R0, Nelder-Mead, Latin Hypercube Sampling">
+    <link rel="canonical" href="https://drabdulali.github.io/apps/tools/disease-modeling/model-fitting.html">
+
+    <!-- MathJax 3 -->
+    <script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            packages: {'[+]': ['ams']}
+        },
+        options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
+        startup: { typeset: true }
+    };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --secondary:#0284c7;
+            --success:#059669;
+            --warning:#d97706;
+            --text-primary:#0f172a;
+            --text-secondary:#475569;
+            --text-muted:#64748b;
+            --card-bg:rgba(255,255,255,0.95);
+            --card-border:rgba(14,165,233,0.15);
+            --gradient-primary:linear-gradient(135deg,#0284c7 0%,#0891b2 50%,#059669 100%);
+            --gradient-light:linear-gradient(180deg,#ffffff 0%,#f8fafc 50%,#f1f5f9 100%);
+            --shadow-glow:0 0 40px rgba(14,165,233,0.15);
+        }
+        html{scroll-behavior:smooth}
+        body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gradient-light);color:var(--text-primary);line-height:1.7;min-height:100vh}
+
+        mjx-container[display="true"]{margin:0.8rem 0!important;overflow-x:auto;padding:0.25rem 0}
+
+        /* ── Header ── */
+        header{background:var(--gradient-primary);color:#fff;padding:1rem 2rem;position:sticky;top:0;z-index:1000;box-shadow:0 4px 20px rgba(2,132,199,0.3)}
+        .header-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+        .logo{color:#fff;text-decoration:none;font-weight:700;font-size:1.25rem;letter-spacing:-0.02em}
+        .back-link{color:#fff;text-decoration:none;padding:.5rem 1.25rem;border:1px solid rgba(255,255,255,0.3);border-radius:8px;transition:all .3s;font-size:.9rem}
+        .back-link:hover{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.5)}
+
+        /* ── Hero ── */
+        .hero{background:var(--gradient-primary);padding:3rem 2rem 4rem;text-align:center;color:#fff;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 20% 50%,rgba(255,255,255,0.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(255,255,255,0.05) 0%,transparent 40%);pointer-events:none}
+        .hero-breadcrumb{font-size:.82rem;opacity:.75;margin-bottom:1rem;position:relative}
+        .hero-breadcrumb a{color:#fff;text-decoration:none;opacity:.85}
+        .hero-breadcrumb a:hover{opacity:1;text-decoration:underline}
+        .hero h1{font-size:2.6rem;font-weight:800;margin-bottom:1rem;letter-spacing:-0.03em;line-height:1.15;position:relative}
+        .hero p{opacity:.92;max-width:780px;margin:0 auto 1.5rem;font-size:1.05rem;line-height:1.7;position:relative}
+        .hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:2rem;position:relative}
+        .hero-tag{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:50px;padding:4px 14px;font-size:.78rem;font-weight:600}
+        .hero-stats{display:flex;justify-content:center;gap:2.5rem;position:relative}
+        .hero-stat{text-align:center}
+        .hero-stat-value{font-size:2rem;font-weight:800;line-height:1.2}
+        .hero-stat-label{font-size:.78rem;opacity:.8;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+
+        /* ── Main ── */
+        main{max-width:1400px;margin:0 auto;padding:0 2rem 5rem}
+
+        /* ── Info / warn bars ── */
+        .info-bar{background:linear-gradient(135deg,rgba(2,132,199,0.06),rgba(8,145,178,0.04));border:1px solid rgba(2,132,199,0.15);border-radius:16px;padding:1.5rem 2rem;margin:2rem 0;display:flex;align-items:flex-start;gap:1rem}
+        .info-bar-icon{width:40px;height:40px;background:var(--gradient-primary);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+        .info-bar h3{font-size:.95rem;font-weight:700;color:var(--text-primary);margin-bottom:4px}
+        .info-bar p{font-size:.88rem;color:var(--text-secondary);line-height:1.6}
+        .info-steps{display:flex;gap:1.5rem;margin-top:10px;flex-wrap:wrap}
+        .info-step{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text-secondary)}
+        .info-step-num{width:20px;height:20px;border-radius:50%;background:var(--gradient-primary);color:#fff;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+        .warn-bar{background:linear-gradient(135deg,rgba(217,119,6,0.06),rgba(217,119,6,0.03));border:1px solid rgba(217,119,6,0.18);border-radius:12px;padding:1rem 1.5rem;margin-bottom:2rem;display:flex;gap:12px;align-items:flex-start}
+        .warn-bar svg{color:var(--warning);flex-shrink:0;margin-top:1px}
+        .warn-bar h4{font-size:.88rem;font-weight:700;color:var(--warning);margin-bottom:3px}
+        .warn-bar p{font-size:.82rem;color:var(--text-secondary);line-height:1.5}
+
+        /* ── Section header ── */
+        .section-header{margin:2.5rem 0 1.25rem;display:flex;align-items:center;gap:12px}
+        .section-header h2{font-size:1.3rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em}
+        .section-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(2,132,199,0.2),transparent)}
+        .section-badge{background:linear-gradient(135deg,rgba(2,132,199,0.1),rgba(8,145,178,0.08));border:1px solid rgba(2,132,199,0.2);border-radius:50px;padding:3px 12px;font-size:.72rem;color:var(--secondary);font-weight:700}
+
+        /* ── ODE system panel ── */
+        .ode-system{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:1.5rem 2rem;margin:1.5rem 0;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+        .ode-panel h4{font-size:.82rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+        .ode-note{font-size:.78rem;color:var(--text-muted);margin-top:10px;line-height:1.5}
+        @media(max-width:600px){.ode-system{grid-template-columns:1fr}}
+
+        /* ── Param table ── */
+        .param-table-wrap{overflow-x:auto;margin:.5rem 0}
+        .param-table{width:100%;border-collapse:collapse;font-size:.84rem}
+        .param-table th{background:linear-gradient(135deg,rgba(2,132,199,0.08),rgba(8,145,178,0.06));padding:8px 12px;text-align:left;font-weight:700;color:var(--text-primary);font-size:.78rem;border-bottom:1px solid rgba(2,132,199,0.15)}
+        .param-table td{padding:7px 12px;border-bottom:1px solid rgba(2,132,199,0.06);color:var(--text-secondary);vertical-align:middle}
+        .param-table tr:last-child td{border-bottom:none}
+        .param-sym{color:var(--text-primary);font-weight:600}
+
+        /* ── Pipeline flow ── */
+        .pipeline-flow{display:flex;align-items:center;overflow-x:auto;padding:1rem 0 1.5rem;scrollbar-width:thin;scrollbar-color:rgba(2,132,199,0.2) transparent}
+        .pipeline-flow::-webkit-scrollbar{height:4px}
+        .pipeline-flow::-webkit-scrollbar-thumb{background:rgba(2,132,199,0.2);border-radius:2px}
+        .pipe-node{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none}
+        .pipe-node-circle{width:52px;height:52px;border-radius:50%;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;font-weight:800;box-shadow:0 4px 15px rgba(2,132,199,0.3);transition:all .3s}
+        .pipe-node:hover .pipe-node-circle{transform:scale(1.1);box-shadow:0 6px 20px rgba(2,132,199,0.45)}
+        .pipe-node-label{font-size:.66rem;color:var(--text-muted);font-weight:600;text-align:center;max-width:68px;line-height:1.3}
+        .pipe-arrow{flex-shrink:0;color:rgba(2,132,199,0.4);font-size:1.1rem;padding:0 4px;margin-bottom:22px}
+
+        /* ── Learn grid ── */
+        .learn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-bottom:2.5rem}
+        .learn-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.25rem;display:flex;gap:10px;align-items:flex-start}
+        .learn-icon{width:32px;height:32px;border-radius:8px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+        .learn-card h4{font-size:.88rem;font-weight:700;margin-bottom:2px}
+        .learn-card p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+
+        /* ── Steps grid ── */
+        .steps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem}
+        .step-card{background:var(--card-bg);border-radius:16px;padding:1.5rem;border:1px solid var(--card-border);text-decoration:none;color:inherit;transition:all .4s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;position:relative;overflow:hidden}
+        .step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--gradient-primary);opacity:0;transition:opacity .3s}
+        .step-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-glow);border-color:rgba(2,132,199,0.3)}
+        .step-card:hover::before{opacity:1}
+        .step-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:.75rem}
+        .step-num-badge{width:40px;height:40px;border-radius:10px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;font-weight:800;flex-shrink:0}
+        .step-card h3{font-size:1rem;font-weight:700;color:var(--text-primary);line-height:1.35}
+        .step-card-subtitle{font-size:.78rem;color:var(--secondary);font-weight:600;margin-top:1px}
+        .step-card>p{font-size:.86rem;color:var(--text-secondary);line-height:1.6;flex-grow:1;margin-bottom:.9rem}
+
+        /* Key formula box */
+        .step-formula{background:linear-gradient(135deg,rgba(2,132,199,0.05),rgba(8,145,178,0.03));border:1px solid rgba(2,132,199,0.12);border-left:3px solid var(--secondary);border-radius:0 8px 8px 0;padding:8px 14px;margin-bottom:.75rem;overflow-x:auto}
+        .step-formula-label{font-size:.66rem;color:var(--secondary);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+
+        .key-concepts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.9rem}
+        .concept-tag{padding:3px 9px;background:linear-gradient(135deg,rgba(2,132,199,0.08),rgba(8,145,178,0.06));border:1px solid rgba(2,132,199,0.12);border-radius:50px;font-size:.69rem;color:var(--secondary);font-weight:600}
+
+        .figures-list{border-top:1px solid rgba(2,132,199,0.1);padding-top:.75rem;margin-bottom:.9rem}
+        .figures-list-title{font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+        .figures-list ul{list-style:none;display:flex;flex-direction:column;gap:2px}
+        .figures-list li{font-size:.76rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px}
+        .figures-list li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gradient-primary);flex-shrink:0}
+
+        .step-card-footer{display:flex;justify-content:space-between;align-items:center}
+        .step-status{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:50px}
+        .status-ready{background:rgba(5,150,105,0.1);color:var(--success);border:1px solid rgba(5,150,105,0.2)}
+        .status-coming{background:rgba(100,116,139,0.08);color:var(--text-muted);border:1px solid rgba(100,116,139,0.15)}
+        .step-arrow{color:var(--secondary);font-size:1.1rem;font-weight:700;transition:transform .3s}
+        .step-card:hover .step-arrow{transform:translateX(4px)}
+
+
+
+        /* ── Footer ── */
+        footer{background:var(--gradient-primary);color:#fff;text-align:center;padding:1.5rem;font-size:.85rem}
+        footer a{color:#fff;text-decoration:underline}
+
+        @media(max-width:768px){
+            .hero h1{font-size:1.8rem}
+            .hero{padding:2rem 1rem 3rem}
+            .hero-stats{gap:1.5rem}
+            .hero-stat-value{font-size:1.5rem}
+            main{padding:0 1rem 3rem}
+            .steps-grid{grid-template-columns:1fr}
+            .info-bar{flex-direction:column}
+            .info-steps{flex-direction:column;gap:8px}
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <!--
+            PATH: apps/tools/disease-modeling/model-fitting.html
+            Root (../../..) = site root (drabdulali.github.io)
+            Tools (..)      = apps/tools/
+        -->
+        <a href="../../../" class="logo">Abdul Ali</a>
+        <a href="../" class="back-link">&#8592; Back to Tools</a>
+    </div>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+    <div class="hero-breadcrumb">
+        <a href="../../../">Home</a> &rsaquo;
+        <a href="../">Interactive Tools</a> &rsaquo;
+        <a href="./">Disease Modeling</a> &rsaquo;
+        SIR Model Fitting Pipeline
+    </div>
+    <h1>SIR Model Fitting Pipeline</h1>
+    <p>
+        A complete interactive study guide covering all 11 steps of fitting a stochastic SIR model
+        to outbreak data — from raw case counts to publication-ready parameter estimates,
+        confidence intervals, and sensitivity analysis. Every concept is explained with live graphs
+        and properly typeset mathematics.
+    </p>
+    <div class="hero-tags">
+        <span class="hero-tag">SIR / SEIR</span>
+        <span class="hero-tag">Maximum Likelihood</span>
+        <span class="hero-tag">Nelder-Mead</span>
+        <span class="hero-tag">Profile Likelihood CI</span>
+        <span class="hero-tag">MCMC</span>
+        <span class="hero-tag">LHS</span>
+        <span class="hero-tag">PRCC</span>
+        <span class="hero-tag">Sensitivity Analysis</span>
+    </div>
+    <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-value">11</div><div class="hero-stat-label">Steps</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">39+</div><div class="hero-stat-label">Figures</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">100%</div><div class="hero-stat-label">Interactive</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">Farm</div><div class="hero-stat-label">Case study</div></div>
+    </div>
+</section>
+
+<main>
+
+<!-- ── File structure note ── -->
+<!-- ── How to use ── -->
+<div class="info-bar">
+    <div class="info-bar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+    </div>
+    <div>
+        <h3>How to use this guide</h3>
+        <p>Each step is a self-contained interactive page with plain-language explanation, properly typeset mathematics, interactive charts, and output tables you would report in a real analysis. Work through them in order or jump to any step you need.</p>
+        <div class="info-steps">
+            <div class="info-step"><span class="info-step-num">1</span>Read the plain-language explanation</div>
+            <div class="info-step"><span class="info-step-num">2</span>Study the typeset equations</div>
+            <div class="info-step"><span class="info-step-num">3</span>Interact with the live graphs</div>
+            <div class="info-step"><span class="info-step-num">4</span>Examine the output tables</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Prerequisites ── -->
+<div class="warn-bar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <div>
+        <h4>Prerequisites</h4>
+        <p>Basic familiarity with epidemic curves is helpful but not required. All mathematical notation is explained in plain language alongside the typeset equations. No coding required — everything runs in your browser.</p>
+    </div>
+</div>
+
+<!-- ── Core SIR equations ── -->
+<div class="section-header">
+    <h2>The core model — SIR equations</h2>
+    <div class="section-line"></div>
+</div>
+
+<div class="ode-system">
+    <div class="ode-panel">
+        <h4>ODE system</h4>
+        \[\frac{dS}{dt} = -\frac{\beta\, S\, I}{N}\]
+        \[\frac{dI}{dt} = \frac{\beta\, S\, I}{N} - \gamma I\]
+        \[\frac{dR}{dt} = \gamma I\]
+        <p class="ode-note">
+            The constraint \(S + I + R = N\) holds at all times.
+            Frequency-dependent transmission is used because contact rates
+            do not scale with population size in a finite farm network.
+        </p>
+    </div>
+    <div class="ode-panel">
+        <h4>Key quantities</h4>
+        <div class="param-table-wrap">
+            <table class="param-table">
+                <thead><tr><th>Symbol</th><th>Meaning</th><th>Units</th></tr></thead>
+                <tbody>
+                    <tr><td class="param-sym">\(\beta\)</td><td>Transmission rate</td><td>day\(^{-1}\)</td></tr>
+                    <tr><td class="param-sym">\(\gamma\)</td><td>Recovery rate</td><td>day\(^{-1}\)</td></tr>
+                    <tr><td class="param-sym">\(1/\gamma\)</td><td>Mean infectious period</td><td>days</td></tr>
+                    <tr><td class="param-sym">\(N\)</td><td>Total farms</td><td>farms</td></tr>
+                    <tr><td class="param-sym">\(\mathcal{R}_0 = \beta/\gamma\)</td><td>Basic reproduction number</td><td>dimensionless</td></tr>
+                    <tr><td class="param-sym">\(p_c = 1 - 1/\mathcal{R}_0\)</td><td>Herd immunity threshold</td><td>dimensionless</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="ode-note">Epidemic grows when \(\mathcal{R}_0 > 1\) and fades when \(\mathcal{R}_0 \leq 1\).</p>
+    </div>
+</div>
+
+<!-- ── Pipeline flow ── -->
+<div class="section-header">
+    <h2>Full pipeline at a glance</h2>
+    <div class="section-line"></div>
+    <span class="section-badge">11 STEPS</span>
+</div>
+
+<!--
+    All step links are relative to THIS file's location:
+    apps/tools/disease-modeling/model-fitting.html
+    So step pages live at: model-fitting/stepX.html
+-->
+<div class="pipeline-flow">
+    <a href="model-fitting/step1-2.html" class="pipe-node"><div class="pipe-node-circle">1</div><div class="pipe-node-label">Data generation</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step1-2.html" class="pipe-node"><div class="pipe-node-circle">2</div><div class="pipe-node-label">SIR model</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step3.html" class="pipe-node"><div class="pipe-node-circle">3</div><div class="pipe-node-label">Preprocessing</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step4.html" class="pipe-node"><div class="pipe-node-circle">4</div><div class="pipe-node-label">Likelihood</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step5.html" class="pipe-node"><div class="pipe-node-circle">5</div><div class="pipe-node-label">Grid search</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step6.html" class="pipe-node"><div class="pipe-node-circle">6</div><div class="pipe-node-label">MLE optim.</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step7.html" class="pipe-node"><div class="pipe-node-circle">7</div><div class="pipe-node-label">Goodness of fit</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step8.html" class="pipe-node"><div class="pipe-node-circle">8</div><div class="pipe-node-label">Conf. intervals</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step9.html" class="pipe-node"><div class="pipe-node-circle">9</div><div class="pipe-node-label">Validation</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step10-11.html" class="pipe-node"><div class="pipe-node-circle">10</div><div class="pipe-node-label">LHS uncertainty</div></a>
+    <div class="pipe-arrow">&#8594;</div>
+    <a href="model-fitting/step10-11.html" class="pipe-node"><div class="pipe-node-circle">11</div><div class="pipe-node-label">Sensitivity</div></a>
+</div>
+
+<!-- ── What you will learn ── -->
+<div class="section-header">
+    <h2>What you will learn</h2>
+    <div class="section-line"></div>
+</div>
+
+<div class="learn-grid">
+    <div class="learn-card">
+        <div class="learn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-5"/></svg></div>
+        <div>
+            <h4>Growth rate &amp; crude \(\mathcal{R}_0\)</h4>
+            <p>Estimate \(r\) from the log-linear slope of early cases and compute \(\mathcal{R}_0 \approx r/\gamma + 1\) with an interactive \(\gamma\) slider.</p>
+        </div>
+    </div>
+    <div class="learn-card">
+        <div class="learn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 12L12 6"/><path d="M12 12L16 14"/></svg></div>
+        <div>
+            <h4>Likelihood &amp; distribution choice</h4>
+            <p>Why NegBin with dispersion \(k\) beats Poisson for overdispersed outbreak data. Formal AIC / BIC model selection.</p>
+        </div>
+    </div>
+    <div class="learn-card">
+        <div class="learn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/></svg></div>
+        <div>
+            <h4>MLE &amp; Nelder-Mead</h4>
+            <p>Minimize \(-\ell(\beta,\gamma)\) with the simplex algorithm. 50 random restarts prevent local minima traps.</p>
+        </div>
+    </div>
+    <div class="learn-card">
+        <div class="learn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="M7 12c0-4 3-8 7-8s5 4 5 8-1 4-5 8"/></svg></div>
+        <div>
+            <h4>Profile likelihood CI</h4>
+            <p>CIs for \(\hat\beta\), \(\hat\gamma\), \(\hat{k}\), \(\hat{\mathcal{R}}_0\) via the cutoff \(\ell_{\max} - \tfrac{1}{2}\chi^2_{1,\,0.95}\).</p>
+        </div>
+    </div>
+    <div class="learn-card">
+        <div class="learn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg></div>
+        <div>
+            <h4>Goodness of fit</h4>
+            <p>Pearson residuals \(e_t = (y_t - \hat\mu_t)/\sqrt{\hat\mu_t(1+\hat\mu_t/k)}\), Q-Q plots, ACF. Good vs bad side-by-side.</p>
+        </div>
+    </div>
+    <div class="learn-card">
+        <div class="learn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <div>
+            <h4>LHS &amp; PRCC</h4>
+            <p>Latin Hypercube Sampling with \(n \geq \tfrac{4}{3}k^2\). PRCC ranks how strongly each input parameter drives model output.</p>
+        </div>
+    </div>
+    <div class="learn-card">
+        <div class="learn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/></svg></div>
+        <div>
+            <h4>MCMC &amp; posteriors</h4>
+            <p>Accept \(\theta^*\) with probability \(\alpha = \min(1,\, \pi(\theta^*\mid y)/\pi(\theta_t\mid y))\). Check convergence via \(\hat{R} < 1.1\).</p>
+        </div>
+    </div>
+    <div class="learn-card">
+        <div class="learn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div>
+            <h4>Model validation</h4>
+            <p>Five methods: holdout 80/20, \(k\)-fold CV, LOO, simulation recovery (\(\hat\beta\) vs \(\beta_{\text{true}}\)), and prospective validation.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── Step cards ── -->
+<div class="section-header">
+    <h2>Step-by-step pages</h2>
+    <div class="section-line"></div>
+    <span class="section-badge">CLICK TO OPEN</span>
+</div>
+
+<div class="steps-grid">
+
+    <!-- Steps 1-2 -->
+    <a href="model-fitting/step1-2.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">1–2</div>
+            <div>
+                <h3>Data Generation &amp; Model Formulation</h3>
+                <div class="step-card-subtitle">SIR ODE &middot; Farm simulation &middot; \(\mathcal{R}_0\) &middot; Compartments</div>
+            </div>
+        </div>
+        <p>Simulate 200 farms with log-normal herd sizes and distance-based transmission. Write and interpret the SIR ODE system with frequency-dependent transmission. Introduces \(\beta\), \(\gamma\), and \(\mathcal{R}_0 = \beta/\gamma\).</p>
+        <div class="step-formula">
+            <div class="step-formula-label">Basic reproduction number</div>
+            \[\mathcal{R}_0 = \frac{\beta}{\gamma}, \qquad \text{epidemic grows iff } \mathcal{R}_0 > 1\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">SIR ODE</span>
+            <span class="concept-tag">\(\beta\) transmission</span>
+            <span class="concept-tag">\(\gamma\) recovery</span>
+            <span class="concept-tag">Stochastic sim.</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>V1 Spatial farm map — dot size = herd, colour = status</li>
+                <li>V5 SIR compartment flow diagram</li>
+                <li>V3 True vs observed epidemic curve</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+    <!-- Step 3 -->
+    <a href="model-fitting/step3.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">3</div>
+            <div>
+                <h3>Data Preprocessing</h3>
+                <div class="step-card-subtitle">Smoothing &middot; Growth rate \(r\) &middot; Crude \(\mathcal{R}_0\) &middot; Outlier flagging</div>
+            </div>
+        </div>
+        <p>Full 12-item preprocessing checklist for real outbreak data. Estimate the exponential growth rate \(r\) from a log-linear fit to early case counts, then compute crude \(\mathcal{R}_0\) with an interactive \(\gamma\) slider.</p>
+        <div class="step-formula">
+            <div class="step-formula-label">Crude \(\mathcal{R}_0\) from early growth</div>
+            \[\mathcal{R}_0 \approx \frac{r}{\gamma} + 1, \quad r = \frac{d}{dt}\ln I(t)\Big|_{\text{early}}\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">7-day rolling avg.</span>
+            <span class="concept-tag">Log-linear fit</span>
+            <span class="concept-tag">Growth rate \(r\)</span>
+            <span class="concept-tag">Reporting delay</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>V8 Raw vs smoothed incidence overlay</li>
+                <li>V9 Log-linear fit to early exponential phase</li>
+                <li>Interactive \(\mathcal{R}_0\) calculator with \(\gamma\) slider</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+    <!-- Step 4 -->
+    <a href="model-fitting/step4.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">4</div>
+            <div>
+                <h3>Likelihood Construction</h3>
+                <div class="step-card-subtitle">NegBin &middot; AIC &middot; Overdispersion &middot; \(P(X=k)\)</div>
+            </div>
+        </div>
+        <p>Compare Poisson, Negative Binomial, and Binomial for daily case counts \(y_t\). Understand what \(k\) (the count axis) and \(P(X=k)\) mean. AIC selects the winning distribution formally.</p>
+        <div class="step-formula">
+            <div class="step-formula-label">Log-likelihood (Negative Binomial)</div>
+            \[\ell(\beta,\gamma) = \sum_{t=1}^{T} \log P_{\mathrm{NB}}\!\left(y_t \,\Big|\, \mu_t,\, k\right)\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">NegBin dispersion \(k\)</span>
+            <span class="concept-tag">Overdispersion</span>
+            <span class="concept-tag">AIC / BIC</span>
+            <span class="concept-tag">Log-likelihood</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>V11 Distribution fit — PMF overlay</li>
+                <li>V12 Q-Q plots for each distribution</li>
+                <li>V13 AIC comparison chart + table</li>
+                <li>V14 Likelihood slices — MLE + CI lines clearly marked</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+    <!-- Step 5 -->
+    <a href="model-fitting/step5.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">5</div>
+            <div>
+                <h3>Grid Search</h3>
+                <div class="step-card-subtitle">ODE scoring &middot; 2,500 runs &middot; Likelihood heatmap</div>
+            </div>
+        </div>
+        <p>Each dot in the heatmap is scored by running the SIR ODE, comparing predicted \(\hat{I}(t;\beta,\gamma)\) to observed \(y_t\), and summing log-probabilities. Interactive: try your own \((\beta,\gamma)\) pair.</p>
+        <div class="step-formula">
+            <div class="step-formula-label">Score for grid cell \((\beta_i,\gamma_j)\)</div>
+            \[\text{score}_{ij} = \sum_{t=1}^{T}\log P_{\mathrm{NB}}\!\left(y_t\,\Big|\,\hat{I}_t(\beta_i,\gamma_j),\,k\right)\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">\(50\times 50\) grid</span>
+            <span class="concept-tag">ODE scoring</span>
+            <span class="concept-tag">Likelihood heatmap</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>V15 Grid search heatmap</li>
+                <li>Interactive 3-stage ODE scorer</li>
+                <li>Day-by-day \(\log P\) table</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+    <!-- Step 6 -->
+    <a href="model-fitting/step6.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">6</div>
+            <div>
+                <h3>MLE Optimization</h3>
+                <div class="step-card-subtitle">Nelder-Mead &middot; \(-\ell\) &middot; Restarts &middot; Convergence</div>
+            </div>
+        </div>
+        <p>Minimize \(-\ell(\beta,\gamma)\) using Nelder-Mead with 50 random restarts. Interactive simplex stepper shows the triangle walking across the likelihood surface step by step.</p>
+        <div class="step-formula">
+            <div class="step-formula-label">MLE objective</div>
+            \[(\hat\beta,\,\hat\gamma) = \underset{\beta,\,\gamma\,>\,0}{\arg\min}\;{-\ell(\beta,\gamma)}\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">Nelder-Mead simplex</span>
+            <span class="concept-tag">Global minimum</span>
+            <span class="concept-tag">50 restarts</span>
+            <span class="concept-tag">Tol. \(10^{-6}\)</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>Local vs global minima landscape</li>
+                <li>\(\ell\) vs \(-\ell\) mirror image explained</li>
+                <li>Interactive Nelder-Mead simplex stepper</li>
+                <li>50 restart convergence traces (red = best)</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+    <!-- Step 7 -->
+    <a href="model-fitting/step7.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">7</div>
+            <div>
+                <h3>Goodness of Fit</h3>
+                <div class="step-card-subtitle">Residuals &middot; Q-Q &middot; ACF &middot; Good vs Bad</div>
+            </div>
+        </div>
+        <p>Observed \(y_t\) = real daily cases. Predicted \(\hat\mu_t\) = ODE output in case units — never \(\beta\) or \(\gamma\). Side-by-side good vs bad for every diagnostic plot type.</p>
+        <div class="step-formula">
+            <div class="step-formula-label">Pearson residual at day \(t\)</div>
+            \[e_t = \frac{y_t - \hat\mu_t}{\sqrt{\hat\mu_t\!\left(1 + \dfrac{\hat\mu_t}{k}\right)}}\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">Pearson residuals</span>
+            <span class="concept-tag">Q-Q plot</span>
+            <span class="concept-tag">ACF</span>
+            <span class="concept-tag">Shapiro-Wilk</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>V20 Observed vs fitted — good vs bad</li>
+                <li>Residuals vs fitted — good vs bad</li>
+                <li>V22 Q-Q plot — good vs bad</li>
+                <li>V21 ACF — good vs bad + diagnosis table</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+    <!-- Step 8 -->
+    <a href="model-fitting/step8.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">8</div>
+            <div>
+                <h3>Confidence Intervals</h3>
+                <div class="step-card-subtitle">Profile LL &middot; Hessian &middot; Bootstrap &middot; Delta method</div>
+            </div>
+        </div>
+        <p>Profile likelihood CIs for all parameters: \(\hat\beta\), \(\hat\gamma\), \(\hat{k}\), and \(\hat{\mathcal{R}}_0\). Four CI methods compared. Wide CI means insufficient data — never arbitrarily refix a parameter.</p>
+        <div class="step-formula">
+            <div class="step-formula-label">Profile likelihood 95% CI</div>
+            \[\mathcal{C}_{95} = \left\{\theta : \ell_p(\theta) \geq \ell_{\max} - \tfrac{1}{2}\chi^2_{1,\,0.95}\right\}\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">Profile likelihood</span>
+            <span class="concept-tag">\(\chi^2\) cutoff 1.92</span>
+            <span class="concept-tag">Bootstrap \(500\times\)</span>
+            <span class="concept-tag">Delta method</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>V24 Profile LL for \(\beta\), \(\gamma\), \(k\), \(\mathcal{R}_0\) — 4 panels</li>
+                <li>4 CI methods on one comparison plot + table</li>
+                <li>Parameter estimates output table</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+    <!-- Step 9 -->
+    <a href="model-fitting/step9.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">9</div>
+            <div>
+                <h3>Model Validation</h3>
+                <div class="step-card-subtitle">Holdout &middot; \(k\)-fold CV &middot; LOO &middot; Sim. recovery</div>
+            </div>
+        </div>
+        <p>Five validation methods — not just train/test split. Each answers a different question about temporal prediction, method stability, and correctness. Prediction interval coverage should approach 95%.</p>
+        <div class="step-formula">
+            <div class="step-formula-label">Prediction interval coverage</div>
+            \[\text{Coverage} = \frac{1}{n_{\mathrm{test}}}\sum_{t}\mathbf{1}\!\left[y_t \in \hat{C}_{95}(t)\right] \approx 0.95\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">Holdout 80/20</span>
+            <span class="concept-tag">\(k\)-fold CV</span>
+            <span class="concept-tag">Simulation recovery</span>
+            <span class="concept-tag">PI bands</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>V27 Holdout: train / predict / observed + PI band</li>
+                <li>\(k\)-fold validation across 5 folds</li>
+                <li>V28 Simulation recovery: \(\hat\beta\) vs \(\beta_{\mathrm{true}}\)</li>
+                <li>Prospective: fit on outbreak 1, predict outbreak 2</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+    <!-- Steps 10-11 -->
+    <a href="model-fitting/step10-11.html" class="step-card">
+        <div class="step-card-top">
+            <div class="step-num-badge">10–11</div>
+            <div>
+                <h3>LHS Uncertainty &amp; Sensitivity Analysis</h3>
+                <div class="step-card-subtitle">LHS &middot; PRCC &middot; MCMC &middot; Sobol &middot; Posterior</div>
+            </div>
+        </div>
+        <p>LHS maps full uncertainty around \(\hat\theta\) across all parameters simultaneously. PRCC ranks which parameters drive model output most. Complete MCMC: Metropolis-Hastings, burn-in, trace plots, joint posteriors \((\beta,\gamma)\), and Gelman-Rubin convergence.</p>
+        <div class="step-formula">
+            <div class="step-formula-label">MCMC acceptance probability</div>
+            \[\alpha = \min\!\left(1,\; \frac{\pi(\theta^*\mid y)}{\pi(\theta_t\mid y)}\right)\]
+        </div>
+        <div class="key-concepts">
+            <span class="concept-tag">LHS \(n\geq\tfrac{4}{3}k^2\)</span>
+            <span class="concept-tag">PRCC</span>
+            <span class="concept-tag">MH algorithm</span>
+            <span class="concept-tag">Burn-in</span>
+            <span class="concept-tag">\(\hat{R} < 1.1\)</span>
+        </div>
+        <div class="figures-list">
+            <div class="figures-list-title">Figures</div>
+            <ul>
+                <li>V29 LHS vs random vs Sobol pairs plots</li>
+                <li>V30 Spaghetti plot — 500 LHS trajectories</li>
+                <li>V33 PRCC tornado chart + action table</li>
+                <li>Interactive MH explorer + trace plots</li>
+                <li>Joint posterior \((\beta,\gamma)\) scatter</li>
+                <li>ACF of chain, running mean, Gelman-Rubin</li>
+            </ul>
+        </div>
+        <div class="step-card-footer">
+            <span class="step-status status-ready">Ready</span>
+            <span class="step-arrow">&#8594;</span>
+        </div>
+    </a>
+
+</div>
+
+<!-- ── Case study ── -->
+<div class="section-header" style="margin-top:3rem">
+    <h2>Case study — farm outbreak dataset</h2>
+    <div class="section-line"></div>
+</div>
+
+<div class="info-bar">
+    <div class="info-bar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    </div>
+    <div>
+        <h3>Simulated farm outbreak — true parameters known</h3>
+        <p>
+            Throughout all 11 steps the same dataset is used: 200 farms of varying herd sizes, with disease
+            spreading via a distance-dependent transmission kernel. The true parameters are
+            \(\beta = 0.32\;\text{day}^{-1}\) and \(\gamma = 0.11\;\text{day}^{-1}\), giving a true
+            \(\mathcal{R}_0 = \beta/\gamma = 2.91\). Observed case counts include a realistic
+            observation layer — reporting delays and partial detection. The goal of the full pipeline is
+            to recover \(\hat\beta \approx 0.32\) and \(\hat\gamma \approx 0.11\) from the noisy observed
+            data alone, and to quantify uncertainty in \(\hat{\mathcal{R}}_0\).
+        </p>
+    </div>
+</div>
+
+</main>
+
+<footer>
+    <p>Interactive Research Tools &mdash; <a href="../../../">Abdul Ali</a> | Infectious Disease Ecology &amp; Ecological Modeling</p>
+</footer>
+
+</body>
+</html>
