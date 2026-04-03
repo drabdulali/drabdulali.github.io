@@ -8,19 +8,30 @@
     <meta name="keywords" content="SIR model fitting, MLE, likelihood, MCMC, PRCC, sensitivity analysis, epidemic modeling, R0, Nelder-Mead, Latin Hypercube Sampling">
     <link rel="canonical" href="https://drabdulali.github.io/apps/tools/disease-modeling/model-fitting.html">
 
-    <!-- MathJax 3 -->
+    <!-- MathJax 3 — GitHub Pages proven setup -->
     <script>
     window.MathJax = {
         tex: {
-            inlineMath: [['\\(','\\)']],
-            displayMath: [['\\[','\\]']],
+            inlineMath: [['\(', '\)']],
+            displayMath: [['\[', '\]']],
             packages: {'[+]': ['ams']}
         },
-        options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
-        startup: { typeset: true }
+        chtml: {
+            scale: 1,
+            matchFontHeight: false,
+            minScale: 0.5
+        },
+        options: {
+            skipHtmlTags: ['script','noscript','style','textarea','pre'],
+            ignoreHtmlClass: 'no-mathjax',
+            processHtmlClass: 'mathjax'
+        },
+        startup: {
+            typeset: true
+        }
     };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -440,7 +451,7 @@
         <p>Full 12-item preprocessing checklist for real outbreak data. Estimate the exponential growth rate \(r\) from a log-linear fit to early case counts, then compute crude \(\mathcal{R}_0\) with an interactive \(\gamma\) slider.</p>
         <div class="step-formula">
             <div class="step-formula-label">Crude \(\mathcal{R}_0\) from early growth</div>
-            \[\mathcal{R}_0 \approx \frac{r}{\gamma} + 1, \quad r = \frac{d}{dt}\ln I(t)\Big|_{\text{early}}\]
+            \[\mathcal{R}_0 \approx \frac{r}{\gamma} + 1, \quad r = \frac{d}{dt}\ln I(t)\big|_{\text{early}}\]
         </div>
         <div class="key-concepts">
             <span class="concept-tag">7-day rolling avg.</span>
@@ -474,7 +485,7 @@
         <p>Compare Poisson, Negative Binomial, and Binomial for daily case counts \(y_t\). Understand what \(k\) (the count axis) and \(P(X=k)\) mean. AIC selects the winning distribution formally.</p>
         <div class="step-formula">
             <div class="step-formula-label">Log-likelihood (Negative Binomial)</div>
-            \[\ell(\beta,\gamma) = \sum_{t=1}^{T} \log P_{\mathrm{NB}}\!\left(y_t \,\Big|\, \mu_t,\, k\right)\]
+            \[\ell(\beta,\gamma) = \sum_{t=1}^{T} \log P_{\mathrm{NB}}\!\bigl(y_t \mid \mu_t,\, k\bigr)\]
         </div>
         <div class="key-concepts">
             <span class="concept-tag">NegBin dispersion \(k\)</span>
@@ -509,7 +520,7 @@
         <p>Each dot in the heatmap is scored by running the SIR ODE, comparing predicted \(\hat{I}(t;\beta,\gamma)\) to observed \(y_t\), and summing log-probabilities. Interactive: try your own \((\beta,\gamma)\) pair.</p>
         <div class="step-formula">
             <div class="step-formula-label">Score for grid cell \((\beta_i,\gamma_j)\)</div>
-            \[\text{score}_{ij} = \sum_{t=1}^{T}\log P_{\mathrm{NB}}\!\left(y_t\,\Big|\,\hat{I}_t(\beta_i,\gamma_j),\,k\right)\]
+            \[\text{score}_{ij} = \sum_{t=1}^{T}\log P_{\mathrm{NB}}\!\bigl(y_t\mid\hat{I}_t(\beta_i,\gamma_j),\,k\bigr)\]
         </div>
         <div class="key-concepts">
             <span class="concept-tag">\(50\times 50\) grid</span>
@@ -612,7 +623,7 @@
         <p>Profile likelihood CIs for all parameters: \(\hat\beta\), \(\hat\gamma\), \(\hat{k}\), and \(\hat{\mathcal{R}}_0\). Four CI methods compared. Wide CI means insufficient data — never arbitrarily refix a parameter.</p>
         <div class="step-formula">
             <div class="step-formula-label">Profile likelihood 95% CI</div>
-            \[\mathcal{C}_{95} = \left\{\theta : \ell_p(\theta) \geq \ell_{\max} - \tfrac{1}{2}\chi^2_{1,\,0.95}\right\}\]
+            \[\mathcal{C}_{95} = \{\theta : \ell_p(\theta) \geq \ell_{\max} - \tfrac{1}{2}\chi^2_{1,\,0.95}\}\]
         </div>
         <div class="key-concepts">
             <span class="concept-tag">Profile likelihood</span>
@@ -646,7 +657,7 @@
         <p>Five validation methods — not just train/test split. Each answers a different question about temporal prediction, method stability, and correctness. Prediction interval coverage should approach 95%.</p>
         <div class="step-formula">
             <div class="step-formula-label">Prediction interval coverage</div>
-            \[\text{Coverage} = \frac{1}{n_{\mathrm{test}}}\sum_{t}\mathbf{1}\!\left[y_t \in \hat{C}_{95}(t)\right] \approx 0.95\]
+            \[\text{Coverage} = \frac{1}{n_{\mathrm{test}}}\sum_{t}\mathbf{1}[y_t \in \hat{C}_{95}(t)] \approx 0.95\]
         </div>
         <div class="key-concepts">
             <span class="concept-tag">Holdout 80/20</span>
@@ -739,5 +750,16 @@
     <p>Interactive Research Tools &mdash; <a href="../../../">Abdul Ali</a> | Infectious Disease Ecology &amp; Ecological Modeling</p>
 </footer>
 
+
+<script>
+// Ensure MathJax retypesets after all content and scripts have loaded
+window.addEventListener('load', function() {
+    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+        MathJax.typesetPromise().catch(function(err) {
+            console.log('MathJax typeset error:', err);
+        });
+    }
+});
+</script>
 </body>
 </html>
