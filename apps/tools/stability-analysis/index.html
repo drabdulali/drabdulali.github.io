@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eigenvalue Stability Explorer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f4ef;
+      color: #3a3936;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 0.5px solid rgba(0,0,0,0.12);
+      padding: 1.75rem 2rem;
+      max-width: 720px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      color: #1a1a18;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #6e6c62;
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .controls label {
+      font-size: 13px;
+      color: #6e6c62;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      min-width: 100px;
+      height: 4px;
+      accent-color: #3B8BD4;
+      cursor: pointer;
+    }
+
+    #lv {
+      font-size: 16px;
+      font-weight: 500;
+      min-width: 46px;
+      text-align: right;
+      color: #1a1a18;
+    }
+
+    #badge {
+      font-size: 12px;
+      padding: 3px 12px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    #badge.stable   { background: #e1f5ee; color: #0f6e56; }
+    #badge.unstable { background: #fcebeb; color: #a32d2d; }
+    #badge.marginal { background: #faeeda; color: #854f0b; }
+
+    .presets {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .presets button {
+      font-size: 12px;
+      padding: 5px 11px;
+      border-radius: 8px;
+      border: 0.5px solid rgba(0,0,0,0.22);
+      background: transparent;
+      cursor: pointer;
+      color: #3a3936;
+      transition: background 0.15s;
+    }
+    .presets button:hover  { background: #f0efe9; }
+    .presets button:active { transform: scale(0.97); }
+
+    canvas {
+      width: 100%;
+      display: block;
+      border-radius: 8px;
+    }
+
+    #note {
+      font-size: 13px;
+      color: #6e6c62;
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.9;
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: #6e6c62;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .line-swatch { width: 20px; height: 2px; display: inline-block; border-radius: 1px; }
+
+    @media (prefers-color-scheme: dark) {
+      body { background: #141412; color: #c2c0b6; }
+      .card { background: #1e1d1b; border-color: rgba(255,255,255,0.1); }
+      h1 { color: #e8e6dc; }
+      .subtitle { color: #9b9990; }
+      .controls label { color: #9b9990; }
+      #lv { color: #e8e6dc; }
+      #badge.stable   { background: #04342c; color: #9fe1cb; }
+      #badge.unstable { background: #501313; color: #f09595; }
+      #badge.marginal { background: #412402; color: #fac775; }
+      .presets button { border-color: rgba(255,255,255,0.18); color: #c2c0b6; }
+      .presets button:hover { background: #2a2926; }
+      #note { color: #9b9990; }
+      .legend { color: #9b9990; }
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>Eigenvalue Stability Explorer</h1>
+  <p class="subtitle">
+    Near any equilibrium x*, the map behaves like x<sub>t+1</sub> ≈ x* + λ(x<sub>t</sub> − x*),
+    so a perturbation ε<sub>t</sub> = x<sub>t</sub> − x* evolves as ε<sub>t</sub> = λ<sup>t</sup> · ε<sub>0</sub>.
+    Stability requires |λ| &lt; 1.
+  </p>
+
+  <div class="controls">
+    <label>Eigenvalue λ =</label>
+    <input type="range" id="lam" min="-1.5" max="1.5" step="0.01" value="-0.6">
+    <span id="lv">−0.60</span>
+    <span id="badge">Stable</span>
+  </div>
+
+  <div class="presets">
+    <button onclick="set(0.5)">λ = 0.5 &nbsp;monotone in</button>
+    <button onclick="set(-0.7)">λ = −0.7 &nbsp;oscillate in</button>
+    <button onclick="set(0)">λ = 0 &nbsp;superstable</button>
+    <button onclick="set(1.05)">λ = 1.05 &nbsp;monotone out</button>
+    <button onclick="set(-1.15)">λ = −1.15 &nbsp;oscillate out</button>
+  </div>
+
+  <canvas id="cv" height="370"></canvas>
+
+  <p id="note"></p>
+
+  <div class="legend">
+    <span><span class="dot" style="background:#1D9E75;"></span>Stable fixed point</span>
+    <span><span class="dot" style="background:#E24B4A; border: 2px solid #E24B4A; background: transparent;"></span>Unstable fixed point</span>
+    <span><span class="line-swatch" style="background:#3B8BD4;"></span>Map f(x)</span>
+    <span><span class="line-swatch" style="background:#888; opacity:0.5; border-top: 1px dashed #888;"></span>Diagonal y = x</span>
+    <span><span class="line-swatch" style="background:#EF9F27;"></span>Cobweb / trajectory</span>
+  </div>
+</div>
+
+<script>
+  const cv  = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  const W   = 660, H = 370;
+  cv.width  = W;
+
+  const LP = { x1: 30, y1: 22, x2: 310, y2: 302 };
+  const RP = { x1: 345, y1: 22, x2: 640, y2: 302 };
+
+  const DMIN = -0.32, DMAX = 1.32, DSPAN = 1.64;
+  function cx(v) { return LP.x1 + (v - DMIN) / DSPAN * (LP.x2 - LP.x1); }
+  function cy(v) { return LP.y2 - (v - DMIN) / DSPAN * (LP.y2 - LP.y1); }
+
+  const NITER = 28, X0 = 0.78;
+  function fmap(x, lam) { return 0.5 + lam * (x - 0.5) + 0.9 * Math.pow(x - 0.5, 3); }
+
+  let lam = -0.6;
+
+  function set(v) {
+    lam = v;
+    document.getElementById('lam').value = v;
+    render(v);
+  }
+
+  function render(lam) {
+    const isDark = matchMedia('(prefers-color-scheme:dark)').matches;
+    const fg2   = isDark ? 'rgba(155,153,143,0.7)'   : 'rgba(110,108,98,0.7)';
+    const gridC = isDark ? 'rgba(255,255,255,0.05)'  : 'rgba(0,0,0,0.05)';
+    const axC   = isDark ? 'rgba(255,255,255,0.18)'  : 'rgba(0,0,0,0.18)';
+    const canvasBg = isDark ? '#1e1d1b' : '#ffffff';
+
+    document.getElementById('lv').textContent =
+      (lam >= 0 ? '' : '−') + Math.abs(lam).toFixed(2);
+
+    const stable   = Math.abs(lam) < 1;
+    const marginal = Math.abs(Math.abs(lam) - 1) < 0.02;
+    const badge    = document.getElementById('badge');
+    if (marginal) {
+      badge.textContent = 'Marginal  |λ| ≈ 1';
+      badge.className   = 'marginal';
+    } else if (stable) {
+      badge.textContent = 'Stable  |λ| < 1';
+      badge.className   = 'stable';
+    } else {
+      badge.textContent = 'Unstable  |λ| > 1';
+      badge.className   = 'unstable';
+    }
+
+    ctx.fillStyle = canvasBg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Panel labels
+    ctx.font = '12px sans-serif'; ctx.fillStyle = fg2; ctx.textAlign = 'left';
+    ctx.fillText('Cobweb diagram  (map iterations)', LP.x1, LP.y1 - 8);
+    ctx.fillText('Time series  xₜ vs t',            RP.x1, RP.y1 - 8);
+
+    // ── LEFT: cobweb ──────────────────────────────────────
+    // Grid
+    [0, 0.25, 0.5, 0.75, 1].forEach(v => {
+      ctx.beginPath();
+      ctx.moveTo(cx(v), LP.y1); ctx.lineTo(cx(v), LP.y2);
+      ctx.moveTo(LP.x1, cy(v)); ctx.lineTo(LP.x2, cy(v));
+      ctx.strokeStyle = gridC; ctx.lineWidth = 0.5; ctx.stroke();
+    });
+
+    // Axes
+    ctx.beginPath();
+    ctx.moveTo(LP.x1, cy(0)); ctx.lineTo(LP.x2, cy(0));
+    ctx.moveTo(cx(0), LP.y1); ctx.lineTo(cx(0), LP.y2);
+    ctx.strokeStyle = axC; ctx.lineWidth = 0.5; ctx.stroke();
+
+    // Tick labels
+    ctx.font = '10px sans-serif'; ctx.fillStyle = fg2; ctx.textAlign = 'center';
+    [0, 0.5, 1].forEach(v => {
+      ctx.fillText(v.toFixed(1), cx(v), LP.y2 + 12);
+      ctx.textAlign = 'right';
+      ctx.fillText(v.toFixed(1), LP.x1 - 4, cy(v) + 4);
+      ctx.textAlign = 'center';
+    });
+    ctx.fillStyle = fg2; ctx.font = '11px sans-serif';
+    ctx.fillText('xₜ', (LP.x1 + LP.x2) / 2, LP.y2 + 22);
+    ctx.save();
+    ctx.translate(LP.x1 - 20, (LP.y1 + LP.y2) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('f(xₜ) = xₜ₊₁', 0, 0);
+    ctx.restore();
+
+    // Diagonal y = x
+    ctx.beginPath();
+    ctx.moveTo(cx(DMIN), cy(DMIN)); ctx.lineTo(cx(DMAX), cy(DMAX));
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+    ctx.lineWidth = 1; ctx.setLineDash([4, 3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    ctx.translate(cx(0.85), cy(0.85));
+    ctx.rotate(-Math.PI * 0.4);
+    ctx.font = '10px sans-serif'; ctx.fillStyle = fg2; ctx.textAlign = 'left';
+    ctx.fillText('y = x', 0, -4);
+    ctx.restore();
+
+    // f(x) curve
+    ctx.beginPath();
+    let first = true;
+    for (let xi = DMIN; xi <= DMAX + 0.01; xi += 0.005) {
+      const y = fmap(xi, lam);
+      if (first) { ctx.moveTo(cx(xi), cy(y)); first = false; }
+      else ctx.lineTo(cx(xi), cy(y));
+    }
+    ctx.strokeStyle = '#3B8BD4'; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // Fixed point dot
+    ctx.beginPath(); ctx.arc(cx(0.5), cy(0.5), 5, 0, 2 * Math.PI);
+    if (stable) {
+      ctx.fillStyle = '#1D9E75'; ctx.fill();
+    } else {
+      const bg = isDark ? '#1e1d1b' : '#ffffff';
+      ctx.fillStyle = bg; ctx.fill();
+      ctx.strokeStyle = '#E24B4A'; ctx.lineWidth = 2.5; ctx.stroke();
+    }
+
+    // Cobweb
+    const steps = Math.min(NITER, stable ? NITER : 14);
+    let xc    = X0;
+    const ad  = stable ? 0.92 : 0.88;
+    let alpha = 1.0;
+    const cobColor = stable ? '239,159,39' : '226,75,74';
+
+    for (let i = 0; i < steps; i++) {
+      const yn = fmap(xc, lam);
+      ctx.strokeStyle = `rgba(${cobColor},${alpha})`;
+      ctx.lineWidth   = 1.5;
+      ctx.beginPath(); ctx.moveTo(cx(xc), cy(xc));  ctx.lineTo(cx(xc), cy(yn));  ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx(xc), cy(yn));  ctx.lineTo(cx(yn), cy(yn));  ctx.stroke();
+      xc    = yn;
+      alpha *= ad;
+      if (stable && Math.abs(xc - 0.5) < 0.0001) break;
+      if (Math.abs(xc - 0.5) > 3) break;
+    }
+
+    // x₀ dot + label
+    ctx.beginPath(); ctx.arc(cx(X0), cy(X0), 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#EF9F27'; ctx.fill();
+    ctx.font = '11px sans-serif'; ctx.fillStyle = fg2; ctx.textAlign = 'left';
+    ctx.fillText('x₀', cx(X0) + 6, cy(X0) - 5);
+
+    // ── RIGHT: time series ────────────────────────────────
+    const T    = 25;
+    const traj = [X0];
+    let xt     = X0;
+    for (let t = 1; t <= T; t++) {
+      xt = fmap(xt, lam);
+      traj.push(Math.max(-0.5, Math.min(1.5, xt)));
+    }
+
+    const allY = traj.filter(isFinite);
+    let ymin   = Math.min(...allY, 0.5);
+    let ymax   = Math.max(...allY, 0.5);
+    const ypad = Math.max((ymax - ymin) * 0.2, 0.15);
+    ymin -= ypad; ymax += ypad;
+    const yspan = ymax - ymin;
+    const RW    = RP.x2 - RP.x1, RH = RP.y2 - RP.y1;
+    const tx    = t  => RP.x1 + t / T * RW;
+    const tyf   = y  => RP.y2 - (y - ymin) / yspan * RH;
+
+    // Grid
+    [0, 0.25, 0.5, 0.75, 1].forEach(v => {
+      const y = ymin + v * yspan;
+      ctx.beginPath(); ctx.moveTo(RP.x1, tyf(y)); ctx.lineTo(RP.x2, tyf(y));
+      ctx.strokeStyle = gridC; ctx.lineWidth = 0.5; ctx.stroke();
+    });
+
+    // Equilibrium line
+    ctx.beginPath(); ctx.moveTo(RP.x1, tyf(0.5)); ctx.lineTo(RP.x2, tyf(0.5));
+    ctx.strokeStyle = axC; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.font = '10px sans-serif'; ctx.fillStyle = '#1D9E75'; ctx.textAlign = 'left';
+    ctx.fillText('x* = 0.5 (equilibrium)', RP.x1 + 4, tyf(0.5) - 5);
+
+    // Perturbation shading
+    ctx.beginPath();
+    ctx.moveTo(tx(0), tyf(0.5));
+    traj.forEach((y, t) => ctx.lineTo(tx(t), tyf(y)));
+    ctx.lineTo(tx(T), tyf(0.5));
+    ctx.closePath();
+    ctx.fillStyle = stable ? 'rgba(239,159,39,0.12)' : 'rgba(226,75,74,0.12)';
+    ctx.fill();
+
+    // Trajectory line
+    ctx.beginPath();
+    traj.forEach((y, t) => t === 0 ? ctx.moveTo(tx(t), tyf(y)) : ctx.lineTo(tx(t), tyf(y)));
+    ctx.strokeStyle = stable ? '#EF9F27' : '#E24B4A';
+    ctx.lineWidth   = 2; ctx.stroke();
+
+    // Dots
+    traj.forEach((y, t) => {
+      ctx.beginPath(); ctx.arc(tx(t), tyf(y), 3, 0, 2 * Math.PI);
+      ctx.fillStyle = stable ? '#EF9F27' : '#E24B4A'; ctx.fill();
+    });
+
+    // Axis labels (time series)
+    ctx.font = '10px sans-serif'; ctx.fillStyle = fg2; ctx.textAlign = 'center';
+    [0, 5, 10, 15, 20, 25].forEach(t => ctx.fillText(t, tx(t), RP.y2 + 12));
+    ctx.fillText('time step  t', (RP.x1 + RP.x2) / 2, RP.y2 + 22);
+    ctx.textAlign = 'right';
+    ctx.fillText(ymax.toFixed(2), RP.x1 - 3, RP.y1 + 10);
+    ctx.fillText(ymin.toFixed(2), RP.x1 - 3, RP.y2);
+
+    // Math note
+    const e0   = X0 - 0.5;
+    const e5   = Math.pow(lam, 5)  * e0;
+    const e10  = Math.pow(lam, 10) * e0;
+    const sign = v => v >= 0 ? '' : '−';
+    document.getElementById('note').innerHTML =
+      `ε₀ = x₀ − x* = ${e0.toFixed(2)}&emsp;→&emsp;` +
+      `ε₅ = λ⁵·ε₀ = <strong>${sign(e5)}${Math.abs(e5).toFixed(3)}</strong>&emsp;→&emsp;` +
+      `ε₁₀ = λ¹⁰·ε₀ = <strong>${sign(e10)}${Math.abs(e10).toFixed(4)}</strong><br>` +
+      `<span style="font-size:12px;">${stable
+        ? '|λ| &lt; 1 → λᵗ → 0 → perturbation vanishes → <strong style="color:#0f6e56">stable</strong>'
+        : '|λ| &gt; 1 → λᵗ → ∞ → perturbation explodes → <strong style="color:#a32d2d">unstable</strong>'
+      }</span>`;
+  }
+
+  document.getElementById('lam').addEventListener('input', e => {
+    lam = parseFloat(e.target.value);
+    render(lam);
+  });
+
+  render(lam);
+</script>
+</body>
+</html>
