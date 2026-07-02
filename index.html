@@ -1127,96 +1127,219 @@
         });
 
         /* ============================================================
-           HERO CANVAS — epidemic spreading across a network
+           HERO CANVAS — rotating globe with disease spread across borders
            ============================================================ */
-        (function heroNetwork() {
+        (function heroGlobe() {
             var canvas = document.getElementById('heroCanvas');
             if (!canvas) return;
             var ctx = canvas.getContext('2d');
             var W, H, DPR = Math.min(window.devicePixelRatio || 1, 2);
-            var nodes = [], links = [];
-            var SUS = '#38bdf8', INF = '#ff5470', REC = '#34d399';
+            var cx, cy, R;
+            var TILT = -0.42;              // fixed axial tilt
+            var yaw = 0;                   // rotation around vertical axis
+            var frame = 0;
+            var TWO_PI = Math.PI * 2;
+
+            var COL_DOT = '120,160,220';   // graticule dots (bluish)
+            var COL_INF = '255,84,112';    // infected / outbreak (crimson)
+            var COL_ACC = '34,211,238';    // accent cyan
+            var COL_REC = '52,211,153';    // recovered green
+
+            var dots = [];                 // sphere surface dot grid
+            var hotspots = [];             // outbreak points on surface
+            var arcs = [];                 // active transmission arcs
+            var orbiters = [];             // pathogens orbiting the globe
+
+            // Convert lat/long (radians) to a unit vector on the sphere
+            function sph(lat, lon) {
+                return { x: Math.cos(lat) * Math.cos(lon), y: Math.sin(lat), z: Math.cos(lat) * Math.sin(lon) };
+            }
+            // Rotate a unit vector by current yaw + fixed tilt, return projected screen coords + depth
+            function project(v) {
+                // yaw around Y
+                var cyaw = Math.cos(yaw), syaw = Math.sin(yaw);
+                var x1 = v.x * cyaw - v.z * syaw;
+                var z1 = v.x * syaw + v.z * cyaw;
+                var y1 = v.y;
+                // tilt around X
+                var ct = Math.cos(TILT), st = Math.sin(TILT);
+                var y2 = y1 * ct - z1 * st;
+                var z2 = y1 * st + z1 * ct;
+                return { sx: cx + x1 * R, sy: cy - y2 * R, depth: z2, ux: x1, uy: y2, uz: z2 };
+            }
+
+            function buildDots() {
+                dots = [];
+                // even distribution via graticule (lat/long grid)
+                for (var la = -80; la <= 80; la += 10) {
+                    var latR = la * Math.PI / 180;
+                    var ring = Math.max(6, Math.round(Math.cos(latR) * 46));
+                    for (var k = 0; k < ring; k++) {
+                        var lonR = (k / ring) * TWO_PI;
+                        dots.push(sph(latR, lonR));
+                    }
+                }
+            }
+
+            // Real-ish outbreak hotspot coordinates (lat, lon in degrees)
+            var HOTS = [
+                [8, 8], [20, 78], [35, 104], [-2, 37], [51, 10],
+                [-15, -55], [39, -98], [-25, 133], [15, 30], [45, 90],
+                [-6, 106], [30, 31], [55, 37], [-30, 25], [10, -70]
+            ];
+            function buildHotspots() {
+                hotspots = HOTS.map(function (h) {
+                    return { v: sph(h[0] * Math.PI / 180, h[1] * Math.PI / 180), phase: Math.random() * TWO_PI };
+                });
+            }
+            function buildOrbiters() {
+                orbiters = [];
+                for (var i = 0; i < 14; i++) {
+                    orbiters.push({
+                        a: Math.random() * TWO_PI,          // angle in orbit plane
+                        speed: (0.004 + Math.random() * 0.006) * (Math.random() < 0.5 ? 1 : -1),
+                        tilt: Math.random() * Math.PI,      // orbital plane tilt
+                        rad: 1.15 + Math.random() * 0.5,    // orbit radius (in globe radii)
+                        r: 1.4 + Math.random() * 1.8,
+                        col: Math.random() < 0.5 ? COL_INF : (Math.random() < 0.5 ? COL_ACC : COL_REC)
+                    });
+                }
+            }
+
+            // slerp between two unit vectors
+            function slerp(a, b, t) {
+                var dot = a.x * b.x + a.y * b.y + a.z * b.z;
+                dot = Math.max(-1, Math.min(1, dot));
+                var omega = Math.acos(dot);
+                if (omega < 1e-4) return a;
+                var s = Math.sin(omega);
+                var wa = Math.sin((1 - t) * omega) / s, wb = Math.sin(t * omega) / s;
+                return { x: a.x * wa + b.x * wb, y: a.y * wa + b.y * wb, z: a.z * wa + b.z * wb };
+            }
+            function spawnArc() {
+                if (hotspots.length < 2) return;
+                var i = Math.floor(Math.random() * hotspots.length);
+                var j = Math.floor(Math.random() * hotspots.length);
+                if (i === j) return;
+                arcs.push({ a: hotspots[i].v, b: hotspots[j].v, t: 0, speed: 0.012 + Math.random() * 0.01 });
+            }
 
             function resize() {
                 W = canvas.clientWidth; H = canvas.clientHeight;
                 canvas.width = W * DPR; canvas.height = H * DPR;
                 ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-                build();
+                // position globe: right-of-centre on desktop, centred on narrow screens
+                if (W < 780) { cx = W * 0.5; cy = H * 0.42; R = Math.min(W, H) * 0.34; }
+                else { cx = W * 0.62; cy = H * 0.52; R = Math.min(W * 0.42, H * 0.62) * 0.6; }
             }
-            function build() {
-                nodes = []; links = [];
-                var count = Math.max(38, Math.min(90, Math.floor(W * H / 16000)));
-                for (var i = 0; i < count; i++) {
-                    nodes.push({
-                        x: Math.random() * W, y: Math.random() * H,
-                        vx: (Math.random() - 0.5) * 0.28, vy: (Math.random() - 0.5) * 0.28,
-                        r: 2 + Math.random() * 2.4,
-                        state: 0, // 0=S 1=I 2=R
-                        t: 0
-                    });
-                }
-                // seed a couple infections
-                for (var s = 0; s < 2; s++) { nodes[Math.floor(Math.random() * nodes.length)].state = 1; }
-            }
-            var linkDist = 130;
-            function reseedIfDead() {
-                var infected = nodes.filter(function (n) { return n.state === 1; }).length;
-                if (infected === 0) {
-                    // reset a fraction to susceptible + seed
-                    nodes.forEach(function (n) { if (Math.random() < 0.55) { n.state = 0; n.t = 0; } });
-                    for (var s = 0; s < 2; s++) { var k = nodes[Math.floor(Math.random() * nodes.length)]; k.state = 1; k.t = 0; }
-                }
-            }
-            var frame = 0;
-            function tick() {
+
+            function drawGlobe() {
                 ctx.clearRect(0, 0, W, H);
                 frame++;
-                // move
-                nodes.forEach(function (n) {
-                    n.x += n.vx; n.y += n.vy;
-                    if (n.x < 0 || n.x > W) n.vx *= -1;
-                    if (n.y < 0 || n.y > H) n.vy *= -1;
-                    n.x = Math.max(0, Math.min(W, n.x));
-                    n.y = Math.max(0, Math.min(H, n.y));
-                });
-                // links + transmission (throttle transmission checks)
-                for (var i = 0; i < nodes.length; i++) {
-                    for (var j = i + 1; j < nodes.length; j++) {
-                        var a = nodes[i], b = nodes[j];
-                        var dx = a.x - b.x, dy = a.y - b.y;
-                        var d = Math.sqrt(dx * dx + dy * dy);
-                        if (d < linkDist) {
-                            var alpha = (1 - d / linkDist) * 0.5;
-                            var edgeInf = (a.state === 1 || b.state === 1);
-                            ctx.strokeStyle = edgeInf ? 'rgba(255,84,112,' + (alpha * 0.9) + ')' : 'rgba(120,160,220,' + (alpha * 0.4) + ')';
-                            ctx.lineWidth = edgeInf ? 1 : 0.6;
-                            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-                            // transmission
-                            if (frame % 4 === 0 && d < 90) {
-                                if (a.state === 1 && b.state === 0 && Math.random() < 0.05) { b.state = 1; b.t = 0; }
-                                else if (b.state === 1 && a.state === 0 && Math.random() < 0.05) { a.state = 1; a.t = 0; }
+                yaw += 0.0016;
+
+                // atmosphere glow
+                var glow = ctx.createRadialGradient(cx, cy, R * 0.55, cx, cy, R * 1.5);
+                glow.addColorStop(0, 'rgba(34,211,238,0.10)');
+                glow.addColorStop(0.6, 'rgba(124,157,255,0.05)');
+                glow.addColorStop(1, 'rgba(6,10,20,0)');
+                ctx.fillStyle = glow;
+                ctx.beginPath(); ctx.arc(cx, cy, R * 1.5, 0, TWO_PI); ctx.fill();
+
+                // dark globe body
+                var body = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.35, R * 0.1, cx, cy, R);
+                body.addColorStop(0, 'rgba(20,32,58,0.55)');
+                body.addColorStop(1, 'rgba(8,14,28,0.35)');
+                ctx.fillStyle = body;
+                ctx.beginPath(); ctx.arc(cx, cy, R, 0, TWO_PI); ctx.fill();
+
+                // rim light
+                ctx.strokeStyle = 'rgba(34,211,238,0.35)'; ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.arc(cx, cy, R, 0, TWO_PI); ctx.stroke();
+
+                // surface dots (only front hemisphere brighter)
+                for (var d = 0; d < dots.length; d++) {
+                    var p = project(dots[d]);
+                    if (p.depth < -0.05) continue; // back hemisphere hidden
+                    var op = 0.12 + p.depth * 0.4;
+                    ctx.fillStyle = 'rgba(' + COL_DOT + ',' + op.toFixed(3) + ')';
+                    ctx.beginPath(); ctx.arc(p.sx, p.sy, 1.1, 0, TWO_PI); ctx.fill();
+                }
+
+                // transmission arcs
+                if (frame % 45 === 0 && arcs.length < 6) spawnArc();
+                for (var ai = arcs.length - 1; ai >= 0; ai--) {
+                    var arc = arcs[ai];
+                    arc.t += arc.speed;
+                    var steps = 34, prev = null;
+                    for (var s = 0; s <= steps; s++) {
+                        var tt = s / steps;
+                        var mid = slerp(arc.a, arc.b, tt);
+                        var lift = 1 + Math.sin(tt * Math.PI) * 0.32;   // raise arc above surface
+                        var pv = project({ x: mid.x * lift, y: mid.y * lift, z: mid.z * lift });
+                        if (prev && (pv.depth > -0.25 || prev.depth > -0.25)) {
+                            var seg = tt <= arc.t ? 1 : 0;             // only draw the swept-in part
+                            if (seg) {
+                                ctx.strokeStyle = 'rgba(' + COL_INF + ',' + (0.5 * Math.min(1, pv.depth + 0.6)).toFixed(3) + ')';
+                                ctx.lineWidth = 1.4;
+                                ctx.beginPath(); ctx.moveTo(prev.sx, prev.sy); ctx.lineTo(pv.sx, pv.sy); ctx.stroke();
                             }
                         }
+                        prev = pv;
                     }
+                    // travelling pulse
+                    if (arc.t <= 1) {
+                        var head = slerp(arc.a, arc.b, arc.t);
+                        var hl = 1 + Math.sin(arc.t * Math.PI) * 0.32;
+                        var hp = project({ x: head.x * hl, y: head.y * hl, z: head.z * hl });
+                        if (hp.depth > -0.2) {
+                            ctx.fillStyle = 'rgba(' + COL_INF + ',0.95)';
+                            ctx.shadowBlur = 12; ctx.shadowColor = 'rgba(' + COL_INF + ',0.9)';
+                            ctx.beginPath(); ctx.arc(hp.sx, hp.sy, 2.6, 0, TWO_PI); ctx.fill();
+                            ctx.shadowBlur = 0;
+                        }
+                    }
+                    if (arc.t > 1.6) arcs.splice(ai, 1);
                 }
-                // recovery + draw
-                nodes.forEach(function (n) {
-                    if (n.state === 1) { n.t++; if (n.t > 220 && Math.random() < 0.012) { n.state = 2; n.t = 0; } }
-                    var col = n.state === 1 ? INF : (n.state === 2 ? REC : SUS);
-                    if (n.state === 1) {
-                        var pulse = 1 + Math.sin(frame * 0.12 + n.x) * 0.35;
-                        ctx.beginPath(); ctx.arc(n.x, n.y, n.r * 3.4 * pulse, 0, 6.283);
-                        ctx.fillStyle = 'rgba(255,84,112,0.10)'; ctx.fill();
-                    }
-                    ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, 6.283);
-                    ctx.fillStyle = col; ctx.shadowBlur = 10; ctx.shadowColor = col; ctx.fill(); ctx.shadowBlur = 0;
-                });
-                if (frame % 120 === 0) reseedIfDead();
-                requestAnimationFrame(tick);
+
+                // outbreak hotspots (pulsing)
+                for (var hi = 0; hi < hotspots.length; hi++) {
+                    var hp2 = project(hotspots[hi].v);
+                    if (hp2.depth < 0) continue;
+                    var pulse = (Math.sin(frame * 0.05 + hotspots[hi].phase) + 1) / 2;
+                    var rr = 2 + pulse * 3;
+                    ctx.fillStyle = 'rgba(' + COL_INF + ',' + (0.10 + pulse * 0.12).toFixed(3) + ')';
+                    ctx.beginPath(); ctx.arc(hp2.sx, hp2.sy, rr * 3, 0, TWO_PI); ctx.fill();
+                    ctx.fillStyle = 'rgba(' + COL_INF + ',0.95)';
+                    ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(' + COL_INF + ',0.9)';
+                    ctx.beginPath(); ctx.arc(hp2.sx, hp2.sy, 2.4, 0, TWO_PI); ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                // orbiting pathogens
+                for (var oi = 0; oi < orbiters.length; oi++) {
+                    var o = orbiters[oi];
+                    o.a += o.speed;
+                    // point in orbital plane, then tilt
+                    var ox = Math.cos(o.a) * o.rad, oz = Math.sin(o.a) * o.rad, oy = 0;
+                    var ct2 = Math.cos(o.tilt), st2 = Math.sin(o.tilt);
+                    var y2 = oy * ct2 - oz * st2, z2 = oy * st2 + oz * ct2;
+                    var sx = cx + ox * R, sy = cy - y2 * R;
+                    var front = z2 >= 0;
+                    var op2 = front ? 0.9 : 0.28;
+                    ctx.fillStyle = 'rgba(' + o.col + ',' + op2 + ')';
+                    if (front) { ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(' + o.col + ',0.8)'; }
+                    ctx.beginPath(); ctx.arc(sx, sy, o.r, 0, TWO_PI); ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                if (!reduced) requestAnimationFrame(drawGlobe);
             }
-            resize();
-            window.addEventListener('resize', resize);
-            if (!reduced) tick(); else { /* draw one static frame */ tick.call(null); ctx.clearRect(0,0,W,H); nodes.forEach(function(n){ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.283);ctx.fillStyle=SUS;ctx.fill();}); }
+
+            function init() { resize(); buildDots(); buildHotspots(); buildOrbiters(); }
+            init();
+            window.addEventListener('resize', function () { resize(); });
+            drawGlobe();
         })();
 
         /* ============================================================
