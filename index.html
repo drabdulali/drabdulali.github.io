@@ -1198,7 +1198,7 @@
                 for (var i = 0; i < 14; i++) {
                     orbiters.push({
                         a: Math.random() * TWO_PI,          // angle in orbit plane
-                        speed: (0.004 + Math.random() * 0.006) * (Math.random() < 0.5 ? 1 : -1),
+                        speed: (0.0024 + Math.random() * 0.0036) * (Math.random() < 0.5 ? 1 : -1),
                         tilt: Math.random() * Math.PI,      // orbital plane tilt
                         rad: 1.15 + Math.random() * 0.5,    // orbit radius (in globe radii)
                         r: 1.4 + Math.random() * 1.8,
@@ -1222,7 +1222,7 @@
                 var i = Math.floor(Math.random() * hotspots.length);
                 var j = Math.floor(Math.random() * hotspots.length);
                 if (i === j) return;
-                arcs.push({ a: hotspots[i].v, b: hotspots[j].v, t: 0, speed: 0.012 + Math.random() * 0.01 });
+                arcs.push({ a: hotspots[i].v, b: hotspots[j].v, t: 0, speed: 0.007 + Math.random() * 0.006 });
             }
 
             function resize() {
@@ -1237,7 +1237,7 @@
             function drawGlobe() {
                 ctx.clearRect(0, 0, W, H);
                 frame++;
-                yaw += 0.0016;
+                yaw += 0.00095;
 
                 // soft atmosphere glow
                 var glow = ctx.createRadialGradient(cx, cy, R * 0.6, cx, cy, R * 1.5);
@@ -1269,7 +1269,7 @@
                 }
 
                 // transmission arcs
-                if (frame % 45 === 0 && arcs.length < 6) spawnArc();
+                if (frame % 72 === 0 && arcs.length < 6) spawnArc();
                 for (var ai = arcs.length - 1; ai >= 0; ai--) {
                     var arc = arcs[ai];
                     arc.t += arc.speed;
@@ -1308,7 +1308,7 @@
                 for (var hi = 0; hi < hotspots.length; hi++) {
                     var hp2 = project(hotspots[hi].v);
                     if (hp2.depth < 0) continue;
-                    var pulse = (Math.sin(frame * 0.05 + hotspots[hi].phase) + 1) / 2;
+                    var pulse = (Math.sin(frame * 0.032 + hotspots[hi].phase) + 1) / 2;
                     var rr = 2 + pulse * 3;
                     ctx.fillStyle = 'rgba(' + COL_INF + ',' + (0.10 + pulse * 0.12).toFixed(3) + ')';
                     ctx.beginPath(); ctx.arc(hp2.sx, hp2.sy, rr * 3, 0, TWO_PI); ctx.fill();
@@ -1356,7 +1356,7 @@
             function resize() { W = canvas.clientWidth; H = canvas.clientHeight; canvas.width = W * DPR; canvas.height = H * DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
             resize(); window.addEventListener('resize', resize);
 
-            var beta = 0.55, gamma = 0.12, dt = 0.35;
+            var beta = 0.55, gamma = 0.12, dt = 0.22;
             var S, I, R, hist, t;
             function reset() { S = 0.99; I = 0.01; R = 0; hist = []; t = 0; }
             reset();
@@ -1474,7 +1474,7 @@
                 plotKey('S', '#2563eb', upto);
                 plotKey('R', '#059669', upto);
                 plotKey('I', '#e11d48', upto);
-                if (progress < steps - 1) progress += 1.4;
+                if (progress < steps - 1) progress += 0.9;
                 requestAnimationFrame(render);
             }
             function restart() { computeCurve(); progress = 0; }
