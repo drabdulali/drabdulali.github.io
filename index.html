@@ -405,10 +405,10 @@
         /* ============================================================
            MARQUEE
            ============================================================ */
-        .marquee { padding: 26px 0; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); overflow: hidden; background: rgba(10, 16, 32, 0.4); }
+        .marquee { padding: 26px 0; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); overflow: hidden; background: rgba(255, 255, 255, 0.55); }
         .marquee-track { display: flex; gap: 52px; width: max-content; animation: scrollX 34s linear infinite; }
         .marquee:hover .marquee-track { animation-play-state: paused; }
-        .marquee-item { display: inline-flex; align-items: center; gap: 52px; font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 500; color: var(--text-dim); white-space: nowrap; }
+        .marquee-item { display: inline-flex; align-items: center; gap: 52px; font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
         .marquee-item::after { content: "•"; color: var(--accent); }
         @keyframes scrollX { to { transform: translateX(-50%); } }
 
@@ -744,7 +744,7 @@
         <div class="container">
             <div class="section-head reveal">
                 <span class="eyebrow">Interactive Epidemiology</span>
-                <h2>The <span class="grad-text">SIR Model</span>, in your hands</h2>
+                <h2>The <span class="grad-text">SIR Model</span></h2>
                 <p>The foundation of mathematical epidemiology. Adjust transmission and recovery to watch an epidemic unfold &mdash; and see how the basic reproduction number R&#8320; decides whether an outbreak grows or fades.</p>
             </div>
             <div class="sim-wrap reveal d1">
