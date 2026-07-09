@@ -448,10 +448,11 @@
         .sim-controls > p { color: var(--text-muted); font-size: 0.95rem; margin-top: -12px; }
         .ctrl label { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.86rem; margin-bottom: 10px; color: var(--text-muted); }
         .ctrl label .val { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 0.95rem; font-weight: 600; }
-        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 5px; background: rgba(255,255,255,0.1); outline: none; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 19px; height: 19px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 0 4px rgba(34,211,238,0.2), 0 4px 10px rgba(0,0,0,0.5); transition: 0.2s; }
+        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 6px; background: linear-gradient(90deg, rgba(8,145,178,0.35), rgba(37,99,235,0.28)); border: 1px solid var(--panel-border); outline: none; cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; cursor: pointer; box-shadow: 0 0 0 3px rgba(8,145,178,0.25), 0 4px 12px rgba(20,50,90,0.35); transition: 0.2s; }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
-        input[type=range]::-moz-range-thumb { width: 19px; height: 19px; border: none; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 0 4px rgba(34,211,238,0.2); }
+        input[type=range]::-moz-range-track { height: 8px; border-radius: 6px; background: linear-gradient(90deg, rgba(8,145,178,0.35), rgba(37,99,235,0.28)); border: 1px solid var(--panel-border); }
+        input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border: 3px solid #fff; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 0 3px rgba(8,145,178,0.25), 0 4px 12px rgba(20,50,90,0.35); }
         .r0-readout { padding: 18px; border-radius: 14px; background: rgba(255,84,112,0.06); border: 1px solid rgba(255,84,112,0.22); text-align: center; }
         .r0-readout .r0-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; line-height: 1; }
         .r0-readout .r0-lbl { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; }
