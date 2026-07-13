@@ -103,6 +103,9 @@
   .addrow{margin-top:12px;border:1px dashed transparent;border-radius:8px}
   .subsection-empty{font-size:12px;line-height:1.5;color:var(--muted);border:1px dashed var(--line);border-radius:8px;padding:13px 14px;margin-bottom:4px}
   .admin .grid{grid-template-columns:repeat(auto-fill,minmax(264px,1fr))}
+  .headeredit{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:24px;box-shadow:var(--shadow-sm);display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .headeredit .he-tag{grid-column:1 / -1;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  @media(max-width:560px){.headeredit{grid-template-columns:1fr}}
 
   .draftbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:12.5px;line-height:1.5;color:var(--muted);box-shadow:var(--shadow-sm)}
   .draftbar strong{color:var(--ink)}
@@ -200,10 +203,7 @@ function normalize(d){
 }
 normalize(DATA);
 
-$('title').textContent = DATA.title;
-$('subtitle').textContent = DATA.subtitle;
-$('brand').textContent = DATA.brand;
-document.title = DATA.title;
+applyHeader(publicData());
 
 const board = $('board');
 const searchEl = $('search');
@@ -225,6 +225,13 @@ function isDirty(){
 function updateDirtyUI(){
   const bar=document.getElementById('publishbar');
   if(bar) bar.classList.toggle('show', ADMIN && isDirty());
+}
+/* Apply title/subtitle/badge from a data object to the visible header. */
+function applyHeader(d){
+  if($('title')) $('title').textContent = d.title || '';
+  if($('subtitle')) $('subtitle').textContent = d.subtitle || '';
+  if($('brand')) $('brand').textContent = d.brand || '';
+  document.title = d.title || '';
 }
 
 /* ---------- public view ---------- */
@@ -263,6 +270,7 @@ function render(filter=""){
   if(isDirty()) board.appendChild(draftBanner());
   const f = filter.trim().toLowerCase();
   const data = publicData();
+  applyHeader(data);
   let shown=0;
   data.groups.forEach(g=>{
     const subs = g.subsections.map(s=>({
@@ -407,6 +415,15 @@ function renderAdmin(){
   bar.append(msg, btns);
   board.appendChild(bar);
   updateDirtyUI();
+
+  const he=document.createElement('div'); he.className='headeredit';
+  const htag=document.createElement('div'); htag.className='he-tag';
+  htag.textContent = 'Page header' + ($('brand') ? ' (title, subtitle, badge)' : ' (title, subtitle)');
+  he.appendChild(htag);
+  he.appendChild(field('Title (big heading)', draft.title, v=>{ draft.title=v; applyHeader(draft); persist(); }));
+  he.appendChild(field('Subtitle', draft.subtitle, v=>{ draft.subtitle=v; applyHeader(draft); persist(); }));
+  if($('brand')) he.appendChild(field('Badge (short, e.g. IP)', draft.brand, v=>{ draft.brand=v; applyHeader(draft); persist(); }));
+  board.appendChild(he);
 
   draft.groups.forEach((g, gi)=>{
     const sec=document.createElement('section'); sec.className='group';
