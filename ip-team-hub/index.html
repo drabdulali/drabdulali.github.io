@@ -80,6 +80,7 @@
   .btn.ghost{background:var(--panel);color:var(--ink);border-color:var(--line)}
   .btn.danger{background:#b23b32;border-color:#b23b32;color:#fff}
   .btn.small{padding:6px 10px;font-size:11.5px}
+  .btn.primary{background:#c0392b;border-color:#c0392b;color:#fff}
   .swatch-input{width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:5px;background:none;cursor:pointer;flex:0 0 auto}
   .ginput{font:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 200px;min-width:0}
   .grouptools{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
@@ -108,6 +109,12 @@
   .dtag{display:inline-block;background:#b0561b;color:#fff;font-weight:800;font-size:10px;letter-spacing:.07em;padding:3px 8px;border-radius:5px;text-transform:uppercase;margin-right:7px}
   .draftbtns{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
   .empty{color:var(--muted);font-size:13px;padding:12px 2px}
+  #publishbar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(28px);opacity:0;pointer-events:none;
+    display:flex;align-items:center;gap:13px;background:var(--header);color:#fff;border:1px solid rgba(255,255,255,.12);
+    border-radius:11px;padding:12px 14px 12px 16px;box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;
+    transition:opacity .18s ease,transform .18s ease;z-index:60;max-width:calc(100% - 28px)}
+  #publishbar.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+  #publishbar .pb-dot{width:9px;height:9px;border-radius:50%;background:#e2b13c;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -124,6 +131,11 @@
     </div>
   </div>
   <div class="wrap"><main id="board"></main></div>
+  <div id="publishbar">
+    <span class="pb-dot"></span>
+    <span>Unpublished changes</span>
+    <button type="button" class="btn primary" id="pb-publish">Publish now</button>
+  </div>
 <script>
 /* ---- admin key: change this to your own word. Note: this only hides the editor from
    casual visitors; the real protection is that the public page changes only when you
@@ -228,9 +240,23 @@ const board = $('board');
 const searchEl = $('search');
 const adminLink = $('adminlink');
 const LS_KEY = 'ipteamhub_draft_v2';
+const TOKEN_KEY = 'ipteamhub_ghtoken';
+const REPO = { owner:'drabdulali', repo:'drabdulali.github.io', path:'ip-team-hub/index.html', branch:'main' };
 let ADMIN = false, draft = null, dragSrc = null;
 
-function persist(){ localStorage.setItem(LS_KEY, JSON.stringify(draft)); }
+function persist(){ localStorage.setItem(LS_KEY, JSON.stringify(draft)); updateDirtyUI(); }
+
+/* "Dirty" = the saved local draft differs from the published version currently in this file. */
+function snap(d){ return JSON.stringify({ title:d.title, subtitle:d.subtitle, brand:d.brand, groups:d.groups }); }
+function isDirty(){
+  let s=null; try{ s=localStorage.getItem(LS_KEY); }catch(e){}
+  if(!s) return false;
+  try{ return snap(normalize(JSON.parse(s))) !== snap(DATA); }catch(e){ return true; }
+}
+function updateDirtyUI(){
+  const bar=document.getElementById('publishbar');
+  if(bar) bar.classList.toggle('show', ADMIN && isDirty());
+}
 
 /* ---------- public view ---------- */
 function tileEl(l, color){
@@ -251,14 +277,13 @@ function publicData(){
   try{ const s=localStorage.getItem(LS_KEY); if(s) return normalize(JSON.parse(s)); }catch(e){}
   return DATA;
 }
-function hasLocalDraft(){ try{ return !!localStorage.getItem(LS_KEY); }catch(e){ return false; } }
 function draftBanner(){
   const b=document.createElement('div'); b.className='draftbar';
   const msg=document.createElement('div');
-  msg.innerHTML='<span class="dtag">Unpublished</span>You are viewing edits saved in <strong>this browser only</strong> — your team still sees the published version until you publish.';
+  msg.innerHTML='<span class="dtag">Unpublished</span>You have edits saved in <strong>this browser</strong> that are not live yet — your team still sees the published version until you publish.';
   const tools=document.createElement('div'); tools.className='draftbtns';
   tools.append(
-    btn('Publish for everyone', downloadFile, 'small'),
+    btn('Publish now', publishLive, 'primary small'),
     btn('Revert to published', ()=>{ if(confirm('Discard your local edits and return to the published version?')){ try{localStorage.removeItem(LS_KEY);}catch(e){} render(searchEl.value); } }, 'ghost small')
   );
   b.append(msg, tools);
@@ -266,7 +291,7 @@ function draftBanner(){
 }
 function render(filter=""){
   board.innerHTML="";
-  if(hasLocalDraft()) board.appendChild(draftBanner());
+  if(isDirty()) board.appendChild(draftBanner());
   const f = filter.trim().toLowerCase();
   const data = publicData();
   let shown=0;
@@ -393,23 +418,26 @@ function renderAdmin(){
     show a small sub-heading, or leave the name blank for no heading. <strong>Buttons</strong> are the tiles people click.</p>
     <p>To rearrange, <strong>drag the dotted grip</strong> at the top-left of any button &mdash; reorder it within a
     subsection, or drop it onto another subsection or section to move it there.</p>
-    <p><strong>Save</strong> keeps your edits and shows them in the normal view <strong>on this device</strong>.
-    <strong>Publish</strong> (Download index.html &rarr; commit to GitHub, or Copy data code) is what makes them
-    visible to your supervisor and team &mdash; a static page can&rsquo;t write to GitHub by itself.</p>`;
+    <p><strong>Publish now</strong> commits your changes straight to GitHub and they go live for everyone in about a
+    minute (first time, you paste a GitHub token that is kept only in this browser). Your edits also show in the
+    normal view on this device straight away. <strong>Download index.html</strong> / <strong>Copy data code</strong>
+    are manual fallbacks if you prefer to commit yourself.</p>`;
   const btns=document.createElement('div'); btns.className='adminbtns';
   btns.append(
-    btn('Save', ()=>{ persist(); window.alert('Saved. Your edits now show in the normal view on this device.\n\nTo make them visible to your supervisor and team, click “Download index.html” and commit the file to GitHub (or use “Copy data code”).'); }),
+    btn('Publish now', publishLive, 'primary'),
     btn('Add section', ()=>{
       draft.groups.push({ name:"NEW SECTION", color:"#14539a", subsections:[{name:"", links:[]}] });
       persist(); renderAdmin(); focusEl('gn-'+(draft.groups.length-1));
     }),
-    btn('Download index.html', downloadFile),
-    btn('Copy data code', copyData),
+    btn('Download index.html', downloadFile, 'ghost'),
+    btn('Copy data code', copyData, 'ghost'),
     btn('Discard draft', ()=>{ if(confirm('Discard all local changes and reset to the published version?')){ localStorage.removeItem(LS_KEY); draft=normalize(clone(DATA)); renderAdmin(); } }, 'ghost'),
+    btn('Forget token', ()=>{ setToken(''); window.alert('The saved GitHub token has been removed from this browser. You will be asked for it next time you publish.'); }, 'ghost'),
     btn('Exit admin', exitAdmin, 'ghost')
   );
   bar.append(msg, btns);
   board.appendChild(bar);
+  updateDirtyUI();
 
   draft.groups.forEach((g, gi)=>{
     const sec=document.createElement('section'); sec.className='group';
@@ -473,11 +501,11 @@ function enterAdmin(){
   const saved=localStorage.getItem(LS_KEY);
   draft = saved ? normalize(JSON.parse(saved)) : normalize(clone(DATA));
   ADMIN=true; document.body.classList.add('admin'); adminLink.textContent='Exit admin';
-  renderAdmin();
+  renderAdmin(); updateDirtyUI();
 }
 function exitAdmin(){
   ADMIN=false; document.body.classList.remove('admin'); adminLink.textContent='Admin';
-  render(searchEl.value);
+  render(searchEl.value); updateDirtyUI();
 }
 function promptAdmin(){
   const key=window.prompt('Enter the admin key to edit this dashboard:');
@@ -494,6 +522,58 @@ async function copyData(){
     window.alert('Data code copied.\n\nIn GitHub: open ip-team-hub/index.html, click the pencil to edit, select everything between the /*DATA_START*/ and /*DATA_END*/ markers and replace it with what you copied, then Commit.');
   }catch(e){
     window.prompt('Copy this, then paste it over the block between the two DATA markers in index.html:', block);
+  }
+}
+/* ---- one-click publish straight to GitHub (token stays in this browser only) ---- */
+function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
+function setToken(t){ try{ t ? localStorage.setItem(TOKEN_KEY,t) : localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+function b64(str){ return btoa(unescape(encodeURIComponent(str))); }
+async function buildFileSource(){
+  const r=await fetch(location.pathname, {cache:'no-store'});
+  let src=await r.text();
+  const re=/\/\*DATA_START\*\/[\s\S]*?\/\*DATA_END\*\//;
+  if(!re.test(src)) throw new Error('DATA markers not found in the published file.');
+  return src.replace(re, '/*DATA_START*/\n'+dataBlock()+'\n/*DATA_END*/');
+}
+async function publishLive(){
+  if(!isDirty()){ window.alert('Nothing new to publish — the live site already matches your edits.'); return; }
+  let token=getToken();
+  if(!token){
+    token=window.prompt(
+      'One-time setup: paste a GitHub token to publish.\n\n'+
+      'It is stored ONLY in this browser and is never written into the page.\n\n'+
+      'Create one at:  github.com/settings/personal-access-tokens/new\n'+
+      '  - Fine-grained token\n'+
+      '  - Repository access: only "drabdulali.github.io"\n'+
+      '  - Permissions: Contents = Read and write\n\n'+
+      'Paste the token here:');
+    if(!token) return;
+    token=token.trim(); setToken(token);
+  }
+  const api='https://api.github.com/repos/'+REPO.owner+'/'+REPO.repo+'/contents/'+encodeURIComponent(REPO.path).replace(/%2F/g,'/');
+  const headers={ 'Authorization':'Bearer '+token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' };
+  let src;
+  try{ src=await buildFileSource(); }
+  catch(e){ window.alert('Could not prepare the file: '+e.message+'\n\nUse "Download index.html" as a fallback.'); return; }
+  try{
+    const g=await fetch(api+'?ref='+REPO.branch, { headers });
+    if(g.status===401){ setToken(''); window.alert('That token was not accepted (401). It may be wrong or expired.\nClick Publish again and paste a valid token.'); return; }
+    if(g.status===403 || g.status===404){ setToken(''); window.alert('The token cannot access this repository ('+g.status+').\nMake sure it is a fine-grained token for "drabdulali.github.io" with Contents: Read and write, then Publish again.'); return; }
+    let sha=null; if(g.ok){ try{ sha=(await g.json()).sha; }catch(e){} }
+    const body={ message:'Update IP Team Hub via admin panel', content:b64(src), branch:REPO.branch };
+    if(sha) body.sha=sha;
+    const p=await fetch(api, { method:'PUT', headers, body:JSON.stringify(body) });
+    if(!p.ok){ const t=await p.text().catch(()=>''); window.alert('Publish failed ('+p.status+').\n'+t.slice(0,300)+'\n\nYou can use "Download index.html" instead.'); return; }
+    // success: make the in-memory published data match, and clear the local draft
+    const pub=currentEditData();
+    DATA.title=pub.title; DATA.subtitle=pub.subtitle; DATA.brand=pub.brand; DATA.groups=clone(pub.groups);
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    draft=null;
+    updateDirtyUI();
+    window.alert('Published! Your changes are committed to GitHub and will be live for everyone in about a minute.');
+    exitAdmin();
+  }catch(e){
+    window.alert('Publish error: '+e.message+'\n\nCheck your internet connection, or use "Download index.html".');
   }
 }
 async function downloadFile(){
@@ -520,6 +600,7 @@ async function downloadFile(){
 
 /* ---------- init ---------- */
 render();
+document.getElementById('pb-publish').addEventListener('click', publishLive);
 searchEl.addEventListener('input', e=>{ if(!ADMIN) render(e.target.value); });
 adminLink.addEventListener('click', ()=>{ ADMIN ? exitAdmin() : promptAdmin(); });
 adminLink.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ADMIN ? exitAdmin() : promptAdmin(); } });
