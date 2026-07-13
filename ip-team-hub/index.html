@@ -37,6 +37,11 @@
   }
   .search::placeholder{color:#c3d0dd}
   .search:focus{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4)}
+  .adminlink{
+    color:var(--header-sub);font-size:12.5px;font-weight:600;text-decoration:none;
+    padding:9px 12px;border:1px solid rgba(255,255,255,.18);border-radius:8px;white-space:nowrap;cursor:pointer;
+  }
+  .adminlink:hover{color:var(--header-ink);border-color:rgba(255,255,255,.4)}
   .wrap{max-width:1120px;margin:0 auto;padding:30px 24px 64px}
   .group{margin-top:30px}
   .group:first-child{margin-top:8px}
@@ -47,11 +52,10 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px}
   .tile{
     display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#fff;
-    background:var(--tile);border-radius:10px;padding:17px 17px 15px;min-height:112px;
+    background:var(--tile);border-radius:10px;padding:17px 17px 15px;min-height:104px;
     box-shadow:var(--shadow-sm);transition:transform .12s ease,box-shadow .12s ease,filter .12s ease;
   }
   .tile:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:var(--shadow-lg)}
-  .tile .ic{font-size:21px;line-height:1}
   .tile .lbl{font-weight:700;font-size:15px;letter-spacing:.005em}
   .tile .desc{font-size:12.5px;line-height:1.42;color:rgba(255,255,255,.85)}
   .tile .go{margin-top:auto;font-size:11.5px;font-weight:700;letter-spacing:.03em;color:rgba(255,255,255,.92)}
@@ -59,12 +63,29 @@
   .tile.todo:hover{filter:none;transform:none;border-color:var(--muted)}
   .tile.todo .desc{color:var(--muted)}
   .tile.todo .go{color:var(--muted)}
-  footer{max-width:1120px;margin:34px auto 0;padding:0 24px}
-  .note{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;color:var(--muted);font-size:12.5px;line-height:1.6}
-  .note strong{color:var(--ink)}
-  code{background:var(--page);border:1px solid var(--line);padding:1px 6px;border-radius:5px;font-size:12px;color:var(--ink)}
-  details{margin-top:8px}
-  summary{cursor:pointer;color:var(--ink);font-weight:600}
+
+  /* ---- admin mode ---- */
+  .admin .search{display:none}
+  .adminbar{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:24px;box-shadow:var(--shadow-sm)}
+  .adminbar .tag{display:inline-block;background:#c0392b;color:#fff;font-weight:800;font-size:11px;letter-spacing:.08em;padding:4px 9px;border-radius:5px;text-transform:uppercase}
+  .adminmsg{font-size:12.5px;line-height:1.55;color:var(--muted)}
+  .adminmsg strong{color:var(--ink)}
+  .adminbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .btn{font:inherit;font-size:12.5px;font-weight:700;letter-spacing:.02em;cursor:pointer;border:1px solid var(--header);background:var(--header);color:#fff;border-radius:7px;padding:8px 13px}
+  .btn:hover{filter:brightness(1.12)}
+  .btn.ghost{background:var(--panel);color:var(--ink);border-color:var(--line)}
+  .btn.danger{background:#b23b32;border-color:#b23b32;color:#fff}
+  .swatch-input{width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:5px;background:none;cursor:pointer;flex:0 0 auto}
+  .ginput{font:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 160px;min-width:0}
+  .grouptools{display:flex;gap:8px;margin-left:auto}
+  .edit{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-sm)}
+  .fld{display:flex;flex-direction:column;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .fld input{font:inherit;font-size:13.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+  .fld input:focus{outline:none;border-color:var(--muted)}
+  .cardtools{display:flex;justify-content:flex-end}
+  .addrow{margin-top:12px}
+  .admin .grid{grid-template-columns:repeat(auto-fill,minmax(264px,1fr))}
+
   .empty{color:var(--muted);font-size:13px;padding:12px 2px}
 </style>
 </head>
@@ -78,26 +99,17 @@
       </div>
       <div class="spacer"></div>
       <input class="search" id="search" placeholder="Search resources…" autocomplete="off">
+      <a class="adminlink" id="adminlink" role="button" tabindex="0">Admin</a>
     </div>
   </div>
   <div class="wrap"><main id="board"></main></div>
-  <footer>
-    <div class="note">
-      <strong>Editing this dashboard</strong>
-      <details>
-        <summary>How to add or change a button</summary>
-        <p style="margin-top:10px">
-          Open the file in any text editor and find the <code>DATA</code> list near the top.
-          Copy one <code>{ … }</code> line and set <code>label</code> (button text),
-          <code>url</code> (the link — for a specific Google Sheet tab, copy the tab's URL ending in <code>#gid=…</code>),
-          and optionally <code>desc</code> and <code>icon</code>. Save.
-          Copy a whole <code>group</code> block to add a new color-coded section.
-          Leaving <code>url:"#"</code> keeps a button as a dashed placeholder.
-        </p>
-      </details>
-    </div>
-  </footer>
 <script>
+/* ---- admin key: change this to your own word. Note: this only hides the editor from
+   casual visitors; the real protection is that the public page changes only when you
+   commit to GitHub, which only you can do. ---- */
+const CONFIG = { adminKey: "drake-admin" };
+
+/*DATA_START*/
 const DATA = {
   brand: "IP",
   title: "IP Team Hub",
@@ -107,47 +119,60 @@ const DATA = {
       name: "AMR Scoping Review",
       color: "#14539a",
       links: [
-        { icon:"🔎", label:"AMR Scoping Review", desc:"Main working space for the review", url:"#" },
-        { icon:"📄", label:"AMR Protocol", desc:"Registered protocol / methods", url:"#" },
-        { icon:"🧬", label:"Query — Search String X", desc:"Database query set X", url:"#" },
-        { icon:"🧪", label:"Query — Search String Y", desc:"Database query set Y", url:"#" },
+        { label:"AMR Scoping Review", desc:"Main working space for the review", url:"#" },
+        { label:"AMR Protocol", desc:"Registered protocol / methods", url:"#" },
+        { label:"Query — Search String X", desc:"Database query set X", url:"#" },
+        { label:"Query — Search String Y", desc:"Database query set Y", url:"#" }
       ]
     },
     {
       name: "Team Workbook",
       color: "#0f7b6c",
       links: [
-        { icon:"📘", label:"Read.me", desc:"How to use the workbook", url:"#" },
-        { icon:"🗂️", label:"Subproject Details", desc:"Objectives, members, deliverables", url:"#" },
-        { icon:"🗓️", label:"Meetings & Actions", desc:"Meeting notes and actions log", url:"#" },
-        { icon:"💬", label:"Feedback Requests", desc:"Requests for input on drafts", url:"#" },
-        { icon:"📑", label:"Manuscripts", desc:"Publication output tracker", url:"#" },
-        { icon:"💰", label:"External Proposals", desc:"Funding opportunities", url:"#" },
+        { label:"Read.me", desc:"How to use the workbook", url:"#" },
+        { label:"Subproject Details", desc:"Objectives, members, deliverables", url:"#" },
+        { label:"Meetings & Actions", desc:"Meeting notes and actions log", url:"#" },
+        { label:"Feedback Requests", desc:"Requests for input on drafts", url:"#" },
+        { label:"Manuscripts", desc:"Publication output tracker", url:"#" },
+        { label:"External Proposals", desc:"Funding opportunities", url:"#" }
       ]
     },
     {
       name: "Repositories & Code",
       color: "#5a3e99",
       links: [
-        { icon:"🐙", label:"GitHub Repository", desc:"Analysis code / R pipeline", url:"#" },
+        { label:"GitHub Repository", desc:"Analysis code / R pipeline", url:"#" }
       ]
     },
     {
       name: "Shortcuts",
       color: "#b0561b",
       links: [
-        { icon:"📁", label:"OneDrive Folder", desc:"Shared team files", url:"#" },
-        { icon:"✉️", label:"Team Listserv", desc:"IP-PISG-L@listserv.uga.edu", url:"mailto:IP-PISG-L@listserv.uga.edu" },
+        { label:"OneDrive Folder", desc:"Shared team files", url:"#" },
+        { label:"Team Listserv", desc:"IP-PISG-L@listserv.uga.edu", url:"mailto:IP-PISG-L@listserv.uga.edu" }
       ]
-    },
+    }
   ]
 };
-document.getElementById('title').textContent = DATA.title;
-document.getElementById('subtitle').textContent = DATA.subtitle;
-document.getElementById('brand').textContent = DATA.brand;
+/*DATA_END*/
+
+const $ = id => document.getElementById(id);
+$('title').textContent = DATA.title;
+$('subtitle').textContent = DATA.subtitle;
+$('brand').textContent = DATA.brand;
 document.title = DATA.title;
-const board = document.getElementById('board');
-function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+const board = $('board');
+const searchEl = $('search');
+const adminLink = $('adminlink');
+const LS_KEY = 'ipteamhub_draft_v1';
+let ADMIN = false, draft = null;
+
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function persist(){ localStorage.setItem(LS_KEY, JSON.stringify(draft)); }
+
+/* ---------- public view ---------- */
 function render(filter=""){
   board.innerHTML="";
   const f = filter.trim().toLowerCase();
@@ -170,10 +195,9 @@ function render(filter=""){
       a.href=l.url||"#";
       if(!todo){ a.target="_blank"; a.rel="noopener"; }
       a.style.setProperty('--tile',g.color);
-      a.innerHTML=`<span class="ic">${l.icon||"🔗"}</span>
-        <span class="lbl">${esc(l.label)}</span>
+      a.innerHTML=`<span class="lbl">${esc(l.label)}</span>
         ${l.desc?`<span class="desc">${esc(l.desc)}</span>`:""}
-        <span class="go">${todo?"ADD LINK":"OPEN ↗"}</span>`;
+        <span class="go">${todo?"ADD LINK":"OPEN"}</span>`;
       grid.appendChild(a);
     });
     sec.appendChild(grid);
@@ -181,8 +205,127 @@ function render(filter=""){
   });
   if(!shown){ board.innerHTML=`<p class="empty">No resources match “${esc(filter)}”.</p>`; }
 }
+
+/* ---------- admin editor ---------- */
+function btn(label, fn, variant){
+  const b=document.createElement('button');
+  b.type='button'; b.className='btn'+(variant?' '+variant:''); b.textContent=label; b.onclick=fn;
+  return b;
+}
+function field(label, val, oninput){
+  const wrap=document.createElement('label'); wrap.className='fld';
+  const span=document.createElement('span'); span.textContent=label;
+  const inp=document.createElement('input'); inp.value=val||''; inp.oninput=()=>oninput(inp.value);
+  wrap.append(span, inp);
+  return wrap;
+}
+function renderAdmin(){
+  board.innerHTML="";
+  const bar=document.createElement('div'); bar.className='adminbar';
+  const msg=document.createElement('div'); msg.className='adminmsg';
+  msg.innerHTML=`<span class="tag">Admin mode</span>
+    <p style="margin:11px 0 0">You are editing a <strong>local draft</strong> stored in this browser only.
+    The public page updates when you <strong>Download index.html</strong> and commit it to the
+    <code>ip-team-hub</code> folder on GitHub, or use <strong>Copy data code</strong> and paste it into
+    GitHub's web editor between the two <code>DATA</code> markers.</p>`;
+  const btns=document.createElement('div'); btns.className='adminbtns';
+  btns.append(
+    btn('Add section', ()=>{ draft.groups.push({name:"NEW SECTION", color:"#14539a", links:[]}); persist(); renderAdmin(); }),
+    btn('Download index.html', downloadFile),
+    btn('Copy data code', copyData),
+    btn('Discard draft', ()=>{ if(confirm('Discard all local changes and reset to the published version?')){ localStorage.removeItem(LS_KEY); draft=clone(DATA); renderAdmin(); } }, 'ghost'),
+    btn('Exit admin', exitAdmin, 'ghost')
+  );
+  bar.append(msg, btns);
+  board.appendChild(bar);
+
+  draft.groups.forEach((g, gi)=>{
+    const sec=document.createElement('section'); sec.className='group';
+    const head=document.createElement('div'); head.className='group-head';
+    const sw=document.createElement('input'); sw.type='color'; sw.className='swatch-input'; sw.value=g.color;
+    sw.oninput=()=>{ g.color=sw.value; persist(); };
+    const nm=document.createElement('input'); nm.className='ginput'; nm.value=g.name;
+    nm.oninput=()=>{ g.name=nm.value; persist(); };
+    const tools=document.createElement('div'); tools.className='grouptools';
+    tools.append(btn('Delete section', ()=>{ if(confirm('Delete this whole section?')){ draft.groups.splice(gi,1); persist(); renderAdmin(); } }, 'danger'));
+    head.append(sw, nm, tools);
+    sec.appendChild(head);
+
+    const grid=document.createElement('div'); grid.className='grid';
+    g.links.forEach((l, li)=>{
+      const card=document.createElement('div'); card.className='edit';
+      card.append(
+        field('Button label', l.label, v=>{ l.label=v; persist(); }),
+        field('Link URL  (use # for a placeholder)', l.url, v=>{ l.url=v; persist(); }),
+        field('Description', l.desc, v=>{ l.desc=v; persist(); })
+      );
+      const row=document.createElement('div'); row.className='cardtools';
+      row.append(btn('Delete', ()=>{ g.links.splice(li,1); persist(); renderAdmin(); }, 'danger'));
+      card.appendChild(row);
+      grid.appendChild(card);
+    });
+    sec.appendChild(grid);
+
+    const add=document.createElement('div'); add.className='addrow';
+    add.append(btn('+ Add link', ()=>{ g.links.push({label:"New link", url:"#", desc:""}); persist(); renderAdmin(); }));
+    sec.appendChild(add);
+    board.appendChild(sec);
+  });
+}
+function enterAdmin(){
+  const saved=localStorage.getItem(LS_KEY);
+  draft = saved ? JSON.parse(saved) : clone(DATA);
+  ADMIN=true; document.body.classList.add('admin'); adminLink.textContent='Exit admin';
+  renderAdmin();
+}
+function exitAdmin(){
+  ADMIN=false; document.body.classList.remove('admin'); adminLink.textContent='Admin';
+  render(searchEl.value);
+}
+function promptAdmin(){
+  const key=window.prompt('Enter the admin key to edit this dashboard:');
+  if(key===null) return;
+  if(key===CONFIG.adminKey) enterAdmin();
+  else window.alert('Incorrect key.');
+}
+function dataBlock(){ return 'const DATA = ' + JSON.stringify(draft, null, 2) + ';'; }
+async function copyData(){
+  const block=dataBlock();
+  try{
+    await navigator.clipboard.writeText(block);
+    window.alert('Data code copied.\n\nIn GitHub: open ip-team-hub/index.html, click the pencil to edit, select everything between the /*DATA_START*/ and /*DATA_END*/ markers and replace it with what you copied, then Commit.');
+  }catch(e){
+    window.prompt('Copy this, then paste it over the block between the two DATA markers in index.html:', block);
+  }
+}
+async function downloadFile(){
+  let src;
+  try{
+    const r=await fetch(location.pathname, {cache:'no-store'});
+    src=await r.text();
+  }catch(e){
+    window.alert('Could not read the page source (this needs the live site, not a local file). Use "Copy data code" instead.');
+    return;
+  }
+  const re=/\/\*DATA_START\*\/[\s\S]*?\/\*DATA_END\*\//;
+  if(!re.test(src)){
+    window.alert('Could not find the DATA markers in the file. Use "Copy data code" instead.');
+    return;
+  }
+  src=src.replace(re, '/*DATA_START*/\n'+dataBlock()+'\n/*DATA_END*/');
+  const blob=new Blob([src], {type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  window.alert('Downloaded index.html with your changes.\n\nNow commit/upload it to the ip-team-hub folder on GitHub to publish. The public page updates in about a minute.');
+}
+
+/* ---------- init ---------- */
 render();
-document.getElementById('search').addEventListener('input',e=>render(e.target.value));
+searchEl.addEventListener('input', e=>{ if(!ADMIN) render(e.target.value); });
+adminLink.addEventListener('click', ()=>{ ADMIN ? exitAdmin() : promptAdmin(); });
+adminLink.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ADMIN ? exitAdmin() : promptAdmin(); } });
+if(location.hash.toLowerCase().includes('admin')) promptAdmin();
 </script>
 </body>
 </html>
