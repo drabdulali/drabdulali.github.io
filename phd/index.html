@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhD Projects</title>
+<style>
+  :root{
+    --page:#eef1f5; --panel:#ffffff; --ink:#1d2733; --muted:#5c6b7a;
+    --line:#dbe1e8; --header:#1e2a38; --header-ink:#f6f9fc; --header-sub:#aebccb;
+    --shadow-sm:0 1px 2px rgba(16,24,40,.10);
+    --shadow-lg:0 10px 22px rgba(16,24,40,.16);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --page:#0f151c; --panel:#161e27; --ink:#e8eef4; --muted:#93a2b2;
+      --line:#27313d; --header:#141c26; --header-ink:#f6f9fc; --header-sub:#8497a8;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+      --shadow-lg:0 10px 22px rgba(0,0,0,.5);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--page); color:var(--ink); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .topbar{background:var(--header);color:var(--header-ink);border-bottom:3px solid #c0392b}
+  .topbar .inner{max-width:1120px;margin:0 auto;padding:22px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{width:44px;height:44px;border-radius:8px;background:#c0392b;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:.02em;flex:0 0 auto}
+  .titles h1{margin:0;font-size:21px;font-weight:700;letter-spacing:.01em}
+  .titles p{margin:2px 0 0;font-size:13px;color:var(--header-sub)}
+  .spacer{flex:1 1 auto}
+  .search{
+    background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);color:var(--header-ink);
+    border-radius:8px;padding:9px 13px;font-size:13.5px;min-width:220px;outline:none;
+  }
+  .search::placeholder{color:#c3d0dd}
+  .search:focus{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4)}
+  .adminlink{
+    color:var(--header-sub);font-size:12.5px;font-weight:600;text-decoration:none;
+    padding:9px 12px;border:1px solid rgba(255,255,255,.18);border-radius:8px;white-space:nowrap;cursor:pointer;
+  }
+  .adminlink:hover{color:var(--header-ink);border-color:rgba(255,255,255,.4)}
+  .wrap{max-width:1120px;margin:0 auto;padding:30px 24px 64px}
+  .group{margin-top:32px}
+  .group:first-child{margin-top:8px}
+  .group-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:16px}
+  .swatch{width:12px;height:12px;border-radius:3px;flex:0 0 auto}
+  .group-head h2{margin:0;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .group-head .count{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
+  .sub-head{display:flex;align-items:center;gap:8px;margin:20px 0 12px}
+  .sub-head .dot{width:7px;height:7px;border-radius:2px;flex:0 0 auto}
+  .sub-head h3{margin:0;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px}
+  .tile{
+    display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#fff;
+    background:var(--tile);border-radius:10px;padding:17px 17px 15px;min-height:104px;
+    box-shadow:var(--shadow-sm);transition:transform .12s ease,box-shadow .12s ease,filter .12s ease;
+  }
+  .tile:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:var(--shadow-lg)}
+  .tile .lbl{font-weight:700;font-size:15px;letter-spacing:.005em}
+  .tile .desc{font-size:12.5px;line-height:1.42;color:rgba(255,255,255,.85)}
+  .tile .go{margin-top:auto;font-size:11.5px;font-weight:700;letter-spacing:.03em;color:rgba(255,255,255,.92)}
+  .tile.todo{background:var(--panel);color:var(--muted);border:1px dashed var(--line);box-shadow:none}
+  .tile.todo:hover{filter:none;transform:none;border-color:var(--muted)}
+  .tile.todo .desc{color:var(--muted)}
+  .tile.todo .go{color:var(--muted)}
+
+  /* ---- admin mode ---- */
+  .admin .search{display:none}
+  .adminbar{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:24px;box-shadow:var(--shadow-sm)}
+  .adminbar .tag{display:inline-block;background:#c0392b;color:#fff;font-weight:800;font-size:11px;letter-spacing:.08em;padding:4px 9px;border-radius:5px;text-transform:uppercase}
+  .adminmsg{font-size:12.5px;line-height:1.55;color:var(--muted)}
+  .adminmsg p{margin:10px 0 0}
+  .adminmsg strong{color:var(--ink)}
+  .adminbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .btn{font:inherit;font-size:12.5px;font-weight:700;letter-spacing:.02em;cursor:pointer;border:1px solid var(--header);background:var(--header);color:#fff;border-radius:7px;padding:8px 13px}
+  .btn:hover{filter:brightness(1.12)}
+  .btn.ghost{background:var(--panel);color:var(--ink);border-color:var(--line)}
+  .btn.danger{background:#b23b32;border-color:#b23b32;color:#fff}
+  .btn.small{padding:6px 10px;font-size:11.5px}
+  .btn.primary{background:#c0392b;border-color:#c0392b;color:#fff}
+  .swatch-input{width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:5px;background:none;cursor:pointer;flex:0 0 auto}
+  .ginput{font:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 200px;min-width:0}
+  .grouptools{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+  .sub-edit-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:20px 0 10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+  .sub-edit-head .sdot{width:8px;height:8px;border-radius:2px;flex:0 0 auto}
+  .sub-tag{font-size:10px;font-weight:800;letter-spacing:.07em;color:var(--muted);flex:0 0 auto}
+  .sinput{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 200px;min-width:0}
+  .edit{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-sm)}
+  .edit-top{display:flex;align-items:center;gap:9px}
+  .grip{width:24px;height:22px;border:1px solid var(--line);border-radius:5px;cursor:grab;flex:0 0 auto;
+    background-image:radial-gradient(var(--muted) 1.1px, transparent 1.3px);background-size:6px 6px;background-position:center}
+  .grip:active{cursor:grabbing}
+  .edit-badge{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--muted)}
+  .edit.dragging{opacity:.4}
+  .drop-into{outline:2px dashed #c0392b;outline-offset:3px;border-radius:9px}
+  .fld{display:flex;flex-direction:column;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .fld input{font:inherit;font-size:13.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+  .fld input:focus{outline:none;border-color:var(--muted)}
+  .cardtools{display:flex;justify-content:flex-end}
+  .addrow{margin-top:12px;border:1px dashed transparent;border-radius:8px}
+  .subsection-empty{font-size:12px;line-height:1.5;color:var(--muted);border:1px dashed var(--line);border-radius:8px;padding:13px 14px;margin-bottom:4px}
+  .admin .grid{grid-template-columns:repeat(auto-fill,minmax(264px,1fr))}
+
+  .draftbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:12.5px;line-height:1.5;color:var(--muted);box-shadow:var(--shadow-sm)}
+  .draftbar strong{color:var(--ink)}
+  .dtag{display:inline-block;background:#b0561b;color:#fff;font-weight:800;font-size:10px;letter-spacing:.07em;padding:3px 8px;border-radius:5px;text-transform:uppercase;margin-right:7px}
+  .draftbtns{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+  .empty{color:var(--muted);font-size:13px;padding:12px 2px}
+  #publishbar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(28px);opacity:0;pointer-events:none;
+    display:flex;align-items:center;gap:13px;background:var(--header);color:#fff;border:1px solid rgba(255,255,255,.12);
+    border-radius:11px;padding:12px 14px 12px 16px;box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;
+    transition:opacity .18s ease,transform .18s ease;z-index:60;max-width:calc(100% - 28px)}
+  #publishbar.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+  #publishbar .pb-dot{width:9px;height:9px;border-radius:50%;background:#e2b13c;flex:0 0 auto}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="inner">
+      <div class="brand" id="brand">PhD</div>
+      <div class="titles">
+        <h1 id="title">PhD Projects</h1>
+        <p id="subtitle">Drake Lab · One Health — documents, meetings & ongoing projects</p>
+      </div>
+      <div class="spacer"></div>
+      <input class="search" id="search" placeholder="Search resources…" autocomplete="off">
+      <a class="adminlink" id="adminlink" role="button" tabindex="0">Admin</a>
+    </div>
+  </div>
+  <div class="wrap"><main id="board"></main></div>
+  <div id="publishbar">
+    <span class="pb-dot"></span>
+    <span>Unpublished changes</span>
+    <button type="button" class="btn primary" id="pb-publish">Publish now</button>
+  </div>
+<script>
+/* ---- admin key: change this to your own word. Note: this only hides the editor from
+   casual visitors; the real protection is that the public page changes only when you
+   commit to GitHub, which only you can do. ---- */
+const CONFIG = { adminKey: "drake-admin" };
+
+/* Data model: Section (group) -> Subsection -> Link (button).
+   A subsection with an empty name shows no sub-heading, just its buttons. */
+/*DATA_START*/
+const DATA = {
+  brand: "PhD",
+  title: "PhD Projects",
+  subtitle: "Drake Lab · One Health — documents, meetings & ongoing projects",
+  groups: [
+    { name:"Ongoing Projects", color:"#14539a", links:[
+      { label:"IP Team Hub", desc:"AMR Incentivizing Prevention Project", url:"https://drabdulali.github.io/ip-team-hub/" },
+      { label:"Add Project", desc:"Link another project workspace", url:"#" },
+      { label:"Add Project", desc:"Link another project workspace", url:"#" }
+    ]},
+    { name:"Key Documents", color:"#0f7b6c", links:[
+      { label:"Thesis / Dissertation", desc:"Main writing document", url:"#" },
+      { label:"Literature Library", desc:"References / reading list", url:"#" },
+      { label:"Data Management Plan", desc:"Data storage & sharing plan", url:"#" },
+      { label:"Protocols & SOPs", desc:"Methods and procedures", url:"#" }
+    ]},
+    { name:"Meetings & Minutes", color:"#5a3e99", links:[
+      { label:"Supervisor Meetings", desc:"Notes with Drake Lab", url:"#" },
+      { label:"Lab Meetings", desc:"Group meeting minutes", url:"#" },
+      { label:"Action / To-do Log", desc:"Running list of actions", url:"#" }
+    ]},
+    { name:"Progress & Admin", color:"#b0561b", links:[
+      { label:"Milestones & Reviews", desc:"Committee / progress reviews", url:"#" },
+      { label:"Training & Development", desc:"Courses and skills log", url:"#" },
+      { label:"Ethics / IRB", desc:"Approvals and submissions", url:"#" }
+    ]},
+    { name:"Writing & Outputs", color:"#1f6f8b", links:[
+      { label:"Manuscripts", desc:"Papers in progress", url:"#" },
+      { label:"Presentations", desc:"Talks and posters", url:"#" },
+      { label:"Conferences", desc:"Deadlines and submissions", url:"#" }
+    ]}
+  ]
+};
+/*DATA_END*/
+
+const $ = id => document.getElementById(id);
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* Accept old (group.links) or new (group.subsections) shapes and normalise to subsections. */
+function normalize(d){
+  (d.groups||[]).forEach(g=>{
+    if(!Array.isArray(g.subsections)){
+      g.subsections = [{ name:"", links: Array.isArray(g.links)? g.links : [] }];
+    }
+    delete g.links;
+    g.subsections.forEach(s=>{
+      if(!Array.isArray(s.links)) s.links=[];
+      if(s.name==null) s.name="";
+    });
+  });
+  return d;
+}
+normalize(DATA);
+
+$('title').textContent = DATA.title;
+$('subtitle').textContent = DATA.subtitle;
+$('brand').textContent = DATA.brand;
+document.title = DATA.title;
+
+const board = $('board');
+const searchEl = $('search');
+const adminLink = $('adminlink');
+const LS_KEY = 'phdprojects_draft_v1';
+const TOKEN_KEY = 'phdprojects_ghtoken';
+const REPO = { owner:'drabdulali', repo:'drabdulali.github.io', path:'phd/index.html', branch:'main' };
+let ADMIN = false, draft = null, dragSrc = null;
+
+function persist(){ localStorage.setItem(LS_KEY, JSON.stringify(draft)); updateDirtyUI(); }
+
+/* "Dirty" = the saved local draft differs from the published version currently in this file. */
+function snap(d){ return JSON.stringify({ title:d.title, subtitle:d.subtitle, brand:d.brand, groups:d.groups }); }
+function isDirty(){
+  let s=null; try{ s=localStorage.getItem(LS_KEY); }catch(e){}
+  if(!s) return false;
+  try{ return snap(normalize(JSON.parse(s))) !== snap(DATA); }catch(e){ return true; }
+}
+function updateDirtyUI(){
+  const bar=document.getElementById('publishbar');
+  if(bar) bar.classList.toggle('show', ADMIN && isDirty());
+}
+
+/* ---------- public view ---------- */
+function tileEl(l, color){
+  const todo = !l.url || l.url==="#";
+  const a=document.createElement('a');
+  a.className='tile'+(todo?' todo':'');
+  a.href=l.url||"#";
+  if(!todo){ a.target="_blank"; a.rel="noopener"; }
+  a.style.setProperty('--tile',color);
+  a.innerHTML=`<span class="lbl">${esc(l.label)}</span>
+    ${l.desc?`<span class="desc">${esc(l.desc)}</span>`:""}
+    <span class="go">${todo?"ADD LINK":"OPEN"}</span>`;
+  return a;
+}
+/* The public view shows your saved local edits if you have any (this browser only),
+   otherwise the published version committed to GitHub. */
+function publicData(){
+  try{ const s=localStorage.getItem(LS_KEY); if(s) return normalize(JSON.parse(s)); }catch(e){}
+  return DATA;
+}
+function draftBanner(){
+  const b=document.createElement('div'); b.className='draftbar';
+  const msg=document.createElement('div');
+  msg.innerHTML='<span class="dtag">Unpublished</span>You have edits saved in <strong>this browser</strong> that are not live yet — your team still sees the published version until you publish.';
+  const tools=document.createElement('div'); tools.className='draftbtns';
+  tools.append(
+    btn('Publish now', publishLive, 'primary small'),
+    btn('Revert to published', ()=>{ if(confirm('Discard your local edits and return to the published version?')){ try{localStorage.removeItem(LS_KEY);}catch(e){} render(searchEl.value); } }, 'ghost small')
+  );
+  b.append(msg, tools);
+  return b;
+}
+function render(filter=""){
+  board.innerHTML="";
+  if(isDirty()) board.appendChild(draftBanner());
+  const f = filter.trim().toLowerCase();
+  const data = publicData();
+  let shown=0;
+  data.groups.forEach(g=>{
+    const subs = g.subsections.map(s=>({
+      name: s.name,
+      links: s.links.filter(l=> !f || (l.label+" "+(l.desc||"")+" "+(s.name||"")).toLowerCase().includes(f))
+    })).filter(s=> s.links.length);
+    const total = subs.reduce((n,s)=>n+s.links.length, 0);
+    if(!total) return;
+    shown += total;
+
+    const sec=document.createElement('section'); sec.className='group';
+    const head=document.createElement('div'); head.className='group-head';
+    head.innerHTML=`<span class="swatch" style="background:${g.color}"></span>
+        <h2>${esc(g.name)}</h2><span class="count">${total}</span>`;
+    sec.appendChild(head);
+
+    subs.forEach(s=>{
+      if(s.name){
+        const sh=document.createElement('div'); sh.className='sub-head';
+        sh.innerHTML=`<span class="dot" style="background:${g.color}"></span><h3>${esc(s.name)}</h3>`;
+        sec.appendChild(sh);
+      }
+      const grid=document.createElement('div'); grid.className='grid';
+      s.links.forEach(l=> grid.appendChild(tileEl(l, g.color)));
+      sec.appendChild(grid);
+    });
+    board.appendChild(sec);
+  });
+  if(!shown){ const p=document.createElement('p'); p.className='empty'; p.textContent='No resources match “'+filter+'”.'; board.appendChild(p); }
+}
+
+/* ---------- admin editor ---------- */
+function btn(label, fn, variant){
+  const b=document.createElement('button');
+  b.type='button'; b.className='btn'+(variant?' '+variant:''); b.textContent=label; b.onclick=fn;
+  return b;
+}
+function textInput(cls, val, oninput, id, placeholder){
+  const inp=document.createElement('input');
+  inp.className=cls; inp.value=val||''; if(id) inp.id=id; if(placeholder) inp.placeholder=placeholder;
+  inp.oninput=()=>oninput(inp.value);
+  return inp;
+}
+function colorInput(val, oninput){
+  const inp=document.createElement('input');
+  inp.type='color'; inp.className='swatch-input'; inp.value=val||'#14539a';
+  inp.oninput=()=>oninput(inp.value);
+  return inp;
+}
+function field(label, val, oninput, id){
+  const wrap=document.createElement('label'); wrap.className='fld';
+  const span=document.createElement('span'); span.textContent=label;
+  const inp=document.createElement('input'); inp.value=val||''; if(id) inp.id=id;
+  inp.oninput=()=>oninput(inp.value);
+  wrap.append(span, inp);
+  return wrap;
+}
+function focusEl(id){
+  const el=document.getElementById(id);
+  if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>el.focus(), 60); }
+}
+function clearDropMarks(){ document.querySelectorAll('.drop-into').forEach(x=>x.classList.remove('drop-into')); }
+
+/* Move the dragged link (identified by object identity) to a destination subsection,
+   inserting before `beforeObj` (or at the end when beforeObj is null). */
+function moveLink(src, dgi, dsi, beforeObj){
+  const sArr = draft.groups[src.gi].subsections[src.si].links;
+  const i = sArr.indexOf(src.obj);
+  if(i<0){ return; }
+  sArr.splice(i,1);
+  const dArr = draft.groups[dgi].subsections[dsi].links;
+  let idx = (beforeObj && beforeObj!==src.obj) ? dArr.indexOf(beforeObj) : dArr.length;
+  if(idx<0) idx = dArr.length;
+  dArr.splice(idx,0,src.obj);
+  dragSrc=null;
+  persist(); renderAdmin();
+}
+function makeDropTarget(el, gi, si, getBeforeObj){
+  el.addEventListener('dragover', e=>{ if(!dragSrc)return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect='move'; el.classList.add('drop-into'); });
+  el.addEventListener('dragleave', ()=>el.classList.remove('drop-into'));
+  el.addEventListener('drop', e=>{ if(!dragSrc)return; e.preventDefault(); e.stopPropagation(); el.classList.remove('drop-into'); moveLink(dragSrc, gi, si, getBeforeObj()); });
+}
+function linkCard(gi, si, l, li){
+  const card=document.createElement('div'); card.className='edit';
+  const top=document.createElement('div'); top.className='edit-top';
+  const grip=document.createElement('span'); grip.className='grip'; grip.setAttribute('draggable','true');
+  grip.title='Drag to reorder, or drop onto another section / subsection';
+  const badge=document.createElement('span'); badge.className='edit-badge'; badge.textContent='BUTTON — drag the grip to move';
+  top.append(grip, badge);
+  card.append(
+    top,
+    field('Button label', l.label, v=>{ l.label=v; persist(); }, 'll-'+gi+'-'+si+'-'+li),
+    field('Link URL  (use # for a placeholder)', l.url, v=>{ l.url=v; persist(); }),
+    field('Description', l.desc, v=>{ l.desc=v; persist(); })
+  );
+  const row=document.createElement('div'); row.className='cardtools';
+  row.append(btn('Delete', ()=>{ const arr=draft.groups[gi].subsections[si].links; const ix=arr.indexOf(l); if(ix>-1)arr.splice(ix,1); persist(); renderAdmin(); }, 'danger small'));
+  card.appendChild(row);
+
+  grip.addEventListener('dragstart', e=>{
+    dragSrc={ gi, si, obj:l };
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('text/plain','move');
+    try{ e.dataTransfer.setDragImage(card, 14, 14); }catch(_){}
+    setTimeout(()=>card.classList.add('dragging'), 0);
+  });
+  grip.addEventListener('dragend', ()=>{ card.classList.remove('dragging'); clearDropMarks(); dragSrc=null; });
+
+  // dropping onto a card inserts the dragged button before that card
+  makeDropTarget(card, gi, si, ()=>l);
+  return card;
+}
+function renderAdmin(){
+  board.innerHTML="";
+
+  const bar=document.createElement('div'); bar.className='adminbar';
+  const msg=document.createElement('div'); msg.className='adminmsg';
+  msg.innerHTML=`<span class="tag">Admin mode</span>
+    <p>Layout goes <strong>Section &rsaquo; Subsection &rsaquo; Buttons</strong>.
+    A <strong>Section</strong> is a big heading (e.g. &ldquo;AMR Scoping Review&rdquo;).
+    A <strong>Subsection</strong> is an optional labelled group of buttons inside a section &mdash; give it a name to
+    show a small sub-heading, or leave the name blank for no heading. <strong>Buttons</strong> are the tiles people click.</p>
+    <p>To rearrange, <strong>drag the dotted grip</strong> at the top-left of any button &mdash; reorder it within a
+    subsection, or drop it onto another subsection or section to move it there.</p>
+    <p><strong>Publish now</strong> commits your changes straight to GitHub and they go live for everyone in about a
+    minute (first time, you paste a GitHub token that is kept only in this browser). Your edits also show in the
+    normal view on this device straight away. <strong>Download index.html</strong> / <strong>Copy data code</strong>
+    are manual fallbacks if you prefer to commit yourself.</p>`;
+  const btns=document.createElement('div'); btns.className='adminbtns';
+  btns.append(
+    btn('Publish now', publishLive, 'primary'),
+    btn('Add section', ()=>{
+      draft.groups.push({ name:"NEW SECTION", color:"#14539a", subsections:[{name:"", links:[]}] });
+      persist(); renderAdmin(); focusEl('gn-'+(draft.groups.length-1));
+    }),
+    btn('Download index.html', downloadFile, 'ghost'),
+    btn('Copy data code', copyData, 'ghost'),
+    btn('Discard draft', ()=>{ if(confirm('Discard all local changes and reset to the published version?')){ localStorage.removeItem(LS_KEY); draft=normalize(clone(DATA)); renderAdmin(); } }, 'ghost'),
+    btn('Forget token', ()=>{ setToken(''); window.alert('The saved GitHub token has been removed from this browser. You will be asked for it next time you publish.'); }, 'ghost'),
+    btn('Exit admin', exitAdmin, 'ghost')
+  );
+  bar.append(msg, btns);
+  board.appendChild(bar);
+  updateDirtyUI();
+
+  draft.groups.forEach((g, gi)=>{
+    const sec=document.createElement('section'); sec.className='group';
+
+    const head=document.createElement('div'); head.className='group-head';
+    head.append(
+      colorInput(g.color, v=>{ g.color=v; persist(); }),
+      textInput('ginput', g.name, v=>{ g.name=v; persist(); }, 'gn-'+gi, 'Section name')
+    );
+    const gtools=document.createElement('div'); gtools.className='grouptools';
+    gtools.append(
+      btn('+ Add subsection', ()=>{
+        g.subsections.push({ name:"", links:[] });
+        persist(); renderAdmin(); focusEl('sn-'+gi+'-'+(g.subsections.length-1));
+      }, 'small'),
+      btn('Delete section', ()=>{ if(confirm('Delete this whole section and everything in it?')){ draft.groups.splice(gi,1); persist(); renderAdmin(); } }, 'danger small')
+    );
+    head.appendChild(gtools);
+    sec.appendChild(head);
+
+    g.subsections.forEach((s, si)=>{
+      const shead=document.createElement('div'); shead.className='sub-edit-head';
+      const sdot=document.createElement('span'); sdot.className='sdot'; sdot.style.background=g.color;
+      const stag=document.createElement('span'); stag.className='sub-tag'; stag.textContent='SUBSECTION';
+      shead.append(
+        sdot, stag,
+        textInput('sinput', s.name, v=>{ s.name=v; persist(); }, 'sn-'+gi+'-'+si, 'Sub-heading (optional) — e.g. Screening, Data extraction')
+      );
+      const stools=document.createElement('div'); stools.className='grouptools';
+      stools.append(btn('Delete subsection', ()=>{ if(confirm('Delete this subsection and its buttons?')){ g.subsections.splice(si,1); persist(); renderAdmin(); } }, 'danger small'));
+      shead.appendChild(stools);
+      // dropping onto the subsection header moves the button to the TOP of this subsection
+      makeDropTarget(shead, gi, si, ()=>{ const a=s.links; return (a[0]===(dragSrc&&dragSrc.obj)) ? (a[1]||null) : (a[0]||null); });
+      sec.appendChild(shead);
+
+      const grid=document.createElement('div'); grid.className='grid';
+      s.links.forEach((l, li)=> grid.appendChild(linkCard(gi, si, l, li)));
+      sec.appendChild(grid);
+
+      if(s.links.length===0){
+        const em=document.createElement('div'); em.className='subsection-empty';
+        em.textContent='No buttons here yet. Use “+ Add link” below to create one — or drag a button in from another section.';
+        makeDropTarget(em, gi, si, ()=>null);
+        sec.appendChild(em);
+      }
+
+      const add=document.createElement('div'); add.className='addrow';
+      add.append(btn('+ Add link', ()=>{
+        s.links.push({ label:"New link", url:"#", desc:"" });
+        persist(); renderAdmin(); focusEl('ll-'+gi+'-'+si+'-'+(s.links.length-1));
+      }, 'small'));
+      // dropping onto the add-link row appends the button to the END of this subsection
+      makeDropTarget(add, gi, si, ()=>null);
+      sec.appendChild(add);
+    });
+
+    board.appendChild(sec);
+  });
+}
+function enterAdmin(){
+  const saved=localStorage.getItem(LS_KEY);
+  draft = saved ? normalize(JSON.parse(saved)) : normalize(clone(DATA));
+  ADMIN=true; document.body.classList.add('admin'); adminLink.textContent='Exit admin';
+  renderAdmin(); updateDirtyUI();
+}
+function exitAdmin(){
+  ADMIN=false; document.body.classList.remove('admin'); adminLink.textContent='Admin';
+  render(searchEl.value); updateDirtyUI();
+}
+function promptAdmin(){
+  const key=window.prompt('Enter the admin key to edit this dashboard:');
+  if(key===null) return;
+  if(key===CONFIG.adminKey) enterAdmin();
+  else window.alert('Incorrect key.');
+}
+function currentEditData(){ return draft || publicData(); }
+function dataBlock(){ return 'const DATA = ' + JSON.stringify(currentEditData(), null, 2) + ';'; }
+async function copyData(){
+  const block=dataBlock();
+  try{
+    await navigator.clipboard.writeText(block);
+    window.alert('Data code copied.\n\nIn GitHub: open phd/index.html, click the pencil to edit, select everything between the /*DATA_START*/ and /*DATA_END*/ markers and replace it with what you copied, then Commit.');
+  }catch(e){
+    window.prompt('Copy this, then paste it over the block between the two DATA markers in index.html:', block);
+  }
+}
+/* ---- one-click publish straight to GitHub (token stays in this browser only) ---- */
+function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
+function setToken(t){ try{ t ? localStorage.setItem(TOKEN_KEY,t) : localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+function b64(str){ return btoa(unescape(encodeURIComponent(str))); }
+async function buildFileSource(){
+  const r=await fetch(location.pathname, {cache:'no-store'});
+  let src=await r.text();
+  const re=/\/\*DATA_START\*\/[\s\S]*?\/\*DATA_END\*\//;
+  if(!re.test(src)) throw new Error('DATA markers not found in the published file.');
+  return src.replace(re, '/*DATA_START*/\n'+dataBlock()+'\n/*DATA_END*/');
+}
+async function publishLive(){
+  if(!isDirty()){ window.alert('Nothing new to publish — the live site already matches your edits.'); return; }
+  let token=getToken();
+  if(!token){
+    token=window.prompt(
+      'One-time setup: paste a GitHub token to publish.\n\n'+
+      'It is stored ONLY in this browser and is never written into the page.\n\n'+
+      'Create one at:  github.com/settings/personal-access-tokens/new\n'+
+      '  - Fine-grained token\n'+
+      '  - Repository access: only "drabdulali.github.io"\n'+
+      '  - Permissions: Contents = Read and write\n\n'+
+      'Paste the token here:');
+    if(!token) return;
+    token=token.trim(); setToken(token);
+  }
+  const api='https://api.github.com/repos/'+REPO.owner+'/'+REPO.repo+'/contents/'+encodeURIComponent(REPO.path).replace(/%2F/g,'/');
+  const headers={ 'Authorization':'Bearer '+token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' };
+  let src;
+  try{ src=await buildFileSource(); }
+  catch(e){ window.alert('Could not prepare the file: '+e.message+'\n\nUse "Download index.html" as a fallback.'); return; }
+  try{
+    const g=await fetch(api+'?ref='+REPO.branch, { headers });
+    if(g.status===401){ setToken(''); window.alert('That token was not accepted (401). It may be wrong or expired.\nClick Publish again and paste a valid token.'); return; }
+    if(g.status===403 || g.status===404){ setToken(''); window.alert('The token cannot access this repository ('+g.status+').\nMake sure it is a fine-grained token for "drabdulali.github.io" with Contents: Read and write, then Publish again.'); return; }
+    let sha=null; if(g.ok){ try{ sha=(await g.json()).sha; }catch(e){} }
+    const body={ message:'Update PhD Projects via admin panel', content:b64(src), branch:REPO.branch };
+    if(sha) body.sha=sha;
+    const p=await fetch(api, { method:'PUT', headers, body:JSON.stringify(body) });
+    if(!p.ok){
+      if(p.status===403 || p.status===404){
+        window.alert('Publish was refused ('+p.status+') — this token is read-only for the repo.\n\n'+
+          'Fix it on GitHub (github.com/settings/personal-access-tokens, open your token):\n'+
+          '  - Repository access: Only select repositories -> drabdulali.github.io\n'+
+          '  - Permissions: Contents = Read and write\n'+
+          'Click "Update token", then press Publish now again.\n\n'+
+          '(No need to re-paste — the token value stays the same. Use "Forget token" only if you made a brand-new token.)');
+        return;
+      }
+      const t=await p.text().catch(()=>'');
+      window.alert('Publish failed ('+p.status+').\n'+t.slice(0,300)+'\n\nYou can use "Download index.html" instead.');
+      return;
+    }
+    // success: make the in-memory published data match, and clear the local draft
+    const pub=currentEditData();
+    DATA.title=pub.title; DATA.subtitle=pub.subtitle; DATA.brand=pub.brand; DATA.groups=clone(pub.groups);
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    draft=null;
+    updateDirtyUI();
+    window.alert('Published! Your changes are committed to GitHub and will be live for everyone in about a minute.');
+    exitAdmin();
+  }catch(e){
+    window.alert('Publish error: '+e.message+'\n\nCheck your internet connection, or use "Download index.html".');
+  }
+}
+async function downloadFile(){
+  let src;
+  try{
+    const r=await fetch(location.pathname, {cache:'no-store'});
+    src=await r.text();
+  }catch(e){
+    window.alert('Could not read the page source (this needs the live site, not a local file). Use "Copy data code" instead.');
+    return;
+  }
+  const re=/\/\*DATA_START\*\/[\s\S]*?\/\*DATA_END\*\//;
+  if(!re.test(src)){
+    window.alert('Could not find the DATA markers in the file. Use "Copy data code" instead.');
+    return;
+  }
+  src=src.replace(re, '/*DATA_START*/\n'+dataBlock()+'\n/*DATA_END*/');
+  const blob=new Blob([src], {type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  window.alert('Downloaded index.html with your changes.\n\nNow commit/upload it to the phd folder on GitHub to publish. The public page updates in about a minute.');
+}
+
+/* ---------- init ---------- */
+render();
+document.getElementById('pb-publish').addEventListener('click', publishLive);
+searchEl.addEventListener('input', e=>{ if(!ADMIN) render(e.target.value); });
+adminLink.addEventListener('click', ()=>{ ADMIN ? exitAdmin() : promptAdmin(); });
+adminLink.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ADMIN ? exitAdmin() : promptAdmin(); } });
+if(location.hash.toLowerCase().includes('admin')) promptAdmin();
+</script>
+</body>
+</html>
