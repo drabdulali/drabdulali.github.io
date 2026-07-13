@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IP Team Hub</title>
+<style>
+  :root{
+    --page:#eef1f5; --panel:#ffffff; --ink:#1d2733; --muted:#5c6b7a;
+    --line:#dbe1e8; --header:#1e2a38; --header-ink:#f6f9fc; --header-sub:#aebccb;
+    --shadow-sm:0 1px 2px rgba(16,24,40,.10);
+    --shadow-lg:0 10px 22px rgba(16,24,40,.16);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --page:#0f151c; --panel:#161e27; --ink:#e8eef4; --muted:#93a2b2;
+      --line:#27313d; --header:#141c26; --header-ink:#f6f9fc; --header-sub:#8497a8;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+      --shadow-lg:0 10px 22px rgba(0,0,0,.5);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--page); color:var(--ink); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .topbar{background:var(--header);color:var(--header-ink);border-bottom:3px solid #c0392b}
+  .topbar .inner{max-width:1120px;margin:0 auto;padding:22px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{width:44px;height:44px;border-radius:8px;background:#c0392b;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:.02em;flex:0 0 auto}
+  .titles h1{margin:0;font-size:21px;font-weight:700;letter-spacing:.01em}
+  .titles p{margin:2px 0 0;font-size:13px;color:var(--header-sub)}
+  .spacer{flex:1 1 auto}
+  .search{
+    background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);color:var(--header-ink);
+    border-radius:8px;padding:9px 13px;font-size:13.5px;min-width:220px;outline:none;
+  }
+  .search::placeholder{color:#c3d0dd}
+  .search:focus{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4)}
+  .wrap{max-width:1120px;margin:0 auto;padding:30px 24px 64px}
+  .group{margin-top:30px}
+  .group:first-child{margin-top:8px}
+  .group-head{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:16px}
+  .swatch{width:12px;height:12px;border-radius:3px;flex:0 0 auto}
+  .group-head h2{margin:0;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .group-head .count{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px}
+  .tile{
+    display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#fff;
+    background:var(--tile);border-radius:10px;padding:17px 17px 15px;min-height:112px;
+    box-shadow:var(--shadow-sm);transition:transform .12s ease,box-shadow .12s ease,filter .12s ease;
+  }
+  .tile:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:var(--shadow-lg)}
+  .tile .ic{font-size:21px;line-height:1}
+  .tile .lbl{font-weight:700;font-size:15px;letter-spacing:.005em}
+  .tile .desc{font-size:12.5px;line-height:1.42;color:rgba(255,255,255,.85)}
+  .tile .go{margin-top:auto;font-size:11.5px;font-weight:700;letter-spacing:.03em;color:rgba(255,255,255,.92)}
+  .tile.todo{background:var(--panel);color:var(--muted);border:1px dashed var(--line);box-shadow:none}
+  .tile.todo:hover{filter:none;transform:none;border-color:var(--muted)}
+  .tile.todo .desc{color:var(--muted)}
+  .tile.todo .go{color:var(--muted)}
+  footer{max-width:1120px;margin:34px auto 0;padding:0 24px}
+  .note{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;color:var(--muted);font-size:12.5px;line-height:1.6}
+  .note strong{color:var(--ink)}
+  code{background:var(--page);border:1px solid var(--line);padding:1px 6px;border-radius:5px;font-size:12px;color:var(--ink)}
+  details{margin-top:8px}
+  summary{cursor:pointer;color:var(--ink);font-weight:600}
+  .empty{color:var(--muted);font-size:13px;padding:12px 2px}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="inner">
+      <div class="brand" id="brand">IP</div>
+      <div class="titles">
+        <h1 id="title">IP Team Hub</h1>
+        <p id="subtitle">Drake Lab · One Health — central access to team resources</p>
+      </div>
+      <div class="spacer"></div>
+      <input class="search" id="search" placeholder="Search resources…" autocomplete="off">
+    </div>
+  </div>
+  <div class="wrap"><main id="board"></main></div>
+  <footer>
+    <div class="note">
+      <strong>Editing this dashboard</strong>
+      <details>
+        <summary>How to add or change a button</summary>
+        <p style="margin-top:10px">
+          Open the file in any text editor and find the <code>DATA</code> list near the top.
+          Copy one <code>{ … }</code> line and set <code>label</code> (button text),
+          <code>url</code> (the link — for a specific Google Sheet tab, copy the tab's URL ending in <code>#gid=…</code>),
+          and optionally <code>desc</code> and <code>icon</code>. Save.
+          Copy a whole <code>group</code> block to add a new color-coded section.
+          Leaving <code>url:"#"</code> keeps a button as a dashed placeholder.
+        </p>
+      </details>
+    </div>
+  </footer>
+<script>
+const DATA = {
+  brand: "IP",
+  title: "IP Team Hub",
+  subtitle: "Drake Lab · One Health — central access to team resources",
+  groups: [
+    {
+      name: "AMR Scoping Review",
+      color: "#14539a",
+      links: [
+        { icon:"🔎", label:"AMR Scoping Review", desc:"Main working space for the review", url:"#" },
+        { icon:"📄", label:"AMR Protocol", desc:"Registered protocol / methods", url:"#" },
+        { icon:"🧬", label:"Query — Search String X", desc:"Database query set X", url:"#" },
+        { icon:"🧪", label:"Query — Search String Y", desc:"Database query set Y", url:"#" },
+      ]
+    },
+    {
+      name: "Team Workbook",
+      color: "#0f7b6c",
+      links: [
+        { icon:"📘", label:"Read.me", desc:"How to use the workbook", url:"#" },
+        { icon:"🗂️", label:"Subproject Details", desc:"Objectives, members, deliverables", url:"#" },
+        { icon:"🗓️", label:"Meetings & Actions", desc:"Meeting notes and actions log", url:"#" },
+        { icon:"💬", label:"Feedback Requests", desc:"Requests for input on drafts", url:"#" },
+        { icon:"📑", label:"Manuscripts", desc:"Publication output tracker", url:"#" },
+        { icon:"💰", label:"External Proposals", desc:"Funding opportunities", url:"#" },
+      ]
+    },
+    {
+      name: "Repositories & Code",
+      color: "#5a3e99",
+      links: [
+        { icon:"🐙", label:"GitHub Repository", desc:"Analysis code / R pipeline", url:"#" },
+      ]
+    },
+    {
+      name: "Shortcuts",
+      color: "#b0561b",
+      links: [
+        { icon:"📁", label:"OneDrive Folder", desc:"Shared team files", url:"#" },
+        { icon:"✉️", label:"Team Listserv", desc:"IP-PISG-L@listserv.uga.edu", url:"mailto:IP-PISG-L@listserv.uga.edu" },
+      ]
+    },
+  ]
+};
+document.getElementById('title').textContent = DATA.title;
+document.getElementById('subtitle').textContent = DATA.subtitle;
+document.getElementById('brand').textContent = DATA.brand;
+document.title = DATA.title;
+const board = document.getElementById('board');
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function render(filter=""){
+  board.innerHTML="";
+  const f = filter.trim().toLowerCase();
+  let shown=0;
+  DATA.groups.forEach(g=>{
+    const links = g.links.filter(l=> !f || (l.label+" "+(l.desc||"")).toLowerCase().includes(f));
+    if(!links.length) return;
+    shown+=links.length;
+    const sec=document.createElement('section');
+    sec.className='group';
+    sec.innerHTML=`<div class="group-head">
+        <span class="swatch" style="background:${g.color}"></span>
+        <h2>${esc(g.name)}</h2><span class="count">${links.length}</span>
+      </div>`;
+    const grid=document.createElement('div'); grid.className='grid';
+    links.forEach(l=>{
+      const todo = !l.url || l.url==="#";
+      const a=document.createElement('a');
+      a.className='tile'+(todo?' todo':'');
+      a.href=l.url||"#";
+      if(!todo){ a.target="_blank"; a.rel="noopener"; }
+      a.style.setProperty('--tile',g.color);
+      a.innerHTML=`<span class="ic">${l.icon||"🔗"}</span>
+        <span class="lbl">${esc(l.label)}</span>
+        ${l.desc?`<span class="desc">${esc(l.desc)}</span>`:""}
+        <span class="go">${todo?"ADD LINK":"OPEN ↗"}</span>`;
+      grid.appendChild(a);
+    });
+    sec.appendChild(grid);
+    board.appendChild(sec);
+  });
+  if(!shown){ board.innerHTML=`<p class="empty">No resources match “${esc(filter)}”.</p>`; }
+}
+render();
+document.getElementById('search').addEventListener('input',e=>render(e.target.value));
+</script>
+</body>
+</html>
