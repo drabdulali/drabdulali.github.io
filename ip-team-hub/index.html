@@ -43,12 +43,15 @@
   }
   .adminlink:hover{color:var(--header-ink);border-color:rgba(255,255,255,.4)}
   .wrap{max-width:1120px;margin:0 auto;padding:30px 24px 64px}
-  .group{margin-top:30px}
+  .group{margin-top:32px}
   .group:first-child{margin-top:8px}
-  .group-head{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:16px}
+  .group-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:16px}
   .swatch{width:12px;height:12px;border-radius:3px;flex:0 0 auto}
   .group-head h2{margin:0;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
   .group-head .count{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
+  .sub-head{display:flex;align-items:center;gap:8px;margin:20px 0 12px}
+  .sub-head .dot{width:7px;height:7px;border-radius:2px;flex:0 0 auto}
+  .sub-head h3{margin:0;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px}
   .tile{
     display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#fff;
@@ -75,9 +78,13 @@
   .btn:hover{filter:brightness(1.12)}
   .btn.ghost{background:var(--panel);color:var(--ink);border-color:var(--line)}
   .btn.danger{background:#b23b32;border-color:#b23b32;color:#fff}
+  .btn.small{padding:6px 10px;font-size:11.5px}
   .swatch-input{width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:5px;background:none;cursor:pointer;flex:0 0 auto}
-  .ginput{font:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 160px;min-width:0}
-  .grouptools{display:flex;gap:8px;margin-left:auto}
+  .ginput{font:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 200px;min-width:0}
+  .grouptools{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+  .sub-edit-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:20px 0 12px}
+  .sub-edit-head .sdot{width:8px;height:8px;border-radius:2px;flex:0 0 auto}
+  .sinput{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 200px;min-width:0}
   .edit{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-sm)}
   .fld{display:flex;flex-direction:column;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
   .fld input{font:inherit;font-size:13.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
@@ -109,6 +116,8 @@
    commit to GitHub, which only you can do. ---- */
 const CONFIG = { adminKey: "drake-admin" };
 
+/* Data model: Section (group) -> Subsection -> Link (button).
+   A subsection with an empty name shows no sub-heading, just its buttons. */
 /*DATA_START*/
 const DATA = {
   brand: "IP",
@@ -118,38 +127,58 @@ const DATA = {
     {
       name: "AMR Scoping Review",
       color: "#14539a",
-      links: [
-        { label:"AMR Scoping Review", desc:"Main working space for the review", url:"#" },
-        { label:"AMR Protocol", desc:"Registered protocol / methods", url:"#" },
-        { label:"Query — Search String X", desc:"Database query set X", url:"#" },
-        { label:"Query — Search String Y", desc:"Database query set Y", url:"#" }
+      subsections: [
+        {
+          name: "",
+          links: [
+            { label:"AMR Scoping Review", desc:"Main working space for the review", url:"#" },
+            { label:"AMR Protocol", desc:"Registered protocol / methods", url:"#" },
+            { label:"Query — Search String X", desc:"Database query set X", url:"#" },
+            { label:"Query — Search String Y", desc:"Database query set Y", url:"#" }
+          ]
+        }
       ]
     },
     {
       name: "Team Workbook",
       color: "#0f7b6c",
-      links: [
-        { label:"Read.me", desc:"How to use the workbook", url:"#" },
-        { label:"Subproject Details", desc:"Objectives, members, deliverables", url:"#" },
-        { label:"Meetings & Actions", desc:"Meeting notes and actions log", url:"#" },
-        { label:"Feedback Requests", desc:"Requests for input on drafts", url:"#" },
-        { label:"Manuscripts", desc:"Publication output tracker", url:"#" },
-        { label:"External Proposals", desc:"Funding opportunities", url:"#" }
+      subsections: [
+        {
+          name: "",
+          links: [
+            { label:"Read.me", desc:"How to use the workbook", url:"#" },
+            { label:"Subproject Details", desc:"Objectives, members, deliverables", url:"#" },
+            { label:"Meetings & Actions", desc:"Meeting notes and actions log", url:"#" },
+            { label:"Feedback Requests", desc:"Requests for input on drafts", url:"#" },
+            { label:"Manuscripts", desc:"Publication output tracker", url:"#" },
+            { label:"External Proposals", desc:"Funding opportunities", url:"#" }
+          ]
+        }
       ]
     },
     {
       name: "Repositories & Code",
       color: "#5a3e99",
-      links: [
-        { label:"GitHub Repository", desc:"Analysis code / R pipeline", url:"#" }
+      subsections: [
+        {
+          name: "",
+          links: [
+            { label:"GitHub Repository", desc:"Analysis code / R pipeline", url:"#" }
+          ]
+        }
       ]
     },
     {
       name: "Shortcuts",
       color: "#b0561b",
-      links: [
-        { label:"OneDrive Folder", desc:"Shared team files", url:"#" },
-        { label:"Team Listserv", desc:"IP-PISG-L@listserv.uga.edu", url:"mailto:IP-PISG-L@listserv.uga.edu" }
+      subsections: [
+        {
+          name: "",
+          links: [
+            { label:"OneDrive Folder", desc:"Shared team files", url:"#" },
+            { label:"Team Listserv", desc:"IP-PISG-L@listserv.uga.edu", url:"mailto:IP-PISG-L@listserv.uga.edu" }
+          ]
+        }
       ]
     }
   ]
@@ -157,6 +186,25 @@ const DATA = {
 /*DATA_END*/
 
 const $ = id => document.getElementById(id);
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* Accept old (group.links) or new (group.subsections) shapes and normalise to subsections. */
+function normalize(d){
+  (d.groups||[]).forEach(g=>{
+    if(!Array.isArray(g.subsections)){
+      g.subsections = [{ name:"", links: Array.isArray(g.links)? g.links : [] }];
+    }
+    delete g.links;
+    g.subsections.forEach(s=>{
+      if(!Array.isArray(s.links)) s.links=[];
+      if(s.name==null) s.name="";
+    });
+  });
+  return d;
+}
+normalize(DATA);
+
 $('title').textContent = DATA.title;
 $('subtitle').textContent = DATA.subtitle;
 $('brand').textContent = DATA.brand;
@@ -165,42 +213,53 @@ document.title = DATA.title;
 const board = $('board');
 const searchEl = $('search');
 const adminLink = $('adminlink');
-const LS_KEY = 'ipteamhub_draft_v1';
+const LS_KEY = 'ipteamhub_draft_v2';
 let ADMIN = false, draft = null;
 
-const clone = o => JSON.parse(JSON.stringify(o));
-const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function persist(){ localStorage.setItem(LS_KEY, JSON.stringify(draft)); }
 
 /* ---------- public view ---------- */
+function tileEl(l, color){
+  const todo = !l.url || l.url==="#";
+  const a=document.createElement('a');
+  a.className='tile'+(todo?' todo':'');
+  a.href=l.url||"#";
+  if(!todo){ a.target="_blank"; a.rel="noopener"; }
+  a.style.setProperty('--tile',color);
+  a.innerHTML=`<span class="lbl">${esc(l.label)}</span>
+    ${l.desc?`<span class="desc">${esc(l.desc)}</span>`:""}
+    <span class="go">${todo?"ADD LINK":"OPEN"}</span>`;
+  return a;
+}
 function render(filter=""){
   board.innerHTML="";
   const f = filter.trim().toLowerCase();
   let shown=0;
   DATA.groups.forEach(g=>{
-    const links = g.links.filter(l=> !f || (l.label+" "+(l.desc||"")).toLowerCase().includes(f));
-    if(!links.length) return;
-    shown+=links.length;
-    const sec=document.createElement('section');
-    sec.className='group';
-    sec.innerHTML=`<div class="group-head">
-        <span class="swatch" style="background:${g.color}"></span>
-        <h2>${esc(g.name)}</h2><span class="count">${links.length}</span>
-      </div>`;
-    const grid=document.createElement('div'); grid.className='grid';
-    links.forEach(l=>{
-      const todo = !l.url || l.url==="#";
-      const a=document.createElement('a');
-      a.className='tile'+(todo?' todo':'');
-      a.href=l.url||"#";
-      if(!todo){ a.target="_blank"; a.rel="noopener"; }
-      a.style.setProperty('--tile',g.color);
-      a.innerHTML=`<span class="lbl">${esc(l.label)}</span>
-        ${l.desc?`<span class="desc">${esc(l.desc)}</span>`:""}
-        <span class="go">${todo?"ADD LINK":"OPEN"}</span>`;
-      grid.appendChild(a);
+    const subs = g.subsections.map(s=>({
+      name: s.name,
+      links: s.links.filter(l=> !f || (l.label+" "+(l.desc||"")+" "+(s.name||"")).toLowerCase().includes(f))
+    })).filter(s=> s.links.length);
+    const total = subs.reduce((n,s)=>n+s.links.length, 0);
+    if(!total) return;
+    shown += total;
+
+    const sec=document.createElement('section'); sec.className='group';
+    const head=document.createElement('div'); head.className='group-head';
+    head.innerHTML=`<span class="swatch" style="background:${g.color}"></span>
+        <h2>${esc(g.name)}</h2><span class="count">${total}</span>`;
+    sec.appendChild(head);
+
+    subs.forEach(s=>{
+      if(s.name){
+        const sh=document.createElement('div'); sh.className='sub-head';
+        sh.innerHTML=`<span class="dot" style="background:${g.color}"></span><h3>${esc(s.name)}</h3>`;
+        sec.appendChild(sh);
+      }
+      const grid=document.createElement('div'); grid.className='grid';
+      s.links.forEach(l=> grid.appendChild(tileEl(l, g.color)));
+      sec.appendChild(grid);
     });
-    sec.appendChild(grid);
     board.appendChild(sec);
   });
   if(!shown){ board.innerHTML=`<p class="empty">No resources match “${esc(filter)}”.</p>`; }
@@ -212,28 +271,50 @@ function btn(label, fn, variant){
   b.type='button'; b.className='btn'+(variant?' '+variant:''); b.textContent=label; b.onclick=fn;
   return b;
 }
-function field(label, val, oninput){
+function textInput(cls, val, oninput, id, placeholder){
+  const inp=document.createElement('input');
+  inp.className=cls; inp.value=val||''; if(id) inp.id=id; if(placeholder) inp.placeholder=placeholder;
+  inp.oninput=()=>oninput(inp.value);
+  return inp;
+}
+function colorInput(val, oninput){
+  const inp=document.createElement('input');
+  inp.type='color'; inp.className='swatch-input'; inp.value=val||'#14539a';
+  inp.oninput=()=>oninput(inp.value);
+  return inp;
+}
+function field(label, val, oninput, id){
   const wrap=document.createElement('label'); wrap.className='fld';
   const span=document.createElement('span'); span.textContent=label;
-  const inp=document.createElement('input'); inp.value=val||''; inp.oninput=()=>oninput(inp.value);
+  const inp=document.createElement('input'); inp.value=val||''; if(id) inp.id=id;
+  inp.oninput=()=>oninput(inp.value);
   wrap.append(span, inp);
   return wrap;
 }
+function focusEl(id){
+  const el=document.getElementById(id);
+  if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>el.focus(), 60); }
+}
 function renderAdmin(){
   board.innerHTML="";
+
   const bar=document.createElement('div'); bar.className='adminbar';
   const msg=document.createElement('div'); msg.className='adminmsg';
   msg.innerHTML=`<span class="tag">Admin mode</span>
     <p style="margin:11px 0 0">You are editing a <strong>local draft</strong> stored in this browser only.
-    The public page updates when you <strong>Download index.html</strong> and commit it to the
-    <code>ip-team-hub</code> folder on GitHub, or use <strong>Copy data code</strong> and paste it into
-    GitHub's web editor between the two <code>DATA</code> markers.</p>`;
+    Structure is <strong>Section &rsaquo; Subsection &rsaquo; Buttons</strong>. To publish, use
+    <strong>Download index.html</strong> and commit it to the <code>ip-team-hub</code> folder on GitHub,
+    or <strong>Copy data code</strong> and paste it into GitHub's web editor between the two
+    <code>DATA</code> markers.</p>`;
   const btns=document.createElement('div'); btns.className='adminbtns';
   btns.append(
-    btn('Add section', ()=>{ draft.groups.push({name:"NEW SECTION", color:"#14539a", links:[]}); persist(); renderAdmin(); }),
+    btn('Add section', ()=>{
+      draft.groups.push({ name:"NEW SECTION", color:"#14539a", subsections:[{name:"", links:[]}] });
+      persist(); renderAdmin(); focusEl('gn-'+(draft.groups.length-1));
+    }),
     btn('Download index.html', downloadFile),
     btn('Copy data code', copyData),
-    btn('Discard draft', ()=>{ if(confirm('Discard all local changes and reset to the published version?')){ localStorage.removeItem(LS_KEY); draft=clone(DATA); renderAdmin(); } }, 'ghost'),
+    btn('Discard draft', ()=>{ if(confirm('Discard all local changes and reset to the published version?')){ localStorage.removeItem(LS_KEY); draft=normalize(clone(DATA)); renderAdmin(); } }, 'ghost'),
     btn('Exit admin', exitAdmin, 'ghost')
   );
   bar.append(msg, btns);
@@ -241,40 +322,64 @@ function renderAdmin(){
 
   draft.groups.forEach((g, gi)=>{
     const sec=document.createElement('section'); sec.className='group';
+
     const head=document.createElement('div'); head.className='group-head';
-    const sw=document.createElement('input'); sw.type='color'; sw.className='swatch-input'; sw.value=g.color;
-    sw.oninput=()=>{ g.color=sw.value; persist(); };
-    const nm=document.createElement('input'); nm.className='ginput'; nm.value=g.name;
-    nm.oninput=()=>{ g.name=nm.value; persist(); };
-    const tools=document.createElement('div'); tools.className='grouptools';
-    tools.append(btn('Delete section', ()=>{ if(confirm('Delete this whole section?')){ draft.groups.splice(gi,1); persist(); renderAdmin(); } }, 'danger'));
-    head.append(sw, nm, tools);
+    head.append(
+      colorInput(g.color, v=>{ g.color=v; persist(); }),
+      textInput('ginput', g.name, v=>{ g.name=v; persist(); }, 'gn-'+gi, 'Section name')
+    );
+    const gtools=document.createElement('div'); gtools.className='grouptools';
+    gtools.append(
+      btn('+ Add subsection', ()=>{
+        g.subsections.push({ name:"", links:[] });
+        persist(); renderAdmin(); focusEl('sn-'+gi+'-'+(g.subsections.length-1));
+      }, 'small'),
+      btn('Delete section', ()=>{ if(confirm('Delete this whole section and everything in it?')){ draft.groups.splice(gi,1); persist(); renderAdmin(); } }, 'danger small')
+    );
+    head.appendChild(gtools);
     sec.appendChild(head);
 
-    const grid=document.createElement('div'); grid.className='grid';
-    g.links.forEach((l, li)=>{
-      const card=document.createElement('div'); card.className='edit';
-      card.append(
-        field('Button label', l.label, v=>{ l.label=v; persist(); }),
-        field('Link URL  (use # for a placeholder)', l.url, v=>{ l.url=v; persist(); }),
-        field('Description', l.desc, v=>{ l.desc=v; persist(); })
+    g.subsections.forEach((s, si)=>{
+      const shead=document.createElement('div'); shead.className='sub-edit-head';
+      const sdot=document.createElement('span'); sdot.className='sdot'; sdot.style.background=g.color;
+      shead.append(
+        sdot,
+        textInput('sinput', s.name, v=>{ s.name=v; persist(); }, 'sn-'+gi+'-'+si, 'Subsection name (optional)')
       );
-      const row=document.createElement('div'); row.className='cardtools';
-      row.append(btn('Delete', ()=>{ g.links.splice(li,1); persist(); renderAdmin(); }, 'danger'));
-      card.appendChild(row);
-      grid.appendChild(card);
-    });
-    sec.appendChild(grid);
+      const stools=document.createElement('div'); stools.className='grouptools';
+      stools.append(btn('Delete subsection', ()=>{ if(confirm('Delete this subsection and its buttons?')){ g.subsections.splice(si,1); persist(); renderAdmin(); } }, 'danger small'));
+      shead.appendChild(stools);
+      sec.appendChild(shead);
 
-    const add=document.createElement('div'); add.className='addrow';
-    add.append(btn('+ Add link', ()=>{ g.links.push({label:"New link", url:"#", desc:""}); persist(); renderAdmin(); }));
-    sec.appendChild(add);
+      const grid=document.createElement('div'); grid.className='grid';
+      s.links.forEach((l, li)=>{
+        const card=document.createElement('div'); card.className='edit';
+        card.append(
+          field('Button label', l.label, v=>{ l.label=v; persist(); }, 'll-'+gi+'-'+si+'-'+li),
+          field('Link URL  (use # for a placeholder)', l.url, v=>{ l.url=v; persist(); }),
+          field('Description', l.desc, v=>{ l.desc=v; persist(); })
+        );
+        const row=document.createElement('div'); row.className='cardtools';
+        row.append(btn('Delete', ()=>{ s.links.splice(li,1); persist(); renderAdmin(); }, 'danger small'));
+        card.appendChild(row);
+        grid.appendChild(card);
+      });
+      sec.appendChild(grid);
+
+      const add=document.createElement('div'); add.className='addrow';
+      add.append(btn('+ Add link', ()=>{
+        s.links.push({ label:"New link", url:"#", desc:"" });
+        persist(); renderAdmin(); focusEl('ll-'+gi+'-'+si+'-'+(s.links.length-1));
+      }, 'small'));
+      sec.appendChild(add);
+    });
+
     board.appendChild(sec);
   });
 }
 function enterAdmin(){
   const saved=localStorage.getItem(LS_KEY);
-  draft = saved ? JSON.parse(saved) : clone(DATA);
+  draft = saved ? normalize(JSON.parse(saved)) : normalize(clone(DATA));
   ADMIN=true; document.body.classList.add('admin'); adminLink.textContent='Exit admin';
   renderAdmin();
 }
