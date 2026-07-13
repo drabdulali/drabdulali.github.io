@@ -563,7 +563,20 @@ async function publishLive(){
     const body={ message:'Update IP Team Hub via admin panel', content:b64(src), branch:REPO.branch };
     if(sha) body.sha=sha;
     const p=await fetch(api, { method:'PUT', headers, body:JSON.stringify(body) });
-    if(!p.ok){ const t=await p.text().catch(()=>''); window.alert('Publish failed ('+p.status+').\n'+t.slice(0,300)+'\n\nYou can use "Download index.html" instead.'); return; }
+    if(!p.ok){
+      if(p.status===403 || p.status===404){
+        window.alert('Publish was refused ('+p.status+') — this token is read-only for the repo.\n\n'+
+          'Fix it on GitHub (github.com/settings/personal-access-tokens, open your token):\n'+
+          '  - Repository access: Only select repositories -> drabdulali.github.io\n'+
+          '  - Permissions: Contents = Read and write\n'+
+          'Click "Update token", then press Publish now again.\n\n'+
+          '(No need to re-paste — the token value stays the same. Use "Forget token" only if you made a brand-new token.)');
+        return;
+      }
+      const t=await p.text().catch(()=>'');
+      window.alert('Publish failed ('+p.status+').\n'+t.slice(0,300)+'\n\nYou can use "Download index.html" instead.');
+      return;
+    }
     // success: make the in-memory published data match, and clear the local draft
     const pub=currentEditData();
     DATA.title=pub.title; DATA.subtitle=pub.subtitle; DATA.brand=pub.brand; DATA.groups=clone(pub.groups);
