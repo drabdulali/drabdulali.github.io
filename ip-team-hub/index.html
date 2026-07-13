@@ -72,6 +72,7 @@
   .adminbar{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:24px;box-shadow:var(--shadow-sm)}
   .adminbar .tag{display:inline-block;background:#c0392b;color:#fff;font-weight:800;font-size:11px;letter-spacing:.08em;padding:4px 9px;border-radius:5px;text-transform:uppercase}
   .adminmsg{font-size:12.5px;line-height:1.55;color:var(--muted)}
+  .adminmsg p{margin:10px 0 0}
   .adminmsg strong{color:var(--ink)}
   .adminbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   .btn{font:inherit;font-size:12.5px;font-weight:700;letter-spacing:.02em;cursor:pointer;border:1px solid var(--header);background:var(--header);color:#fff;border-radius:7px;padding:8px 13px}
@@ -82,17 +83,30 @@
   .swatch-input{width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:5px;background:none;cursor:pointer;flex:0 0 auto}
   .ginput{font:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 200px;min-width:0}
   .grouptools{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
-  .sub-edit-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:20px 0 12px}
+  .sub-edit-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:20px 0 10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
   .sub-edit-head .sdot{width:8px;height:8px;border-radius:2px;flex:0 0 auto}
+  .sub-tag{font-size:10px;font-weight:800;letter-spacing:.07em;color:var(--muted);flex:0 0 auto}
   .sinput{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:7px 10px;flex:1 1 200px;min-width:0}
   .edit{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-sm)}
+  .edit-top{display:flex;align-items:center;gap:9px}
+  .grip{width:24px;height:22px;border:1px solid var(--line);border-radius:5px;cursor:grab;flex:0 0 auto;
+    background-image:radial-gradient(var(--muted) 1.1px, transparent 1.3px);background-size:6px 6px;background-position:center}
+  .grip:active{cursor:grabbing}
+  .edit-badge{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--muted)}
+  .edit.dragging{opacity:.4}
+  .drop-into{outline:2px dashed #c0392b;outline-offset:3px;border-radius:9px}
   .fld{display:flex;flex-direction:column;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
   .fld input{font:inherit;font-size:13.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
   .fld input:focus{outline:none;border-color:var(--muted)}
   .cardtools{display:flex;justify-content:flex-end}
-  .addrow{margin-top:12px}
+  .addrow{margin-top:12px;border:1px dashed transparent;border-radius:8px}
+  .subsection-empty{font-size:12px;line-height:1.5;color:var(--muted);border:1px dashed var(--line);border-radius:8px;padding:13px 14px;margin-bottom:4px}
   .admin .grid{grid-template-columns:repeat(auto-fill,minmax(264px,1fr))}
 
+  .draftbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:12.5px;line-height:1.5;color:var(--muted);box-shadow:var(--shadow-sm)}
+  .draftbar strong{color:var(--ink)}
+  .dtag{display:inline-block;background:#b0561b;color:#fff;font-weight:800;font-size:10px;letter-spacing:.07em;padding:3px 8px;border-radius:5px;text-transform:uppercase;margin-right:7px}
+  .draftbtns{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
   .empty{color:var(--muted);font-size:13px;padding:12px 2px}
 </style>
 </head>
@@ -214,7 +228,7 @@ const board = $('board');
 const searchEl = $('search');
 const adminLink = $('adminlink');
 const LS_KEY = 'ipteamhub_draft_v2';
-let ADMIN = false, draft = null;
+let ADMIN = false, draft = null, dragSrc = null;
 
 function persist(){ localStorage.setItem(LS_KEY, JSON.stringify(draft)); }
 
@@ -231,11 +245,32 @@ function tileEl(l, color){
     <span class="go">${todo?"ADD LINK":"OPEN"}</span>`;
   return a;
 }
+/* The public view shows your saved local edits if you have any (this browser only),
+   otherwise the published version committed to GitHub. */
+function publicData(){
+  try{ const s=localStorage.getItem(LS_KEY); if(s) return normalize(JSON.parse(s)); }catch(e){}
+  return DATA;
+}
+function hasLocalDraft(){ try{ return !!localStorage.getItem(LS_KEY); }catch(e){ return false; } }
+function draftBanner(){
+  const b=document.createElement('div'); b.className='draftbar';
+  const msg=document.createElement('div');
+  msg.innerHTML='<span class="dtag">Unpublished</span>You are viewing edits saved in <strong>this browser only</strong> — your team still sees the published version until you publish.';
+  const tools=document.createElement('div'); tools.className='draftbtns';
+  tools.append(
+    btn('Publish for everyone', downloadFile, 'small'),
+    btn('Revert to published', ()=>{ if(confirm('Discard your local edits and return to the published version?')){ try{localStorage.removeItem(LS_KEY);}catch(e){} render(searchEl.value); } }, 'ghost small')
+  );
+  b.append(msg, tools);
+  return b;
+}
 function render(filter=""){
   board.innerHTML="";
+  if(hasLocalDraft()) board.appendChild(draftBanner());
   const f = filter.trim().toLowerCase();
+  const data = publicData();
   let shown=0;
-  DATA.groups.forEach(g=>{
+  data.groups.forEach(g=>{
     const subs = g.subsections.map(s=>({
       name: s.name,
       links: s.links.filter(l=> !f || (l.label+" "+(l.desc||"")+" "+(s.name||"")).toLowerCase().includes(f))
@@ -262,7 +297,7 @@ function render(filter=""){
     });
     board.appendChild(sec);
   });
-  if(!shown){ board.innerHTML=`<p class="empty">No resources match “${esc(filter)}”.</p>`; }
+  if(!shown){ const p=document.createElement('p'); p.className='empty'; p.textContent='No resources match “'+filter+'”.'; board.appendChild(p); }
 }
 
 /* ---------- admin editor ---------- */
@@ -295,19 +330,75 @@ function focusEl(id){
   const el=document.getElementById(id);
   if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>el.focus(), 60); }
 }
+function clearDropMarks(){ document.querySelectorAll('.drop-into').forEach(x=>x.classList.remove('drop-into')); }
+
+/* Move the dragged link (identified by object identity) to a destination subsection,
+   inserting before `beforeObj` (or at the end when beforeObj is null). */
+function moveLink(src, dgi, dsi, beforeObj){
+  const sArr = draft.groups[src.gi].subsections[src.si].links;
+  const i = sArr.indexOf(src.obj);
+  if(i<0){ return; }
+  sArr.splice(i,1);
+  const dArr = draft.groups[dgi].subsections[dsi].links;
+  let idx = (beforeObj && beforeObj!==src.obj) ? dArr.indexOf(beforeObj) : dArr.length;
+  if(idx<0) idx = dArr.length;
+  dArr.splice(idx,0,src.obj);
+  dragSrc=null;
+  persist(); renderAdmin();
+}
+function makeDropTarget(el, gi, si, getBeforeObj){
+  el.addEventListener('dragover', e=>{ if(!dragSrc)return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect='move'; el.classList.add('drop-into'); });
+  el.addEventListener('dragleave', ()=>el.classList.remove('drop-into'));
+  el.addEventListener('drop', e=>{ if(!dragSrc)return; e.preventDefault(); e.stopPropagation(); el.classList.remove('drop-into'); moveLink(dragSrc, gi, si, getBeforeObj()); });
+}
+function linkCard(gi, si, l, li){
+  const card=document.createElement('div'); card.className='edit';
+  const top=document.createElement('div'); top.className='edit-top';
+  const grip=document.createElement('span'); grip.className='grip'; grip.setAttribute('draggable','true');
+  grip.title='Drag to reorder, or drop onto another section / subsection';
+  const badge=document.createElement('span'); badge.className='edit-badge'; badge.textContent='BUTTON — drag the grip to move';
+  top.append(grip, badge);
+  card.append(
+    top,
+    field('Button label', l.label, v=>{ l.label=v; persist(); }, 'll-'+gi+'-'+si+'-'+li),
+    field('Link URL  (use # for a placeholder)', l.url, v=>{ l.url=v; persist(); }),
+    field('Description', l.desc, v=>{ l.desc=v; persist(); })
+  );
+  const row=document.createElement('div'); row.className='cardtools';
+  row.append(btn('Delete', ()=>{ const arr=draft.groups[gi].subsections[si].links; const ix=arr.indexOf(l); if(ix>-1)arr.splice(ix,1); persist(); renderAdmin(); }, 'danger small'));
+  card.appendChild(row);
+
+  grip.addEventListener('dragstart', e=>{
+    dragSrc={ gi, si, obj:l };
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('text/plain','move');
+    try{ e.dataTransfer.setDragImage(card, 14, 14); }catch(_){}
+    setTimeout(()=>card.classList.add('dragging'), 0);
+  });
+  grip.addEventListener('dragend', ()=>{ card.classList.remove('dragging'); clearDropMarks(); dragSrc=null; });
+
+  // dropping onto a card inserts the dragged button before that card
+  makeDropTarget(card, gi, si, ()=>l);
+  return card;
+}
 function renderAdmin(){
   board.innerHTML="";
 
   const bar=document.createElement('div'); bar.className='adminbar';
   const msg=document.createElement('div'); msg.className='adminmsg';
   msg.innerHTML=`<span class="tag">Admin mode</span>
-    <p style="margin:11px 0 0">You are editing a <strong>local draft</strong> stored in this browser only.
-    Structure is <strong>Section &rsaquo; Subsection &rsaquo; Buttons</strong>. To publish, use
-    <strong>Download index.html</strong> and commit it to the <code>ip-team-hub</code> folder on GitHub,
-    or <strong>Copy data code</strong> and paste it into GitHub's web editor between the two
-    <code>DATA</code> markers.</p>`;
+    <p>Layout goes <strong>Section &rsaquo; Subsection &rsaquo; Buttons</strong>.
+    A <strong>Section</strong> is a big heading (e.g. &ldquo;AMR Scoping Review&rdquo;).
+    A <strong>Subsection</strong> is an optional labelled group of buttons inside a section &mdash; give it a name to
+    show a small sub-heading, or leave the name blank for no heading. <strong>Buttons</strong> are the tiles people click.</p>
+    <p>To rearrange, <strong>drag the dotted grip</strong> at the top-left of any button &mdash; reorder it within a
+    subsection, or drop it onto another subsection or section to move it there.</p>
+    <p><strong>Save</strong> keeps your edits and shows them in the normal view <strong>on this device</strong>.
+    <strong>Publish</strong> (Download index.html &rarr; commit to GitHub, or Copy data code) is what makes them
+    visible to your supervisor and team &mdash; a static page can&rsquo;t write to GitHub by itself.</p>`;
   const btns=document.createElement('div'); btns.className='adminbtns';
   btns.append(
+    btn('Save', ()=>{ persist(); window.alert('Saved. Your edits now show in the normal view on this device.\n\nTo make them visible to your supervisor and team, click “Download index.html” and commit the file to GitHub (or use “Copy data code”).'); }),
     btn('Add section', ()=>{
       draft.groups.push({ name:"NEW SECTION", color:"#14539a", subsections:[{name:"", links:[]}] });
       persist(); renderAdmin(); focusEl('gn-'+(draft.groups.length-1));
@@ -342,35 +433,36 @@ function renderAdmin(){
     g.subsections.forEach((s, si)=>{
       const shead=document.createElement('div'); shead.className='sub-edit-head';
       const sdot=document.createElement('span'); sdot.className='sdot'; sdot.style.background=g.color;
+      const stag=document.createElement('span'); stag.className='sub-tag'; stag.textContent='SUBSECTION';
       shead.append(
-        sdot,
-        textInput('sinput', s.name, v=>{ s.name=v; persist(); }, 'sn-'+gi+'-'+si, 'Subsection name (optional)')
+        sdot, stag,
+        textInput('sinput', s.name, v=>{ s.name=v; persist(); }, 'sn-'+gi+'-'+si, 'Sub-heading (optional) — e.g. Screening, Data extraction')
       );
       const stools=document.createElement('div'); stools.className='grouptools';
       stools.append(btn('Delete subsection', ()=>{ if(confirm('Delete this subsection and its buttons?')){ g.subsections.splice(si,1); persist(); renderAdmin(); } }, 'danger small'));
       shead.appendChild(stools);
+      // dropping onto the subsection header moves the button to the TOP of this subsection
+      makeDropTarget(shead, gi, si, ()=>{ const a=s.links; return (a[0]===(dragSrc&&dragSrc.obj)) ? (a[1]||null) : (a[0]||null); });
       sec.appendChild(shead);
 
       const grid=document.createElement('div'); grid.className='grid';
-      s.links.forEach((l, li)=>{
-        const card=document.createElement('div'); card.className='edit';
-        card.append(
-          field('Button label', l.label, v=>{ l.label=v; persist(); }, 'll-'+gi+'-'+si+'-'+li),
-          field('Link URL  (use # for a placeholder)', l.url, v=>{ l.url=v; persist(); }),
-          field('Description', l.desc, v=>{ l.desc=v; persist(); })
-        );
-        const row=document.createElement('div'); row.className='cardtools';
-        row.append(btn('Delete', ()=>{ s.links.splice(li,1); persist(); renderAdmin(); }, 'danger small'));
-        card.appendChild(row);
-        grid.appendChild(card);
-      });
+      s.links.forEach((l, li)=> grid.appendChild(linkCard(gi, si, l, li)));
       sec.appendChild(grid);
+
+      if(s.links.length===0){
+        const em=document.createElement('div'); em.className='subsection-empty';
+        em.textContent='No buttons here yet. Use “+ Add link” below to create one — or drag a button in from another section.';
+        makeDropTarget(em, gi, si, ()=>null);
+        sec.appendChild(em);
+      }
 
       const add=document.createElement('div'); add.className='addrow';
       add.append(btn('+ Add link', ()=>{
         s.links.push({ label:"New link", url:"#", desc:"" });
         persist(); renderAdmin(); focusEl('ll-'+gi+'-'+si+'-'+(s.links.length-1));
       }, 'small'));
+      // dropping onto the add-link row appends the button to the END of this subsection
+      makeDropTarget(add, gi, si, ()=>null);
       sec.appendChild(add);
     });
 
@@ -393,7 +485,8 @@ function promptAdmin(){
   if(key===CONFIG.adminKey) enterAdmin();
   else window.alert('Incorrect key.');
 }
-function dataBlock(){ return 'const DATA = ' + JSON.stringify(draft, null, 2) + ';'; }
+function currentEditData(){ return draft || publicData(); }
+function dataBlock(){ return 'const DATA = ' + JSON.stringify(currentEditData(), null, 2) + ';'; }
 async function copyData(){
   const block=dataBlock();
   try{
